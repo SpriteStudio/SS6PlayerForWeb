@@ -31,7 +31,7 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts' 'Tools/**/*.ts'",
     "prebuild": "rimraf dist",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "docs": "typedoc --out docs/api --target es6 --theme minimal --mode file src",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server\" \"opener http://localhost:8080/Player/index.html\"",
