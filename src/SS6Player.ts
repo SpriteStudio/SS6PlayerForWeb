@@ -3,6 +3,7 @@ import { SS6Project } from './SS6Project';
 
 export class SS6Player extends PIXI.Container {
   // Properties
+  private renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer;
   private readonly ss6project: SS6Project;
   private readonly fbObj: ss.ssfb.ProjectData;
   private readonly resources: PIXI.loaders.ResourceDictionary;
@@ -19,6 +20,15 @@ export class SS6Player extends PIXI.Container {
   private defaultFrameMap: any[] = [];
 
   private parentAlpha: number = 1.0;
+
+  // マスク用
+  private numMask: number;
+  // マスク用のメッシュを入れるコンテナ 入れ子構造にする メッシュは入れなおさないといけないかもしれない(置きなおしが必要)
+  private maskerContainer: PIXI.Container[] = [];
+  // コンテナに対応するレンダーテクスチャ 使いまわせる 最大でマスクの数だけ必要
+  private renderTexture: PIXI.RenderTexture[] = [];
+  // レンダーテクスチャに対応するスプライト 上に対応しているので使いまわせる
+  private renderSprite: PIXI.Sprite[] = [];
 
   //
   // cell再利用
@@ -78,11 +88,22 @@ export class SS6Player extends PIXI.Container {
 
     // extends PIXI.Container
     PIXI.Container.call(this);
+    this.renderer = PIXI.autoDetectRenderer(1024, 1024);
 
     this.ss6project = ss6project;
     this.fbObj = this.ss6project.fbObj;
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
+
+    // mask
+    // rtとrsはnumMask個までしか必要にならないので以降は使いまわし(初期化もいらない)
+    this.numMask = this.GetNumberOfMask();
+    this.renderTexture = new Array();
+    this.renderSprite = new Array();
+    for (let i = 0; i < this.numMask; i++) {
+      this.renderTexture.push(PIXI.RenderTexture.create(1024, 1024));
+      this.renderSprite.push(new PIXI.Sprite(this.renderTexture[this.renderTexture.length - 1]));
+    }
 
     this.Setup(animePackName, animeName);
 
@@ -751,6 +772,18 @@ export class SS6Player extends PIXI.Container {
     return data;
   }
 
+  private GetNumberOfMask(): number {
+    let n = 0;
+
+    let partsLength = this.fbObj.animePacks(this.parts).partsLength();
+    for (let i = 0; i < partsLength; i++) {
+      if (this.fbObj.animePacks(this.parts).parts(i).type() === 9) {
+        n++;
+      }
+    }
+    return n;
+  }
+
   /**
    * １フレーム分のアニメーション描画
    * @param {number} frameNumber - フレーム番号
@@ -758,6 +791,15 @@ export class SS6Player extends PIXI.Container {
   private SetFrameAnimation(frameNumber: number): void {
     const fd = this.GetFrameData(frameNumber);
     this.removeChildren();
+
+    this.maskerContainer = new Array();
+    this.maskerContainer.push(new PIXI.Container);
+    let ctbase = new PIXI.Sprite(PIXI.Texture.WHITE);
+    ctbase.x = -400;
+    ctbase.y = -400;
+    ctbase.width = 800;
+    ctbase.height = 800;
+    this.maskerContainer[this.maskerContainer.length - 1].addChild(ctbase);
 
     let prevtype = -1; // prev parttype
 
@@ -1112,6 +1154,59 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+    // 優先逆順ループ
+    for (let ii: number = fd.length - 1; ii > 0; ii = (ii - 1) | 0) {
+      // 優先度に変換
+      let i = this.prio2index[frameNumber][ii];
+
+      let data = fd[i];
+      const cellID = data.cellIndex;
+
+      // cell再利用
+      let mesh: any = this.prevMesh[i];
+
+      let part = this.fbObj.animePacks(this.parts).parts(i);
+      let partType = part.type();
+      // マスク関係処理
+      switch (partType) {
+        case TYPE_MASK: {
+          let myMask = new PIXI.filters.ColorMatrixFilter();
+          // マスクはone-minusにより反転し、十分に大きな値をかけた後にオフセットを足すことで閾値処理を実現している。
+          // 値を-512倍することで傾きを整数で見て十分に無限大にし、また符号を反転している。
+          // ssのマスクはalpha+masklimen>=255ならclipする処理、と書かれているがどうも違う。
+          // pixi.jsのmaskはチャンネルごとに乗算
+          myMask.matrix = [0, 0, 0, -512, Math.round((512 * (256 - data.masklimen)) / 255), 0, 0, 0, -512, Math.round((512 * (256 - data.masklimen)) / 255), 0, 0, 0, -512, Math.round((512 * (256 - data.masklimen)) / 255), 0, 0, 0, 0, 1];
+          myMask.blendMode = PIXI.BLEND_MODES.MULTIPLY;     // コンテナ側に適用すべき？機能する？
+          mesh.filters = [myMask];
+          if (prevtype !== TYPE_MASK) {
+            // コンテナ新規追加
+            this.maskerContainer.push(new PIXI.Container);
+            this.maskerContainer[this.maskerContainer.length - 2].addChild(this.maskerContainer[this.maskerContainer.length - 1]);
+          }
+          // コンテナにマスク追加
+          this.maskerContainer[this.maskerContainer.length - 1].addChild(mesh);
+          prevtype = partType;
+          break;
+        }
+        case TYPE_NULL:
+          prevtype = partType;
+          break;
+        default:
+          {
+            // render spriteをmaskとして設定する
+            if (prevtype !== -1) {
+              mesh.mask = this.renderSprite[this.maskerContainer.length - 1];
+            }
+            prevtype = partType;
+            break;
+          }
+      }
+    }
+    // レンダーテクスチャのレンダリング
+    for (let i = 0; i < this.maskerContainer.length; i++) {
+      this.renderer.render(this.maskerContainer[i], this.renderTexture[i]);
+    }
+    this.addChild(this.renderSprite[0]);
   }
 
   /**
