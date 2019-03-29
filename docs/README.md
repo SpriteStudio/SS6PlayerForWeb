@@ -1,2 +1,2 @@
-[API Reference](./api/index.html)
-### TEST
+- [API Reference](./api/index.html)
+- [Sample Page](./Player/index.html)
