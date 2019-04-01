@@ -12,7 +12,8 @@
 
 // Test data switcher
 //var testVersion = "sampleAnimation1";
-var testVersion = "sampleAnimation2";
+//var testVersion = "sampleAnimation2";
+var testVersion = "sampleAnimation3";
 
 // Say Hello
 // （動作には関係ないPIXI.jsのバージョン表示）
@@ -35,6 +36,9 @@ switch (testVersion) {
   case "sampleAnimation2":
     var mySS6Project = new ss6Player.SS6Project("./AnimeMaking/AnimeMaking.ssbp.ssfb");
     break;
+  case "sampleAnimation3":
+    var mySS6Project = new ss6Player.SS6Project("./MeshBone/Knight.ssbp.ssfb");
+    break;
   default:
     break;
 }
@@ -47,6 +51,9 @@ mySS6Project.OnComplete = function() {
       break;
     case "sampleAnimation2":
       Play_sampleAnimation2();
+      break;
+    case "sampleAnimation3":
+      Play_sampleAnimation3();
       break;
     default:
       break;
@@ -100,5 +107,18 @@ function Play_sampleAnimation2() {
           mySS6Player.Play();
       }
   */
+}
+
+// プレイヤーの使用方法サンプル
+function Play_sampleAnimation3() {
+  {
+    var mySS6Player = new ss6Player.SS6Player(mySS6Project, "Knight_lance", "Lance_Attack");
+    mySS6Player.position = new PIXI.Point(320, 480);
+    mySS6Player.scale = new PIXI.Point(0.5, 0.5);
+    app.stage.addChild(mySS6Player);
+
+    // 再生開始
+    mySS6Player.Play();
+  }
 }
 
