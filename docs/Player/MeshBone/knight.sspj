@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <SpriteStudioProject version="2.00.00">
-	<name>ss6ptest</name>
+	<name>knight</name>
 	<exportPath></exportPath>
 	<settings>
 		<animeBaseDirectory></animeBaseDirectory>
@@ -48,9 +48,6 @@
 			<item>CELL</item>
 			<item>POSX</item>
 			<item>POSY</item>
-			<item>POSZ</item>
-			<item>ROTX</item>
-			<item>ROTY</item>
 			<item>ROTZ</item>
 			<item>SCLX</item>
 			<item>SCLY</item>
@@ -59,26 +56,11 @@
 			<item>ALPH</item>
 			<item>LALP</item>
 			<item>PRIO</item>
-			<item>IFLH</item>
-			<item>IFLV</item>
-			<item>FLPH</item>
-			<item>FLPV</item>
 			<item>HIDE</item>
 			<item>PCOL</item>
-			<item>VCOL</item>
 			<item>VERT</item>
-			<item>PVTX</item>
-			<item>PVTY</item>
-			<item>ANCX</item>
-			<item>ANCY</item>
 			<item>SIZX</item>
 			<item>SIZY</item>
-			<item>UVTX</item>
-			<item>UVTY</item>
-			<item>UVRZ</item>
-			<item>UVSX</item>
-			<item>UVSY</item>
-			<item>BNDR</item>
 			<item>MASK</item>
 			<item>USER</item>
 			<item>IPRM</item>
@@ -94,6 +76,9 @@
 			<item>POSX</item>
 			<item>POSY</item>
 			<item>ROTZ</item>
+			<item>SCLX</item>
+			<item>SCLY</item>
+			<item>ALPH</item>
 			<item>PRIO</item>
 			<item>HIDE</item>
 		</defaultSetAttributes>
@@ -128,16 +113,16 @@
 	</settings>
 	<animeSettings>
 		<fps>30</fps>
-		<frameCount>11</frameCount>
+		<frameCount>61</frameCount>
 		<sortMode>prio</sortMode>
-		<canvasSize>320 320</canvasSize>
+		<canvasSize>640 480</canvasSize>
 		<pivot>0 0</pivot>
 		<bgColor>FF323232</bgColor>
 		<gridSize>32</gridSize>
 		<gridColor>FF808080</gridColor>
 		<ik_depth>3</ik_depth>
 		<startFrame>0</startFrame>
-		<endFrame>10</endFrame>
+		<endFrame>60</endFrame>
 		<outStartNum>0</outStartNum>
 	</animeSettings>
 	<texPackSettings>
@@ -148,15 +133,22 @@
 		<padding>1</padding>
 	</texPackSettings>
 	<cellmapNames>
-		<value>ss6psheet.ssce</value>
+		<value>Effect.ssce</value>
+		<value>Knight.ssce</value>
 	</cellmapNames>
 	<animepackNames>
-		<value>ss6panime.ssae</value>
+		<value>Knight_arrow.ssae</value>
+		<value>Knight_bomb.ssae</value>
+		<value>Knight_lance.ssae</value>
 	</animepackNames>
-	<lastAnimeFile>ss6panime.ssae</lastAnimeFile>
-	<lastAnimeName>basic</lastAnimeName>
-	<lastCellMapFile>ss6psheet.ssce</lastCellMapFile>
-	<lastCell>bat</lastCell>
-	<lastPart>bat</lastPart>
+	<effectFileNames>
+		<value>Flame_effect.ssee</value>
+	</effectFileNames>
+	<lastAnimeFile>Knight_arrow.ssae</lastAnimeFile>
+	<lastAnimeName>Arrow_Attack</lastAnimeName>
+	<lastCellMapFile>Knight.ssce</lastCellMapFile>
+	<lastEffectFile>Flame_effect.ssee</lastEffectFile>
+	<lastCell>Head</lastCell>
+	<lastPart>Head</lastPart>
 	<setupmode>0</setupmode>
 </SpriteStudioProject>
