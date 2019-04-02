@@ -85,5 +85,6 @@
 		<convertImageToPMA>0</convertImageToPMA>
 		<blendImageAsPMA>0</blendImageAsPMA>
 		<unpremultiplyAlpha>0</unpremultiplyAlpha>
+		<tags>official</tags>
 	</item>
 </list>
