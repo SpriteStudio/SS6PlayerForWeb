@@ -31,13 +31,13 @@ document.body.appendChild(app.view);
 // ssbpをコンバートしたjsonファイルを指定
 switch (testVersion) {
   case "sampleAnimation1":
-    var mySS6Project = new ss6Player.SS6Project("./character_sample1/character_sample1.ssbp.ssfb");
+    var mySS6Project = new ss6PlayerPixi.SS6Project("./character_sample1/character_sample1.ssbp.ssfb");
     break;
   case "sampleAnimation2":
-    var mySS6Project = new ss6Player.SS6Project("./AnimeMaking/AnimeMaking.ssbp.ssfb");
+    var mySS6Project = new ss6PlayerPixi.SS6Project("./AnimeMaking/AnimeMaking.ssbp.ssfb");
     break;
   case "sampleAnimation3":
-    var mySS6Project = new ss6Player.SS6Project("./MeshBone/Knight.ssbp.ssfb");
+    var mySS6Project = new ss6PlayerPixi.SS6Project("./MeshBone/Knight.ssbp.ssfb");
     break;
   default:
     break;
@@ -63,7 +63,7 @@ mySS6Project.OnComplete = function() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation1() {
   {
-    var mySS6Player = new ss6Player.SS6Player(mySS6Project, "character_template_3head", "attack1");
+    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project, "character_template_3head", "attack1");
     mySS6Player.position = new PIXI.Point(320, 480);
     mySS6Player.scale = new PIXI.Point(0.5, 0.5);
     app.stage.addChild(mySS6Player);
@@ -90,7 +90,7 @@ function Play_sampleAnimation1() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation2() {
   {
-    var mySS6Player = new ss6Player.SS6Player(mySS6Project, "AnimeMaking", "06_pose");
+    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project, "AnimeMaking", "06_pose");
     mySS6Player.position = new PIXI.Point(240, 320);
     app.stage.addChild(mySS6Player);
 
@@ -112,7 +112,7 @@ function Play_sampleAnimation2() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation3() {
   {
-    var mySS6Player = new ss6Player.SS6Player(mySS6Project, "Knight_lance", "Lance_Attack");
+    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project, "Knight_lance", "Lance_Attack");
     mySS6Player.position = new PIXI.Point(320, 480);
     mySS6Player.scale = new PIXI.Point(0.5, 0.5);
     app.stage.addChild(mySS6Player);
