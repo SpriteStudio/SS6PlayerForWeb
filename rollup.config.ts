@@ -8,7 +8,7 @@ import license from 'rollup-plugin-license'
 
 const pkg = require('./package.json')
 
-const libraryName = 'ss6player'
+const libraryName = 'ss6player-pixi'
 
 export default {
   input: `src/index.ts`,
