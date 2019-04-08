@@ -27,24 +27,8 @@ var app = new PIXI.Application(640, 640, {
 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
 document.body.appendChild(app.view);
 
-// Initialize SS6 Project (json file path)
-// ssbpをコンバートしたjsonファイルを指定
-switch (testVersion) {
-  case "sampleAnimation1":
-    var mySS6Project = new ss6PlayerPixi.SS6Project("./character_sample1/character_sample1.ssbp.ssfb");
-    break;
-  case "sampleAnimation2":
-    var mySS6Project = new ss6PlayerPixi.SS6Project("./AnimeMaking/AnimeMaking.ssbp.ssfb");
-    break;
-  case "sampleAnimation3":
-    var mySS6Project = new ss6PlayerPixi.SS6Project("./MeshBone/Knight.ssbp.ssfb");
-    break;
-  default:
-    break;
-}
-
 // 読込完了コールバック
-mySS6Project.OnComplete = function() {
+var onComplete = function() {
   switch (testVersion) {
     case "sampleAnimation1":
       Play_sampleAnimation1();
@@ -58,7 +42,26 @@ mySS6Project.OnComplete = function() {
     default:
       break;
   }
+};
+
+// Initialize SS6 Project (json file path)
+// ssbpをコンバートしたjsonファイルを指定
+var ssfbFile;
+switch (testVersion) {
+  case "sampleAnimation1":
+    ssfbFile = "./character_sample1/character_sample1.ssbp.ssfb";
+    break;
+  case "sampleAnimation2":
+    ssfbFile = "./AnimeMaking/AnimeMaking.ssbp.ssfb";
+    break;
+  case "sampleAnimation3":
+    ssfbFile = "./MeshBone/Knight.ssbp.ssfb";
+    break;
+  default:
+    ssfbFile = "";
+    break;
 }
+var mySS6Project = new ss6PlayerPixi.SS6Project(ssfbFile, onComplete);
 
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation1() {
