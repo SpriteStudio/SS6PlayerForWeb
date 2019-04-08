@@ -5,19 +5,39 @@ export class SS6Project {
   public fbObj: ss.ssfb.ProjectData;
   public resources: PIXI.loaders.ResourceDictionary;
   public status: string;
+  private onComplete: () => void; // ()
+  private onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  private onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  private onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
 
   /**
    * SS6Project (used for several SS6Player(s))
    * @constructor
    * @param {string} ssfbPath - FlatBuffers file path
+   * @param onComplete - callback on complete
+   * @param timeout
+   * @param retry
+   * @param onError - callback on error
+   * @param onTimeout - callback on timeout
+   * @param onRetry - callback on retry
    */
-  public constructor(ssfbPath: string) {
+  public constructor(ssfbPath: string,
+                     onComplete: () => void,
+                     timeout: number = 0,
+                     retry: number = 0,
+                     onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
+                     onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
+                     onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null) {
     const index = ssfbPath.lastIndexOf('/');
     this.rootPath = ssfbPath.substring(0, index) + '/';
 
     this.status = 'not ready'; // status
 
-    this.LoadFlatBuffersProject(ssfbPath);
+    this.onComplete = onComplete;
+    this.onError = onError;
+    this.onTimeout = onTimeout;
+    this.onRetry = onRetry;
+    this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
   }
 
   /**
@@ -42,15 +62,21 @@ export class SS6Project {
     };
     httpObj.ontimeout = function() {
       if (retry > 0) {
-        self.OnRetry(ssfbPath, timeout, retry - 1, httpObj);
+        if (self.onRetry !== null) {
+          self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
+        }
         self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
       } else {
-        self.OnTimeout(ssfbPath, timeout, retry, httpObj);
+        if (self.onTimeout !== null) {
+          self.onTimeout(ssfbPath, timeout, retry, httpObj);
+        }
       }
     };
 
     httpObj.onerror = function() {
-      self.OnError(ssfbPath, timeout, retry, httpObj);
+      if (self.onTimeout !== null) {
+        self.onError(ssfbPath, timeout, retry, httpObj);
+      }
     };
 
     httpObj.send(null);
@@ -76,44 +102,9 @@ export class SS6Project {
       // SS6Project is ready.
       self.resources = resources;
       self.status = 'ready';
-      self.OnComplete();
+      if (self.onComplete !== null) {
+        self.onComplete();
+      }
     });
   }
-
-  /**
-   * Callback on complete
-   */
-  public OnComplete() {
-    // console.log("on complete : " + this.rootPath);
-  }
-
-  /**
-   * Callback on error
-   *
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param {Number} timeout - timeout ms
-   * @param {Number} retry - retry count
-   * @param {XMLHttpRequest} httpObj - XMLHttpRequest instance
-   */
-  public OnError(ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) {}
-
-  /**
-   * Callback on timeout
-   *
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param {Number} timeout - timeout ms
-   * @param {Number} retry - retry count
-   * @param {XMLHttpRequest} httpObj - XMLHttpRequest instance
-   */
-  public OnTimeout(ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) {}
-
-  /**
-   * Callback on retry
-   *
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param {Number} timeout - timeout ms
-   * @param {Number} retry - retry count
-   * @param {XMLHttpRequest} httpObj - XMLHttpRequest instance
-   */
-  public OnRetry(ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) {}
 }
