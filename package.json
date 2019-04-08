@@ -1,10 +1,15 @@
 {
   "name": "ss6player-pixi",
   "version": "1.0.0",
-  "description": "SS6Player for Web",
+  "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
-    "SSPlayer"
+    "SS6Player",
+    "2D",
+    "Animation",
+    "Sprite",
+    "Skeletal",
+    "pixi"
   ],
   "main": "dist/ss6player-pixi.umd.js",
   "module": "dist/ss6player-pixi.es5.js",
@@ -14,8 +19,7 @@
   },
   "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
   "files": [
-    "dist",
-    "Tools"
+    "dist"
   ],
   "author": {
     "name": "Web Technology Corp.",
