@@ -74,8 +74,8 @@ export class SS6Project {
     };
 
     httpObj.onerror = function() {
-      if(self.onTimeout !== null) {
-        self.onError(ssfbPath, timeout, retry, httpObj)
+      if (self.onTimeout !== null) {
+        self.onError(ssfbPath, timeout, retry, httpObj);
       }
     };
 
@@ -102,7 +102,7 @@ export class SS6Project {
       // SS6Project is ready.
       self.resources = resources;
       self.status = 'ready';
-      if(self.onComplete !== null) {
+      if (self.onComplete !== null) {
         self.onComplete();
       }
     });
