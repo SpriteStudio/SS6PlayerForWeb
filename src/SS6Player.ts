@@ -37,6 +37,7 @@ export class SS6Player extends PIXI.Container {
   private updateInterval: number;
   private playDirection: number;
   private pastTime: number;
+  private onUserDataCallback: (data: any) => void;
 
   public get startFrame(): number {
     return this._startFrame;
@@ -98,6 +99,7 @@ export class SS6Player extends PIXI.Container {
     this.skipEnabled = false;
     this.updateInterval = 1000 / this.curAnimation.fps();
     this.playDirection = 1; // forward
+    this.onUserDataCallback = null;
 
     // Ticker
     this.pastTime = 0;
@@ -179,7 +181,9 @@ export class SS6Player extends PIXI.Container {
         this.SetFrameAnimation(this._currentFrame);
         if (this.isPlaying) {
           if (this.HaveUserData(this._currentFrame)) {
-            this.OnUserData(this.GetUserData(this._currentFrame));
+            if (this.onUserDataCallback !== null) {
+              this.onUserDataCallback(this.GetUserData(this._currentFrame));
+            }
           }
         }
       }
@@ -243,7 +247,9 @@ export class SS6Player extends PIXI.Container {
     this.pastTime = Date.now();
     this.SetFrameAnimation(this._currentFrame);
     if (this.HaveUserData(this._currentFrame)) {
-      this.OnUserData(this.GetUserData(this._currentFrame));
+      if (this.onUserDataCallback !== null) {
+        this.onUserDataCallback(this.GetUserData(this._currentFrame));
+      }
     }
     const layers = this.curAnimation.defaultDataLength();
     for (let i = 0; i < layers; i++) {
@@ -295,26 +301,28 @@ export class SS6Player extends PIXI.Container {
   }
 
   /**
-   * ユーザーデータコールバック
-   * @param {array} data - ユーザーデータ
+   * ユーザーデータコールバックの設定
+   * @param fn
+   * @constructor
+   *
+   * ユーザーデータのフォーマット
+   * data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
+   * data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
+   * d0 : パーツ（レイヤー）番号
+   * d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
+   * d2 : int(int)
+   * d3 : rect0(int)
+   * d4 : rect1(int)
+   * d5 : rect2(int)
+   * d6 : rect3(int)
+   * d7 : pos0(int)
+   * d8 : pos1(int)
+   * d9 : string.length(int)
+   * d10: string(string)
+   *
    */
-  public OnUserData(data: any): void {
-    /*
-        ユーザーデータのフォーマット
-        data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
-        data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
-        d0 : パーツ（レイヤー）番号
-        d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
-        d2 : int(int)
-        d3 : rect0(int)
-        d4 : rect1(int)
-        d5 : rect2(int)
-        d6 : rect3(int)
-        d7 : pos0(int)
-        d8 : pos1(int)
-        d9 : string.length(int)
-        d10: string(string)
-    */
+  public SetUserDataCalback(fn: (data: any) => void): void {
+    this.onUserDataCallback = fn;
   }
 
   /**

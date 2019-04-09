@@ -73,9 +73,9 @@ function Play_sampleAnimation1() {
 
     // [任意]ユーザーデータコールバック
     // ※Play前に設定しないと開始フレームのデータが漏れるので注意
-    mySS6Player.OnUserData = function(userDataArray) {
+    mySS6Player.SetUserDataCalback(function(userDataArray) {
       // console.log(userDataArray);
-    }
+    });
 
     // [任意]再生速度(SS設定値への乗率、負設定で逆再生)とフレームスキップの可否(初期値はfalse)を設定
     // フレームスキップ：trueで処理落ちでフレームスキップ、falseで処理落ちでもフレームスキップしない
