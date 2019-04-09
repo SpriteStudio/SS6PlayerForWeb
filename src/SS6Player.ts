@@ -38,6 +38,7 @@ export class SS6Player extends PIXI.Container {
   private playDirection: number;
   private pastTime: number;
   private onUserDataCallback: (data: any) => void;
+  private playEndCallback: (player: SS6Player) => void;
 
   public get startFrame(): number {
     return this._startFrame;
@@ -100,6 +101,7 @@ export class SS6Player extends PIXI.Container {
     this.updateInterval = 1000 / this.curAnimation.fps();
     this.playDirection = 1; // forward
     this.onUserDataCallback = null;
+    this.playEndCallback = null;
 
     // Ticker
     this.pastTime = 0;
@@ -169,14 +171,28 @@ export class SS6Player extends PIXI.Container {
         // speed +
         if (this._currentFrame > this._endFrame) {
           this._currentFrame = this._startFrame + ((this._currentFrame - this._endFrame - 1) % (this._endFrame - this._startFrame + 1));
-          this._loops--;
-          if (this._loops === 0) this.isPlaying = false;
+          if (this._loops === -1) {
+            // infinite loop
+          } else {
+            this._loops--;
+            if (this.playEndCallback !== null) {
+              this.playEndCallback(this);
+            }
+            if (this._loops === 0) this.isPlaying = false;
+          }
         }
         // speed -
         if (this._currentFrame < this._startFrame) {
           this._currentFrame = this._endFrame - ((this._startFrame - this._currentFrame - 1) % (this._endFrame - this._startFrame + 1));
-          this._loops--;
-          if (this._loops === 0) this.isPlaying = false;
+          if (this._loops === -1) {
+            // infinite loop
+          } else {
+            this._loops--;
+            if (this.playEndCallback !== null) {
+              this.playEndCallback(this);
+            }
+            if (this._loops === 0) this.isPlaying = false;
+          }
         }
         this.SetFrameAnimation(this._currentFrame);
         if (this.isPlaying) {
@@ -323,6 +339,19 @@ export class SS6Player extends PIXI.Container {
    */
   public SetUserDataCalback(fn: (data: any) => void): void {
     this.onUserDataCallback = fn;
+  }
+
+  /**
+   * 再生終了時に呼び出されるコールバックを設定します.
+   * @param fn
+   * @constructor
+   *
+   * ループ回数分再生した後に呼び出される点に注意してください。
+   * 無限ループで再生している場合はコールバックが発生しません。
+   *
+   */
+  public SetPlayEndCallback(fn: (player: SS6Player) => void): void {
+    this.playEndCallback = fn;
   }
 
   /**
