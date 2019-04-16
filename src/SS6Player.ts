@@ -434,6 +434,8 @@ export class SS6Player extends PIXI.Container {
     return this._float32[0];
   }
 
+  private defaultColorFilter: PIXI.filters.ColorMatrixFilter = new PIXI.filters.ColorMatrixFilter();
+
   /**
    * １フレーム分のデータを取得する（未設定項目はデフォルト）
    * [注意]現verでは未対応項目があると正常動作しない可能性があります
@@ -564,29 +566,34 @@ export class SS6Player extends PIXI.Container {
             fd.colorMatrix = this.GetColorMatrixFilter(blendType, rate, argb32);
           }
         }
+
         if (f & 0x0800) {
           // LT color
           id++;
           id++;
           id++;
+          fd.colorMatrix = this.defaultColorFilter; // TODO
         }
         if (f & 0x0400) {
           // RT color
           id++;
           id++;
           id++;
+          fd.colorMatrix = this.defaultColorFilter; // TODO
         }
         if (f & 0x0200) {
           // LB color
           id++;
           id++;
           id++;
+          fd.colorMatrix = this.defaultColorFilter; // TODO
         }
         if (f & 0x0100) {
           // RB color
           id++;
           id++;
           id++;
+          fd.colorMatrix = this.defaultColorFilter; // TODO
         }
       }
       if (f2 & 0b0000000000000001) {
