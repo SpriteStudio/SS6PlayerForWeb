@@ -13,7 +13,7 @@ var ss = ss || {};
 ss.ssfb = ss.ssfb || {};
 
 /**
- * @enum
+ * @enum {number}
  */
 ss.ssfb.SsPartType = {
   Invalid: -1,
@@ -32,7 +32,26 @@ ss.ssfb.SsPartType = {
 };
 
 /**
- * @enum
+ * @enum {string}
+ */
+ss.ssfb.SsPartTypeName = {
+  -1: 'Invalid',
+  0: 'Nulltype',
+  1: 'Normal',
+  2: 'Text',
+  3: 'Instance',
+  4: 'Armature',
+  5: 'Effect',
+  6: 'Mesh',
+  7: 'Movenode',
+  8: 'Constraint',
+  9: 'Mask',
+  10: 'Joint',
+  11: 'Bonepoint'
+};
+
+/**
+ * @enum {number}
  */
 ss.ssfb.PART_FLAG = {
   INVISIBLE: 1,
@@ -70,14 +89,59 @@ ss.ssfb.PART_FLAG = {
 };
 
 /**
- * @enum
+ * @enum {string}
+ */
+ss.ssfb.PART_FLAGName = {
+  1: 'INVISIBLE',
+  2: 'FLIP_H',
+  4: 'FLIP_V',
+  8: 'CELL_INDEX',
+  16: 'POSITION_X',
+  32: 'POSITION_Y',
+  64: 'POSITION_Z',
+  128: 'PIVOT_X',
+  256: 'PIVOT_Y',
+  512: 'ROTATIONX',
+  1024: 'ROTATIONY',
+  2048: 'ROTATIONZ',
+  4096: 'SCALE_X',
+  8192: 'SCALE_Y',
+  16384: 'LOCALSCALE_X',
+  32768: 'LOCALSCALE_Y',
+  65536: 'OPACITY',
+  131072: 'LOCALOPACITY',
+  262144: 'PARTS_COLOR',
+  524288: 'VERTEX_TRANSFORM',
+  1048576: 'SIZE_X',
+  2097152: 'SIZE_Y',
+  4194304: 'U_MOVE',
+  8388608: 'V_MOVE',
+  16777216: 'UV_ROTATION',
+  33554432: 'U_SCALE',
+  67108864: 'V_SCALE',
+  134217728: 'BOUNDINGRADIUS',
+  268435456: 'MASK',
+  536870912: 'PRIORITY',
+  1073741824: 'INSTANCE_KEYFRAME',
+  2147483648: 'EFFECT_KEYFRAME'
+};
+
+/**
+ * @enum {number}
  */
 ss.ssfb.PART_FLAG2 = {
   MESHDATA: 1
 };
 
 /**
- * @enum
+ * @enum {string}
+ */
+ss.ssfb.PART_FLAG2Name = {
+  1: 'MESHDATA'
+};
+
+/**
+ * @enum {number}
  */
 ss.ssfb.VERTEX_FLAG = {
   LT: 1,
@@ -88,7 +152,18 @@ ss.ssfb.VERTEX_FLAG = {
 };
 
 /**
- * @enum
+ * @enum {string}
+ */
+ss.ssfb.VERTEX_FLAGName = {
+  1: 'LT',
+  2: 'RT',
+  4: 'LB',
+  8: 'RB',
+  16: 'ONE'
+};
+
+/**
+ * @enum {number}
  */
 ss.ssfb.EffectNodeBehavior = {
   NONE: 0,
@@ -112,7 +187,31 @@ ss.ssfb.EffectNodeBehavior = {
 };
 
 /**
- * @enum
+ * @enum {string}
+ */
+ss.ssfb.EffectNodeBehaviorName = {
+  0: 'NONE',
+  1: 'EffectParticleElementBasic',
+  2: 'EffectParticleElementRndSeedChange',
+  3: 'EffectParticleElementDelay',
+  4: 'EffectParticleElementGravity',
+  5: 'EffectParticleElementPosition',
+  6: 'EffectParticleElementRotation',
+  7: 'EffectParticleElementRotationTrans',
+  8: 'EffectParticleElementTransSpeed',
+  9: 'EffectParticleElementTangentialAcceleration',
+  10: 'EffectParticleElementInitColor',
+  11: 'EffectParticleElementTransColor',
+  12: 'EffectParticleElementAlphaFade',
+  13: 'EffectParticleElementSize',
+  14: 'EffectParticleElementTransSize',
+  15: 'EffectParticlePointGravity',
+  16: 'EffectParticleTurnToDirectionEnabled',
+  17: 'EffectParticleInfiniteEmitEnabled'
+};
+
+/**
+ * @enum {number}
  */
 ss.ssfb.userDataValue = {
   NONE: 0,
@@ -120,6 +219,17 @@ ss.ssfb.userDataValue = {
   userDataRect: 2,
   userDataPoint: 3,
   userDataString: 4
+};
+
+/**
+ * @enum {string}
+ */
+ss.ssfb.userDataValueName = {
+  0: 'NONE',
+  1: 'userDataInteger',
+  2: 'userDataRect',
+  3: 'userDataPoint',
+  4: 'userDataString'
 };
 
 /**
@@ -1443,6 +1553,31 @@ ss.ssfb.EffectNode.endEffectNode = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} arrayIndex
+ * @param {number} parentIndex
+ * @param {number} type
+ * @param {number} cellIndex
+ * @param {number} blendType
+ * @param {number} numBehavior
+ * @param {flatbuffers.Offset} BehaviorTypeOffset
+ * @param {flatbuffers.Offset} BehaviorOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.EffectNode.createEffectNode = function(builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, BehaviorTypeOffset, BehaviorOffset) {
+  ss.ssfb.EffectNode.startEffectNode(builder);
+  ss.ssfb.EffectNode.addArrayIndex(builder, arrayIndex);
+  ss.ssfb.EffectNode.addParentIndex(builder, parentIndex);
+  ss.ssfb.EffectNode.addType(builder, type);
+  ss.ssfb.EffectNode.addCellIndex(builder, cellIndex);
+  ss.ssfb.EffectNode.addBlendType(builder, blendType);
+  ss.ssfb.EffectNode.addNumBehavior(builder, numBehavior);
+  ss.ssfb.EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
+  ss.ssfb.EffectNode.addBehavior(builder, BehaviorOffset);
+  return ss.ssfb.EffectNode.endEffectNode(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.EffectFile = function() {
@@ -1654,6 +1789,31 @@ ss.ssfb.EffectFile.endEffectFile = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {number} fps
+ * @param {number} isLockRandSeed
+ * @param {number} lockRandSeed
+ * @param {number} layoutScaleX
+ * @param {number} layoutScaleY
+ * @param {number} numNodeList
+ * @param {flatbuffers.Offset} effectNodeOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.EffectFile.createEffectFile = function(builder, nameOffset, fps, isLockRandSeed, lockRandSeed, layoutScaleX, layoutScaleY, numNodeList, effectNodeOffset) {
+  ss.ssfb.EffectFile.startEffectFile(builder);
+  ss.ssfb.EffectFile.addName(builder, nameOffset);
+  ss.ssfb.EffectFile.addFps(builder, fps);
+  ss.ssfb.EffectFile.addIsLockRandSeed(builder, isLockRandSeed);
+  ss.ssfb.EffectFile.addLockRandSeed(builder, lockRandSeed);
+  ss.ssfb.EffectFile.addLayoutScaleX(builder, layoutScaleX);
+  ss.ssfb.EffectFile.addLayoutScaleY(builder, layoutScaleY);
+  ss.ssfb.EffectFile.addNumNodeList(builder, numNodeList);
+  ss.ssfb.EffectFile.addEffectNode(builder, effectNodeOffset);
+  return ss.ssfb.EffectFile.endEffectFile(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.CellMap = function() {
@@ -1785,6 +1945,25 @@ ss.ssfb.CellMap.endCellMap = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} imagePathOffset
+ * @param {number} index
+ * @param {number} wrapmode
+ * @param {number} filtermode
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.CellMap.createCellMap = function(builder, nameOffset, imagePathOffset, index, wrapmode, filtermode) {
+  ss.ssfb.CellMap.startCellMap(builder);
+  ss.ssfb.CellMap.addName(builder, nameOffset);
+  ss.ssfb.CellMap.addImagePath(builder, imagePathOffset);
+  ss.ssfb.CellMap.addIndex(builder, index);
+  ss.ssfb.CellMap.addWrapmode(builder, wrapmode);
+  ss.ssfb.CellMap.addFiltermode(builder, filtermode);
+  return ss.ssfb.CellMap.endCellMap(builder);
+}
 
 /**
  * @constructor
@@ -2048,6 +2227,41 @@ ss.ssfb.Cell.endCell = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} cellMapOffset
+ * @param {number} indexInCellMap
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {number} pivotX
+ * @param {number} pivotY
+ * @param {number} u1
+ * @param {number} v1
+ * @param {number} u2
+ * @param {number} v2
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.Cell.createCell = function(builder, nameOffset, cellMapOffset, indexInCellMap, x, y, width, height, pivotX, pivotY, u1, v1, u2, v2) {
+  ss.ssfb.Cell.startCell(builder);
+  ss.ssfb.Cell.addName(builder, nameOffset);
+  ss.ssfb.Cell.addCellMap(builder, cellMapOffset);
+  ss.ssfb.Cell.addIndexInCellMap(builder, indexInCellMap);
+  ss.ssfb.Cell.addX(builder, x);
+  ss.ssfb.Cell.addY(builder, y);
+  ss.ssfb.Cell.addWidth(builder, width);
+  ss.ssfb.Cell.addHeight(builder, height);
+  ss.ssfb.Cell.addPivotX(builder, pivotX);
+  ss.ssfb.Cell.addPivotY(builder, pivotY);
+  ss.ssfb.Cell.addU1(builder, u1);
+  ss.ssfb.Cell.addV1(builder, v1);
+  ss.ssfb.Cell.addU2(builder, u2);
+  ss.ssfb.Cell.addV2(builder, v2);
+  return ss.ssfb.Cell.endCell(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.meshDataUV = function() {
@@ -2153,6 +2367,17 @@ ss.ssfb.meshDataUV.endmeshDataUV = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} uvOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.meshDataUV.createmeshDataUV = function(builder, uvOffset) {
+  ss.ssfb.meshDataUV.startmeshDataUV(builder);
+  ss.ssfb.meshDataUV.addUv(builder, uvOffset);
+  return ss.ssfb.meshDataUV.endmeshDataUV(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.meshDataIndices = function() {
@@ -2256,6 +2481,17 @@ ss.ssfb.meshDataIndices.endmeshDataIndices = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} indicesOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.meshDataIndices.createmeshDataIndices = function(builder, indicesOffset) {
+  ss.ssfb.meshDataIndices.startmeshDataIndices(builder);
+  ss.ssfb.meshDataIndices.addIndices(builder, indicesOffset);
+  return ss.ssfb.meshDataIndices.endmeshDataIndices(builder);
+}
 
 /**
  * @constructor
@@ -2411,6 +2647,23 @@ ss.ssfb.partState.endpartState = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} index
+ * @param {number} flag1
+ * @param {number} flag2
+ * @param {flatbuffers.Offset} dataOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.partState.createpartState = function(builder, index, flag1, flag2, dataOffset) {
+  ss.ssfb.partState.startpartState(builder);
+  ss.ssfb.partState.addIndex(builder, index);
+  ss.ssfb.partState.addFlag1(builder, flag1);
+  ss.ssfb.partState.addFlag2(builder, flag2);
+  ss.ssfb.partState.addData(builder, dataOffset);
+  return ss.ssfb.partState.endpartState(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.frameDataIndex = function() {
@@ -2507,6 +2760,17 @@ ss.ssfb.frameDataIndex.endframeDataIndex = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} statesOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.frameDataIndex.createframeDataIndex = function(builder, statesOffset) {
+  ss.ssfb.frameDataIndex.startframeDataIndex(builder);
+  ss.ssfb.frameDataIndex.addStates(builder, statesOffset);
+  return ss.ssfb.frameDataIndex.endframeDataIndex(builder);
+}
 
 /**
  * @constructor
@@ -2761,6 +3025,19 @@ ss.ssfb.userDataString.enduserDataString = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} length
+ * @param {flatbuffers.Offset} dataOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.userDataString.createuserDataString = function(builder, length, dataOffset) {
+  ss.ssfb.userDataString.startuserDataString(builder);
+  ss.ssfb.userDataString.addLength(builder, length);
+  ss.ssfb.userDataString.addData(builder, dataOffset);
+  return ss.ssfb.userDataString.enduserDataString(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.userDataItem = function() {
@@ -2945,6 +3222,23 @@ ss.ssfb.userDataItem.enduserDataItem = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} flags
+ * @param {number} arrayIndex
+ * @param {flatbuffers.Offset} dataTypeOffset
+ * @param {flatbuffers.Offset} dataOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.userDataItem.createuserDataItem = function(builder, flags, arrayIndex, dataTypeOffset, dataOffset) {
+  ss.ssfb.userDataItem.startuserDataItem(builder);
+  ss.ssfb.userDataItem.addFlags(builder, flags);
+  ss.ssfb.userDataItem.addArrayIndex(builder, arrayIndex);
+  ss.ssfb.userDataItem.addDataType(builder, dataTypeOffset);
+  ss.ssfb.userDataItem.addData(builder, dataOffset);
+  return ss.ssfb.userDataItem.enduserDataItem(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.userDataPerFrame = function() {
@@ -3059,6 +3353,19 @@ ss.ssfb.userDataPerFrame.enduserDataPerFrame = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} frameIndex
+ * @param {flatbuffers.Offset} dataOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.userDataPerFrame.createuserDataPerFrame = function(builder, frameIndex, dataOffset) {
+  ss.ssfb.userDataPerFrame.startuserDataPerFrame(builder);
+  ss.ssfb.userDataPerFrame.addFrameIndex(builder, frameIndex);
+  ss.ssfb.userDataPerFrame.addData(builder, dataOffset);
+  return ss.ssfb.userDataPerFrame.enduserDataPerFrame(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.labelDataItem = function() {
@@ -3141,6 +3448,19 @@ ss.ssfb.labelDataItem.endlabelDataItem = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} labelOffset
+ * @param {number} frameIndex
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.labelDataItem.createlabelDataItem = function(builder, labelOffset, frameIndex) {
+  ss.ssfb.labelDataItem.startlabelDataItem(builder);
+  ss.ssfb.labelDataItem.addLabel(builder, labelOffset);
+  ss.ssfb.labelDataItem.addFrameIndex(builder, frameIndex);
+  return ss.ssfb.labelDataItem.endlabelDataItem(builder);
+}
 
 /**
  * @constructor
@@ -3635,6 +3955,47 @@ ss.ssfb.AnimationData.endAnimationData = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} defaultDataOffset
+ * @param {flatbuffers.Offset} frameDataOffset
+ * @param {flatbuffers.Offset} userDataOffset
+ * @param {flatbuffers.Offset} labelDataOffset
+ * @param {flatbuffers.Offset} meshsDataUVOffset
+ * @param {flatbuffers.Offset} meshsDataIndicesOffset
+ * @param {number} startFrames
+ * @param {number} endFrames
+ * @param {number} totalFrames
+ * @param {number} fps
+ * @param {number} labelNum
+ * @param {number} canvasSizeW
+ * @param {number} canvasSizeH
+ * @param {number} canvasPvotX
+ * @param {number} canvasPvotY
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.AnimationData.createAnimationData = function(builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUVOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
+  ss.ssfb.AnimationData.startAnimationData(builder);
+  ss.ssfb.AnimationData.addName(builder, nameOffset);
+  ss.ssfb.AnimationData.addDefaultData(builder, defaultDataOffset);
+  ss.ssfb.AnimationData.addFrameData(builder, frameDataOffset);
+  ss.ssfb.AnimationData.addUserData(builder, userDataOffset);
+  ss.ssfb.AnimationData.addLabelData(builder, labelDataOffset);
+  ss.ssfb.AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
+  ss.ssfb.AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
+  ss.ssfb.AnimationData.addStartFrames(builder, startFrames);
+  ss.ssfb.AnimationData.addEndFrames(builder, endFrames);
+  ss.ssfb.AnimationData.addTotalFrames(builder, totalFrames);
+  ss.ssfb.AnimationData.addFps(builder, fps);
+  ss.ssfb.AnimationData.addLabelNum(builder, labelNum);
+  ss.ssfb.AnimationData.addCanvasSizeW(builder, canvasSizeW);
+  ss.ssfb.AnimationData.addCanvasSizeH(builder, canvasSizeH);
+  ss.ssfb.AnimationData.addCanvasPvotX(builder, canvasPvotX);
+  ss.ssfb.AnimationData.addCanvasPvotY(builder, canvasPvotY);
+  return ss.ssfb.AnimationData.endAnimationData(builder);
+}
 
 /**
  * @constructor
@@ -4296,6 +4657,91 @@ ss.ssfb.AnimationInitialData.endAnimationInitialData = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} index
+ * @param {number} lowflag
+ * @param {number} highflag
+ * @param {number} priority
+ * @param {number} cellIndex
+ * @param {number} opacity
+ * @param {number} localopacity
+ * @param {number} masklimen
+ * @param {number} positionX
+ * @param {number} positionY
+ * @param {number} positionZ
+ * @param {number} pivotX
+ * @param {number} pivotY
+ * @param {number} rotationX
+ * @param {number} rotationY
+ * @param {number} rotationZ
+ * @param {number} scaleX
+ * @param {number} scaleY
+ * @param {number} localscaleX
+ * @param {number} localscaleY
+ * @param {number} sizeX
+ * @param {number} sizeY
+ * @param {number} uvMoveX
+ * @param {number} uvMoveY
+ * @param {number} uvRotation
+ * @param {number} uvScaleX
+ * @param {number} uvScaleY
+ * @param {number} boundingRadius
+ * @param {number} instanceValueCurKeyframe
+ * @param {number} instanceValueStartFrame
+ * @param {number} instanceValueEndFrame
+ * @param {number} instanceValueLoopNum
+ * @param {number} instanceValueSpeed
+ * @param {number} instanceValueLoopflag
+ * @param {number} effectValueCurKeyframe
+ * @param {number} effectValueStartTime
+ * @param {number} effectValueSpeed
+ * @param {number} effectValueLoopflag
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.AnimationInitialData.createAnimationInitialData = function(builder, index, lowflag, highflag, priority, cellIndex, opacity, localopacity, masklimen, positionX, positionY, positionZ, pivotX, pivotY, rotationX, rotationY, rotationZ, scaleX, scaleY, localscaleX, localscaleY, sizeX, sizeY, uvMoveX, uvMoveY, uvRotation, uvScaleX, uvScaleY, boundingRadius, instanceValueCurKeyframe, instanceValueStartFrame, instanceValueEndFrame, instanceValueLoopNum, instanceValueSpeed, instanceValueLoopflag, effectValueCurKeyframe, effectValueStartTime, effectValueSpeed, effectValueLoopflag) {
+  ss.ssfb.AnimationInitialData.startAnimationInitialData(builder);
+  ss.ssfb.AnimationInitialData.addIndex(builder, index);
+  ss.ssfb.AnimationInitialData.addLowflag(builder, lowflag);
+  ss.ssfb.AnimationInitialData.addHighflag(builder, highflag);
+  ss.ssfb.AnimationInitialData.addPriority(builder, priority);
+  ss.ssfb.AnimationInitialData.addCellIndex(builder, cellIndex);
+  ss.ssfb.AnimationInitialData.addOpacity(builder, opacity);
+  ss.ssfb.AnimationInitialData.addLocalopacity(builder, localopacity);
+  ss.ssfb.AnimationInitialData.addMasklimen(builder, masklimen);
+  ss.ssfb.AnimationInitialData.addPositionX(builder, positionX);
+  ss.ssfb.AnimationInitialData.addPositionY(builder, positionY);
+  ss.ssfb.AnimationInitialData.addPositionZ(builder, positionZ);
+  ss.ssfb.AnimationInitialData.addPivotX(builder, pivotX);
+  ss.ssfb.AnimationInitialData.addPivotY(builder, pivotY);
+  ss.ssfb.AnimationInitialData.addRotationX(builder, rotationX);
+  ss.ssfb.AnimationInitialData.addRotationY(builder, rotationY);
+  ss.ssfb.AnimationInitialData.addRotationZ(builder, rotationZ);
+  ss.ssfb.AnimationInitialData.addScaleX(builder, scaleX);
+  ss.ssfb.AnimationInitialData.addScaleY(builder, scaleY);
+  ss.ssfb.AnimationInitialData.addLocalscaleX(builder, localscaleX);
+  ss.ssfb.AnimationInitialData.addLocalscaleY(builder, localscaleY);
+  ss.ssfb.AnimationInitialData.addSizeX(builder, sizeX);
+  ss.ssfb.AnimationInitialData.addSizeY(builder, sizeY);
+  ss.ssfb.AnimationInitialData.addUvMoveX(builder, uvMoveX);
+  ss.ssfb.AnimationInitialData.addUvMoveY(builder, uvMoveY);
+  ss.ssfb.AnimationInitialData.addUvRotation(builder, uvRotation);
+  ss.ssfb.AnimationInitialData.addUvScaleX(builder, uvScaleX);
+  ss.ssfb.AnimationInitialData.addUvScaleY(builder, uvScaleY);
+  ss.ssfb.AnimationInitialData.addBoundingRadius(builder, boundingRadius);
+  ss.ssfb.AnimationInitialData.addInstanceValueCurKeyframe(builder, instanceValueCurKeyframe);
+  ss.ssfb.AnimationInitialData.addInstanceValueStartFrame(builder, instanceValueStartFrame);
+  ss.ssfb.AnimationInitialData.addInstanceValueEndFrame(builder, instanceValueEndFrame);
+  ss.ssfb.AnimationInitialData.addInstanceValueLoopNum(builder, instanceValueLoopNum);
+  ss.ssfb.AnimationInitialData.addInstanceValueSpeed(builder, instanceValueSpeed);
+  ss.ssfb.AnimationInitialData.addInstanceValueLoopflag(builder, instanceValueLoopflag);
+  ss.ssfb.AnimationInitialData.addEffectValueCurKeyframe(builder, effectValueCurKeyframe);
+  ss.ssfb.AnimationInitialData.addEffectValueStartTime(builder, effectValueStartTime);
+  ss.ssfb.AnimationInitialData.addEffectValueSpeed(builder, effectValueSpeed);
+  ss.ssfb.AnimationInitialData.addEffectValueLoopflag(builder, effectValueLoopflag);
+  return ss.ssfb.AnimationInitialData.endAnimationInitialData(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.PartData = function() {
@@ -4511,6 +4957,35 @@ ss.ssfb.PartData.endPartData = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {number} index
+ * @param {number} parentIndex
+ * @param {ss.ssfb.SsPartType} type
+ * @param {number} boundsType
+ * @param {number} alphaBlendType
+ * @param {flatbuffers.Offset} refnameOffset
+ * @param {flatbuffers.Offset} effectfilenameOffset
+ * @param {flatbuffers.Offset} colorLabelOffset
+ * @param {number} maskInfluence
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.PartData.createPartData = function(builder, nameOffset, index, parentIndex, type, boundsType, alphaBlendType, refnameOffset, effectfilenameOffset, colorLabelOffset, maskInfluence) {
+  ss.ssfb.PartData.startPartData(builder);
+  ss.ssfb.PartData.addName(builder, nameOffset);
+  ss.ssfb.PartData.addIndex(builder, index);
+  ss.ssfb.PartData.addParentIndex(builder, parentIndex);
+  ss.ssfb.PartData.addType(builder, type);
+  ss.ssfb.PartData.addBoundsType(builder, boundsType);
+  ss.ssfb.PartData.addAlphaBlendType(builder, alphaBlendType);
+  ss.ssfb.PartData.addRefname(builder, refnameOffset);
+  ss.ssfb.PartData.addEffectfilename(builder, effectfilenameOffset);
+  ss.ssfb.PartData.addColorLabel(builder, colorLabelOffset);
+  ss.ssfb.PartData.addMaskInfluence(builder, maskInfluence);
+  return ss.ssfb.PartData.endPartData(builder);
+}
+
+/**
  * @constructor
  */
 ss.ssfb.AnimePackData = function() {
@@ -4671,6 +5146,21 @@ ss.ssfb.AnimePackData.endAnimePackData = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} partsOffset
+ * @param {flatbuffers.Offset} animationsOffset
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.AnimePackData.createAnimePackData = function(builder, nameOffset, partsOffset, animationsOffset) {
+  ss.ssfb.AnimePackData.startAnimePackData(builder);
+  ss.ssfb.AnimePackData.addName(builder, nameOffset);
+  ss.ssfb.AnimePackData.addParts(builder, partsOffset);
+  ss.ssfb.AnimePackData.addAnimations(builder, animationsOffset);
+  return ss.ssfb.AnimePackData.endAnimePackData(builder);
+}
 
 /**
  * @constructor
@@ -4992,6 +5482,35 @@ ss.ssfb.ProjectData.endProjectData = function(builder) {
 ss.ssfb.ProjectData.finishProjectDataBuffer = function(builder, offset) {
   builder.finish(offset, 'SSFB');
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dataId
+ * @param {number} version
+ * @param {number} flags
+ * @param {flatbuffers.Offset} imageBaseDirOffset
+ * @param {flatbuffers.Offset} cellsOffset
+ * @param {flatbuffers.Offset} animePacksOffset
+ * @param {flatbuffers.Offset} effectFileListOffset
+ * @param {number} numCells
+ * @param {number} numAnimePacks
+ * @param {number} numEffectFileList
+ * @returns {flatbuffers.Offset}
+ */
+ss.ssfb.ProjectData.createProjectData = function(builder, dataId, version, flags, imageBaseDirOffset, cellsOffset, animePacksOffset, effectFileListOffset, numCells, numAnimePacks, numEffectFileList) {
+  ss.ssfb.ProjectData.startProjectData(builder);
+  ss.ssfb.ProjectData.addDataId(builder, dataId);
+  ss.ssfb.ProjectData.addVersion(builder, version);
+  ss.ssfb.ProjectData.addFlags(builder, flags);
+  ss.ssfb.ProjectData.addImageBaseDir(builder, imageBaseDirOffset);
+  ss.ssfb.ProjectData.addCells(builder, cellsOffset);
+  ss.ssfb.ProjectData.addAnimePacks(builder, animePacksOffset);
+  ss.ssfb.ProjectData.addEffectFileList(builder, effectFileListOffset);
+  ss.ssfb.ProjectData.addNumCells(builder, numCells);
+  ss.ssfb.ProjectData.addNumAnimePacks(builder, numAnimePacks);
+  ss.ssfb.ProjectData.addNumEffectFileList(builder, numEffectFileList);
+  return ss.ssfb.ProjectData.endProjectData(builder);
+}
 
 // Exports for Node.js and RequireJS
 this.ss = ss;
