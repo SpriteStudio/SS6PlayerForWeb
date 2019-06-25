@@ -115,7 +115,7 @@ function Play_sampleAnimation2() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation3() {
   {
-    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project, "Knight_lance", "Lance_Attack");
+    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project, "Knight_bomb", "Balloon");
     mySS6Player.position = new PIXI.Point(320, 480);
     mySS6Player.scale = new PIXI.Point(0.5, 0.5);
     app.stage.addChild(mySS6Player);
