@@ -1,0 +1,12 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "version": "independent",
+  "command": {
+    "publish": {
+      "allowBranch": "master",
+      "message": "ss6playerforweb(release): publish %s"
+    }
+  }
+}
