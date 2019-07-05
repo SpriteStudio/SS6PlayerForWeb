@@ -1,0 +1,54 @@
+{
+  "name": "ssfb-cli",
+  "version": "1.0.0",
+  "description": "> TODO: description",
+  "keywords": [
+    "SpriteStudio"
+  ],
+  "main": "dist/lib/index.js",
+  "bin": {
+    "ssfb-cli": "dist/lib/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
+  },
+  "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Web Technology Corp.",
+    "url": "https://www.webtech.co.jp/"
+  },
+  "scripts": {
+    "prebuild": "npm run clean",
+    "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "create": "npm run build && npm run test",
+    "build": "tsc -p .",
+    "test": "sudo npm i -g && ssfb-cli",
+    "refresh": "rimraf ./node_modules ./package-lock.json && npm install",
+    "clean": "rimraf dist"
+  },
+  "directories": {
+    "lib": "dist/lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SpriteStudio/SS6PlayerForWeb.git"
+  },
+  "dependencies": {
+    "util": "^0.12.0",
+    "path": "^0.12.7",
+    "fs": "^0.0.1-security",
+    "flatbuffers": "^1.11.0",
+    "ssfblib": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/flatbuffers": "^1.9.1",
+    "@types/node": "^12.0.10",
+    "nodemon": "^1.19.1",
+    "rimraf": "^2.6.3",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  }
+}

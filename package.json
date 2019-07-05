@@ -1,66 +1,37 @@
 {
-  "name": "ss6player-pixi",
-  "version": "1.0.0",
-  "description": "SS6Player for Web",
-  "keywords": [
-    "SpriteStudio",
-    "SSPlayer"
+  "name": "ss6playerforwebroot",
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "main": "dist/ss6player-pixi.umd.js",
-  "module": "dist/ss6player-pixi.es5.js",
-  "typings": "dist/types/ss6player-pixi.d.ts",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
   },
   "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
-  "files": [
-    "dist",
-    "Tools"
-  ],
   "author": {
     "name": "Web Technology Corp.",
     "url": "https://www.webtech.co.jp/"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:SpriteStudio/SS6PlayerForWeb.git"
-  },
-  "license": "SEE LICENSE",
   "scripts": {
-    "start": "npm run watch",
-    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts' 'Tools/**/*.ts'",
-    "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "docs": "typedoc --out docs/api --target es6 --theme minimal --mode file src",
-    "watch": "rollup -c rollup.config.ts -w",
-    "dist": "npm run docs && npm run build",
-    "view": "concurrently \"http-server\" \"opener http://localhost:8080/Player/index.html\"",
-    "fbviewer-cli": "ts-node -O '{\"module\": \"commonjs\"}' ./Tools/fbviewer-cli/main.ts"
-  },
-  "dependencies": {
-    "flatbuffers": "1.10.2",
-    "pixi.js": "4.8.5"
+    "build": "lerna run build --concurrency=1 --stream",
+    "lerna": "lerna",
+    "clean": "npm run clean:artifacts && npm run clean:packages && npm run clean:root",
+    "clean:artifacts": "lerna run clean --parallel",
+    "clean:packages": "lerna clean --yes",
+    "clean:root": "rimraf node_modules",
+    "bootstrap": "lerna bootstrap",
+    "lint": "lerna run lint",
+    "test": "lerna run test",
+    "docs": "lerna run docs",
+    "dist": "npm run build && npm run docs",
+    "view": "lerna run view --scope=ss6player-pixi"
   },
   "devDependencies": {
-    "@types/flatbuffers": "^1.9.1",
-    "@types/pixi.js": "^4.8.6",
-    "concurrently": "^4.1.0",
-    "http-server": "^0.11.1",
-    "lodash.camelcase": "^4.3.0",
-    "opener": "^1.5.1",
-    "rimraf": "^2.6.3",
-    "rollup": "^1.7.0",
-    "rollup-plugin-commonjs": "^9.2.1",
-    "rollup-plugin-includepaths": "^0.2.3",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-license": "^0.8.1",
-    "rollup-plugin-node-resolve": "^4.0.1",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-typescript2": "^0.20.1",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.14.0",
+    "lerna": "^3.15.0",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.5.2"
   }
 }

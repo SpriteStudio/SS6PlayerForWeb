@@ -6,9 +6,9 @@ notifications:
   email: false
 node_js:
   - '10'
-  - '11'
-  - '8'
-  - '6'
+  - '12'
+before_script:
+  - npm run bootstrap
 script:
   - npm run lint
   - npm run dist
