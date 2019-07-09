@@ -678,9 +678,6 @@ export class SS6Player extends PIXI.Container {
     if (blendType === 0) {
       const rate_i = 1 - rate;
 
-      PIXI.Matrix;
-
-
       colorMatrix.matrix = [
         rate_i, 0, 0, 0, cr * rate,
         0, rate_i, 0, 0, cg * rate,
