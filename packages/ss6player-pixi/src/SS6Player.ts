@@ -803,15 +803,6 @@ export class SS6Player extends PIXI.Container {
     const fd = this.GetFrameData(frameNumber);
     this.removeChildren();
 
-    let prevtype = -1; // prev parttype
-
-    const TYPE_NORMAL = 1; // パーツ種別: 通常
-    const TYPE_NULL = 0; // パーツ種別: NULL
-    const TYPE_MASK = 9; // パーツ種別: マスク
-    const TYPE_INSTANCE = 3; // パーツ種別: インスタンス
-    const TYPE_MESH = 6; // パーツ種別: MESH
-    const TYPE_JOINT = 10; // パーツ種別: JOINT
-
     // 優先度順パーツ単位ループ
     const l = fd.length;
     for (let ii = 0; ii < l; ii = (ii + 1) | 0) {
@@ -829,26 +820,26 @@ export class SS6Player extends PIXI.Container {
 
       // 処理分岐処理
       switch (partType) {
-        case TYPE_INSTANCE:
+        case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
           }
           break;
-        case TYPE_NORMAL:
-        case TYPE_MASK:
+        case ss.ssfb.SsPartType.Normal:
+        case ss.ssfb.SsPartType.Mask:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
           }
           break;
-        case TYPE_MESH:
+        case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
           }
           break;
-        case TYPE_NULL:
-        case TYPE_JOINT:
+        case ss.ssfb.SsPartType.Nulltype:
+        case ss.ssfb.SsPartType.Joint:
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
@@ -871,7 +862,7 @@ export class SS6Player extends PIXI.Container {
 
       // 描画関係処理
       switch (partType) {
-        case TYPE_INSTANCE: {
+        case ss.ssfb.SsPartType.Instance: {
           // インスタンスパーツのアップデート
           let pos = new Float32Array(5);
           pos[0] = 0; // pos x
@@ -993,12 +984,12 @@ export class SS6Player extends PIXI.Container {
           continue;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
-        case TYPE_NORMAL:
-        case TYPE_MESH:
-        case TYPE_JOINT:
-        case TYPE_MASK: {
+        case ss.ssfb.SsPartType.Normal:
+        case ss.ssfb.SsPartType.Mesh:
+        case ss.ssfb.SsPartType.Joint:
+        case ss.ssfb.SsPartType.Mask: {
           let verts: Float32Array;
-          if (partType === TYPE_MESH) {
+          if (partType === ss.ssfb.SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
@@ -1137,10 +1128,10 @@ export class SS6Player extends PIXI.Container {
           if (blendMode === 6) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
           if (blendMode === 7) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
-          if (partType !== TYPE_MASK) this.addChild(mesh);
+          if (partType !== ss.ssfb.SsPartType.Mask) this.addChild(mesh);
           break;
         }
-        case TYPE_NULL: {
+        case ss.ssfb.SsPartType.Nulltype: {
           // NULLパーツのOpacity/Transform設定
           const opacity = this.InheritOpacity(1.0, data.index, frameNumber);
           mesh.alpha = (opacity * data.localopacity) / 255.0;
