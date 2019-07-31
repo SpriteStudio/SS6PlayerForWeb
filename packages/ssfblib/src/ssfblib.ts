@@ -24,54 +24,54 @@ export enum SsPartType{
  * @enum {number}
  */
 export namespace ss.ssfb{
-export enum PART_FLAG{
-  INVISIBLE= 1,
-  FLIP_H= 2,
-  FLIP_V= 4,
-  CELL_INDEX= 8,
-  POSITION_X= 16,
-  POSITION_Y= 32,
-  POSITION_Z= 64,
-  PIVOT_X= 128,
-  PIVOT_Y= 256,
-  ROTATIONX= 512,
-  ROTATIONY= 1024,
-  ROTATIONZ= 2048,
-  SCALE_X= 4096,
-  SCALE_Y= 8192,
-  LOCALSCALE_X= 16384,
-  LOCALSCALE_Y= 32768,
-  OPACITY= 65536,
-  LOCALOPACITY= 131072,
-  PARTS_COLOR= 262144,
-  VERTEX_TRANSFORM= 524288,
-  SIZE_X= 1048576,
-  SIZE_Y= 2097152,
-  U_MOVE= 4194304,
-  V_MOVE= 8388608,
-  UV_ROTATION= 16777216,
-  U_SCALE= 33554432,
-  V_SCALE= 67108864,
-  BOUNDINGRADIUS= 134217728,
-  MASK= 268435456,
-  PRIORITY= 536870912,
-  INSTANCE_KEYFRAME= 1073741824,
-  EFFECT_KEYFRAME= 2147483648
+export enum PartFlag{
+  Invisible= 1,
+  FlipH= 2,
+  FlipV= 4,
+  CellIndex= 8,
+  PositionX= 16,
+  PositionY= 32,
+  PositionZ= 64,
+  PivotX= 128,
+  PivotY= 256,
+  RotationX= 512,
+  RotationY= 1024,
+  RotationZ= 2048,
+  ScaleX= 4096,
+  ScaleY= 8192,
+  LocalScaleX= 16384,
+  LocalScaleY= 32768,
+  Opacity= 65536,
+  LocalOpacity= 131072,
+  PartsColor= 262144,
+  VertexTransform= 524288,
+  SizeX= 1048576,
+  SizeY= 2097152,
+  UMove= 4194304,
+  VMove= 8388608,
+  UvRotation= 16777216,
+  UScale= 33554432,
+  VScale= 67108864,
+  BoundingRadius= 134217728,
+  Mask= 268435456,
+  Priority= 536870912,
+  InstanceKeyframe= 1073741824,
+  EffectKeyframe= 2147483648
 }};
 
 /**
  * @enum {number}
  */
 export namespace ss.ssfb{
-export enum PART_FLAG2{
-  MESHDATA= 1
+export enum PartFlag2{
+  MeshData= 1
 }};
 
 /**
  * @enum {number}
  */
 export namespace ss.ssfb{
-export enum VERTEX_FLAG{
+export enum VertexFlag{
   LT= 1,
   RT= 2,
   LB= 4,
@@ -83,888 +83,95 @@ export enum VERTEX_FLAG{
  * @enum {number}
  */
 export namespace ss.ssfb{
-export enum EffectNodeBehavior{
-  NONE= 0,
-  EffectParticleElementBasic= 1,
-  EffectParticleElementRndSeedChange= 2,
-  EffectParticleElementDelay= 3,
-  EffectParticleElementGravity= 4,
-  EffectParticleElementPosition= 5,
-  EffectParticleElementRotation= 6,
-  EffectParticleElementRotationTrans= 7,
-  EffectParticleElementTransSpeed= 8,
-  EffectParticleElementTangentialAcceleration= 9,
-  EffectParticleElementInitColor= 10,
-  EffectParticleElementTransColor= 11,
-  EffectParticleElementAlphaFade= 12,
-  EffectParticleElementSize= 13,
-  EffectParticleElementTransSize= 14,
-  EffectParticlePointGravity= 15,
-  EffectParticleTurnToDirectionEnabled= 16,
-  EffectParticleInfiniteEmitEnabled= 17
+export enum InstanceLoopFlag{
+  Infinity= 1,
+  Reverse= 2,
+  PingPong= 4,
+  Independent= 8
 }};
 
 /**
  * @enum {number}
  */
 export namespace ss.ssfb{
-export enum userDataValue{
-  NONE= 0,
-  userDataInteger= 1,
-  userDataRect= 2,
-  userDataPoint= 3,
-  userDataString= 4
+export enum UserDataFlag{
+  Integer= 1,
+  Rect= 2,
+  Point= 4,
+  String= 8
 }};
 
 /**
- * @constructor
+ * @enum {number}
  */
 export namespace ss.ssfb{
-export class EffectParticleInfiniteEmitEnabled {
-  bb: flatbuffers.ByteBuffer|null = null;
+export enum SsEffectFunctionType{
+  Base= 0,
+  Basic= 1,
+  RndSeedChange= 2,
+  Delay= 3,
+  Gravity= 4,
+  Position= 5,
+  Rotation= 6,
+  TransRotation= 7,
+  TransSpeed= 8,
+  TangentialAcceleration= 9,
+  InitColor= 10,
+  TransColor= 11,
+  AlphaFade= 12,
+  Size= 13,
+  TransSize= 14,
+  PointGravity= 15,
+  TurnToDirectionEnabled= 16,
+  InfiniteEmitEnabled= 17
+}};
 
-  bb_pos:number = 0;
 /**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleInfiniteEmitEnabled
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleInfiniteEmitEnabled {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-flag():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number flag
- * @returns flatbuffers.Offset
- */
-static createEffectParticleInfiniteEmitEnabled(builder:flatbuffers.Builder, flag: number):flatbuffers.Offset {
-  builder.prep(4, 4);
-  builder.writeInt32(flag);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
+ * @enum {number}
  */
 export namespace ss.ssfb{
-export class EffectParticleTurnToDirectionEnabled {
-  bb: flatbuffers.ByteBuffer|null = null;
+export enum EffectBehaviorFlags{
+  Base= 1,
+  Basic= 2,
+  RndSeedChange= 4,
+  Delay= 8,
+  Gravity= 16,
+  Position= 32,
+  Rotation= 64,
+  TransRotation= 128,
+  TransSpeed= 256,
+  TangentialAcceleration= 512,
+  InitColor= 1024,
+  TransColor= 2048,
+  AlphaFade= 4096,
+  Size= 8192,
+  TransSize= 16384,
+  PointGravity= 32768,
+  TurnToDirectionEnabled= 65536,
+  InfiniteEmitEnabled= 131072
+}};
 
-  bb_pos:number = 0;
 /**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleTurnToDirectionEnabled
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleTurnToDirectionEnabled {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-Rotation():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number Rotation
- * @returns flatbuffers.Offset
- */
-static createEffectParticleTurnToDirectionEnabled(builder:flatbuffers.Builder, Rotation: number):flatbuffers.Offset {
-  builder.prep(4, 4);
-  builder.writeFloat32(Rotation);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
+ * @enum {number}
  */
 export namespace ss.ssfb{
-export class EffectParticlePointGravity {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticlePointGravity
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticlePointGravity {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
+export enum EffectNodeType{
+  Invalid= -1,
+  Root= 0,
+  Emitter= 1,
+  Particle= 2
+}};
 
 /**
- * @returns number
- */
-PositionX():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-PositionY():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-Power():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number Position_x
- * @param number Position_y
- * @param number Power
- * @returns flatbuffers.Offset
- */
-static createEffectParticlePointGravity(builder:flatbuffers.Builder, Position_x: number, Position_y: number, Power: number):flatbuffers.Offset {
-  builder.prep(4, 12);
-  builder.writeFloat32(Power);
-  builder.writeFloat32(Position_y);
-  builder.writeFloat32(Position_x);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
+ * @enum {number}
  */
 export namespace ss.ssfb{
-export class EffectParticleElementTransSize {
-  bb: flatbuffers.ByteBuffer|null = null;
+export enum EffectRenderBlendType{
+  Invalid= -1,
+  Mix= 0,
+  Add= 1
+}};
 
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementTransSize
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSize {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-SizeXMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-SizeXMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-SizeYMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-};
-
-/**
- * @returns number
- */
-SizeYMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 12);
-};
-
-/**
- * @returns number
- */
-ScaleFactorMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 16);
-};
-
-/**
- * @returns number
- */
-ScaleFactorMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number SizeXMinValue
- * @param number SizeXMaxValue
- * @param number SizeYMinValue
- * @param number SizeYMaxValue
- * @param number ScaleFactorMinValue
- * @param number ScaleFactorMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementTransSize(builder:flatbuffers.Builder, SizeXMinValue: number, SizeXMaxValue: number, SizeYMinValue: number, SizeYMaxValue: number, ScaleFactorMinValue: number, ScaleFactorMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 24);
-  builder.writeFloat32(ScaleFactorMaxValue);
-  builder.writeFloat32(ScaleFactorMinValue);
-  builder.writeFloat32(SizeYMaxValue);
-  builder.writeFloat32(SizeYMinValue);
-  builder.writeFloat32(SizeXMaxValue);
-  builder.writeFloat32(SizeXMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementSize {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementSize
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementSize {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-SizeXMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-SizeXMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-SizeYMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-};
-
-/**
- * @returns number
- */
-SizeYMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 12);
-};
-
-/**
- * @returns number
- */
-ScaleFactorMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 16);
-};
-
-/**
- * @returns number
- */
-ScaleFactorMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number SizeXMinValue
- * @param number SizeXMaxValue
- * @param number SizeYMinValue
- * @param number SizeYMaxValue
- * @param number ScaleFactorMinValue
- * @param number ScaleFactorMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementSize(builder:flatbuffers.Builder, SizeXMinValue: number, SizeXMaxValue: number, SizeYMinValue: number, SizeYMaxValue: number, ScaleFactorMinValue: number, ScaleFactorMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 24);
-  builder.writeFloat32(ScaleFactorMaxValue);
-  builder.writeFloat32(ScaleFactorMinValue);
-  builder.writeFloat32(SizeYMaxValue);
-  builder.writeFloat32(SizeYMinValue);
-  builder.writeFloat32(SizeXMaxValue);
-  builder.writeFloat32(SizeXMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementAlphaFade {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementAlphaFade
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementAlphaFade {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-disprangeMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-disprangeMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number disprangeMinValue
- * @param number disprangeMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementAlphaFade(builder:flatbuffers.Builder, disprangeMinValue: number, disprangeMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeFloat32(disprangeMaxValue);
-  builder.writeFloat32(disprangeMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementTransColor {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementTransColor
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransColor {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-ColorMinValue():number {
-  return this.bb!.readUint32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-ColorMaxValue():number {
-  return this.bb!.readUint32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number ColorMinValue
- * @param number ColorMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementTransColor(builder:flatbuffers.Builder, ColorMinValue: number, ColorMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeInt32(ColorMaxValue);
-  builder.writeInt32(ColorMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementInitColor {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementInitColor
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementInitColor {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-ColorMinValue():number {
-  return this.bb!.readUint32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-ColorMaxValue():number {
-  return this.bb!.readUint32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number ColorMinValue
- * @param number ColorMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementInitColor(builder:flatbuffers.Builder, ColorMinValue: number, ColorMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeInt32(ColorMaxValue);
-  builder.writeInt32(ColorMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementTangentialAcceleration {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementTangentialAcceleration
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTangentialAcceleration {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-AccelerationMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-AccelerationMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number AccelerationMinValue
- * @param number AccelerationMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementTangentialAcceleration(builder:flatbuffers.Builder, AccelerationMinValue: number, AccelerationMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeFloat32(AccelerationMaxValue);
-  builder.writeFloat32(AccelerationMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementTransSpeed {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementTransSpeed
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSpeed {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-SpeedMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-SpeedMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number SpeedMinValue
- * @param number SpeedMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementTransSpeed(builder:flatbuffers.Builder, SpeedMinValue: number, SpeedMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeFloat32(SpeedMaxValue);
-  builder.writeFloat32(SpeedMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementRotationTrans {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementRotationTrans
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotationTrans {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-RotationFactor():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-EndLifeTimePer():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number RotationFactor
- * @param number EndLifeTimePer
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementRotationTrans(builder:flatbuffers.Builder, RotationFactor: number, EndLifeTimePer: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeFloat32(EndLifeTimePer);
-  builder.writeFloat32(RotationFactor);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementRotation {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementRotation
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotation {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-RotationMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-RotationMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-RotationAddMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-};
-
-/**
- * @returns number
- */
-RotationAddMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 12);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number RotationMinValue
- * @param number RotationMaxValue
- * @param number RotationAddMinValue
- * @param number RotationAddMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementRotation(builder:flatbuffers.Builder, RotationMinValue: number, RotationMaxValue: number, RotationAddMinValue: number, RotationAddMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 16);
-  builder.writeFloat32(RotationAddMaxValue);
-  builder.writeFloat32(RotationAddMinValue);
-  builder.writeFloat32(RotationMaxValue);
-  builder.writeFloat32(RotationMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementPosition {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementPosition
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementPosition {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-OffsetXMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-OffsetXMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-OffsetYMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 8);
-};
-
-/**
- * @returns number
- */
-OffsetYMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 12);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number OffsetXMinValue
- * @param number OffsetXMaxValue
- * @param number OffsetYMinValue
- * @param number OffsetYMaxValue
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementPosition(builder:flatbuffers.Builder, OffsetXMinValue: number, OffsetXMaxValue: number, OffsetYMinValue: number, OffsetYMaxValue: number):flatbuffers.Offset {
-  builder.prep(4, 16);
-  builder.writeFloat32(OffsetYMaxValue);
-  builder.writeFloat32(OffsetYMinValue);
-  builder.writeFloat32(OffsetXMaxValue);
-  builder.writeFloat32(OffsetXMinValue);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementGravity {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementGravity
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementGravity {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-GravityX():number {
-  return this.bb!.readFloat32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-GravityY():number {
-  return this.bb!.readFloat32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number Gravity_x
- * @param number Gravity_y
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementGravity(builder:flatbuffers.Builder, Gravity_x: number, Gravity_y: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeFloat32(Gravity_y);
-  builder.writeFloat32(Gravity_x);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementDelay {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementDelay
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementDelay {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-DelayTime():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number DelayTime
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementDelay(builder:flatbuffers.Builder, DelayTime: number):flatbuffers.Offset {
-  builder.prep(4, 4);
-  builder.writeInt32(DelayTime);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class EffectParticleElementRndSeedChange {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns EffectParticleElementRndSeedChange
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRndSeedChange {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-Seed():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number Seed
- * @returns flatbuffers.Offset
- */
-static createEffectParticleElementRndSeedChange(builder:flatbuffers.Builder, Seed: number):flatbuffers.Offset {
-  builder.prep(4, 4);
-  builder.writeInt32(Seed);
-  return builder.offset();
-};
-
-}
-}
 /**
  * @constructor
  */
@@ -987,7 +194,7 @@ __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementBasic {
 /**
  * @returns number
  */
-SsEffectFunctionType():number {
+ssEffectFunctionType():number {
   return this.bb!.readInt32(this.bb_pos);
 };
 
@@ -1070,34 +277,34 @@ angleVariance():number {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number SsEffectFunctionType
+ * @param number ss_effect_function_type
  * @param number priority
- * @param number maximumParticle
- * @param number attimeCreate
+ * @param number maximum_particle
+ * @param number attime_create
  * @param number interval
  * @param number lifetime
- * @param number speedMinValue
- * @param number speedMaxValue
- * @param number lifespanMinValue
- * @param number lifespanMaxValue
+ * @param number speed_min_value
+ * @param number speed_max_value
+ * @param number lifespan_min_value
+ * @param number lifespan_max_value
  * @param number angle
- * @param number angleVariance
+ * @param number angle_variance
  * @returns flatbuffers.Offset
  */
-static createEffectParticleElementBasic(builder:flatbuffers.Builder, SsEffectFunctionType: number, priority: number, maximumParticle: number, attimeCreate: number, interval: number, lifetime: number, speedMinValue: number, speedMaxValue: number, lifespanMinValue: number, lifespanMaxValue: number, angle: number, angleVariance: number):flatbuffers.Offset {
+static createEffectParticleElementBasic(builder:flatbuffers.Builder, ss_effect_function_type: number, priority: number, maximum_particle: number, attime_create: number, interval: number, lifetime: number, speed_min_value: number, speed_max_value: number, lifespan_min_value: number, lifespan_max_value: number, angle: number, angle_variance: number):flatbuffers.Offset {
   builder.prep(4, 48);
-  builder.writeFloat32(angleVariance);
+  builder.writeFloat32(angle_variance);
   builder.writeFloat32(angle);
-  builder.writeInt32(lifespanMaxValue);
-  builder.writeInt32(lifespanMinValue);
-  builder.writeFloat32(speedMaxValue);
-  builder.writeFloat32(speedMinValue);
+  builder.writeInt32(lifespan_max_value);
+  builder.writeInt32(lifespan_min_value);
+  builder.writeFloat32(speed_max_value);
+  builder.writeFloat32(speed_min_value);
   builder.writeInt32(lifetime);
   builder.writeInt32(interval);
-  builder.writeInt32(attimeCreate);
-  builder.writeInt32(maximumParticle);
+  builder.writeInt32(attime_create);
+  builder.writeInt32(maximum_particle);
   builder.writeInt32(priority);
-  builder.writeInt32(SsEffectFunctionType);
+  builder.writeInt32(ss_effect_function_type);
   return builder.offset();
 };
 
@@ -1148,11 +355,11 @@ parentIndex():number {
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.EffectNodeType
  */
-type():number {
+type():ss.ssfb.EffectNodeType {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.EffectNodeType.Root;
 };
 
 /**
@@ -1164,69 +371,363 @@ cellIndex():number {
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.EffectRenderBlendType
  */
-blendType():number {
+blendType():ss.ssfb.EffectRenderBlendType {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.EffectRenderBlendType.Mix;
 };
 
 /**
- * @returns number
+ * @param ss.ssfb.EffectParticleElementBasic= obj
+ * @returns ss.ssfb.EffectParticleElementBasic|null
  */
-numBehavior():number {
+basicBehavior(obj?:ss.ssfb.EffectParticleElementBasic):ss.ssfb.EffectParticleElementBasic|null {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? (obj || new ss.ssfb.EffectParticleElementBasic).__init(this.bb_pos + offset, this.bb!) : null;
 };
 
 /**
- * @param number index
- * @returns ss.ssfb.EffectNodeBehavior
+ * @returns ss.ssfb.EffectBehaviorFlags
  */
-BehaviorType(index: number):ss.ssfb.EffectNodeBehavior|null {
+behaviorFlags():ss.ssfb.EffectBehaviorFlags {
   var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? /**  */ (this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index)) : /**  */ (0);
+  return offset ? /**  */ (this.bb!.readUint32(this.bb_pos + offset)) : /** } */ (0);
 };
 
 /**
  * @returns number
  */
-BehaviorTypeLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Uint8Array
- */
-BehaviorTypeArray():Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param number index
- * @param flatbuffers.Table= obj
- * @returns ?flatbuffers.Table
- */
-Behavior<T extends flatbuffers.Table>(index: number, obj:T):T|null {
+seed():number {
   var offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
-BehaviorLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+delayTime():number {
+  var offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+gravityX():number {
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+gravityY():number {
+  var offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+offsetXMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+offsetXMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+offsetYMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+offsetYMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotationMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 34);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotationMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotationAddMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotationAddMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 40);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotationFactor():number {
+  var offset = this.bb!.__offset(this.bb_pos, 42);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+endLifeTimePer():number {
+  var offset = this.bb!.__offset(this.bb_pos, 44);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+speedMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 46);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+speedMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+accelerationMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+accelerationMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 52);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+initColorMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+initColorMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+transColorMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 58);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+transColorMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 60);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+disprangeMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 62);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+disprangeMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 64);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+sizeXMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 66);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+sizeXMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 68);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+sizeYMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 70);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+sizeYMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 72);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+scaleFactorMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 74);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+scaleFactorMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 76);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transSizeXMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 78);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transSizeXMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transSizeYMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 82);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transSizeYMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 84);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transScaleFactorMinValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 86);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+transScaleFactorMaxValue():number {
+  var offset = this.bb!.__offset(this.bb_pos, 88);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+pointGravityPositionX():number {
+  var offset = this.bb!.__offset(this.bb_pos, 90);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+pointGravityPositionY():number {
+  var offset = this.bb!.__offset(this.bb_pos, 92);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+pointGravityPower():number {
+  var offset = this.bb!.__offset(this.bb_pos, 94);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+rotation():number {
+  var offset = this.bb!.__offset(this.bb_pos, 96);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+infinitieEmitFlag():number {
+  var offset = this.bb!.__offset(this.bb_pos, 98);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @param flatbuffers.Builder builder
  */
 static startEffectNode(builder:flatbuffers.Builder) {
-  builder.startObject(8);
+  builder.startObject(48);
 };
 
 /**
@@ -1247,10 +748,10 @@ static addParentIndex(builder:flatbuffers.Builder, parentIndex:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number type
+ * @param ss.ssfb.EffectNodeType type
  */
-static addType(builder:flatbuffers.Builder, type:number) {
-  builder.addFieldInt16(2, type, 0);
+static addType(builder:flatbuffers.Builder, type:ss.ssfb.EffectNodeType) {
+  builder.addFieldInt8(2, type, ss.ssfb.EffectNodeType.Root);
 };
 
 /**
@@ -1263,76 +764,354 @@ static addCellIndex(builder:flatbuffers.Builder, cellIndex:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number blendType
+ * @param ss.ssfb.EffectRenderBlendType blendType
  */
-static addBlendType(builder:flatbuffers.Builder, blendType:number) {
-  builder.addFieldInt16(4, blendType, 0);
+static addBlendType(builder:flatbuffers.Builder, blendType:ss.ssfb.EffectRenderBlendType) {
+  builder.addFieldInt8(4, blendType, ss.ssfb.EffectRenderBlendType.Mix);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number numBehavior
+ * @param flatbuffers.Offset basicBehaviorOffset
  */
-static addNumBehavior(builder:flatbuffers.Builder, numBehavior:number) {
-  builder.addFieldInt16(5, numBehavior, 0);
+static addBasicBehavior(builder:flatbuffers.Builder, basicBehaviorOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(5, basicBehaviorOffset, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset BehaviorTypeOffset
+ * @param ss.ssfb.EffectBehaviorFlags behaviorFlags
  */
-static addBehaviorType(builder:flatbuffers.Builder, BehaviorTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, BehaviorTypeOffset, 0);
+static addBehaviorFlags(builder:flatbuffers.Builder, behaviorFlags:ss.ssfb.EffectBehaviorFlags) {
+  builder.addFieldInt32(6, behaviorFlags, /** } */ (0));
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param Array.<ss.ssfb.EffectNodeBehavior> data
- * @returns flatbuffers.Offset
+ * @param number seed
  */
-static createBehaviorTypeVector(builder:flatbuffers.Builder, data:ss.ssfb.EffectNodeBehavior[]):flatbuffers.Offset {
-  builder.startVector(1, data.length, 1);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]);
-  }
-  return builder.endVector();
+static addSeed(builder:flatbuffers.Builder, seed:number) {
+  builder.addFieldInt32(7, seed, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number numElems
+ * @param number delayTime
  */
-static startBehaviorTypeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(1, numElems, 1);
+static addDelayTime(builder:flatbuffers.Builder, delayTime:number) {
+  builder.addFieldInt32(8, delayTime, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset BehaviorOffset
+ * @param number gravityX
  */
-static addBehavior(builder:flatbuffers.Builder, BehaviorOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, BehaviorOffset, 0);
+static addGravityX(builder:flatbuffers.Builder, gravityX:number) {
+  builder.addFieldFloat32(9, gravityX, 0.0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param Array.<flatbuffers.Offset> data
- * @returns flatbuffers.Offset
+ * @param number gravityY
  */
-static createBehaviorVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
+static addGravityY(builder:flatbuffers.Builder, gravityY:number) {
+  builder.addFieldFloat32(10, gravityY, 0.0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number numElems
+ * @param number offsetXMinValue
  */
-static startBehaviorVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
+static addOffsetXMinValue(builder:flatbuffers.Builder, offsetXMinValue:number) {
+  builder.addFieldFloat32(11, offsetXMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number offsetXMaxValue
+ */
+static addOffsetXMaxValue(builder:flatbuffers.Builder, offsetXMaxValue:number) {
+  builder.addFieldFloat32(12, offsetXMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number offsetYMinValue
+ */
+static addOffsetYMinValue(builder:flatbuffers.Builder, offsetYMinValue:number) {
+  builder.addFieldFloat32(13, offsetYMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number offsetYMaxValue
+ */
+static addOffsetYMaxValue(builder:flatbuffers.Builder, offsetYMaxValue:number) {
+  builder.addFieldFloat32(14, offsetYMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotationMinValue
+ */
+static addRotationMinValue(builder:flatbuffers.Builder, rotationMinValue:number) {
+  builder.addFieldFloat32(15, rotationMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotationMaxValue
+ */
+static addRotationMaxValue(builder:flatbuffers.Builder, rotationMaxValue:number) {
+  builder.addFieldFloat32(16, rotationMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotationAddMinValue
+ */
+static addRotationAddMinValue(builder:flatbuffers.Builder, rotationAddMinValue:number) {
+  builder.addFieldFloat32(17, rotationAddMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotationAddMaxValue
+ */
+static addRotationAddMaxValue(builder:flatbuffers.Builder, rotationAddMaxValue:number) {
+  builder.addFieldFloat32(18, rotationAddMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotationFactor
+ */
+static addRotationFactor(builder:flatbuffers.Builder, rotationFactor:number) {
+  builder.addFieldFloat32(19, rotationFactor, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number endLifeTimePer
+ */
+static addEndLifeTimePer(builder:flatbuffers.Builder, endLifeTimePer:number) {
+  builder.addFieldFloat32(20, endLifeTimePer, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number speedMinValue
+ */
+static addSpeedMinValue(builder:flatbuffers.Builder, speedMinValue:number) {
+  builder.addFieldFloat32(21, speedMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number speedMaxValue
+ */
+static addSpeedMaxValue(builder:flatbuffers.Builder, speedMaxValue:number) {
+  builder.addFieldFloat32(22, speedMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number accelerationMinValue
+ */
+static addAccelerationMinValue(builder:flatbuffers.Builder, accelerationMinValue:number) {
+  builder.addFieldFloat32(23, accelerationMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number accelerationMaxValue
+ */
+static addAccelerationMaxValue(builder:flatbuffers.Builder, accelerationMaxValue:number) {
+  builder.addFieldFloat32(24, accelerationMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number initColorMinValue
+ */
+static addInitColorMinValue(builder:flatbuffers.Builder, initColorMinValue:number) {
+  builder.addFieldInt32(25, initColorMinValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number initColorMaxValue
+ */
+static addInitColorMaxValue(builder:flatbuffers.Builder, initColorMaxValue:number) {
+  builder.addFieldInt32(26, initColorMaxValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transColorMinValue
+ */
+static addTransColorMinValue(builder:flatbuffers.Builder, transColorMinValue:number) {
+  builder.addFieldInt32(27, transColorMinValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transColorMaxValue
+ */
+static addTransColorMaxValue(builder:flatbuffers.Builder, transColorMaxValue:number) {
+  builder.addFieldInt32(28, transColorMaxValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number disprangeMinValue
+ */
+static addDisprangeMinValue(builder:flatbuffers.Builder, disprangeMinValue:number) {
+  builder.addFieldFloat32(29, disprangeMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number disprangeMaxValue
+ */
+static addDisprangeMaxValue(builder:flatbuffers.Builder, disprangeMaxValue:number) {
+  builder.addFieldFloat32(30, disprangeMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number sizeXMinValue
+ */
+static addSizeXMinValue(builder:flatbuffers.Builder, sizeXMinValue:number) {
+  builder.addFieldFloat32(31, sizeXMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number sizeXMaxValue
+ */
+static addSizeXMaxValue(builder:flatbuffers.Builder, sizeXMaxValue:number) {
+  builder.addFieldFloat32(32, sizeXMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number sizeYMinValue
+ */
+static addSizeYMinValue(builder:flatbuffers.Builder, sizeYMinValue:number) {
+  builder.addFieldFloat32(33, sizeYMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number sizeYMaxValue
+ */
+static addSizeYMaxValue(builder:flatbuffers.Builder, sizeYMaxValue:number) {
+  builder.addFieldFloat32(34, sizeYMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number scaleFactorMinValue
+ */
+static addScaleFactorMinValue(builder:flatbuffers.Builder, scaleFactorMinValue:number) {
+  builder.addFieldFloat32(35, scaleFactorMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number scaleFactorMaxValue
+ */
+static addScaleFactorMaxValue(builder:flatbuffers.Builder, scaleFactorMaxValue:number) {
+  builder.addFieldFloat32(36, scaleFactorMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transSizeXMinValue
+ */
+static addTransSizeXMinValue(builder:flatbuffers.Builder, transSizeXMinValue:number) {
+  builder.addFieldFloat32(37, transSizeXMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transSizeXMaxValue
+ */
+static addTransSizeXMaxValue(builder:flatbuffers.Builder, transSizeXMaxValue:number) {
+  builder.addFieldFloat32(38, transSizeXMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transSizeYMinValue
+ */
+static addTransSizeYMinValue(builder:flatbuffers.Builder, transSizeYMinValue:number) {
+  builder.addFieldFloat32(39, transSizeYMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transSizeYMaxValue
+ */
+static addTransSizeYMaxValue(builder:flatbuffers.Builder, transSizeYMaxValue:number) {
+  builder.addFieldFloat32(40, transSizeYMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transScaleFactorMinValue
+ */
+static addTransScaleFactorMinValue(builder:flatbuffers.Builder, transScaleFactorMinValue:number) {
+  builder.addFieldFloat32(41, transScaleFactorMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number transScaleFactorMaxValue
+ */
+static addTransScaleFactorMaxValue(builder:flatbuffers.Builder, transScaleFactorMaxValue:number) {
+  builder.addFieldFloat32(42, transScaleFactorMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pointGravityPositionX
+ */
+static addPointGravityPositionX(builder:flatbuffers.Builder, pointGravityPositionX:number) {
+  builder.addFieldFloat32(43, pointGravityPositionX, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pointGravityPositionY
+ */
+static addPointGravityPositionY(builder:flatbuffers.Builder, pointGravityPositionY:number) {
+  builder.addFieldFloat32(44, pointGravityPositionY, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pointGravityPower
+ */
+static addPointGravityPower(builder:flatbuffers.Builder, pointGravityPower:number) {
+  builder.addFieldFloat32(45, pointGravityPower, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rotation
+ */
+static addRotation(builder:flatbuffers.Builder, rotation:number) {
+  builder.addFieldFloat32(46, rotation, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number infinitieEmitFlag
+ */
+static addInfinitieEmitFlag(builder:flatbuffers.Builder, infinitieEmitFlag:number) {
+  builder.addFieldInt32(47, infinitieEmitFlag, 0);
 };
 
 /**
@@ -1344,16 +1123,56 @@ static endEffectNode(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createEffectNode(builder:flatbuffers.Builder, arrayIndex:number, parentIndex:number, type:number, cellIndex:number, blendType:number, numBehavior:number, BehaviorTypeOffset:flatbuffers.Offset, BehaviorOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createEffectNode(builder:flatbuffers.Builder, arrayIndex:number, parentIndex:number, type:ss.ssfb.EffectNodeType, cellIndex:number, blendType:ss.ssfb.EffectRenderBlendType, basicBehaviorOffset:flatbuffers.Offset, behaviorFlags:ss.ssfb.EffectBehaviorFlags, seed:number, delayTime:number, gravityX:number, gravityY:number, offsetXMinValue:number, offsetXMaxValue:number, offsetYMinValue:number, offsetYMaxValue:number, rotationMinValue:number, rotationMaxValue:number, rotationAddMinValue:number, rotationAddMaxValue:number, rotationFactor:number, endLifeTimePer:number, speedMinValue:number, speedMaxValue:number, accelerationMinValue:number, accelerationMaxValue:number, initColorMinValue:number, initColorMaxValue:number, transColorMinValue:number, transColorMaxValue:number, disprangeMinValue:number, disprangeMaxValue:number, sizeXMinValue:number, sizeXMaxValue:number, sizeYMinValue:number, sizeYMaxValue:number, scaleFactorMinValue:number, scaleFactorMaxValue:number, transSizeXMinValue:number, transSizeXMaxValue:number, transSizeYMinValue:number, transSizeYMaxValue:number, transScaleFactorMinValue:number, transScaleFactorMaxValue:number, pointGravityPositionX:number, pointGravityPositionY:number, pointGravityPower:number, rotation:number, infinitieEmitFlag:number):flatbuffers.Offset {
   EffectNode.startEffectNode(builder);
   EffectNode.addArrayIndex(builder, arrayIndex);
   EffectNode.addParentIndex(builder, parentIndex);
   EffectNode.addType(builder, type);
   EffectNode.addCellIndex(builder, cellIndex);
   EffectNode.addBlendType(builder, blendType);
-  EffectNode.addNumBehavior(builder, numBehavior);
-  EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
-  EffectNode.addBehavior(builder, BehaviorOffset);
+  EffectNode.addBasicBehavior(builder, basicBehaviorOffset);
+  EffectNode.addBehaviorFlags(builder, behaviorFlags);
+  EffectNode.addSeed(builder, seed);
+  EffectNode.addDelayTime(builder, delayTime);
+  EffectNode.addGravityX(builder, gravityX);
+  EffectNode.addGravityY(builder, gravityY);
+  EffectNode.addOffsetXMinValue(builder, offsetXMinValue);
+  EffectNode.addOffsetXMaxValue(builder, offsetXMaxValue);
+  EffectNode.addOffsetYMinValue(builder, offsetYMinValue);
+  EffectNode.addOffsetYMaxValue(builder, offsetYMaxValue);
+  EffectNode.addRotationMinValue(builder, rotationMinValue);
+  EffectNode.addRotationMaxValue(builder, rotationMaxValue);
+  EffectNode.addRotationAddMinValue(builder, rotationAddMinValue);
+  EffectNode.addRotationAddMaxValue(builder, rotationAddMaxValue);
+  EffectNode.addRotationFactor(builder, rotationFactor);
+  EffectNode.addEndLifeTimePer(builder, endLifeTimePer);
+  EffectNode.addSpeedMinValue(builder, speedMinValue);
+  EffectNode.addSpeedMaxValue(builder, speedMaxValue);
+  EffectNode.addAccelerationMinValue(builder, accelerationMinValue);
+  EffectNode.addAccelerationMaxValue(builder, accelerationMaxValue);
+  EffectNode.addInitColorMinValue(builder, initColorMinValue);
+  EffectNode.addInitColorMaxValue(builder, initColorMaxValue);
+  EffectNode.addTransColorMinValue(builder, transColorMinValue);
+  EffectNode.addTransColorMaxValue(builder, transColorMaxValue);
+  EffectNode.addDisprangeMinValue(builder, disprangeMinValue);
+  EffectNode.addDisprangeMaxValue(builder, disprangeMaxValue);
+  EffectNode.addSizeXMinValue(builder, sizeXMinValue);
+  EffectNode.addSizeXMaxValue(builder, sizeXMaxValue);
+  EffectNode.addSizeYMinValue(builder, sizeYMinValue);
+  EffectNode.addSizeYMaxValue(builder, sizeYMaxValue);
+  EffectNode.addScaleFactorMinValue(builder, scaleFactorMinValue);
+  EffectNode.addScaleFactorMaxValue(builder, scaleFactorMaxValue);
+  EffectNode.addTransSizeXMinValue(builder, transSizeXMinValue);
+  EffectNode.addTransSizeXMaxValue(builder, transSizeXMaxValue);
+  EffectNode.addTransSizeYMinValue(builder, transSizeYMinValue);
+  EffectNode.addTransSizeYMaxValue(builder, transSizeYMaxValue);
+  EffectNode.addTransScaleFactorMinValue(builder, transScaleFactorMinValue);
+  EffectNode.addTransScaleFactorMaxValue(builder, transScaleFactorMaxValue);
+  EffectNode.addPointGravityPositionX(builder, pointGravityPositionX);
+  EffectNode.addPointGravityPositionY(builder, pointGravityPositionY);
+  EffectNode.addPointGravityPower(builder, pointGravityPower);
+  EffectNode.addRotation(builder, rotation);
+  EffectNode.addInfinitieEmitFlag(builder, infinitieEmitFlag);
   return EffectNode.endEffectNode(builder);
 }
 }
@@ -1639,7 +1458,7 @@ index():number {
 /**
  * @returns number
  */
-wrapmode():number {
+wrapMode():number {
   var offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
@@ -1647,7 +1466,7 @@ wrapmode():number {
 /**
  * @returns number
  */
-filtermode():number {
+filterMode():number {
   var offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
@@ -1685,18 +1504,18 @@ static addIndex(builder:flatbuffers.Builder, index:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number wrapmode
+ * @param number wrapMode
  */
-static addWrapmode(builder:flatbuffers.Builder, wrapmode:number) {
-  builder.addFieldInt16(3, wrapmode, 0);
+static addWrapMode(builder:flatbuffers.Builder, wrapMode:number) {
+  builder.addFieldInt16(3, wrapMode, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number filtermode
+ * @param number filterMode
  */
-static addFiltermode(builder:flatbuffers.Builder, filtermode:number) {
-  builder.addFieldInt16(4, filtermode, 0);
+static addFilterMode(builder:flatbuffers.Builder, filterMode:number) {
+  builder.addFieldInt16(4, filterMode, 0);
 };
 
 /**
@@ -1708,13 +1527,13 @@ static endCellMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createCellMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, imagePathOffset:flatbuffers.Offset, index:number, wrapmode:number, filtermode:number):flatbuffers.Offset {
+static createCellMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, imagePathOffset:flatbuffers.Offset, index:number, wrapMode:number, filterMode:number):flatbuffers.Offset {
   CellMap.startCellMap(builder);
   CellMap.addName(builder, nameOffset);
   CellMap.addImagePath(builder, imagePathOffset);
   CellMap.addIndex(builder, index);
-  CellMap.addWrapmode(builder, wrapmode);
-  CellMap.addFiltermode(builder, filtermode);
+  CellMap.addWrapMode(builder, wrapMode);
+  CellMap.addFilterMode(builder, filterMode);
   return CellMap.endCellMap(builder);
 }
 }
@@ -1998,16 +1817,16 @@ static createCell(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, ce
  * @constructor
  */
 export namespace ss.ssfb{
-export class meshDataUV {
+export class MeshDataUV {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns meshDataUV
+ * @returns MeshDataUV
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):meshDataUV {
+__init(i:number, bb:flatbuffers.ByteBuffer):MeshDataUV {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2015,11 +1834,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):meshDataUV {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param meshDataUV= obj
- * @returns meshDataUV
+ * @param MeshDataUV= obj
+ * @returns MeshDataUV
  */
-static getRootAsmeshDataUV(bb:flatbuffers.ByteBuffer, obj?:meshDataUV):meshDataUV {
-  return (obj || new meshDataUV).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsMeshDataUV(bb:flatbuffers.ByteBuffer, obj?:MeshDataUV):MeshDataUV {
+  return (obj || new MeshDataUV).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2050,7 +1869,7 @@ uvArray():Float32Array|null {
 /**
  * @param flatbuffers.Builder builder
  */
-static startmeshDataUV(builder:flatbuffers.Builder) {
+static startMeshDataUV(builder:flatbuffers.Builder) {
   builder.startObject(1);
 };
 
@@ -2087,15 +1906,15 @@ static startUvVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static endmeshDataUV(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endMeshDataUV(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createmeshDataUV(builder:flatbuffers.Builder, uvOffset:flatbuffers.Offset):flatbuffers.Offset {
-  meshDataUV.startmeshDataUV(builder);
-  meshDataUV.addUv(builder, uvOffset);
-  return meshDataUV.endmeshDataUV(builder);
+static createMeshDataUV(builder:flatbuffers.Builder, uvOffset:flatbuffers.Offset):flatbuffers.Offset {
+  MeshDataUV.startMeshDataUV(builder);
+  MeshDataUV.addUv(builder, uvOffset);
+  return MeshDataUV.endMeshDataUV(builder);
 }
 }
 }
@@ -2103,16 +1922,16 @@ static createmeshDataUV(builder:flatbuffers.Builder, uvOffset:flatbuffers.Offset
  * @constructor
  */
 export namespace ss.ssfb{
-export class meshDataIndices {
+export class MeshDataIndices {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns meshDataIndices
+ * @returns MeshDataIndices
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):meshDataIndices {
+__init(i:number, bb:flatbuffers.ByteBuffer):MeshDataIndices {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2120,11 +1939,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):meshDataIndices {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param meshDataIndices= obj
- * @returns meshDataIndices
+ * @param MeshDataIndices= obj
+ * @returns MeshDataIndices
  */
-static getRootAsmeshDataIndices(bb:flatbuffers.ByteBuffer, obj?:meshDataIndices):meshDataIndices {
-  return (obj || new meshDataIndices).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsMeshDataIndices(bb:flatbuffers.ByteBuffer, obj?:MeshDataIndices):MeshDataIndices {
+  return (obj || new MeshDataIndices).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2155,7 +1974,7 @@ indicesArray():Float32Array|null {
 /**
  * @param flatbuffers.Builder builder
  */
-static startmeshDataIndices(builder:flatbuffers.Builder) {
+static startMeshDataIndices(builder:flatbuffers.Builder) {
   builder.startObject(1);
 };
 
@@ -2192,15 +2011,15 @@ static startIndicesVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static endmeshDataIndices(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endMeshDataIndices(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createmeshDataIndices(builder:flatbuffers.Builder, indicesOffset:flatbuffers.Offset):flatbuffers.Offset {
-  meshDataIndices.startmeshDataIndices(builder);
-  meshDataIndices.addIndices(builder, indicesOffset);
-  return meshDataIndices.endmeshDataIndices(builder);
+static createMeshDataIndices(builder:flatbuffers.Builder, indicesOffset:flatbuffers.Offset):flatbuffers.Offset {
+  MeshDataIndices.startMeshDataIndices(builder);
+  MeshDataIndices.addIndices(builder, indicesOffset);
+  return MeshDataIndices.endMeshDataIndices(builder);
 }
 }
 }
@@ -2208,16 +2027,16 @@ static createmeshDataIndices(builder:flatbuffers.Builder, indicesOffset:flatbuff
  * @constructor
  */
 export namespace ss.ssfb{
-export class partState {
+export class PartState {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns partState
+ * @returns PartState
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):partState {
+__init(i:number, bb:flatbuffers.ByteBuffer):PartState {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2225,11 +2044,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):partState {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param partState= obj
- * @returns partState
+ * @param PartState= obj
+ * @returns PartState
  */
-static getRootAspartState(bb:flatbuffers.ByteBuffer, obj?:partState):partState {
-  return (obj || new partState).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsPartState(bb:flatbuffers.ByteBuffer, obj?:PartState):PartState {
+  return (obj || new PartState).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2284,7 +2103,7 @@ dataArray():Uint32Array|null {
 /**
  * @param flatbuffers.Builder builder
  */
-static startpartState(builder:flatbuffers.Builder) {
+static startPartState(builder:flatbuffers.Builder) {
   builder.startObject(4);
 };
 
@@ -2345,18 +2164,18 @@ static startDataVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static endpartState(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endPartState(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createpartState(builder:flatbuffers.Builder, index:number, flag1:number, flag2:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
-  partState.startpartState(builder);
-  partState.addIndex(builder, index);
-  partState.addFlag1(builder, flag1);
-  partState.addFlag2(builder, flag2);
-  partState.addData(builder, dataOffset);
-  return partState.endpartState(builder);
+static createPartState(builder:flatbuffers.Builder, index:number, flag1:number, flag2:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
+  PartState.startPartState(builder);
+  PartState.addIndex(builder, index);
+  PartState.addFlag1(builder, flag1);
+  PartState.addFlag2(builder, flag2);
+  PartState.addData(builder, dataOffset);
+  return PartState.endPartState(builder);
 }
 }
 }
@@ -2364,16 +2183,16 @@ static createpartState(builder:flatbuffers.Builder, index:number, flag1:number, 
  * @constructor
  */
 export namespace ss.ssfb{
-export class frameDataIndex {
+export class FrameDataIndex {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns frameDataIndex
+ * @returns FrameDataIndex
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):frameDataIndex {
+__init(i:number, bb:flatbuffers.ByteBuffer):FrameDataIndex {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2381,21 +2200,21 @@ __init(i:number, bb:flatbuffers.ByteBuffer):frameDataIndex {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param frameDataIndex= obj
- * @returns frameDataIndex
+ * @param FrameDataIndex= obj
+ * @returns FrameDataIndex
  */
-static getRootAsframeDataIndex(bb:flatbuffers.ByteBuffer, obj?:frameDataIndex):frameDataIndex {
-  return (obj || new frameDataIndex).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsFrameDataIndex(bb:flatbuffers.ByteBuffer, obj?:FrameDataIndex):FrameDataIndex {
+  return (obj || new FrameDataIndex).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param number index
- * @param ss.ssfb.partState= obj
- * @returns ss.ssfb.partState
+ * @param ss.ssfb.PartState= obj
+ * @returns ss.ssfb.PartState
  */
-states(index: number, obj?:ss.ssfb.partState):ss.ssfb.partState|null {
+states(index: number, obj?:ss.ssfb.PartState):ss.ssfb.PartState|null {
   var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? (obj || new ss.ssfb.partState).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.PartState).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -2409,7 +2228,7 @@ statesLength():number {
 /**
  * @param flatbuffers.Builder builder
  */
-static startframeDataIndex(builder:flatbuffers.Builder) {
+static startFrameDataIndex(builder:flatbuffers.Builder) {
   builder.startObject(1);
 };
 
@@ -2446,15 +2265,15 @@ static startStatesVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static endframeDataIndex(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endFrameDataIndex(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createframeDataIndex(builder:flatbuffers.Builder, statesOffset:flatbuffers.Offset):flatbuffers.Offset {
-  frameDataIndex.startframeDataIndex(builder);
-  frameDataIndex.addStates(builder, statesOffset);
-  return frameDataIndex.endframeDataIndex(builder);
+static createFrameDataIndex(builder:flatbuffers.Builder, statesOffset:flatbuffers.Offset):flatbuffers.Offset {
+  FrameDataIndex.startFrameDataIndex(builder);
+  FrameDataIndex.addStates(builder, statesOffset);
+  return FrameDataIndex.endFrameDataIndex(builder);
 }
 }
 }
@@ -2462,169 +2281,16 @@ static createframeDataIndex(builder:flatbuffers.Builder, statesOffset:flatbuffer
  * @constructor
  */
 export namespace ss.ssfb{
-export class userDataInteger {
+export class UserDataItem {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns userDataInteger
+ * @returns UserDataItem
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataInteger {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-integer():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number integer
- * @returns flatbuffers.Offset
- */
-static createuserDataInteger(builder:flatbuffers.Builder, integer: number):flatbuffers.Offset {
-  builder.prep(4, 4);
-  builder.writeInt32(integer);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class userDataRect {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns userDataRect
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataRect {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-x():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-y():number {
-  return this.bb!.readInt32(this.bb_pos + 4);
-};
-
-/**
- * @returns number
- */
-w():number {
-  return this.bb!.readInt32(this.bb_pos + 8);
-};
-
-/**
- * @returns number
- */
-h():number {
-  return this.bb!.readInt32(this.bb_pos + 12);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number x
- * @param number y
- * @param number w
- * @param number h
- * @returns flatbuffers.Offset
- */
-static createuserDataRect(builder:flatbuffers.Builder, x: number, y: number, w: number, h: number):flatbuffers.Offset {
-  builder.prep(4, 16);
-  builder.writeInt32(h);
-  builder.writeInt32(w);
-  builder.writeInt32(y);
-  builder.writeInt32(x);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class userDataPoint {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns userDataPoint
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataPoint {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns number
- */
-x():number {
-  return this.bb!.readInt32(this.bb_pos);
-};
-
-/**
- * @returns number
- */
-y():number {
-  return this.bb!.readInt32(this.bb_pos + 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number x
- * @param number y
- * @returns flatbuffers.Offset
- */
-static createuserDataPoint(builder:flatbuffers.Builder, x: number, y: number):flatbuffers.Offset {
-  builder.prep(4, 8);
-  builder.writeInt32(y);
-  builder.writeInt32(x);
-  return builder.offset();
-};
-
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class userDataString {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns userDataString
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataString {
+__init(i:number, bb:flatbuffers.ByteBuffer):UserDataItem {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2632,106 +2298,19 @@ __init(i:number, bb:flatbuffers.ByteBuffer):userDataString {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param userDataString= obj
- * @returns userDataString
+ * @param UserDataItem= obj
+ * @returns UserDataItem
  */
-static getRootAsuserDataString(bb:flatbuffers.ByteBuffer, obj?:userDataString):userDataString {
-  return (obj || new userDataString).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsUserDataItem(bb:flatbuffers.ByteBuffer, obj?:UserDataItem):UserDataItem {
+  return (obj || new UserDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.UserDataFlag
  */
-length():number {
+flags():ss.ssfb.UserDataFlag {
   var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * @param flatbuffers.Encoding= optionalEncoding
- * @returns string|Uint8Array|null
- */
-data():string|null
-data(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-data(optionalEncoding?:any):string|Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param flatbuffers.Builder builder
- */
-static startuserDataString(builder:flatbuffers.Builder) {
-  builder.startObject(2);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number length
- */
-static addLength(builder:flatbuffers.Builder, length:number) {
-  builder.addFieldInt32(0, length, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset dataOffset
- */
-static addData(builder:flatbuffers.Builder, dataOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, dataOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @returns flatbuffers.Offset
- */
-static enduserDataString(builder:flatbuffers.Builder):flatbuffers.Offset {
-  var offset = builder.endObject();
-  return offset;
-};
-
-static createuserDataString(builder:flatbuffers.Builder, length:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
-  userDataString.startuserDataString(builder);
-  userDataString.addLength(builder, length);
-  userDataString.addData(builder, dataOffset);
-  return userDataString.enduserDataString(builder);
-}
-}
-}
-/**
- * @constructor
- */
-export namespace ss.ssfb{
-export class userDataItem {
-  bb: flatbuffers.ByteBuffer|null = null;
-
-  bb_pos:number = 0;
-/**
- * @param number i
- * @param flatbuffers.ByteBuffer bb
- * @returns userDataItem
- */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataItem {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param userDataItem= obj
- * @returns userDataItem
- */
-static getRootAsuserDataItem(bb:flatbuffers.ByteBuffer, obj?:userDataItem):userDataItem {
-  return (obj || new userDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @returns number
- */
-flags():number {
-  var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readUint8(this.bb_pos + offset)) : /** } */ (0);
 };
 
 /**
@@ -2743,61 +2322,93 @@ arrayIndex():number {
 };
 
 /**
- * @param number index
- * @returns ss.ssfb.userDataValue
+ * @returns number
  */
-dataType(index: number):ss.ssfb.userDataValue|null {
+integer():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? /**  */ (this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index)) : /**  */ (0);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
-dataTypeLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Uint8Array
- */
-dataTypeArray():Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param number index
- * @param flatbuffers.Table= obj
- * @returns ?flatbuffers.Table
- */
-data<T extends flatbuffers.Table>(index: number, obj:T):T|null {
+rectX():number {
   var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
-dataLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+rectY():number {
+  var offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+rectW():number {
+  var offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+rectH():number {
+  var offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pointX():number {
+  var offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+pointY():number {
+  var offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+userStringLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Encoding= optionalEncoding
+ * @returns string|Uint8Array|null
+ */
+userString():string|null
+userString(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+userString(optionalEncoding?:any):string|Uint8Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
  * @param flatbuffers.Builder builder
  */
-static startuserDataItem(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+static startUserDataItem(builder:flatbuffers.Builder) {
+  builder.startObject(11);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number flags
+ * @param ss.ssfb.UserDataFlag flags
  */
-static addFlags(builder:flatbuffers.Builder, flags:number) {
-  builder.addFieldInt16(0, flags, 0);
+static addFlags(builder:flatbuffers.Builder, flags:ss.ssfb.UserDataFlag) {
+  builder.addFieldInt8(0, flags, /** } */ (0));
 };
 
 /**
@@ -2810,78 +2421,99 @@ static addArrayIndex(builder:flatbuffers.Builder, arrayIndex:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset dataTypeOffset
+ * @param number integer
  */
-static addDataType(builder:flatbuffers.Builder, dataTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, dataTypeOffset, 0);
+static addInteger(builder:flatbuffers.Builder, integer:number) {
+  builder.addFieldInt32(2, integer, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param Array.<ss.ssfb.userDataValue> data
+ * @param number rectX
+ */
+static addRectX(builder:flatbuffers.Builder, rectX:number) {
+  builder.addFieldInt32(3, rectX, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rectY
+ */
+static addRectY(builder:flatbuffers.Builder, rectY:number) {
+  builder.addFieldInt32(4, rectY, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rectW
+ */
+static addRectW(builder:flatbuffers.Builder, rectW:number) {
+  builder.addFieldInt32(5, rectW, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number rectH
+ */
+static addRectH(builder:flatbuffers.Builder, rectH:number) {
+  builder.addFieldInt32(6, rectH, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pointX
+ */
+static addPointX(builder:flatbuffers.Builder, pointX:number) {
+  builder.addFieldInt32(7, pointX, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number pointY
+ */
+static addPointY(builder:flatbuffers.Builder, pointY:number) {
+  builder.addFieldInt32(8, pointY, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number userStringLength
+ */
+static addUserStringLength(builder:flatbuffers.Builder, userStringLength:number) {
+  builder.addFieldInt32(9, userStringLength, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset userStringOffset
+ */
+static addUserString(builder:flatbuffers.Builder, userStringOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, userStringOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static createDataTypeVector(builder:flatbuffers.Builder, data:ss.ssfb.userDataValue[]):flatbuffers.Offset {
-  builder.startVector(1, data.length, 1);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startDataTypeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(1, numElems, 1);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset dataOffset
- */
-static addData(builder:flatbuffers.Builder, dataOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, dataOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param Array.<flatbuffers.Offset> data
- * @returns flatbuffers.Offset
- */
-static createDataVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startDataVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @returns flatbuffers.Offset
- */
-static enduserDataItem(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endUserDataItem(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createuserDataItem(builder:flatbuffers.Builder, flags:number, arrayIndex:number, dataTypeOffset:flatbuffers.Offset, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
-  userDataItem.startuserDataItem(builder);
-  userDataItem.addFlags(builder, flags);
-  userDataItem.addArrayIndex(builder, arrayIndex);
-  userDataItem.addDataType(builder, dataTypeOffset);
-  userDataItem.addData(builder, dataOffset);
-  return userDataItem.enduserDataItem(builder);
+static createUserDataItem(builder:flatbuffers.Builder, flags:ss.ssfb.UserDataFlag, arrayIndex:number, integer:number, rectX:number, rectY:number, rectW:number, rectH:number, pointX:number, pointY:number, userStringLength:number, userStringOffset:flatbuffers.Offset):flatbuffers.Offset {
+  UserDataItem.startUserDataItem(builder);
+  UserDataItem.addFlags(builder, flags);
+  UserDataItem.addArrayIndex(builder, arrayIndex);
+  UserDataItem.addInteger(builder, integer);
+  UserDataItem.addRectX(builder, rectX);
+  UserDataItem.addRectY(builder, rectY);
+  UserDataItem.addRectW(builder, rectW);
+  UserDataItem.addRectH(builder, rectH);
+  UserDataItem.addPointX(builder, pointX);
+  UserDataItem.addPointY(builder, pointY);
+  UserDataItem.addUserStringLength(builder, userStringLength);
+  UserDataItem.addUserString(builder, userStringOffset);
+  return UserDataItem.endUserDataItem(builder);
 }
 }
 }
@@ -2889,16 +2521,16 @@ static createuserDataItem(builder:flatbuffers.Builder, flags:number, arrayIndex:
  * @constructor
  */
 export namespace ss.ssfb{
-export class userDataPerFrame {
+export class UserDataPerFrame {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns userDataPerFrame
+ * @returns UserDataPerFrame
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataPerFrame {
+__init(i:number, bb:flatbuffers.ByteBuffer):UserDataPerFrame {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2906,11 +2538,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):userDataPerFrame {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param userDataPerFrame= obj
- * @returns userDataPerFrame
+ * @param UserDataPerFrame= obj
+ * @returns UserDataPerFrame
  */
-static getRootAsuserDataPerFrame(bb:flatbuffers.ByteBuffer, obj?:userDataPerFrame):userDataPerFrame {
-  return (obj || new userDataPerFrame).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsUserDataPerFrame(bb:flatbuffers.ByteBuffer, obj?:UserDataPerFrame):UserDataPerFrame {
+  return (obj || new UserDataPerFrame).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2923,12 +2555,12 @@ frameIndex():number {
 
 /**
  * @param number index
- * @param ss.ssfb.userDataItem= obj
- * @returns ss.ssfb.userDataItem
+ * @param ss.ssfb.UserDataItem= obj
+ * @returns ss.ssfb.UserDataItem
  */
-data(index: number, obj?:ss.ssfb.userDataItem):ss.ssfb.userDataItem|null {
+data(index: number, obj?:ss.ssfb.UserDataItem):ss.ssfb.UserDataItem|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ss.ssfb.userDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.UserDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -2942,7 +2574,7 @@ dataLength():number {
 /**
  * @param flatbuffers.Builder builder
  */
-static startuserDataPerFrame(builder:flatbuffers.Builder) {
+static startUserDataPerFrame(builder:flatbuffers.Builder) {
   builder.startObject(2);
 };
 
@@ -2987,16 +2619,16 @@ static startDataVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static enduserDataPerFrame(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endUserDataPerFrame(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createuserDataPerFrame(builder:flatbuffers.Builder, frameIndex:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
-  userDataPerFrame.startuserDataPerFrame(builder);
-  userDataPerFrame.addFrameIndex(builder, frameIndex);
-  userDataPerFrame.addData(builder, dataOffset);
-  return userDataPerFrame.enduserDataPerFrame(builder);
+static createUserDataPerFrame(builder:flatbuffers.Builder, frameIndex:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
+  UserDataPerFrame.startUserDataPerFrame(builder);
+  UserDataPerFrame.addFrameIndex(builder, frameIndex);
+  UserDataPerFrame.addData(builder, dataOffset);
+  return UserDataPerFrame.endUserDataPerFrame(builder);
 }
 }
 }
@@ -3004,16 +2636,16 @@ static createuserDataPerFrame(builder:flatbuffers.Builder, frameIndex:number, da
  * @constructor
  */
 export namespace ss.ssfb{
-export class labelDataItem {
+export class LabelDataItem {
   bb: flatbuffers.ByteBuffer|null = null;
 
   bb_pos:number = 0;
 /**
  * @param number i
  * @param flatbuffers.ByteBuffer bb
- * @returns labelDataItem
+ * @returns LabelDataItem
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):labelDataItem {
+__init(i:number, bb:flatbuffers.ByteBuffer):LabelDataItem {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3021,11 +2653,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):labelDataItem {
 
 /**
  * @param flatbuffers.ByteBuffer bb
- * @param labelDataItem= obj
- * @returns labelDataItem
+ * @param LabelDataItem= obj
+ * @returns LabelDataItem
  */
-static getRootAslabelDataItem(bb:flatbuffers.ByteBuffer, obj?:labelDataItem):labelDataItem {
-  return (obj || new labelDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsLabelDataItem(bb:flatbuffers.ByteBuffer, obj?:LabelDataItem):LabelDataItem {
+  return (obj || new LabelDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -3050,7 +2682,7 @@ frameIndex():number {
 /**
  * @param flatbuffers.Builder builder
  */
-static startlabelDataItem(builder:flatbuffers.Builder) {
+static startLabelDataItem(builder:flatbuffers.Builder) {
   builder.startObject(2);
 };
 
@@ -3074,16 +2706,16 @@ static addFrameIndex(builder:flatbuffers.Builder, frameIndex:number) {
  * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
-static endlabelDataItem(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endLabelDataItem(builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   return offset;
 };
 
-static createlabelDataItem(builder:flatbuffers.Builder, labelOffset:flatbuffers.Offset, frameIndex:number):flatbuffers.Offset {
-  labelDataItem.startlabelDataItem(builder);
-  labelDataItem.addLabel(builder, labelOffset);
-  labelDataItem.addFrameIndex(builder, frameIndex);
-  return labelDataItem.endlabelDataItem(builder);
+static createLabelDataItem(builder:flatbuffers.Builder, labelOffset:flatbuffers.Offset, frameIndex:number):flatbuffers.Offset {
+  LabelDataItem.startLabelDataItem(builder);
+  LabelDataItem.addLabel(builder, labelOffset);
+  LabelDataItem.addFrameIndex(builder, frameIndex);
+  return LabelDataItem.endLabelDataItem(builder);
 }
 }
 }
@@ -3146,12 +2778,12 @@ defaultDataLength():number {
 
 /**
  * @param number index
- * @param ss.ssfb.frameDataIndex= obj
- * @returns ss.ssfb.frameDataIndex
+ * @param ss.ssfb.FrameDataIndex= obj
+ * @returns ss.ssfb.FrameDataIndex
  */
-frameData(index: number, obj?:ss.ssfb.frameDataIndex):ss.ssfb.frameDataIndex|null {
+frameData(index: number, obj?:ss.ssfb.FrameDataIndex):ss.ssfb.FrameDataIndex|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new ss.ssfb.frameDataIndex).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.FrameDataIndex).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3164,12 +2796,12 @@ frameDataLength():number {
 
 /**
  * @param number index
- * @param ss.ssfb.userDataPerFrame= obj
- * @returns ss.ssfb.userDataPerFrame
+ * @param ss.ssfb.UserDataPerFrame= obj
+ * @returns ss.ssfb.UserDataPerFrame
  */
-userData(index: number, obj?:ss.ssfb.userDataPerFrame):ss.ssfb.userDataPerFrame|null {
+userData(index: number, obj?:ss.ssfb.UserDataPerFrame):ss.ssfb.UserDataPerFrame|null {
   var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? (obj || new ss.ssfb.userDataPerFrame).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.UserDataPerFrame).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3182,12 +2814,12 @@ userDataLength():number {
 
 /**
  * @param number index
- * @param ss.ssfb.labelDataItem= obj
- * @returns ss.ssfb.labelDataItem
+ * @param ss.ssfb.LabelDataItem= obj
+ * @returns ss.ssfb.LabelDataItem
  */
-labelData(index: number, obj?:ss.ssfb.labelDataItem):ss.ssfb.labelDataItem|null {
+labelData(index: number, obj?:ss.ssfb.LabelDataItem):ss.ssfb.LabelDataItem|null {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new ss.ssfb.labelDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.LabelDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3200,12 +2832,12 @@ labelDataLength():number {
 
 /**
  * @param number index
- * @param ss.ssfb.meshDataUV= obj
- * @returns ss.ssfb.meshDataUV
+ * @param ss.ssfb.MeshDataUV= obj
+ * @returns ss.ssfb.MeshDataUV
  */
-meshsDataUV(index: number, obj?:ss.ssfb.meshDataUV):ss.ssfb.meshDataUV|null {
+meshsDataUV(index: number, obj?:ss.ssfb.MeshDataUV):ss.ssfb.MeshDataUV|null {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new ss.ssfb.meshDataUV).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.MeshDataUV).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3218,12 +2850,12 @@ meshsDataUVLength():number {
 
 /**
  * @param number index
- * @param ss.ssfb.meshDataIndices= obj
- * @returns ss.ssfb.meshDataIndices
+ * @param ss.ssfb.MeshDataIndices= obj
+ * @returns ss.ssfb.MeshDataIndices
  */
-meshsDataIndices(index: number, obj?:ss.ssfb.meshDataIndices):ss.ssfb.meshDataIndices|null {
+meshsDataIndices(index: number, obj?:ss.ssfb.MeshDataIndices):ss.ssfb.MeshDataIndices|null {
   var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? (obj || new ss.ssfb.meshDataIndices).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.MeshDataIndices).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3677,7 +3309,7 @@ opacity():number {
 /**
  * @returns number
  */
-localopacity():number {
+localOpacity():number {
   var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
@@ -3773,7 +3405,7 @@ scaleY():number {
 /**
  * @returns number
  */
-localscaleX():number {
+localScaleX():number {
   var offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -3781,7 +3413,7 @@ localscaleX():number {
 /**
  * @returns number
  */
-localscaleY():number {
+localScaleY():number {
   var offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -3893,7 +3525,7 @@ instanceValueSpeed():number {
 /**
  * @returns number
  */
-instanceValueLoopflag():number {
+instanceValueLoopFlag():number {
   var offset = this.bb!.__offset(this.bb_pos, 70);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3925,7 +3557,7 @@ effectValueSpeed():number {
 /**
  * @returns number
  */
-effectValueLoopflag():number {
+effectValueLoopFlag():number {
   var offset = this.bb!.__offset(this.bb_pos, 78);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3987,10 +3619,10 @@ static addOpacity(builder:flatbuffers.Builder, opacity:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number localopacity
+ * @param number localOpacity
  */
-static addLocalopacity(builder:flatbuffers.Builder, localopacity:number) {
-  builder.addFieldInt16(6, localopacity, 0);
+static addLocalOpacity(builder:flatbuffers.Builder, localOpacity:number) {
+  builder.addFieldInt16(6, localOpacity, 0);
 };
 
 /**
@@ -4083,18 +3715,18 @@ static addScaleY(builder:flatbuffers.Builder, scaleY:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number localscaleX
+ * @param number localScaleX
  */
-static addLocalscaleX(builder:flatbuffers.Builder, localscaleX:number) {
-  builder.addFieldFloat32(18, localscaleX, 0.0);
+static addLocalScaleX(builder:flatbuffers.Builder, localScaleX:number) {
+  builder.addFieldFloat32(18, localScaleX, 0.0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number localscaleY
+ * @param number localScaleY
  */
-static addLocalscaleY(builder:flatbuffers.Builder, localscaleY:number) {
-  builder.addFieldFloat32(19, localscaleY, 0.0);
+static addLocalScaleY(builder:flatbuffers.Builder, localScaleY:number) {
+  builder.addFieldFloat32(19, localScaleY, 0.0);
 };
 
 /**
@@ -4203,10 +3835,10 @@ static addInstanceValueSpeed(builder:flatbuffers.Builder, instanceValueSpeed:num
 
 /**
  * @param flatbuffers.Builder builder
- * @param number instanceValueLoopflag
+ * @param number instanceValueLoopFlag
  */
-static addInstanceValueLoopflag(builder:flatbuffers.Builder, instanceValueLoopflag:number) {
-  builder.addFieldInt32(33, instanceValueLoopflag, 0);
+static addInstanceValueLoopFlag(builder:flatbuffers.Builder, instanceValueLoopFlag:number) {
+  builder.addFieldInt32(33, instanceValueLoopFlag, 0);
 };
 
 /**
@@ -4235,10 +3867,10 @@ static addEffectValueSpeed(builder:flatbuffers.Builder, effectValueSpeed:number)
 
 /**
  * @param flatbuffers.Builder builder
- * @param number effectValueLoopflag
+ * @param number effectValueLoopFlag
  */
-static addEffectValueLoopflag(builder:flatbuffers.Builder, effectValueLoopflag:number) {
-  builder.addFieldInt32(37, effectValueLoopflag, 0);
+static addEffectValueLoopFlag(builder:flatbuffers.Builder, effectValueLoopFlag:number) {
+  builder.addFieldInt32(37, effectValueLoopFlag, 0);
 };
 
 /**
@@ -4250,7 +3882,7 @@ static endAnimationInitialData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createAnimationInitialData(builder:flatbuffers.Builder, index:number, lowflag:number, highflag:number, priority:number, cellIndex:number, opacity:number, localopacity:number, masklimen:number, positionX:number, positionY:number, positionZ:number, pivotX:number, pivotY:number, rotationX:number, rotationY:number, rotationZ:number, scaleX:number, scaleY:number, localscaleX:number, localscaleY:number, sizeX:number, sizeY:number, uvMoveX:number, uvMoveY:number, uvRotation:number, uvScaleX:number, uvScaleY:number, boundingRadius:number, instanceValueCurKeyframe:number, instanceValueStartFrame:number, instanceValueEndFrame:number, instanceValueLoopNum:number, instanceValueSpeed:number, instanceValueLoopflag:number, effectValueCurKeyframe:number, effectValueStartTime:number, effectValueSpeed:number, effectValueLoopflag:number):flatbuffers.Offset {
+static createAnimationInitialData(builder:flatbuffers.Builder, index:number, lowflag:number, highflag:number, priority:number, cellIndex:number, opacity:number, localOpacity:number, masklimen:number, positionX:number, positionY:number, positionZ:number, pivotX:number, pivotY:number, rotationX:number, rotationY:number, rotationZ:number, scaleX:number, scaleY:number, localScaleX:number, localScaleY:number, sizeX:number, sizeY:number, uvMoveX:number, uvMoveY:number, uvRotation:number, uvScaleX:number, uvScaleY:number, boundingRadius:number, instanceValueCurKeyframe:number, instanceValueStartFrame:number, instanceValueEndFrame:number, instanceValueLoopNum:number, instanceValueSpeed:number, instanceValueLoopFlag:number, effectValueCurKeyframe:number, effectValueStartTime:number, effectValueSpeed:number, effectValueLoopFlag:number):flatbuffers.Offset {
   AnimationInitialData.startAnimationInitialData(builder);
   AnimationInitialData.addIndex(builder, index);
   AnimationInitialData.addLowflag(builder, lowflag);
@@ -4258,7 +3890,7 @@ static createAnimationInitialData(builder:flatbuffers.Builder, index:number, low
   AnimationInitialData.addPriority(builder, priority);
   AnimationInitialData.addCellIndex(builder, cellIndex);
   AnimationInitialData.addOpacity(builder, opacity);
-  AnimationInitialData.addLocalopacity(builder, localopacity);
+  AnimationInitialData.addLocalOpacity(builder, localOpacity);
   AnimationInitialData.addMasklimen(builder, masklimen);
   AnimationInitialData.addPositionX(builder, positionX);
   AnimationInitialData.addPositionY(builder, positionY);
@@ -4270,8 +3902,8 @@ static createAnimationInitialData(builder:flatbuffers.Builder, index:number, low
   AnimationInitialData.addRotationZ(builder, rotationZ);
   AnimationInitialData.addScaleX(builder, scaleX);
   AnimationInitialData.addScaleY(builder, scaleY);
-  AnimationInitialData.addLocalscaleX(builder, localscaleX);
-  AnimationInitialData.addLocalscaleY(builder, localscaleY);
+  AnimationInitialData.addLocalScaleX(builder, localScaleX);
+  AnimationInitialData.addLocalScaleY(builder, localScaleY);
   AnimationInitialData.addSizeX(builder, sizeX);
   AnimationInitialData.addSizeY(builder, sizeY);
   AnimationInitialData.addUvMoveX(builder, uvMoveX);
@@ -4285,11 +3917,11 @@ static createAnimationInitialData(builder:flatbuffers.Builder, index:number, low
   AnimationInitialData.addInstanceValueEndFrame(builder, instanceValueEndFrame);
   AnimationInitialData.addInstanceValueLoopNum(builder, instanceValueLoopNum);
   AnimationInitialData.addInstanceValueSpeed(builder, instanceValueSpeed);
-  AnimationInitialData.addInstanceValueLoopflag(builder, instanceValueLoopflag);
+  AnimationInitialData.addInstanceValueLoopFlag(builder, instanceValueLoopFlag);
   AnimationInitialData.addEffectValueCurKeyframe(builder, effectValueCurKeyframe);
   AnimationInitialData.addEffectValueStartTime(builder, effectValueStartTime);
   AnimationInitialData.addEffectValueSpeed(builder, effectValueSpeed);
-  AnimationInitialData.addEffectValueLoopflag(builder, effectValueLoopflag);
+  AnimationInitialData.addEffectValueLoopFlag(builder, effectValueLoopFlag);
   return AnimationInitialData.endAnimationInitialData(builder);
 }
 }
@@ -4749,7 +4381,7 @@ version():number {
  */
 flags():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**

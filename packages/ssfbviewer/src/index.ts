@@ -32,8 +32,8 @@ export function displaySsfb(ssfbPath: string) {
       document.writeln('name(string):' + fbObj.cells(i).cellMap().name() + '<br>');
       document.writeln('imagePath(string):' + fbObj.cells(i).cellMap().imagePath() + '<br>');
       document.writeln('index(short):' + fbObj.cells(i).cellMap().index() + '<br>');
-      document.writeln('wrapmode(short):' + fbObj.cells(i).cellMap().wrapmode() + '<br>');
-      document.writeln('filtermode(short):' + fbObj.cells(i).cellMap().filtermode() + '<br>');
+      document.writeln('wrapmode(short):' + fbObj.cells(i).cellMap().wrapMode() + '<br>');
+      document.writeln('filtermode(short):' + fbObj.cells(i).cellMap().filterMode() + '<br>');
       document.writeln('</div>}<br>');
 
       document.writeln('x(short):' + fbObj.cells(i).x() + '<br>');
@@ -90,7 +90,7 @@ export function displaySsfb(ssfbPath: string) {
           document.writeln('priority(short):' + fbObj.animePacks(i).animations(j).defaultData(k).priority() + '<br>');
           document.writeln('cellIndex(short):' + fbObj.animePacks(i).animations(j).defaultData(k).cellIndex() + '<br>');
           document.writeln('opacity(short):' + fbObj.animePacks(i).animations(j).defaultData(k).opacity() + '<br>');
-          document.writeln('localopacity(short):' + fbObj.animePacks(i).animations(j).defaultData(k).localopacity() + '<br>');
+          document.writeln('localopacity(short):' + fbObj.animePacks(i).animations(j).defaultData(k).localOpacity() + '<br>');
           document.writeln('masklimen(short):' + fbObj.animePacks(i).animations(j).defaultData(k).masklimen() + '<br>');
           document.writeln('positonX(float):' + fbObj.animePacks(i).animations(j).defaultData(k).positionX() + '<br>');
           document.writeln('positonY(float):' + fbObj.animePacks(i).animations(j).defaultData(k).positionY() + '<br>');
@@ -102,8 +102,8 @@ export function displaySsfb(ssfbPath: string) {
           document.writeln('rotationZ(float):' + fbObj.animePacks(i).animations(j).defaultData(k).rotationZ() + '<br>');
           document.writeln('scaleX(float):' + fbObj.animePacks(i).animations(j).defaultData(k).scaleX() + '<br>');
           document.writeln('scaleY(float):' + fbObj.animePacks(i).animations(j).defaultData(k).scaleY() + '<br>');
-          document.writeln('localscaleX(float):' + fbObj.animePacks(i).animations(j).defaultData(k).localscaleX() + '<br>');
-          document.writeln('localscaleY(float):' + fbObj.animePacks(i).animations(j).defaultData(k).localscaleY() + '<br>');
+          document.writeln('localscaleX(float):' + fbObj.animePacks(i).animations(j).defaultData(k).localScaleX() + '<br>');
+          document.writeln('localscaleY(float):' + fbObj.animePacks(i).animations(j).defaultData(k).localScaleY() + '<br>');
           document.writeln('size_X(float):' + fbObj.animePacks(i).animations(j).defaultData(k).sizeX() + '<br>');
           document.writeln('size_Y(float):' + fbObj.animePacks(i).animations(j).defaultData(k).sizeY() + '<br>');
           document.writeln('uv_move_X(float):' + fbObj.animePacks(i).animations(j).defaultData(k).uvMoveX() + '<br>');
@@ -117,11 +117,11 @@ export function displaySsfb(ssfbPath: string) {
           document.writeln('instanceValue_endFrame(int):' + fbObj.animePacks(i).animations(j).defaultData(k).instanceValueEndFrame() + '<br>');
           document.writeln('instanceValue_loopNum(int):' + fbObj.animePacks(i).animations(j).defaultData(k).instanceValueLoopNum() + '<br>');
           document.writeln('instanceValue_speed(int):' + fbObj.animePacks(i).animations(j).defaultData(k).instanceValueSpeed() + '<br>');
-          document.writeln('instanceValue_loopflag(int):' + fbObj.animePacks(i).animations(j).defaultData(k).instanceValueLoopflag() + '<br>');
+          document.writeln('instanceValue_loopflag(int):' + fbObj.animePacks(i).animations(j).defaultData(k).instanceValueLoopFlag() + '<br>');
           document.writeln('effectValue_curKeyframe(int):' + fbObj.animePacks(i).animations(j).defaultData(k).effectValueCurKeyframe() + '<br>');
           document.writeln('effectValue_startTime(int):' + fbObj.animePacks(i).animations(j).defaultData(k).effectValueStartTime() + '<br>');
           document.writeln('effectValue_speed(float):' + fbObj.animePacks(i).animations(j).defaultData(k).effectValueSpeed() + '<br>');
-          document.writeln('effectValue_loopflag(int):' + fbObj.animePacks(i).animations(j).defaultData(k).effectValueLoopflag() + '<br>');
+          document.writeln('effectValue_loopflag(int):' + fbObj.animePacks(i).animations(j).defaultData(k).effectValueLoopFlag() + '<br>');
           document.writeln('</div>}<br>');
         }
         document.writeln('</div>}<br>');
@@ -138,6 +138,7 @@ export function displaySsfb(ssfbPath: string) {
         }
          */
         document.writeln('</div>}<br>');
+        /*
         document.writeln('userData(userDataPerFrame)[' + fbObj.animePacks(i).animations(j).userDataLength() + ']{<br><div style=\'padding: 0px 10px;\'>');
         for (let k = 0; k < fbObj.animePacks(i).animations(j).userDataLength(); k++) {
           document.writeln(k + ':{<br><div style=\'padding: 0px 10px;\'>');
@@ -175,6 +176,7 @@ export function displaySsfb(ssfbPath: string) {
           document.writeln('</div>}<br>');
         }
         document.writeln('</div>}<br>');
+        */
         document.writeln('labelData(labelDataItem)[' + fbObj.animePacks(i).animations(j).labelDataLength() + ']{<br><div style=\'padding: 0px 10px;\'>');
         for (let k = 0; k < fbObj.animePacks(i).animations(j).labelDataLength(); k++) {
           document.writeln(k + ':{<br><div style=\'padding: 0px 10px;\'>');
@@ -212,6 +214,7 @@ export function displaySsfb(ssfbPath: string) {
       document.writeln('</div>}<br>');
     }
     document.writeln('</div>}<br>');
+    /*
     document.writeln('effectFileList(EffectFile)[' + fbObj.effectFileListLength() + ']{<br><div style=\'padding: 0px 10px;\'>');
     for (let i = 0; i < fbObj.effectFileListLength(); i++) {
       document.writeln(i + ':{<br><div style=\'padding: 0px 10px;\'>');
@@ -323,6 +326,7 @@ export function displaySsfb(ssfbPath: string) {
             document.writeln('(EffectParticleInfiniteEmitEnabled)[flag(int):' + fbObj.effectFileList(i).effectNode(j).Behavior(k, new ss.ssfb.EffectParticleInfiniteEmitEnabled()).flag() + '],<br>');
           }
         }
+
         document.writeln(']<br>');
         document.writeln('</div>}<br>');
         document.writeln('</div>}<br>');
@@ -331,6 +335,7 @@ export function displaySsfb(ssfbPath: string) {
       document.writeln('</div>}<br>');
     }
     document.writeln('</div>}<br>');
+    */
     document.writeln('</div>}<br>');
     document.close();
   };

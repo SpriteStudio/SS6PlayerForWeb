@@ -1,7 +1,7 @@
 {
   "name": "ssfblib",
-  "version": "1.0.0",
-  "description": "> TODO: description",
+  "version": "1.1.0",
+  "description": "ssfb parser library",
   "keywords": [
     "SpriteStudio"
   ],

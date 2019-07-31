@@ -10,13 +10,13 @@ export class SS6Player extends PIXI.Container {
   private curAnimation: ss.ssfb.AnimationData = null;
   private parts: number = -1;
   private parentIndex: number[] = [];
-  private prio2index: any[] = [];
-  private userData: any[] = [];
+  private prio2index: number[] = [];
+  private userData: ss.ssfb.UserDataPerFrame[] = [];
   private frameDataCache: any = {};
   private currentCachedFrameNumber: number = -1;
   private liveFrame: any[] = [];
-  private colorMatrixFilterCache: any[] = [];
-  private defaultFrameMap: any[] = [];
+  private colorMatrixFilterCache: PIXI.filters.ColorMatrixFilter[] = [];
+  private defaultFrameMap: ss.ssfb.AnimationInitialData[] = [];
 
   private parentAlpha: number = 1.0;
 
@@ -360,7 +360,7 @@ export class SS6Player extends PIXI.Container {
    * @return {boolean} - 存在するかどうか
    */
   private HaveUserData(frameNumber: number): boolean {
-    if (this.userData[frameNumber] === -1) {
+    if (this.userData[frameNumber] === null) {
       // データはない
       return false;
     }
@@ -378,7 +378,7 @@ export class SS6Player extends PIXI.Container {
       }
     }
     // データなしにしておく
-    this.userData[frameNumber] = -1;
+    this.userData[frameNumber] = null;
     return false;
   }
 
@@ -392,12 +392,11 @@ export class SS6Player extends PIXI.Container {
     if (this.HaveUserData(this._currentFrame) === false) {
       return;
     }
-    const framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
+    const framedata : ss.ssfb.UserDataPerFrame = this.userData[frameNumber]; // キャッシュされたデータを確認する
     const layers = framedata.dataLength();
-    let id = 0;
     let data = [];
     for (let i = 0; i < layers; i++) {
-      const bit = framedata.data(i).flags();
+      const bit: ss.ssfb.UserDataFlag = framedata.data(i).flags();
       const partsID = framedata.data(i).arrayIndex();
       let d_int = null;
       let d_rect_x = null;
@@ -408,30 +407,25 @@ export class SS6Player extends PIXI.Container {
       let d_pos_y = null;
       let d_string_length = null;
       let d_string = null;
-      if (bit & 1) {
-        // int
-        d_int = framedata.data(i).data(id, new ss.ssfb.userDataInteger()).integer();
-        id++;
+      if (bit & ss.ssfb.UserDataFlag.Integer) {
+        d_int = framedata.data(i).integer();
       }
-      if (bit & 2) {
+      if (bit & ss.ssfb.UserDataFlag.Rect) {
         // rect
-        d_rect_x = framedata.data(i).data(id, new ss.ssfb.userDataRect()).x();
-        d_rect_y = framedata.data(i).data(id, new ss.ssfb.userDataRect()).y();
-        d_rect_w = framedata.data(i).data(id, new ss.ssfb.userDataRect()).w();
-        d_rect_h = framedata.data(i).data(id, new ss.ssfb.userDataRect()).h();
-        id++;
+        d_rect_x = framedata.data(i).rectX();
+        d_rect_y = framedata.data(i).rectY();
+        d_rect_w = framedata.data(i).rectW();
+        d_rect_h = framedata.data(i).rectH();
       }
-      if (bit & 4) {
+      if (bit & ss.ssfb.UserDataFlag.Point) {
         // pos
-        d_pos_x = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).x();
-        d_pos_y = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).y();
-        id++;
+        d_pos_x = framedata.data(i).pointX();
+        d_pos_y = framedata.data(i).pointY();
       }
-      if (bit & 8) {
+      if (bit & ss.ssfb.UserDataFlag.String) {
         // string
-        d_string_length = framedata.data(i).data(id, new ss.ssfb.userDataString()).length();
-        d_string = framedata.data(i).data(id, new ss.ssfb.userDataString()).data();
-        id++;
+        d_string_length = framedata.data(i).userStringLength();
+        d_string = framedata.data(i).userString();
       }
       data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
     }
@@ -490,52 +484,52 @@ export class SS6Player extends PIXI.Container {
       fd.flag2 = f2;
 
       let id = 0;
-      if (f1 & ss.ssfb.PART_FLAG.INVISIBLE) fd.f_hide = true;
-      if (f1 & ss.ssfb.PART_FLAG.FLIP_H) fd.f_flipH = true;
-      if (f1 & ss.ssfb.PART_FLAG.FLIP_V) fd.f_flipV = true;
-      if (f1 & ss.ssfb.PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_Z) id++; // 64
-      if (f1 & ss.ssfb.PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
-      if (f1 & ss.ssfb.PART_FLAG.PIVOT_Y) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONX) id++; // 512
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONY) id++; // 1024
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONZ) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
-      if (f1 & ss.ssfb.PART_FLAG.SCALE_X) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
-      if (f1 & ss.ssfb.PART_FLAG.SCALE_Y) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
-      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_X) fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
-      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_Y) fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
-      if (f1 & ss.ssfb.PART_FLAG.OPACITY) fd.opacity = curPartState.data(id++); // 65536
-      if (f1 & ss.ssfb.PART_FLAG.LOCALOPACITY) fd.localopacity = curPartState.data(id++); // 131072
-      if (f1 & ss.ssfb.PART_FLAG.SIZE_X) fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
-      if (f1 & ss.ssfb.PART_FLAG.SIZE_Y) fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
-      if (f1 & ss.ssfb.PART_FLAG.U_MOVE) fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
-      if (f1 & ss.ssfb.PART_FLAG.V_MOVE) fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
-      if (f1 & ss.ssfb.PART_FLAG.UV_ROTATION) fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
-      if (f1 & ss.ssfb.PART_FLAG.U_SCALE) fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
-      if (f1 & ss.ssfb.PART_FLAG.V_SCALE) fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
-      if (f1 & ss.ssfb.PART_FLAG.BOUNDINGRADIUS) id++; // 134217728 boundingRadius
-      if (f1 & ss.ssfb.PART_FLAG.MASK) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
-      if (f1 & ss.ssfb.PART_FLAG.PRIORITY) fd.priority = curPartState.data(id++); // 536870912 priority
+      if (f1 & ss.ssfb.PartFlag.Invisible) fd.f_hide = true;
+      if (f1 & ss.ssfb.PartFlag.FlipH) fd.f_flipH = true;
+      if (f1 & ss.ssfb.PartFlag.FlipV) fd.f_flipV = true;
+      if (f1 & ss.ssfb.PartFlag.CellIndex) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
+      if (f1 & ss.ssfb.PartFlag.PositionX) fd.positionX = this.I2F(curPartState.data(id++));
+      if (f1 & ss.ssfb.PartFlag.PositionY) fd.positionY = this.I2F(curPartState.data(id++));
+      if (f1 & ss.ssfb.PartFlag.PositionZ) id++; // 64
+      if (f1 & ss.ssfb.PartFlag.PivotX) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
+      if (f1 & ss.ssfb.PartFlag.PivotY) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
+      if (f1 & ss.ssfb.PartFlag.RotationX) id++; // 512
+      if (f1 & ss.ssfb.PartFlag.RotationY) id++; // 1024
+      if (f1 & ss.ssfb.PartFlag.RotationZ) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
+      if (f1 & ss.ssfb.PartFlag.ScaleX) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
+      if (f1 & ss.ssfb.PartFlag.ScaleY) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
+      if (f1 & ss.ssfb.PartFlag.LocalScaleX) fd.localScaleX = this.I2F(curPartState.data(id++)); // 16384
+      if (f1 & ss.ssfb.PartFlag.LocalScaleY) fd.localScaleY = this.I2F(curPartState.data(id++)); // 32768
+      if (f1 & ss.ssfb.PartFlag.Opacity) fd.opacity = curPartState.data(id++); // 65536
+      if (f1 & ss.ssfb.PartFlag.LocalOpacity) fd.localopacity = curPartState.data(id++); // 131072
+      if (f1 & ss.ssfb.PartFlag.SizeX) fd.sizeX = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
+      if (f1 & ss.ssfb.PartFlag.SizeY) fd.sizeY = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
+      if (f1 & ss.ssfb.PartFlag.UMove) fd.uvMoveX = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
+      if (f1 & ss.ssfb.PartFlag.VMove) fd.uvMoveY = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
+      if (f1 & ss.ssfb.PartFlag.UvRotation) fd.uvRotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
+      if (f1 & ss.ssfb.PartFlag.UScale) fd.uvScaleX = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
+      if (f1 & ss.ssfb.PartFlag.VScale) fd.uvScaleY = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
+      if (f1 & ss.ssfb.PartFlag.BoundingRadius) id++; // 134217728 boundingRadius
+      if (f1 & ss.ssfb.PartFlag.Mask) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
+      if (f1 & ss.ssfb.PartFlag.Priority) fd.priority = curPartState.data(id++); // 536870912 priority
       //
-      if (f1 & ss.ssfb.PART_FLAG.INSTANCE_KEYFRAME) {
+      if (f1 & ss.ssfb.PartFlag.InstanceKeyframe) {
         // 1073741824 instance keyframe
-        fd.instanceValue_curKeyframe = curPartState.data(id++);
-        fd.instanceValue_startFrame = curPartState.data(id++);
-        fd.instanceValue_endFrame = curPartState.data(id++);
-        fd.instanceValue_loopNum = curPartState.data(id++);
-        fd.instanceValue_speed = this.I2F(curPartState.data(id++));
-        fd.instanceValue_loopflag = curPartState.data(id++);
+        fd.instanceValueCurKeyframe = curPartState.data(id++);
+        fd.instanceValueStartFrame = curPartState.data(id++);
+        fd.instanceValueEndFrame = curPartState.data(id++);
+        fd.instanceValueLoopNum = curPartState.data(id++);
+        fd.instanceValueSpeed = this.I2F(curPartState.data(id++));
+        fd.instanceValueLoopFlag = curPartState.data(id++);
       }
-      if (f1 & ss.ssfb.PART_FLAG.EFFECT_KEYFRAME) {
+      if (f1 & ss.ssfb.PartFlag.EffectKeyframe) {
         // 2147483648 effect keyframe
-        fd.effectValue_curKeyframe = curPartState.data(id++);
-        fd.effectValue_startTime = curPartState.data(id++);
-        fd.effectValue_speed = this.I2F(curPartState.data(id++));
-        fd.effectValue_loopflag = curPartState.data(id++);
+        fd.effectValueCurKeyframe = curPartState.data(id++);
+        fd.effectValueStartTime = curPartState.data(id++);
+        fd.effectValueSpeed = this.I2F(curPartState.data(id++));
+        fd.effectValueLoopFlag = curPartState.data(id++);
       }
-      if (f1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
+      if (f1 & ss.ssfb.PartFlag.VertexTransform) {
         // 524288 verts [4]
         // verts
         fd.f_mesh = true;
@@ -558,7 +552,7 @@ export class SS6Player extends PIXI.Container {
         }
       }
 
-      if (f1 & ss.ssfb.PART_FLAG.PARTS_COLOR) {
+      if (f1 & ss.ssfb.PartFlag.PartsColor) {
         // 262144 parts color [3]
         const f = curPartState.data(id++);
         blendType = f & 0xff;
@@ -612,7 +606,7 @@ export class SS6Player extends PIXI.Container {
           fd.colorMatrix = this.defaultColorFilter; // TODO
         }
       }
-      if (f2 & ss.ssfb.PART_FLAG2.MESHDATA) {
+      if (f2 & ss.ssfb.PartFlag2.MeshData) {
         // mesh [1]
         fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
         fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
@@ -714,7 +708,7 @@ export class SS6Player extends PIXI.Container {
       priority: curDefaultData.priority(),
       cellIndex: curDefaultData.cellIndex(),
       opacity: curDefaultData.opacity(),
-      localopacity: curDefaultData.localopacity(),
+      localOpacity: curDefaultData.localOpacity(),
       masklimen: curDefaultData.masklimen(),
       positionX: curDefaultData.positionX(),
       positionY: curDefaultData.positionY(),
@@ -725,26 +719,26 @@ export class SS6Player extends PIXI.Container {
       rotationZ: curDefaultData.rotationZ(),
       scaleX: curDefaultData.scaleX(),
       scaleY: curDefaultData.scaleY(),
-      localscaleX: curDefaultData.localscaleX(),
-      localscaleY: curDefaultData.localscaleY(),
-      size_X: curDefaultData.sizeX(),
-      size_Y: curDefaultData.sizeY(),
-      uv_move_X: curDefaultData.uvMoveX(),
-      uv_move_Y: curDefaultData.uvMoveY(),
-      uv_rotation: curDefaultData.uvRotation(),
-      uv_scale_X: curDefaultData.uvScaleX(),
-      uv_scale_Y: curDefaultData.uvScaleY(),
+      localScaleX: curDefaultData.localScaleX(),
+      localScaleY: curDefaultData.localScaleY(),
+      sizeX: curDefaultData.sizeX(),
+      sizeY: curDefaultData.sizeY(),
+      uvMoveX: curDefaultData.uvMoveX(),
+      uvMoveY: curDefaultData.uvMoveY(),
+      uvRotation: curDefaultData.uvRotation(),
+      uvScaleX: curDefaultData.uvScaleX(),
+      uvScaleY: curDefaultData.uvScaleY(),
       boundingRadius: curDefaultData.boundingRadius(),
-      instanceValue_curKeyframe: curDefaultData.instanceValueCurKeyframe(),
-      instanceValue_endFrame: curDefaultData.instanceValueEndFrame(),
-      instanceValue_startFrame: curDefaultData.instanceValueStartFrame(),
-      instanceValue_loopNum: curDefaultData.instanceValueLoopNum(),
-      instanceValue_speed: curDefaultData.instanceValueSpeed(),
-      instanceValue_loopflag: curDefaultData.instanceValueLoopflag(),
-      effectValue_curKeyframe: curDefaultData.effectValueCurKeyframe(),
-      effectValue_startTime: curDefaultData.effectValueStartTime(),
-      effectValue_speed: curDefaultData.effectValueSpeed(),
-      effectValue_loopflag: curDefaultData.effectValueLoopflag(),
+      instanceValueCurKeyframe: curDefaultData.instanceValueCurKeyframe(),
+      instanceValueEndFrame: curDefaultData.instanceValueEndFrame(),
+      instanceValueStartFrame: curDefaultData.instanceValueStartFrame(),
+      instanceValueLoopNum: curDefaultData.instanceValueLoopNum(),
+      instanceValueSpeed: curDefaultData.instanceValueSpeed(),
+      instanceValueLoopFlag: curDefaultData.instanceValueLoopFlag(),
+      effectValueCurKeyframe: curDefaultData.effectValueCurKeyframe(),
+      effectValueStartTime: curDefaultData.effectValueStartTime(),
+      effectValueSpeed: curDefaultData.effectValueSpeed(),
+      effectValueLoopFlag: curDefaultData.effectValueLoopFlag(),
 
       // Add visiblity
       f_hide: false,
@@ -862,19 +856,19 @@ export class SS6Player extends PIXI.Container {
           mesh.scale.set(pos[2], pos[3]);
 
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
-          if (data.localopacity < 255) {
+          if (data.localOpacity < 255) {
             // ローカル不透明度が使われている場合は255以下の値になるので、255以下の場合にローカル不透明度で上書き
-            opacity = data.localopacity / 255.0;
+            opacity = data.localOpacity / 255.0;
           }
           mesh.SetAlpha(opacity * this.parentAlpha);
           mesh.visible = !data.f_hide;
 
           // 描画
-          const refKeyframe = data.instanceValue_curKeyframe;
-          const refStartframe = data.instanceValue_startFrame;
-          const refEndframe = data.instanceValue_endFrame;
-          const refSpeed = data.instanceValue_speed;
-          const refloopNum = data.instanceValue_loopNum;
+          const refKeyframe = data.instanceValueCurKeyframe;
+          const refStartframe = data.instanceValueStartFrame;
+          const refEndframe = data.instanceValueEndFrame;
+          const refSpeed = data.instanceValueSpeed;
+          const refloopNum = data.instanceValueLoopNum;
           let infinity = false;
           let reverse = false;
           let pingpong = false;
@@ -884,7 +878,7 @@ export class SS6Player extends PIXI.Container {
           const INSTANCE_LOOP_FLAG_REVERSE = 0b0000000000000010;
           const INSTANCE_LOOP_FLAG_PINGPONG = 0b0000000000000100;
           const INSTANCE_LOOP_FLAG_INDEPENDENT = 0b0000000000001000;
-          const lflags = data.instanceValue_loopflag;
+          const lflags = data.instanceValueLoopFlag;
           if (lflags & INSTANCE_LOOP_FLAG_INFINITY) {
             // 無限ループ
             infinity = true;
@@ -987,7 +981,7 @@ export class SS6Player extends PIXI.Container {
             verts = this.TransformVertsLocal(SS6Player.GetVerts(cellID, data), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
-          if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
+          if (data.flag1 & ss.ssfb.PartFlag.VertexTransform) {
             // 524288 verts [4]	//
             // 頂点変形の中心点を算出する
             const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -1020,18 +1014,18 @@ export class SS6Player extends PIXI.Container {
           }
 
           mesh.vertices = verts;
-          if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
+          if (data.flag1 & (ss.ssfb.PartFlag.UMove | ss.ssfb.PartFlag.VMove | ss.ssfb.PartFlag.UScale | ss.ssfb.PartFlag.VScale | ss.ssfb.PartFlag.UvRotation)) {
             // uv X/Y移動
-            const u1 = this.fbObj.cells(cellID).u1() + data.uv_move_X;
-            const u2 = this.fbObj.cells(cellID).u2() + data.uv_move_X;
-            const v1 = this.fbObj.cells(cellID).v1() + data.uv_move_Y;
-            const v2 = this.fbObj.cells(cellID).v2() + data.uv_move_Y;
+            const u1 = this.fbObj.cells(cellID).u1() + data.uvMoveX;
+            const u2 = this.fbObj.cells(cellID).u2() + data.uvMoveX;
+            const v1 = this.fbObj.cells(cellID).v1() + data.uvMoveY;
+            const v2 = this.fbObj.cells(cellID).v2() + data.uvMoveY;
 
             // uv X/Yスケール
             const cx = (u2 + u1) / 2;
             const cy = (v2 + v1) / 2;
-            const uvw = ((u2 - u1) / 2) * data.uv_scale_X;
-            const uvh = ((v2 - v1) / 2) * data.uv_scale_Y;
+            const uvw = ((u2 - u1) / 2) * data.uvScaleX;
+            const uvh = ((v2 - v1) / 2) * data.uvScaleY;
 
             // UV回転
             mesh.uvs[0] = cx;
@@ -1045,8 +1039,8 @@ export class SS6Player extends PIXI.Container {
             mesh.uvs[8] = cx + uvw;
             mesh.uvs[9] = cy + uvh;
 
-            if (data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
-              const rot = (data.uv_rotation * Math.PI) / 180;
+            if (data.flag1 & ss.ssfb.PartFlag.UvRotation) {
+              const rot = (data.uvRotation * Math.PI) / 180;
               for (let idx = 0; idx < 5; idx++) {
                 const dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
                 const dy = mesh.uvs[idx * 2 + 1] - cy; // 中心からの距離(Y)
@@ -1066,15 +1060,15 @@ export class SS6Player extends PIXI.Container {
 
           const pivot = this.GetPivot(verts, cellID);
           //
-          mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-          mesh.scale.set(data.localscaleX, data.localscaleY);
+          mesh.position.set(px + pivot.x * data.localScaleX, py + pivot.y * data.localScaleY);
+          mesh.scale.set(data.localScaleX, data.localScaleY);
           //
           // 小西: 256指定と1.0指定が混在していたので統一
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
           // 小西: 256指定と1.0指定が混在していたので統一
-          if (data.localopacity < 255) {
+          if (data.localOpacity < 255) {
             // ローカル不透明度が使われている場合は255以下の値になるので、255以下の場合にローカル不透明度で上書き
-            opacity = data.localopacity / 255.0;
+            opacity = data.localOpacity / 255.0;
           }
           mesh.alpha = opacity * this.parentAlpha; // 255*255
           mesh.visible = !data.f_hide;
@@ -1118,7 +1112,7 @@ export class SS6Player extends PIXI.Container {
         case ss.ssfb.SsPartType.Nulltype: {
           // NULLパーツのOpacity/Transform設定
           const opacity = this.InheritOpacity(1.0, data.index, frameNumber);
-          mesh.alpha = (opacity * data.localopacity) / 255.0;
+          mesh.alpha = (opacity * data.localOpacity) / 255.0;
           const verts = this.TransformVerts(SS6Player.GetDummyVerts(), data.index, frameNumber);
           const px = verts[0];
           const py = verts[1];
@@ -1185,8 +1179,8 @@ export class SS6Player extends PIXI.Container {
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
     for (let i = 0; i < verts.length / 2; i++) {
-      let x = verts[i * 2]; // * (data.size_X | 1);
-      let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
+      let x = verts[i * 2]; // * (data.sizeX | 1);
+      let y = verts[i * 2 + 1]; // * (data.sizeY | 1);
       if (data.i_transformVerts & 1 && i === 1) {
         x += data.u00;
         y -= data.v00; // 上下修正
@@ -1235,8 +1229,8 @@ export class SS6Player extends PIXI.Container {
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
     for (let i = 0; i < verts.length / 2; i++) {
-      let x = verts[i * 2]; // * (data.size_X | 1);
-      let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
+      let x = verts[i * 2]; // * (data.sizeX | 1);
+      let y = verts[i * 2 + 1]; // * (data.sizeY | 1);
       x *= data.scaleX;
       y *= data.scaleY;
       verts[i * 2] = cos * x - sin * y + data.positionX;
@@ -1447,8 +1441,8 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 頂点情報配列
    */
   private static GetVerts(id: number, data: any): Float32Array {
-    const w = data.size_X / 2;
-    const h = data.size_Y / 2;
+    const w = data.sizeX / 2;
+    const h = data.sizeY / 2;
     const px = -w * data.pivotX * 2;
     const py = h * data.pivotY * 2;
     const verts = new Float32Array([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
