@@ -25,7 +25,7 @@ export class SS6Player extends PIXI.Container {
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
   private prevMesh: (SS6Player | PIXI.mesh.Mesh)[] = [];
 
-  private alphaBlendType: number[] = [];
+  private alphaBlendType: ss.ssfb.BlendType[] = [];
   private isPlaying: boolean;
   private isPausing: boolean;
   private _startFrame: number;
@@ -436,7 +436,7 @@ export class SS6Player extends PIXI.Container {
    * パーツの描画モードを取得する
    * @return {array} - 全パーツの描画モード
    */
-  private GetPartsBlendMode(): any[] {
+  private GetPartsBlendMode(): ss.ssfb.BlendType[] {
     const l = this.fbObj.animePacks(this.parts).partsLength();
     const ret = [];
     const animePacks = this.fbObj.animePacks(this.parts);
@@ -1091,20 +1091,20 @@ export class SS6Player extends PIXI.Container {
           }
 
           const blendMode = this.alphaBlendType[i];
-          if (blendMode === 0) mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
-          if (blendMode === 1) {
+          if (blendMode === ss.ssfb.BlendType.mix) mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
+          if (blendMode === ss.ssfb.BlendType.mul) {
             mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === 2) mesh.blendMode = PIXI.BLEND_MODES.ADD;
-          if (blendMode === 3) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
-          if (blendMode === 4) mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
-          if (blendMode === 5) {
+          if (blendMode === ss.ssfb.BlendType.add) mesh.blendMode = PIXI.BLEND_MODES.ADD;
+          if (blendMode === ss.ssfb.BlendType.sub) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+          if (blendMode === ss.ssfb.BlendType.mulalpha) mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
+          if (blendMode === ss.ssfb.BlendType.screen) {
             mesh.blendMode = PIXI.BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === 6) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
-          if (blendMode === 7) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
+          if (blendMode === ss.ssfb.BlendType.exclusion) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
+          if (blendMode === ss.ssfb.BlendType.invert) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
           if (partType !== ss.ssfb.SsPartType.Mask) this.addChild(mesh);
           break;

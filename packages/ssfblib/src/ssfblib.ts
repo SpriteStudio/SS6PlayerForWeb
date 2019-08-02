@@ -94,6 +94,14 @@ export enum InstanceLoopFlag{
  * @enum {number}
  */
 export namespace ss.ssfb{
+export enum EffectLoopFlag{
+  Independent= 1
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace ss.ssfb{
 export enum UserDataFlag{
   Integer= 1,
   Rect= 2,
@@ -170,6 +178,57 @@ export enum EffectRenderBlendType{
   Invalid= -1,
   Mix= 0,
   Add= 1
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace ss.ssfb{
+export enum TexWrapMode{
+  invalid= -1,
+  clamp= 0,
+  repeat= 1,
+  mirror= 2
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace ss.ssfb{
+export enum TexFilterMode{
+  invalid= -1,
+  nearlest= 0,
+  linear= 1
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace ss.ssfb{
+export enum BoundsType{
+  invalid= -1,
+  none= 0,
+  quad= 1,
+  aabb= 2,
+  circle= 3,
+  circle_smin= 4,
+  circle_smax= 5
+}};
+
+/**
+ * @enum {number}
+ */
+export namespace ss.ssfb{
+export enum BlendType{
+  invalid= -1,
+  mix= 0,
+  mul= 1,
+  add= 2,
+  sub= 3,
+  mulalpha= 4,
+  screen= 5,
+  exclusion= 6,
+  invert= 7
 }};
 
 /**
@@ -1456,19 +1515,19 @@ index():number {
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.TexWrapMode
  */
-wrapMode():number {
+wrapMode():ss.ssfb.TexWrapMode {
   var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.TexWrapMode.clamp;
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.TexFilterMode
  */
-filterMode():number {
+filterMode():ss.ssfb.TexFilterMode {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.TexFilterMode.nearlest;
 };
 
 /**
@@ -1504,18 +1563,18 @@ static addIndex(builder:flatbuffers.Builder, index:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number wrapMode
+ * @param ss.ssfb.TexWrapMode wrapMode
  */
-static addWrapMode(builder:flatbuffers.Builder, wrapMode:number) {
-  builder.addFieldInt16(3, wrapMode, 0);
+static addWrapMode(builder:flatbuffers.Builder, wrapMode:ss.ssfb.TexWrapMode) {
+  builder.addFieldInt8(3, wrapMode, ss.ssfb.TexWrapMode.clamp);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number filterMode
+ * @param ss.ssfb.TexFilterMode filterMode
  */
-static addFilterMode(builder:flatbuffers.Builder, filterMode:number) {
-  builder.addFieldInt16(4, filterMode, 0);
+static addFilterMode(builder:flatbuffers.Builder, filterMode:ss.ssfb.TexFilterMode) {
+  builder.addFieldInt8(4, filterMode, ss.ssfb.TexFilterMode.nearlest);
 };
 
 /**
@@ -1527,7 +1586,7 @@ static endCellMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createCellMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, imagePathOffset:flatbuffers.Offset, index:number, wrapMode:number, filterMode:number):flatbuffers.Offset {
+static createCellMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, imagePathOffset:flatbuffers.Offset, index:number, wrapMode:ss.ssfb.TexWrapMode, filterMode:ss.ssfb.TexFilterMode):flatbuffers.Offset {
   CellMap.startCellMap(builder);
   CellMap.addName(builder, nameOffset);
   CellMap.addImagePath(builder, imagePathOffset);
@@ -3990,19 +4049,19 @@ type():ss.ssfb.SsPartType {
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.BoundsType
  */
-boundsType():number {
+boundsType():ss.ssfb.BoundsType {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BoundsType.none;
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.BlendType
  */
-alphaBlendType():number {
+alphaBlendType():ss.ssfb.BlendType {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BlendType.mix;
 };
 
 /**
@@ -4039,11 +4098,11 @@ colorLabel(optionalEncoding?:any):string|Uint8Array|null {
 };
 
 /**
- * @returns number
+ * @returns boolean
  */
-maskInfluence():number {
+maskInfluence():boolean {
   var offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 };
 
 /**
@@ -4087,18 +4146,18 @@ static addType(builder:flatbuffers.Builder, type:ss.ssfb.SsPartType) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number boundsType
+ * @param ss.ssfb.BoundsType boundsType
  */
-static addBoundsType(builder:flatbuffers.Builder, boundsType:number) {
-  builder.addFieldInt16(4, boundsType, 0);
+static addBoundsType(builder:flatbuffers.Builder, boundsType:ss.ssfb.BoundsType) {
+  builder.addFieldInt8(4, boundsType, ss.ssfb.BoundsType.none);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number alphaBlendType
+ * @param ss.ssfb.BlendType alphaBlendType
  */
-static addAlphaBlendType(builder:flatbuffers.Builder, alphaBlendType:number) {
-  builder.addFieldInt16(5, alphaBlendType, 0);
+static addAlphaBlendType(builder:flatbuffers.Builder, alphaBlendType:ss.ssfb.BlendType) {
+  builder.addFieldInt8(5, alphaBlendType, ss.ssfb.BlendType.mix);
 };
 
 /**
@@ -4127,10 +4186,10 @@ static addColorLabel(builder:flatbuffers.Builder, colorLabelOffset:flatbuffers.O
 
 /**
  * @param flatbuffers.Builder builder
- * @param number maskInfluence
+ * @param boolean maskInfluence
  */
-static addMaskInfluence(builder:flatbuffers.Builder, maskInfluence:number) {
-  builder.addFieldInt16(9, maskInfluence, 0);
+static addMaskInfluence(builder:flatbuffers.Builder, maskInfluence:boolean) {
+  builder.addFieldInt8(9, +maskInfluence, +false);
 };
 
 /**
@@ -4142,7 +4201,7 @@ static endPartData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createPartData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, index:number, parentIndex:number, type:ss.ssfb.SsPartType, boundsType:number, alphaBlendType:number, refnameOffset:flatbuffers.Offset, effectfilenameOffset:flatbuffers.Offset, colorLabelOffset:flatbuffers.Offset, maskInfluence:number):flatbuffers.Offset {
+static createPartData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, index:number, parentIndex:number, type:ss.ssfb.SsPartType, boundsType:ss.ssfb.BoundsType, alphaBlendType:ss.ssfb.BlendType, refnameOffset:flatbuffers.Offset, effectfilenameOffset:flatbuffers.Offset, colorLabelOffset:flatbuffers.Offset, maskInfluence:boolean):flatbuffers.Offset {
   PartData.startPartData(builder);
   PartData.addName(builder, nameOffset);
   PartData.addIndex(builder, index);
@@ -4377,21 +4436,13 @@ version():number {
 };
 
 /**
- * @returns number
- */
-flags():number {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
  * @param flatbuffers.Encoding= optionalEncoding
  * @returns string|Uint8Array|null
  */
 imageBaseDir():string|null
 imageBaseDir(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
 imageBaseDir(optionalEncoding?:any):string|Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
+  var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -4401,7 +4452,7 @@ imageBaseDir(optionalEncoding?:any):string|Uint8Array|null {
  * @returns ss.ssfb.Cell
  */
 cells(index: number, obj?:ss.ssfb.Cell):ss.ssfb.Cell|null {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
+  var offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? (obj || new ss.ssfb.Cell).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
@@ -4409,7 +4460,7 @@ cells(index: number, obj?:ss.ssfb.Cell):ss.ssfb.Cell|null {
  * @returns number
  */
 cellsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
+  var offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -4419,7 +4470,7 @@ cellsLength():number {
  * @returns ss.ssfb.AnimePackData
  */
 animePacks(index: number, obj?:ss.ssfb.AnimePackData):ss.ssfb.AnimePackData|null {
-  var offset = this.bb!.__offset(this.bb_pos, 14);
+  var offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? (obj || new ss.ssfb.AnimePackData).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
@@ -4427,7 +4478,7 @@ animePacks(index: number, obj?:ss.ssfb.AnimePackData):ss.ssfb.AnimePackData|null
  * @returns number
  */
 animePacksLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 14);
+  var offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -4437,7 +4488,7 @@ animePacksLength():number {
  * @returns ss.ssfb.EffectFile
  */
 effectFileList(index: number, obj?:ss.ssfb.EffectFile):ss.ssfb.EffectFile|null {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? (obj || new ss.ssfb.EffectFile).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
@@ -4445,7 +4496,7 @@ effectFileList(index: number, obj?:ss.ssfb.EffectFile):ss.ssfb.EffectFile|null {
  * @returns number
  */
 effectFileListLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -4453,7 +4504,7 @@ effectFileListLength():number {
  * @returns number
  */
 numCells():number {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
 
@@ -4461,7 +4512,7 @@ numCells():number {
  * @returns number
  */
 numAnimePacks():number {
-  var offset = this.bb!.__offset(this.bb_pos, 20);
+  var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
 
@@ -4469,7 +4520,7 @@ numAnimePacks():number {
  * @returns number
  */
 numEffectFileList():number {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 };
 
@@ -4477,7 +4528,7 @@ numEffectFileList():number {
  * @param flatbuffers.Builder builder
  */
 static startProjectData(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(9);
 };
 
 /**
@@ -4498,18 +4549,10 @@ static addVersion(builder:flatbuffers.Builder, version:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number flags
- */
-static addFlags(builder:flatbuffers.Builder, flags:number) {
-  builder.addFieldInt32(2, flags, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @param flatbuffers.Offset imageBaseDirOffset
  */
 static addImageBaseDir(builder:flatbuffers.Builder, imageBaseDirOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, imageBaseDirOffset, 0);
+  builder.addFieldOffset(2, imageBaseDirOffset, 0);
 };
 
 /**
@@ -4517,7 +4560,7 @@ static addImageBaseDir(builder:flatbuffers.Builder, imageBaseDirOffset:flatbuffe
  * @param flatbuffers.Offset cellsOffset
  */
 static addCells(builder:flatbuffers.Builder, cellsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, cellsOffset, 0);
+  builder.addFieldOffset(3, cellsOffset, 0);
 };
 
 /**
@@ -4546,7 +4589,7 @@ static startCellsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset animePacksOffset
  */
 static addAnimePacks(builder:flatbuffers.Builder, animePacksOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, animePacksOffset, 0);
+  builder.addFieldOffset(4, animePacksOffset, 0);
 };
 
 /**
@@ -4575,7 +4618,7 @@ static startAnimePacksVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset effectFileListOffset
  */
 static addEffectFileList(builder:flatbuffers.Builder, effectFileListOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, effectFileListOffset, 0);
+  builder.addFieldOffset(5, effectFileListOffset, 0);
 };
 
 /**
@@ -4604,7 +4647,7 @@ static startEffectFileListVector(builder:flatbuffers.Builder, numElems:number) {
  * @param number numCells
  */
 static addNumCells(builder:flatbuffers.Builder, numCells:number) {
-  builder.addFieldInt16(7, numCells, 0);
+  builder.addFieldInt16(6, numCells, 0);
 };
 
 /**
@@ -4612,7 +4655,7 @@ static addNumCells(builder:flatbuffers.Builder, numCells:number) {
  * @param number numAnimePacks
  */
 static addNumAnimePacks(builder:flatbuffers.Builder, numAnimePacks:number) {
-  builder.addFieldInt16(8, numAnimePacks, 0);
+  builder.addFieldInt16(7, numAnimePacks, 0);
 };
 
 /**
@@ -4620,7 +4663,7 @@ static addNumAnimePacks(builder:flatbuffers.Builder, numAnimePacks:number) {
  * @param number numEffectFileList
  */
 static addNumEffectFileList(builder:flatbuffers.Builder, numEffectFileList:number) {
-  builder.addFieldInt16(9, numEffectFileList, 0);
+  builder.addFieldInt16(8, numEffectFileList, 0);
 };
 
 /**
@@ -4640,11 +4683,10 @@ static finishProjectDataBuffer(builder:flatbuffers.Builder, offset:flatbuffers.O
   builder.finish(offset, 'SSFB');
 };
 
-static createProjectData(builder:flatbuffers.Builder, dataId:number, version:number, flags:number, imageBaseDirOffset:flatbuffers.Offset, cellsOffset:flatbuffers.Offset, animePacksOffset:flatbuffers.Offset, effectFileListOffset:flatbuffers.Offset, numCells:number, numAnimePacks:number, numEffectFileList:number):flatbuffers.Offset {
+static createProjectData(builder:flatbuffers.Builder, dataId:number, version:number, imageBaseDirOffset:flatbuffers.Offset, cellsOffset:flatbuffers.Offset, animePacksOffset:flatbuffers.Offset, effectFileListOffset:flatbuffers.Offset, numCells:number, numAnimePacks:number, numEffectFileList:number):flatbuffers.Offset {
   ProjectData.startProjectData(builder);
   ProjectData.addDataId(builder, dataId);
   ProjectData.addVersion(builder, version);
-  ProjectData.addFlags(builder, flags);
   ProjectData.addImageBaseDir(builder, imageBaseDirOffset);
   ProjectData.addCells(builder, cellsOffset);
   ProjectData.addAnimePacks(builder, animePacksOffset);
