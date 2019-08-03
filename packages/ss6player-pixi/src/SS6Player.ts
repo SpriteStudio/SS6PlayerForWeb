@@ -392,7 +392,7 @@ export class SS6Player extends PIXI.Container {
     if (this.HaveUserData(this._currentFrame) === false) {
       return;
     }
-    const framedata : ss.ssfb.UserDataPerFrame = this.userData[frameNumber]; // キャッシュされたデータを確認する
+    const framedata: ss.ssfb.UserDataPerFrame = this.userData[frameNumber]; // キャッシュされたデータを確認する
     const layers = framedata.dataLength();
     let data = [];
     for (let i = 0; i < layers; i++) {
@@ -874,7 +874,7 @@ export class SS6Player extends PIXI.Container {
           let pingpong = false;
           let independent = false;
 
-          const lflags:ss.ssfb.InstanceLoopFlag = data.instanceValueLoopFlag;
+          const lflags: ss.ssfb.InstanceLoopFlag = data.instanceValueLoopFlag;
           if (lflags & ss.ssfb.InstanceLoopFlag.Infinity) {
             // 無限ループ
             infinity = true;
