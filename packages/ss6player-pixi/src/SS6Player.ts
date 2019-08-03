@@ -874,24 +874,20 @@ export class SS6Player extends PIXI.Container {
           let pingpong = false;
           let independent = false;
 
-          const INSTANCE_LOOP_FLAG_INFINITY = 0b0000000000000001;
-          const INSTANCE_LOOP_FLAG_REVERSE = 0b0000000000000010;
-          const INSTANCE_LOOP_FLAG_PINGPONG = 0b0000000000000100;
-          const INSTANCE_LOOP_FLAG_INDEPENDENT = 0b0000000000001000;
-          const lflags = data.instanceValueLoopFlag;
-          if (lflags & INSTANCE_LOOP_FLAG_INFINITY) {
+          const lflags:ss.ssfb.InstanceLoopFlag = data.instanceValueLoopFlag;
+          if (lflags & ss.ssfb.InstanceLoopFlag.Infinity) {
             // 無限ループ
             infinity = true;
           }
-          if (lflags & INSTANCE_LOOP_FLAG_REVERSE) {
+          if (lflags & ss.ssfb.InstanceLoopFlag.Reverse) {
             // 逆再生
             reverse = true;
           }
-          if (lflags & INSTANCE_LOOP_FLAG_PINGPONG) {
+          if (lflags & ss.ssfb.InstanceLoopFlag.PingPong) {
             // 往復
             pingpong = true;
           }
-          if (lflags & INSTANCE_LOOP_FLAG_INDEPENDENT) {
+          if (lflags & ss.ssfb.InstanceLoopFlag.Independent) {
             // 独立
             independent = true;
           }

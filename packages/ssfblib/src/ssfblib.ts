@@ -2119,19 +2119,19 @@ index():number {
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.PartFlag
  */
-flag1():number {
+flag1():ss.ssfb.PartFlag {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readUint32(this.bb_pos + offset)) : /** } */ (0);
 };
 
 /**
- * @returns number
+ * @returns ss.ssfb.PartFlag2
  */
-flag2():number {
+flag2():ss.ssfb.PartFlag2 {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? /**  */ (this.bb!.readUint32(this.bb_pos + offset)) : /** } */ (0);
 };
 
 /**
@@ -2176,18 +2176,18 @@ static addIndex(builder:flatbuffers.Builder, index:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number flag1
+ * @param ss.ssfb.PartFlag flag1
  */
-static addFlag1(builder:flatbuffers.Builder, flag1:number) {
-  builder.addFieldInt32(1, flag1, 0);
+static addFlag1(builder:flatbuffers.Builder, flag1:ss.ssfb.PartFlag) {
+  builder.addFieldInt32(1, flag1, /** } */ (0));
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number flag2
+ * @param ss.ssfb.PartFlag2 flag2
  */
-static addFlag2(builder:flatbuffers.Builder, flag2:number) {
-  builder.addFieldInt32(2, flag2, 0);
+static addFlag2(builder:flatbuffers.Builder, flag2:ss.ssfb.PartFlag2) {
+  builder.addFieldInt32(2, flag2, /** } */ (0));
 };
 
 /**
@@ -2228,7 +2228,7 @@ static endPartState(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createPartState(builder:flatbuffers.Builder, index:number, flag1:number, flag2:number, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createPartState(builder:flatbuffers.Builder, index:number, flag1:ss.ssfb.PartFlag, flag2:ss.ssfb.PartFlag2, dataOffset:flatbuffers.Offset):flatbuffers.Offset {
   PartState.startPartState(builder);
   PartState.addIndex(builder, index);
   PartState.addFlag1(builder, flag1);
