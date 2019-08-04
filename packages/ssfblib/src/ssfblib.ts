@@ -206,13 +206,13 @@ export enum TexFilterMode{
  */
 export namespace ss.ssfb{
 export enum BoundsType{
-  invalid= -1,
-  none= 0,
-  quad= 1,
-  aabb= 2,
-  circle= 3,
-  circle_smin= 4,
-  circle_smax= 5
+  Invalid= -1,
+  None= 0,
+  Quad= 1,
+  Qabb= 2,
+  Circle= 3,
+  CircleSmin= 4,
+  CircleSmax= 5
 }};
 
 /**
@@ -220,15 +220,15 @@ export enum BoundsType{
  */
 export namespace ss.ssfb{
 export enum BlendType{
-  invalid= -1,
-  mix= 0,
-  mul= 1,
-  add= 2,
-  sub= 3,
-  mulalpha= 4,
-  screen= 5,
-  exclusion= 6,
-  invert= 7
+  Invalid= -1,
+  Mix= 0,
+  Mul= 1,
+  Add= 2,
+  Sub= 3,
+  MulAlpha= 4,
+  Screen= 5,
+  Exclusion= 6,
+  Invert= 7
 }};
 
 /**
@@ -4053,7 +4053,7 @@ type():ss.ssfb.SsPartType {
  */
 boundsType():ss.ssfb.BoundsType {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BoundsType.none;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BoundsType.None;
 };
 
 /**
@@ -4061,7 +4061,7 @@ boundsType():ss.ssfb.BoundsType {
  */
 alphaBlendType():ss.ssfb.BlendType {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BlendType.mix;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : ss.ssfb.BlendType.Mix;
 };
 
 /**
@@ -4149,7 +4149,7 @@ static addType(builder:flatbuffers.Builder, type:ss.ssfb.SsPartType) {
  * @param ss.ssfb.BoundsType boundsType
  */
 static addBoundsType(builder:flatbuffers.Builder, boundsType:ss.ssfb.BoundsType) {
-  builder.addFieldInt8(4, boundsType, ss.ssfb.BoundsType.none);
+  builder.addFieldInt8(4, boundsType, ss.ssfb.BoundsType.None);
 };
 
 /**
@@ -4157,7 +4157,7 @@ static addBoundsType(builder:flatbuffers.Builder, boundsType:ss.ssfb.BoundsType)
  * @param ss.ssfb.BlendType alphaBlendType
  */
 static addAlphaBlendType(builder:flatbuffers.Builder, alphaBlendType:ss.ssfb.BlendType) {
-  builder.addFieldInt8(5, alphaBlendType, ss.ssfb.BlendType.mix);
+  builder.addFieldInt8(5, alphaBlendType, ss.ssfb.BlendType.Mix);
 };
 
 /**

@@ -1087,20 +1087,20 @@ export class SS6Player extends PIXI.Container {
           }
 
           const blendMode = this.alphaBlendType[i];
-          if (blendMode === ss.ssfb.BlendType.mix) mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
-          if (blendMode === ss.ssfb.BlendType.mul) {
+          if (blendMode === ss.ssfb.BlendType.Mix) mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
+          if (blendMode === ss.ssfb.BlendType.Mul) {
             mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === ss.ssfb.BlendType.add) mesh.blendMode = PIXI.BLEND_MODES.ADD;
-          if (blendMode === ss.ssfb.BlendType.sub) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
-          if (blendMode === ss.ssfb.BlendType.mulalpha) mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
-          if (blendMode === ss.ssfb.BlendType.screen) {
+          if (blendMode === ss.ssfb.BlendType.Add) mesh.blendMode = PIXI.BLEND_MODES.ADD;
+          if (blendMode === ss.ssfb.BlendType.Sub) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+          if (blendMode === ss.ssfb.BlendType.MulAlpha) mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
+          if (blendMode === ss.ssfb.BlendType.Screen) {
             mesh.blendMode = PIXI.BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === ss.ssfb.BlendType.exclusion) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
-          if (blendMode === ss.ssfb.BlendType.invert) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
+          if (blendMode === ss.ssfb.BlendType.Exclusion) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
+          if (blendMode === ss.ssfb.BlendType.Invert) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
           if (partType !== ss.ssfb.SsPartType.Mask) this.addChild(mesh);
           break;
