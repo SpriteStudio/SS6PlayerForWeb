@@ -251,122 +251,238 @@ __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementBasic {
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param EffectParticleElementBasic= obj
+ * @returns EffectParticleElementBasic
+ */
+static getRootAsEffectParticleElementBasic(bb:flatbuffers.ByteBuffer, obj?:EffectParticleElementBasic):EffectParticleElementBasic {
+  return (obj || new EffectParticleElementBasic).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * @returns number
  */
 ssEffectFunctionType():number {
-  return this.bb!.readInt32(this.bb_pos);
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 priority():number {
-  return this.bb!.readInt32(this.bb_pos + 4);
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 maximumParticle():number {
-  return this.bb!.readInt32(this.bb_pos + 8);
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 attimeCreate():number {
-  return this.bb!.readInt32(this.bb_pos + 12);
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 interval():number {
-  return this.bb!.readInt32(this.bb_pos + 16);
+  var offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 lifetime():number {
-  return this.bb!.readInt32(this.bb_pos + 20);
+  var offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 speedMinValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 24);
+  var offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
  * @returns number
  */
 speedMaxValue():number {
-  return this.bb!.readFloat32(this.bb_pos + 28);
+  var offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
  * @returns number
  */
 lifespanMinValue():number {
-  return this.bb!.readInt32(this.bb_pos + 32);
+  var offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 lifespanMaxValue():number {
-  return this.bb!.readInt32(this.bb_pos + 36);
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @returns number
  */
 angle():number {
-  return this.bb!.readFloat32(this.bb_pos + 40);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
  * @returns number
  */
 angleVariance():number {
-  return this.bb!.readFloat32(this.bb_pos + 44);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number ss_effect_function_type
- * @param number priority
- * @param number maximum_particle
- * @param number attime_create
- * @param number interval
- * @param number lifetime
- * @param number speed_min_value
- * @param number speed_max_value
- * @param number lifespan_min_value
- * @param number lifespan_max_value
- * @param number angle
- * @param number angle_variance
- * @returns flatbuffers.Offset
  */
-static createEffectParticleElementBasic(builder:flatbuffers.Builder, ss_effect_function_type: number, priority: number, maximum_particle: number, attime_create: number, interval: number, lifetime: number, speed_min_value: number, speed_max_value: number, lifespan_min_value: number, lifespan_max_value: number, angle: number, angle_variance: number):flatbuffers.Offset {
-  builder.prep(4, 48);
-  builder.writeFloat32(angle_variance);
-  builder.writeFloat32(angle);
-  builder.writeInt32(lifespan_max_value);
-  builder.writeInt32(lifespan_min_value);
-  builder.writeFloat32(speed_max_value);
-  builder.writeFloat32(speed_min_value);
-  builder.writeInt32(lifetime);
-  builder.writeInt32(interval);
-  builder.writeInt32(attime_create);
-  builder.writeInt32(maximum_particle);
-  builder.writeInt32(priority);
-  builder.writeInt32(ss_effect_function_type);
-  return builder.offset();
+static startEffectParticleElementBasic(builder:flatbuffers.Builder) {
+  builder.startObject(12);
 };
 
+/**
+ * @param flatbuffers.Builder builder
+ * @param number ssEffectFunctionType
+ */
+static addSsEffectFunctionType(builder:flatbuffers.Builder, ssEffectFunctionType:number) {
+  builder.addFieldInt32(0, ssEffectFunctionType, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number priority
+ */
+static addPriority(builder:flatbuffers.Builder, priority:number) {
+  builder.addFieldInt32(1, priority, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number maximumParticle
+ */
+static addMaximumParticle(builder:flatbuffers.Builder, maximumParticle:number) {
+  builder.addFieldInt32(2, maximumParticle, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number attimeCreate
+ */
+static addAttimeCreate(builder:flatbuffers.Builder, attimeCreate:number) {
+  builder.addFieldInt32(3, attimeCreate, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number interval
+ */
+static addInterval(builder:flatbuffers.Builder, interval:number) {
+  builder.addFieldInt32(4, interval, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number lifetime
+ */
+static addLifetime(builder:flatbuffers.Builder, lifetime:number) {
+  builder.addFieldInt32(5, lifetime, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number speedMinValue
+ */
+static addSpeedMinValue(builder:flatbuffers.Builder, speedMinValue:number) {
+  builder.addFieldFloat32(6, speedMinValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number speedMaxValue
+ */
+static addSpeedMaxValue(builder:flatbuffers.Builder, speedMaxValue:number) {
+  builder.addFieldFloat32(7, speedMaxValue, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number lifespanMinValue
+ */
+static addLifespanMinValue(builder:flatbuffers.Builder, lifespanMinValue:number) {
+  builder.addFieldInt32(8, lifespanMinValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number lifespanMaxValue
+ */
+static addLifespanMaxValue(builder:flatbuffers.Builder, lifespanMaxValue:number) {
+  builder.addFieldInt32(9, lifespanMaxValue, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number angle
+ */
+static addAngle(builder:flatbuffers.Builder, angle:number) {
+  builder.addFieldFloat32(10, angle, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number angleVariance
+ */
+static addAngleVariance(builder:flatbuffers.Builder, angleVariance:number) {
+  builder.addFieldFloat32(11, angleVariance, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endEffectParticleElementBasic(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createEffectParticleElementBasic(builder:flatbuffers.Builder, ssEffectFunctionType:number, priority:number, maximumParticle:number, attimeCreate:number, interval:number, lifetime:number, speedMinValue:number, speedMaxValue:number, lifespanMinValue:number, lifespanMaxValue:number, angle:number, angleVariance:number):flatbuffers.Offset {
+  EffectParticleElementBasic.startEffectParticleElementBasic(builder);
+  EffectParticleElementBasic.addSsEffectFunctionType(builder, ssEffectFunctionType);
+  EffectParticleElementBasic.addPriority(builder, priority);
+  EffectParticleElementBasic.addMaximumParticle(builder, maximumParticle);
+  EffectParticleElementBasic.addAttimeCreate(builder, attimeCreate);
+  EffectParticleElementBasic.addInterval(builder, interval);
+  EffectParticleElementBasic.addLifetime(builder, lifetime);
+  EffectParticleElementBasic.addSpeedMinValue(builder, speedMinValue);
+  EffectParticleElementBasic.addSpeedMaxValue(builder, speedMaxValue);
+  EffectParticleElementBasic.addLifespanMinValue(builder, lifespanMinValue);
+  EffectParticleElementBasic.addLifespanMaxValue(builder, lifespanMaxValue);
+  EffectParticleElementBasic.addAngle(builder, angle);
+  EffectParticleElementBasic.addAngleVariance(builder, angleVariance);
+  return EffectParticleElementBasic.endEffectParticleElementBasic(builder);
+}
 }
 }
 /**
@@ -443,7 +559,7 @@ blendType():ss.ssfb.EffectRenderBlendType {
  */
 basicBehavior(obj?:ss.ssfb.EffectParticleElementBasic):ss.ssfb.EffectParticleElementBasic|null {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new ss.ssfb.EffectParticleElementBasic).__init(this.bb_pos + offset, this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.EffectParticleElementBasic).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
 /**
@@ -834,7 +950,7 @@ static addBlendType(builder:flatbuffers.Builder, blendType:ss.ssfb.EffectRenderB
  * @param flatbuffers.Offset basicBehaviorOffset
  */
 static addBasicBehavior(builder:flatbuffers.Builder, basicBehaviorOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(5, basicBehaviorOffset, 0);
+  builder.addFieldOffset(5, basicBehaviorOffset, 0);
 };
 
 /**
@@ -1316,20 +1432,12 @@ layoutScaleY():number {
 };
 
 /**
- * @returns number
- */
-numNodeList():number {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
-};
-
-/**
  * @param number index
  * @param ss.ssfb.EffectNode= obj
  * @returns ss.ssfb.EffectNode
  */
 effectNode(index: number, obj?:ss.ssfb.EffectNode):ss.ssfb.EffectNode|null {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? (obj || new ss.ssfb.EffectNode).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
@@ -1337,7 +1445,7 @@ effectNode(index: number, obj?:ss.ssfb.EffectNode):ss.ssfb.EffectNode|null {
  * @returns number
  */
 effectNodeLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -1345,7 +1453,7 @@ effectNodeLength():number {
  * @param flatbuffers.Builder builder
  */
 static startEffectFile(builder:flatbuffers.Builder) {
-  builder.startObject(8);
+  builder.startObject(7);
 };
 
 /**
@@ -1398,18 +1506,10 @@ static addLayoutScaleY(builder:flatbuffers.Builder, layoutScaleY:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number numNodeList
- */
-static addNumNodeList(builder:flatbuffers.Builder, numNodeList:number) {
-  builder.addFieldInt16(6, numNodeList, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @param flatbuffers.Offset effectNodeOffset
  */
 static addEffectNode(builder:flatbuffers.Builder, effectNodeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, effectNodeOffset, 0);
+  builder.addFieldOffset(6, effectNodeOffset, 0);
 };
 
 /**
@@ -1442,7 +1542,7 @@ static endEffectFile(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createEffectFile(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, fps:number, isLockRandSeed:number, lockRandSeed:number, layoutScaleX:number, layoutScaleY:number, numNodeList:number, effectNodeOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createEffectFile(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, fps:number, isLockRandSeed:number, lockRandSeed:number, layoutScaleX:number, layoutScaleY:number, effectNodeOffset:flatbuffers.Offset):flatbuffers.Offset {
   EffectFile.startEffectFile(builder);
   EffectFile.addName(builder, nameOffset);
   EffectFile.addFps(builder, fps);
@@ -1450,7 +1550,6 @@ static createEffectFile(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offs
   EffectFile.addLockRandSeed(builder, lockRandSeed);
   EffectFile.addLayoutScaleX(builder, layoutScaleX);
   EffectFile.addLayoutScaleY(builder, layoutScaleY);
-  EffectFile.addNumNodeList(builder, numNodeList);
   EffectFile.addEffectNode(builder, effectNodeOffset);
   return EffectFile.endEffectFile(builder);
 }
@@ -4076,14 +4175,12 @@ refname(optionalEncoding?:any):string|Uint8Array|null {
 };
 
 /**
- * @param flatbuffers.Encoding= optionalEncoding
- * @returns string|Uint8Array|null
+ * @param ss.ssfb.EffectFile= obj
+ * @returns ss.ssfb.EffectFile|null
  */
-effectfilename():string|null
-effectfilename(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-effectfilename(optionalEncoding?:any):string|Uint8Array|null {
+effect(obj?:ss.ssfb.EffectFile):ss.ssfb.EffectFile|null {
   var offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+  return offset ? (obj || new ss.ssfb.EffectFile).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
 /**
@@ -4170,10 +4267,10 @@ static addRefname(builder:flatbuffers.Builder, refnameOffset:flatbuffers.Offset)
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset effectfilenameOffset
+ * @param flatbuffers.Offset effectOffset
  */
-static addEffectfilename(builder:flatbuffers.Builder, effectfilenameOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, effectfilenameOffset, 0);
+static addEffect(builder:flatbuffers.Builder, effectOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, effectOffset, 0);
 };
 
 /**
@@ -4201,7 +4298,7 @@ static endPartData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createPartData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, index:number, parentIndex:number, type:ss.ssfb.SsPartType, boundsType:ss.ssfb.BoundsType, alphaBlendType:ss.ssfb.BlendType, refnameOffset:flatbuffers.Offset, effectfilenameOffset:flatbuffers.Offset, colorLabelOffset:flatbuffers.Offset, maskInfluence:boolean):flatbuffers.Offset {
+static createPartData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, index:number, parentIndex:number, type:ss.ssfb.SsPartType, boundsType:ss.ssfb.BoundsType, alphaBlendType:ss.ssfb.BlendType, refnameOffset:flatbuffers.Offset, effectOffset:flatbuffers.Offset, colorLabelOffset:flatbuffers.Offset, maskInfluence:boolean):flatbuffers.Offset {
   PartData.startPartData(builder);
   PartData.addName(builder, nameOffset);
   PartData.addIndex(builder, index);
@@ -4210,7 +4307,7 @@ static createPartData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset
   PartData.addBoundsType(builder, boundsType);
   PartData.addAlphaBlendType(builder, alphaBlendType);
   PartData.addRefname(builder, refnameOffset);
-  PartData.addEffectfilename(builder, effectfilenameOffset);
+  PartData.addEffect(builder, effectOffset);
   PartData.addColorLabel(builder, colorLabelOffset);
   PartData.addMaskInfluence(builder, maskInfluence);
   return PartData.endPartData(builder);
