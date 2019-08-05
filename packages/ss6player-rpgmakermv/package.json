@@ -1,0 +1,65 @@
+{
+  "name": "ss6player-rpgmakermv",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ss6player for RPG Maker MV",
+  "keywords": [
+    "SpriteStudio",
+    "SS6Player",
+    "2D",
+    "Animation",
+    "Sprite",
+    "Skeletal",
+    "pixi",
+    "RPGMakerMV"
+  ],
+  "main": "dist/ss6player-rpgmakermv.umd.js",
+  "module": "dist/ss6player-rpgmakermv.es5.js",
+  "bugs": {
+    "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
+  },
+  "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Web Technology Corp.",
+    "url": "https://www.webtech.co.jp/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SpriteStudio/SS6PlayerForWeb.git"
+  },
+  "license": "SEE LICENSE",
+  "scripts": {
+    "start": "npm run watch",
+    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "npm run clean",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "watch": "rollup -c rollup.config.ts -w",
+    "dist": "npm run docs && npm run build",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "flatbuffers": "^1.11.0",
+    "ssfblib": "1.0.0",
+    "ss6player-pixi": "^1.1.0"
+  },
+  "devDependencies": {
+    "rpgmakermv_typescript_dts": "1.5.2",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.16.2",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-includepaths": "^0.2.3",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-license": "^0.9.0",
+    "rollup-plugin-node-resolve": "^5.1.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.21.2",
+    "tslint": "^5.18.0",
+    "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.15.0-0",
+    "typescript": "^3.5.2"
+  }
+}
