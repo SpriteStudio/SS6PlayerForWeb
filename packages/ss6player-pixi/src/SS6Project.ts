@@ -1,3 +1,4 @@
+import { flatbuffers } from 'flatbuffers';
 import { ss } from 'ssfblib';
 
 export class SS6Project {
