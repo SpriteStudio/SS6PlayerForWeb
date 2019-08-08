@@ -18,9 +18,6 @@ export default {
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
-    'ssfblib',
-    'ss',
-    'flatbuffers',
     'pixi.js'
   ],
   watch: {
