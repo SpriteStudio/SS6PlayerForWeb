@@ -25,8 +25,6 @@
 
 import { SS6Player, SS6Project } from 'ss6player-pixi';
 
-let parameters = PluginManager.parameters('HelloWorld');
-
 const SSDUMMY: string = '__ssdummy__';
 
 enum SCENE_MARK {
@@ -58,7 +56,25 @@ class SS6PlayerForRPGMakerMV {
   private _targetOpacity: number;
   private _duration: number;
 
-  constructor() {
+  private _ssfbPath: string;
+  private _animePackName: string;
+  private _animePack: string;
+
+  constructor(ssfbPath: string, animePackName: string, animePack: string) {
+    this._ssfbPath = ssfbPath;
+    this._animePackName = animePackName;
+    this._animePack = animePack;
+  }
+
+  get player(): SS6Player {
+    return this._player;
+  }
+
+  loadAnimation(cb: () => void) {
+    this._project = new SS6Project(this._ssfbPath, () => {
+      this._player = new SS6Player(this._project, this._animePackName, this._animePack);
+      cb();
+    });
   }
 
   initTarget() {
@@ -68,10 +84,6 @@ class SS6PlayerForRPGMakerMV {
     this._targetScaleY = this._scaleY;
     this._targetOpacity = this._opacity;
     this._duration = 0;
-  }
-
-  loadAnimation(fileName: string, animePack: string, animeName: string, ) {
-
   }
 
   // アニメーションデータを別ページに変更
@@ -120,25 +132,40 @@ class SS6PlayerForRPGMakerMV {
 }
 
 class SS6PFMVManager {
+  parameters = PluginManager.parameters('ss6player-rpgmakermv');
+  animationDir: string = String(this.parameters['Animation File Path']
+    || this.parameters['アニメーションフォルダ']
+    || 'img/animations/ssas')
+    + '/';
   private _players: {[key: string]: SS6PlayerForRPGMakerMV} = {};
   constructor() {
 
   }
 
+  loadPlayer(label: string, ssfbFile: string, animePackName: string, animeName: string) {
+    let ssfbPath: string = this.animationDir + ssfbFile;
+    let player = new SS6PlayerForRPGMakerMV(ssfbPath, animePackName, animeName);
+    player.loadAnimation(() => {
+      this._players[label] = player;
+    });
+  }
+
   getSsSprites(): SS6PlayerForRPGMakerMV[] {
     // TODO: impl
-    let array: SS6PlayerForRPGMakerMV[] = [];
-    array[0] = new SS6PlayerForRPGMakerMV();
-    return array;
+    return null;
   }
 
   removeSsPlayerByLabel(s: string) {
-    // TODO: impl
+    let player = this._players[s];
+    if (player !== null) {
+      player.player.Stop();
+
+      this._players[s] = null;
+    }
   }
 
   getSsPlayerByLabel(s: string): SS6PlayerForRPGMakerMV {
-    // TODO: impl
-    return new SS6PlayerForRPGMakerMV();
+    return this._players[s];
   }
 }
 let ss6pfmv = new SS6PFMVManager();
@@ -192,8 +219,9 @@ Game_Screen.prototype.update = function() {
     // ピクチャ紐付きのアニメーションの座標は更新しない
     if (!isNaN(Number(key))) return;
     let player = this._ssPlayList[key];
-    if (player instanceof SS6Player)
+    if (player instanceof SS6Player) {
       player.Update(0);
+    }
   },this);
 };
 
