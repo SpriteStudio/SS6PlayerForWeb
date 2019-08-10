@@ -4,5 +4,6 @@ var $plugins =
 [
 {"name":"Community_Basic","status":true,"description":"基本的なパラメーターを設定するプラグインです。","parameters":{"cacheLimit":"20","screenWidth":"816","screenHeight":"624","changeWindowWidthTo":"","changeWindowHeightTo":"","renderingMode":"auto","alwaysDash":"off"}},
 {"name":"SSPlayerForRPGMV","status":true,"description":"[v0.4.1] SpriteStudioで作成されたアニメーションを再生できるようにするプラグインです。","parameters":{"アニメーションフォルダ":"img/animations/ssas","色調変更範囲を制限する":"OFF","色調変更をフィルタで行う":"OFF"}},
-{"name":"Yami_SkipTitle","status":true,"description":"Skip the title scene for testing purpose.","parameters":{}}
+{"name":"Yami_SkipTitle","status":true,"description":"Skip the title scene for testing purpose.","parameters":{}},
+{"name":"ss6player-rpgmakermv","status":true,"description":"ss6player-rpgmakermv is a player plugin for an animation made by OPTPiX SpriteStudio 6.\r\nThis plug-in can be able to play animations made by OPTPiX SpriteStudio 6.","parameters":{"Animation File Path":"img/animations/ssfb"}}
 ];
