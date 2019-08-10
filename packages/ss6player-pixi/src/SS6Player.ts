@@ -171,7 +171,7 @@ export class SS6Player extends PIXI.Container {
    * Update is called PIXI.ticker
    * @param {number} delta - expected 1
    */
-  private Update(delta: number): void {
+  public Update(delta: number): void {
     const currentTime = Date.now();
     const elapsedTime = currentTime - this.pastTime;
     const toNextFrame = this.isPlaying && !this.isPausing;

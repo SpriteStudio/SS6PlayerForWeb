@@ -13,7 +13,7 @@
     "pixi",
     "RPGMakerMV"
   ],
-  "main": "dist/ss6player-rpgmakermv.umd.js",
+  "main": "dist/ss6player-rpgmakermv.js",
   "module": "dist/ss6player-rpgmakermv.es5.js",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
@@ -36,6 +36,7 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "deploy": "npm run build && cpy dist/ss6player-rpgmakermv.js SampleProject/js/plugins/",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -p 8083 ./SampleProject\" \"opener http://localhost:8083/index.html\"",
@@ -51,6 +52,7 @@
     "opener": "^1.5.1",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^2.6.3",
+    "cpy-cli": "^2.0.0",
     "rollup": "^1.16.2",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-includepaths": "^0.2.3",
