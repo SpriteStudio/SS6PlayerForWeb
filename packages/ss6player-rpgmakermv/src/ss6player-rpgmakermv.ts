@@ -1,3 +1,26 @@
+/*:
+ *
+ * @plugindesc ss6player-rpgmakermv is a player plugin for an animation made by OPTPiX SpriteStudio 6.
+ * This plug-in can be able to play animations made by OPTPiX SpriteStudio 6.
+ * @author Web Technology Corp.
+ *
+ * @param Animation File Path
+ * @desc A folder path to place animation data (ssfb/imagefile). Default value is "img/animations/ssfb".
+ * @default img/animations/ssfb
+ *
+ *
+ */
+
+/*:ja
+ *
+ * @plugindesc ss6player-rpgmakermv は SpriteStudio 6 で作成されたアニメーションを再生するプレイヤープラグインです。
+ * @author Web Technology Corp.
+ *
+ * @param アニメーションフォルダ
+ * @desc アニメーションデータ (ssfb/imagefile) が設置されたフォルダのパスです。デフォルトは "img/animations/ssfb" です。
+ * @default img/animations/ssfb
+ */
+
 /// <reference types="rpgmakermv_typescript_dts" />
 
 import { SS6Player, SS6Project } from 'ss6player-pixi';
@@ -221,6 +244,7 @@ let _Spriteset_Base_update = Spriteset_Base.prototype.update;
 Spriteset_Base.prototype.update = function () {
   _Spriteset_Base_update.call(this);
 
+  /*
   // SsPlayerの状態を監視し、SsSpriteオブジェクトを更新
   // let preparedSprites = $gameScreen.getSsSprites();
   let preparedSprites = ss6pfmv.getSsSprites();
@@ -235,4 +259,5 @@ Spriteset_Base.prototype.update = function () {
       this._ssContainer.removeChild(sprite);
     }
   }, this);
+   */
 };
