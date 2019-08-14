@@ -27,27 +27,170 @@ import { SS6Player, SS6Project } from 'ss6player-pixi';
 
 const SSDUMMY: string = '__ssdummy__';
 
+const plugin_parameters = PluginManager.parameters('ss6player-rpgmakermv');
+
 enum SCENE_MARK {
   all,
   map,
   battle
 }
 
+class SS6PlayerForRPGMakerMVArguments {
+  // ss6player plugin parameters
+  public ssfbFilePath: string = '';
+  public animePackName: string = '';
+  public animeName: string = '';
+
+  // for rpg maker mv parameters
+  public pictureId: string = '';
+  public x = 0;
+  public y = 0;
+  public loop = 0;
+  public scaleX = 100;
+  public scaleY = 100;
+  public opacity = 255;
+  public blendMode = 0;
+  public speed = 1;
+
+  // plugin parameters
+  public duration = 0;
+  public waitForCompletion = false;
+  public showInAllScene = false;
+
+  public constructor() {
+  }
+
+  // プラグインコマンドパラメータの解釈と代入（forEachのコールバックとして使用）
+  public processSsPlayerArgument(val: string) {
+    let upperVal = val.toUpperCase();
+    if (upperVal === '完了までウェイト' || upperVal === 'WAITFORCOMPLETION') {
+      this.waitForCompletion = true;
+      return;
+    }
+    if (upperVal === '全シーンで表示' || upperVal.toUpperCase() === 'SHOWINALLSCENES') {
+      this.showInAllScene = true;
+      return;
+    }
+    let param = val.split(':');
+    switch (param[0].toUpperCase()) {
+      case 'X':
+        if ((/^v\[[0-9]+\]/i).test(param[1])) {
+          this.x = $gameVariables.value((/^v\[([0-9]+)\]/i).exec(param[1])[1]);
+        } else {
+          this.x = Number(param[1] || 0);
+        }
+        break;
+      case 'Y':
+        if ((/^v\[[0-9]+\]/i).test(param[1])) {
+          this.y = $gameVariables.value((/^v\[([0-9]+)\]/i).exec(param[1])[1]);
+        } else {
+          this.y = Number(param[1] || 0);
+        }
+        break;
+      case 'ループ':
+      case 'LOOP':
+      case 'REPEAT':
+        this.loop = param[1].match(/^[0-9]+/) !== null ? Number(param[1].match(/^[0-9]+/)[0]) : 0;
+        break;
+      case 'アニメパック名':
+      case 'ANIMATIONPACKNAME':
+      case 'SSAE':
+        this.animePackName = String(param[1] || '');
+        break;
+      case 'アニメ名':
+      case 'ANIMATIONNAME':
+        this.animeName = String(param[1] || '');
+        break;
+      case '拡大率X':
+      case 'SCALEX':
+        this.scaleX = Math.min(1000, Math.max(-1000, Number(param[1].match(/^-*[0-9]+/) !== null ? Number(param[1].match(/^-*[0-9]+/)[0]) : 100)));
+        break;
+      case '拡大率Y':
+      case 'SCALEY':
+        this.scaleY = Math.min(1000, Math.max(-1000, Number(param[1].match(/^-*[0-9]+/) !== null ? Number(param[1].match(/^-*[0-9]+/)[0]) : 100)));
+        break;
+      case '不透明度':
+      case 'OPACITY':
+        this.opacity = Math.min(255, Math.max(0, Number(param[1] || 255)));
+        break;
+      case '合成方法':
+      case 'BLENDTYPE':
+        switch (param[1].toUpperCase()) {
+          case '加算':
+          case 'ADDITIVE':
+          case 'ADD':
+            this.blendMode = Graphics.BLEND_ADD;
+            break;
+          case '乗算':
+          case 'SUBTRACTION':
+          case 'MULTIPLY':
+            this.blendMode = Graphics.BLEND_MULTIPLY;
+            break;
+          case 'スクリーン':
+          case 'SCREEN':
+            this.blendMode = Graphics.BLEND_SCREEN;
+            break;
+          default:
+            this.blendMode = Graphics.BLEND_NORMAL;
+            break;
+        }
+        break;
+      case '再生速度':
+      case 'SPEED':
+        this.speed = Math.min(10, Math.max(0.01, Number(param[1].match(/^[0-9]+/) !== null ? Number(param[1].match(/^[0-9]+/)[0]) : 100) / 100));
+        break;
+      case 'フレーム':
+      case 'FRAME':
+        this.duration = Math.floor(Math.max(0, Number(param[1] || 0)));
+    }
+  }
+}
+
+/**
+ * ss6player-pixi ラッパー
+ */
 class SS6PlayerForRPGMakerMV {
 
   private _project: SS6Project;
-  private _player: SS6Player;
+  private _ss6player: SS6Player;
 
-  // parameter
+  // parameter for rpgmakermv
   private _x: number = 0;
+  get x(): number {
+    return this._x;
+  }
   private _y: number = 0;
+  get y(): number {
+    return this._y;
+  }
   private _scaleX: number = 100;
+  get scaleX(): number {
+    return this._scaleX;
+  }
   private _scaleY: number = 100;
+  get scaleY(): number {
+    return this._scaleY;
+  }
   private _opacity: number = 255;
+  get opacity(): number {
+    return this._opacity;
+  }
   private _blendMode: number = 0;
+  get blendMode(): number {
+    return this._blendMode;
+  }
   private _loop: number = 0;
+  get loop(): number {
+    return this._loop;
+  }
   private _step: number = 1;
+  get step(): number {
+    return this._step;
+  }
   private _scene: SCENE_MARK = null;
+  get scene(): SCENE_MARK {
+    return this._scene;
+  }
 
   private _targetX: number;
   private _targetY: number;
@@ -56,23 +199,34 @@ class SS6PlayerForRPGMakerMV {
   private _targetOpacity: number;
   private _duration: number;
 
+  private _pictureId: string;
   private _ssfbPath: string;
   private _animePackName: string;
   private _animePack: string;
+  get pictureId(): string {
+    return this._pictureId;
+  }
 
-  constructor(ssfbPath: string, animePackName: string, animePack: string) {
+  private _loadFinish: boolean = false;
+  public loadFinish(): boolean {
+    return this._loadFinish;
+  }
+
+  constructor(pitureId: string, ssfbPath: string, animePackName: string, animePack: string) {
+    this._pictureId = pitureId;
     this._ssfbPath = ssfbPath;
     this._animePackName = animePackName;
     this._animePack = animePack;
   }
 
-  get player(): SS6Player {
-    return this._player;
+  get ss6player(): SS6Player {
+    return this._ss6player;
   }
 
-  loadAnimation(cb: () => void) {
+  loadAnimation(cb: () => void, cBargs: any) {
     this._project = new SS6Project(this._ssfbPath, () => {
-      this._player = new SS6Player(this._project, this._animePackName, this._animePack);
+      this._ss6player = new SS6Player(this._project, this._animePackName, this._animePack);
+      this._loadFinish = true;
       cb();
     });
   }
@@ -104,7 +258,7 @@ class SS6PlayerForRPGMakerMV {
   }
 
   update() {
-    this._player.Update(0 /* unused */);
+    this._ss6player.Update(0 /* unused */);
   }
 
   // 現在のシーンをセット
@@ -129,25 +283,57 @@ class SS6PlayerForRPGMakerMV {
     return (this._scene === SCENE_MARK.all || this._scene === SCENE_MARK.battle);
   }
 
+  makeParamsFromCurrent(): SS6PlayerForRPGMakerMVArguments {
+    let params = new SS6PlayerForRPGMakerMVArguments();
+    params.x = this._x;
+    params.y = this._y;
+    params.scaleX = this._scaleX;
+    params.scaleY = this._scaleY;
+    params.opacity = this._opacity;
+    params.blendMode = this._blendMode;
+    params.loop = this._loop;
+    params.speed = this._step;
+    return params;
+  }
+
+  static makeParamsFromPicture(player: SS6PlayerForRPGMakerMV, pictureId: number) {
+    let params = new SS6PlayerForRPGMakerMVArguments();
+    let picture = $gameScreen.picture(pictureId);
+    params.x = picture.x();
+    params.y = picture.y();
+    params.scaleX = picture.scaleX();
+    params.scaleY = picture.scaleY();
+    params.opacity = picture.opacity();
+    params.blendMode = picture.blendMode();
+    params.loop = player._loop;
+    params.speed = player._step;
+    return params;
+  }
 }
 
 class SS6PFMVManager {
-  parameters = PluginManager.parameters('ss6player-rpgmakermv');
-  animationDir: string = String(this.parameters['Animation File Path']
-    || this.parameters['アニメーションフォルダ']
+  animationDir: string = String(plugin_parameters['Animation File Path']
+    || plugin_parameters['アニメーションフォルダ']
     || 'img/animations/ssas')
     + '/';
-  private _players: {[key: string]: SS6PlayerForRPGMakerMV} = {};
+  private _playersMap: {[key: string]: SS6PlayerForRPGMakerMV} = {};
+  private _ss6playersArray: SS6Player[] = [];
   constructor() {
-
   }
 
-  loadPlayer(label: string, ssfbFile: string, animePackName: string, animeName: string) {
+  loadPlayer(pictureId: string, ssfbFile: string, animePackName: string, animeName: string) {
     let ssfbPath: string = this.animationDir + ssfbFile;
-    let player = new SS6PlayerForRPGMakerMV(ssfbPath, animePackName, animeName);
+    let player = new SS6PlayerForRPGMakerMV(pictureId, ssfbPath, animePackName, animeName);
+    // player.setScene(params); // TODO:
     player.loadAnimation(() => {
-      this._players[label] = player;
-    });
+      this._playersMap[this.wrapPictureId(pictureId)] = player;
+      this._ss6playersArray.push(player.ss6player);
+      if (this.isPictureLayer(pictureId)) {
+        // showPicture(pictureId: number, name: string, origin: number, x: number, y: number, scaleX: number, scaleY: number, opacity: number, blendMode: number): void;
+        $gameScreen.showPicture(Number(pictureId), SSDUMMY, 0,
+          player.x, player.y, player.scaleX, player.scaleY, player.opacity, player.blendMode);
+      }
+    }, this);
   }
 
   getSsSprites(): SS6PlayerForRPGMakerMV[] {
@@ -155,17 +341,108 @@ class SS6PFMVManager {
     return null;
   }
 
-  removeSsPlayerByLabel(s: string) {
-    let player = this._players[s];
-    if (player !== null) {
-      player.player.Stop();
+  wrapPictureId(pictureId: string): string {
+    return 'ss6player_' + pictureId;
+  }
 
-      this._players[s] = null;
+  unwrapPictureId(wrappedPictureId: string): string {
+    return wrappedPictureId.replace('ss6player_', '');
+  }
+
+  removeSsPlayerByPictureId(pictureId: string) {
+    let player = this._playersMap[this.wrapPictureId(pictureId)];
+    console.log('removeSsPlayerByPictureId ' + pictureId + ' ' + player);
+    if (player !== null && player !== undefined) {
+      if (player.loadFinish()) {
+        player.ss6player.Stop();
+        this._ss6playersArray.splice(this._ss6playersArray.indexOf(player.ss6player), 1);
+        this._playersMap[pictureId] = null;
+      }
     }
   }
 
-  getSsPlayerByLabel(s: string): SS6PlayerForRPGMakerMV {
-    return this._players[s];
+  getSsPlayerByPictureId(pictureId: string): SS6PlayerForRPGMakerMV {
+    return this._playersMap[this.wrapPictureId(pictureId)];
+  }
+
+  // SS6Player を格納する Sprite(container)
+  private _container: PIXI.Sprite = new PIXI.Sprite();
+  getSS6PlayerContainer() {
+    return this._container;
+  }
+
+  Spriteset_Base_update(): void {
+    for (let key in this._playersMap) {
+      let player = this._playersMap[key];
+      if (this._container.children.indexOf(player.ss6player) < 0) {
+        this._container.addChild(player.ss6player);
+      }
+    }
+
+    this._container.children.forEach(function (sprite, index) {
+      if (this._ss6playersArray.indexOf(sprite) < 0) {
+        this._container.removeChild(sprite);
+      }
+    }, this);
+
+  }
+
+  pluginCommand(command: string, args: string[]) {
+    let upperCommand: string = command.toUpperCase();
+    switch (upperCommand) {
+      case 'SS6アニメーション再生':
+      case 'PLAYSS6ANIMATION':
+        this.processSsPlay(args);
+        break;
+      case 'SS6アニメーション移動':
+      case 'MOVESS6ANIMATION':
+        this.processSsMove(args);
+        break;
+      case 'SS6アニメーション完了までウェイト':
+      case 'WAITFORCOMPLETESS6ANIMATION':
+        this.processWaitforCompletion(args);
+        break;
+      case 'SS6アニメーション停止':
+      case 'STOPSS6ANIMATION':
+        this.processSsStop(args);
+        break;
+    }
+  }
+
+  private processSsPlay(args: string[]) {
+    let params = new SS6PlayerForRPGMakerMVArguments();
+    if (!args[0] || !args[1] || !args[2]) {
+      return;
+    }
+    params.ssfbFilePath = args[0];
+    if (!/\.ssbp.ssfb$/i.test(params.ssfbFilePath)) {
+      params.ssfbFilePath += '.ssbp.ssfb';
+    }
+    params.pictureId = args[1];
+    params.animePackName = args[2];
+    params.animeName = args[3];
+
+    args.slice(4, args.length).forEach(SSP4MV.processSsPlayerArgument, params);
+    this.loadPlayer(params.pictureId, params.ssfbFilePath, params.animePackName, params.animeName);
+  }
+
+  private processSsMove(args: string[]) {
+
+  }
+
+  private processWaitforCompletion(args: string[]) {
+
+  }
+
+  private processSsStop(args: string[]) {
+
+  }
+
+  // ピクチャレイヤー上に描画するかどうか
+  private isPictureLayer(pictureId: string) {
+    // ラベル名が整数かつピクチャIDの範囲内に収まっているか
+    return !isNaN(Number(pictureId)) &&
+            Number(pictureId) > 0 && Number(pictureId) < $gameScreen.maxPictures();
   }
 }
 let ss6pfmv = new SS6PFMVManager();
@@ -173,7 +450,7 @@ let ss6pfmv = new SS6PFMVManager();
 let _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
 Game_Interpreter.prototype.pluginCommand = function(command, args) {
   _Game_Interpreter_pluginCommand.call(this, command, args);
-
+  ss6pfmv.pluginCommand(command, args);
 };
 
 // 再生完了までウェイト
@@ -207,7 +484,9 @@ Game_Interpreter.prototype.updateWaitMode = function() {
 let _Game_Screen_erasePicture = Game_Screen.prototype.erasePicture;
 Game_Screen.prototype.erasePicture = function(pictureId) {
   _Game_Screen_erasePicture.call(this, pictureId);
-  ss6pfmv.removeSsPlayerByLabel(String(pictureId));
+
+  console.log('Game_Screen.prototype.erasePicture: pictureId: ' + pictureId);
+  ss6pfmv.removeSsPlayerByPictureId(String(pictureId));
 };
 
 // SsPlayerのアップデート
@@ -262,9 +541,8 @@ let _Spriteset_Base_createUpperLayer = Spriteset_Base.prototype.createUpperLayer
 Spriteset_Base.prototype.createUpperLayer = function () {
   _Spriteset_Base_createUpperLayer.call(this);
 
-  // SsSpriteを格納するSpriteを作成
-  this._ssContainer = new Sprite();
-  this.addChild(this._ssContainer);
+  let container = ss6pfmv.getSS6PlayerContainer();
+  this.addChild(container);
 };
 
 // SpriteSetフレーム更新
@@ -272,20 +550,5 @@ let _Spriteset_Base_update = Spriteset_Base.prototype.update;
 Spriteset_Base.prototype.update = function () {
   _Spriteset_Base_update.call(this);
 
-  /*
-  // SsPlayerの状態を監視し、SsSpriteオブジェクトを更新
-  // let preparedSprites = $gameScreen.getSsSprites();
-  let preparedSprites = ss6pfmv.getSsSprites();
-  preparedSprites.forEach(function (sprite, index) {
-    if (this._ssContainer.children.indexOf(sprite) < 0) {
-      this._ssContainer.addChild(sprite);
-    }
-  }, this);
-
-  this._ssContainer.children.forEach(function (sprite, index) {
-    if (preparedSprites.indexOf(sprite) < 0) {
-      this._ssContainer.removeChild(sprite);
-    }
-  }, this);
-   */
+  ss6pfmv.Spriteset_Base_update();
 };
