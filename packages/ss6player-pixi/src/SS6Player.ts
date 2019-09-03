@@ -75,7 +75,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
-  public constructor(ss6project: SS6Project, animePackName: string, animeName: string) {
+  public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
 
     // extends PIXI.Container
@@ -86,22 +86,9 @@ export class SS6Player extends PIXI.Container {
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
-    this.Setup(animePackName, animeName);
-
-    this.alphaBlendType = this.GetPartsBlendMode();
-
-    this.isPlaying = false;
-    this.isPausing = true;
-    this._startFrame = this.curAnimation.startFrames();
-    this._endFrame = this.curAnimation.endFrames();
-    this._currentFrame = this.curAnimation.startFrames();
-    this.nextFrameTime = 0;
-    this._loops = -1;
-    this.skipEnabled = false;
-    this.updateInterval = 1000 / this.curAnimation.fps();
-    this.playDirection = 1; // forward
-    this.onUserDataCallback = null;
-    this.playEndCallback = null;
+    if (animePackName !== null && animeName !== null) {
+      this.Setup(animePackName, animeName);
+    }
 
     // Ticker
     this.pastTime = 0;
@@ -114,6 +101,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animeName - The name of animation.
    */
   public Setup(animePackName: string, animeName: string): void {
+    this.clearCaches();
     const animePacksLength = this.fbObj.animePacksLength();
     for (let i = 0; i < animePacksLength; i++) {
       if (this.fbObj.animePacks(i).name() === animePackName) {
@@ -150,6 +138,33 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+
+    // 各アニメーションステータスを初期化
+    this.alphaBlendType = this.GetPartsBlendMode();
+
+    this.isPlaying = false;
+    this.isPausing = true;
+    this._startFrame = this.curAnimation.startFrames();
+    this._endFrame = this.curAnimation.endFrames();
+    this._currentFrame = this.curAnimation.startFrames();
+    this.nextFrameTime = 0;
+    this._loops = -1;
+    this.skipEnabled = false;
+    this.updateInterval = 1000 / this.curAnimation.fps();
+    this.playDirection = 1; // forward
+    this.onUserDataCallback = null;
+    this.playEndCallback = null;
+    this.parentAlpha = 1.0;
+  }
+
+  private clearCaches() {
+    this.prio2index = [];
+    this.userData = [];
+    this.frameDataCache = [];
+    this.currentCachedFrameNumber = -1;
+    this.liveFrame = [];
+    this.colorMatrixFilterCache = [];
+    this.defaultFrameMap = [];
   }
 
   /**
@@ -1434,7 +1449,8 @@ export class SS6Player extends PIXI.Container {
    */
   private MakeCellPlayer(refname: string): SS6Player {
     const split = refname.split('/');
-    const ssp = new SS6Player(this.ss6project, split[0], split[1]);
+    const ssp = new SS6Player(this.ss6project);
+    ssp.Setup(split[0], split[1]);
     ssp.Play();
 
     return ssp;
