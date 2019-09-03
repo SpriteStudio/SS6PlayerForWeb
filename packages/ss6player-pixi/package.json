@@ -38,7 +38,7 @@
     "docs": "typedoc --out ../../docs/ss6player_pixi_api --target es6 --theme minimal --mode file src",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
-    "view": "concurrently \"http-server ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
+    "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
     "clean": "rimraf dist"
   },
   "dependencies": {
