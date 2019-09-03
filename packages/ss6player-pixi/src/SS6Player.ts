@@ -75,7 +75,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
-  public constructor(ss6project: SS6Project, animePackName: string, animeName: string) {
+  public constructor(ss6project: SS6Project) {
     super();
 
     // extends PIXI.Container
@@ -86,22 +86,9 @@ export class SS6Player extends PIXI.Container {
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
-    this.Setup(animePackName, animeName);
 
-    this.alphaBlendType = this.GetPartsBlendMode();
+    // this.Setup(animePackName, animeName);
 
-    this.isPlaying = false;
-    this.isPausing = true;
-    this._startFrame = this.curAnimation.startFrames();
-    this._endFrame = this.curAnimation.endFrames();
-    this._currentFrame = this.curAnimation.startFrames();
-    this.nextFrameTime = 0;
-    this._loops = -1;
-    this.skipEnabled = false;
-    this.updateInterval = 1000 / this.curAnimation.fps();
-    this.playDirection = 1; // forward
-    this.onUserDataCallback = null;
-    this.playEndCallback = null;
 
     // Ticker
     this.pastTime = 0;
@@ -150,10 +137,22 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
-    // Frameの初期化
+
+    // 各アニメーションステータスを初期化
+    this.alphaBlendType = this.GetPartsBlendMode();
+
+    this.isPlaying = false;
+    this.isPausing = true;
     this._startFrame = this.curAnimation.startFrames();
     this._endFrame = this.curAnimation.endFrames();
     this._currentFrame = this.curAnimation.startFrames();
+    this.nextFrameTime = 0;
+    this._loops = -1;
+    this.skipEnabled = false;
+    this.updateInterval = 1000 / this.curAnimation.fps();
+    this.playDirection = 1; // forward
+    this.onUserDataCallback = null;
+    this.playEndCallback = null;
   }
 
   /**
@@ -1438,7 +1437,8 @@ export class SS6Player extends PIXI.Container {
    */
   private MakeCellPlayer(refname: string): SS6Player {
     const split = refname.split('/');
-    const ssp = new SS6Player(this.ss6project, split[0], split[1]);
+    const ssp = new SS6Player(this.ss6project);
+    ssp.Setup(split[0], split[1]);
     ssp.Play();
 
     return ssp;
