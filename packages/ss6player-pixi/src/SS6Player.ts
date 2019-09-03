@@ -150,6 +150,10 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+    // Frameの初期化
+    this._startFrame = this.curAnimation.startFrames();
+    this._endFrame = this.curAnimation.endFrames();
+    this._currentFrame = this.curAnimation.startFrames();
   }
 
   /**
