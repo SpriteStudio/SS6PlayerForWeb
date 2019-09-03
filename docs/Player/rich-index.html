@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv=”Pragma” content=”no-cache”>
+  <meta http-equiv=”Cache-Control” content=”no-cache”>
+  <title>SpriteStudio6 Web Player</title>
+  <!-- pixi.jsの読込 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.8.5/pixi.min.js"></script>
+  <!-- flatbuffers関連 -->
+  <script src="https://cdn.jsdelivr.net/npm/flatbuffers@1.10.2/js/flatbuffers.js"></script>
+  <!-- ssfblib -->
+  <script src="./ssfblib.umd.js"></script>
+  <!-- ss6player -->
+  <script src="./ss6player-pixi.umd.js"></script>
+  <script src="./ss6player-controller.js"></script>
+
+  <style>
+    .player canvas {
+      border-style: solid;
+      border-width: 1px;
+      border-color: #666;
+    }
+    
+  </style>
+</head>
+<body>
+
+
+  <script>
+    let playerController = null;
+
+    let pixiApplication = null;
+    let ss6Project = null;
+    let ss6Player = null;
+    const ssfbFilePath = "./MeshBone/Knight.ssbp.ssfb";
+    const previewWidth = 320;
+    const previewHeight = 320;
+
+    function setupSS6Player(ssaeName, animeName) {
+      if(animeName == null){
+        // 最初のアニメを取得する
+        
+      }
+
+      ss6Player = new ss6PlayerPixi.SS6Player(ss6Project);
+      // 再生開始
+      ss6Player.Play();
+      // const animationCenterX = 160;
+      // const animationCenterY = 640; // アニメーションの下部
+      const animationCenterX = previewWidth / 2;
+      const animationCenterY = previewHeight - 10;
+      ss6Player.position = new PIXI.Point(animationCenterX, animationCenterY);
+
+
+
+      // スケール値自動調整
+      pixiApplication.stage.addChild(ss6Player);
+
+      const playerHeight = ss6Player.height;
+      const playerWidth = ss6Player.width;
+
+      const widthRatio = previewWidth / playerWidth;
+      const heightRatio = previewHeight / playerHeight;
+      let scaleRatio = null;
+      if (widthRatio < heightRatio) {
+        scaleRatio = widthRatio;
+      } else if (heightRatio < widthRatio) {
+        scaleRatio = heightRatio;
+      }
+      scaleRatio *= 0.5;
+
+      // スケールを設定
+      ss6Player.scale = new PIXI.Point(scaleRatio, scaleRatio);
+
+    }
+      
+
+
+    window.onload = function(){
+      // const ssaeName = 'Knight_bomb';
+      // const animeName = 'Balloon';
+
+      const playerElement = document.querySelector('.player');
+      const optionAreaElement = playerElement.querySelector('.option-area');
+      const playControlAreaElement = playerElement.querySelector('.play-control-area');
+      const previewElement = playerElement.querySelector('.preview');
+      const animationPackAreaElement = playerElement.querySelector('.animation-pack-area');
+      const animationAreaElement = playerElement.querySelector('.animation-area');
+
+
+      playerController = new SS6PlayerController(ssfbFilePath);
+      playerController.onComplete = () => {
+        const animePackMap = playerController.animePackMap;
+        for(let animePackName in animePackMap){
+          const element = document.createElement('button');
+          element.innerText = animePackName;
+          element.classList.add('animation-pack');
+          element.addEventListener('click', (event) => {
+            const element = event.currentTarget;
+            const animePackName = element.innerText;
+
+            const animePackMap = playerController.animePackMap;
+            console.log(animePackMap);
+            const animationMap = animePackMap[animePackName];
+            console.log(animationMap);
+
+            animationAreaElement.innerHTML = '';
+            for(let animationName in animationMap){
+              const element = document.createElement('button');
+              element.innerText = animationName;
+              element.classList.add('animation');
+              element.setAttribute('data-animation-pack-name', animePackName);
+              element.addEventListener('click', (event) => {
+                const element = event.currentTarget;
+                const animationName = element.innerText;
+
+                const ssaeName = element.getAttribute('data-animation-pack-name');
+                playerController.setupAnimation(ssaeName, animationName);
+              });
+
+              animationAreaElement.appendChild(element);
+            }
+
+            
+
+          });
+          animationPackAreaElement.appendChild(element);
+
+        }
+
+        
+
+      };
+      playerController.load(previewElement);
+
+      // 再生ボタン
+      const playButtonElement = playControlAreaElement.querySelector('.play');
+      playButtonElement.addEventListener('click', (event) => {
+        if(playerController.ss6Player.isPausing){
+          playerController.ss6Player.Resume();
+        }else{
+          playerController.ss6Player.Play();
+        }
+      });
+      
+      // 停止ボタン
+      const pauseButtonElement = playControlAreaElement.querySelector('.pause');
+      pauseButtonElement.addEventListener('click', (event) => {
+        playerController.ss6Player.Pause();
+      });
+
+      // アニメーションスピード
+      const animationSpeedSelectElement = optionAreaElement.querySelector('.animation-speed');
+      animationSpeedSelectElement.addEventListener('change', (event)=>{
+        const selectElement = event.currentTarget;
+        const value = selectElement.value;
+        playerController.ss6Player.SetAnimationSpeed(value);
+      });
+
+      previewElement.addEventListener('click', (event) => {
+        // if (ss6Player.isPausing) {
+        //   playerController.ss6Player.Resume();
+        // } else if(ss6Player.isPlaying){
+        //   playerController.ss6Player.Pause();
+        // } else {
+        //   playerController.ss6Player.Play();
+        // }
+      });
+
+    };
+
+  </script>
+
+
+  <div class="player">
+    <div class="animation-pack-area">
+
+    </div>
+    <div class="animation-area">
+
+    </div>
+    <div class="option-area">
+      
+
+      アニメーションスピード
+      <select class="animation-speed">
+        <option value=0.5 >0.5</option>
+        <option value=1 selected>1</option>
+        <option value=2 >2</option>
+        <option value=3 >3</option>
+      </select>
+
+    </div>
+    <div class="preview"></div>
+    <div class="play-control-area">
+      <button class="play">再生</button>
+      <button class="pause">停止</button>
+
+    </div>
+  </div>
+
+</body>
+</html>
