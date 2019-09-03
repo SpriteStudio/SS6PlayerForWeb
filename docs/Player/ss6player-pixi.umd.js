@@ -5945,7 +5945,6 @@
           ssfb.ProjectData = ProjectData;
       })(ssfb = ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
-  //# sourceMappingURL=ssfblib.es5.js.map
 
   var SS6Project = /** @class */ (function () {
       /**
@@ -6047,7 +6046,6 @@
       };
       return SS6Project;
   }());
-  //# sourceMappingURL=SS6Project.js.map
 
   /*! *****************************************************************************
   Copyright (c) Microsoft Corporation. All rights reserved.
@@ -6087,7 +6085,9 @@
        * @param {string} animePackName - The name of animePack(SSAE).
        * @param {string} animeName - The name of animation.
        */
-      function SS6Player(ss6project) {
+      function SS6Player(ss6project, animePackName, animeName) {
+          if (animePackName === void 0) { animePackName = null; }
+          if (animeName === void 0) { animeName = null; }
           var _this = _super.call(this) || this;
           _this.animation = [];
           _this.curAnimation = null;
@@ -6115,7 +6115,9 @@
           _this.fbObj = _this.ss6project.fbObj;
           _this.resources = _this.ss6project.resources;
           _this.parentAlpha = 1.0;
-          // this.Setup(animePackName, animeName);
+          if (animePackName !== null && animeName !== null) {
+              _this.Setup(animePackName, animeName);
+          }
           // Ticker
           _this.pastTime = 0;
           PIXI.ticker.shared.add(_this.Update, _this);

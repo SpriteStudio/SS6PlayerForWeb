@@ -75,7 +75,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
-  public constructor(ss6project: SS6Project) {
+  public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
 
     // extends PIXI.Container
@@ -86,9 +86,9 @@ export class SS6Player extends PIXI.Container {
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
-
-    // this.Setup(animePackName, animeName);
-
+    if (animePackName !== null && animeName !== null) {
+      this.Setup(animePackName, animeName);
+    }
 
     // Ticker
     this.pastTime = 0;
