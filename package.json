@@ -27,11 +27,11 @@
     "view": "lerna run view --scope=ss6player-pixi"
   },
   "devDependencies": {
-    "lerna": "^3.15.0",
+    "lerna": "^3.16.4",
     "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
+    "tslint": "^5.19.0",
     "tslint-config-standard": "^8.0.1",
-    "typedoc": "^0.15.0-0",
-    "typescript": "^3.5.2"
+    "typedoc": "^0.15.0",
+    "typescript": "^3.6.2"
   }
 }

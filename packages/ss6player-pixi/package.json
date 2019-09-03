@@ -38,7 +38,7 @@
     "docs": "typedoc --out ../../docs/ss6player_pixi_api --target es6 --theme minimal --mode file src",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
-    "view": "concurrently \"http-server ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
+    "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
     "clean": "rimraf dist"
   },
   "dependencies": {
@@ -49,22 +49,22 @@
   "devDependencies": {
     "@types/flatbuffers": "^1.9.1",
     "@types/pixi.js": "4.8.8",
-    "concurrently": "^4.1.1",
+    "concurrently": "^4.1.2",
     "http-server": "^0.11.1",
     "lodash.camelcase": "^4.3.0",
     "opener": "^1.5.1",
-    "rimraf": "^2.6.3",
-    "rollup": "^1.16.2",
-    "rollup-plugin-commonjs": "^10.0.0",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.20.3",
+    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-license": "^0.9.0",
-    "rollup-plugin-node-resolve": "^5.1.0",
+    "rollup-plugin-license": "^0.12.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-typescript2": "^0.21.2",
-    "tslint": "^5.18.0",
+    "rollup-plugin-typescript2": "^0.24.0",
+    "tslint": "^5.19.0",
     "tslint-config-standard": "^8.0.1",
-    "typedoc": "^0.15.0-0",
-    "typescript": "^3.5.2"
+    "typedoc": "^0.15.0",
+    "typescript": "^3.6.2"
   }
 }

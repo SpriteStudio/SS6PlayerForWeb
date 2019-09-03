@@ -23,7 +23,7 @@
     "prebuild": "npm run clean",
     "build": "npm run webpack -- --env.mode development",
     "refresh": "rimraf ./node_modules ./package-lock.json && npm install",
-    "view": "concurrently \"http-server -p 8082 ../../\" \"opener http://localhost:8082/packages/ssfbviewer/dist/index.html\"",
+    "view": "concurrently \"http-server -c-1 -p 8082 ../../\" \"opener http://localhost:8082/packages/ssfbviewer/dist/index.html\"",
     "clean": "rimraf dist"
   },
   "repository": {
@@ -36,19 +36,18 @@
   },
   "devDependencies": {
     "@types/flatbuffers": "^1.9.1",
-    "@types/node": "^12.0.10",
-    "concurrently": "^4.1.1",
+    "@types/node": "^12.7.3",
+    "concurrently": "^4.1.2",
     "http-server": "^0.11.1",
-    "rimraf": "^2.6.3",
+    "rimraf": "^3.0.0",
     "ts-loader": "^6.0.4",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2",
+    "typescript": "^3.6.2",
     "clean-webpack-plugin": "^3.0.0",
     "html-webpack-plugin": "^3.2.0",
-    "webpack": "^4.35.0",
-    "webpack-cli": "^3.3.5",
-    "webpack-dev-server": "^3.7.2",
-    "webpack-merge": "^4.2.1"
-
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-merge": "^4.2.2"
   }
 }
