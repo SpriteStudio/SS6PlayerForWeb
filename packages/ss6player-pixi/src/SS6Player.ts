@@ -101,6 +101,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animeName - The name of animation.
    */
   public Setup(animePackName: string, animeName: string): void {
+    this.clearCaches();
     const animePacksLength = this.fbObj.animePacksLength();
     for (let i = 0; i < animePacksLength; i++) {
       if (this.fbObj.animePacks(i).name() === animePackName) {
@@ -153,6 +154,17 @@ export class SS6Player extends PIXI.Container {
     this.playDirection = 1; // forward
     this.onUserDataCallback = null;
     this.playEndCallback = null;
+    this.parentAlpha = 1.0;
+  }
+
+  private clearCaches() {
+    this.prio2index = [];
+    this.userData = [];
+    this.frameDataCache = [];
+    this.currentCachedFrameNumber = -1;
+    this.liveFrame = [];
+    this.colorMatrixFilterCache = [];
+    this.defaultFrameMap = [];
   }
 
   /**
