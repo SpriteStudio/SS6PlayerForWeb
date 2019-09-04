@@ -77,7 +77,7 @@ class SS6PlayerController {
             this.pixiApplication.stage.addChild(this.ss6Player);
 
             const animationCenterX = previewWidth / 2;
-            const animationCenterY = previewHeight - 10;
+            const animationCenterY = previewHeight - 30;
             this.ss6Player.position = new PIXI.Point(animationCenterX, animationCenterY);
 
             this.ss6Player.onUserDataCallback = (player) => {
