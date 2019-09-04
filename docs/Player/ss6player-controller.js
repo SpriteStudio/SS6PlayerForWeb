@@ -13,6 +13,8 @@ class SS6PlayerController {
 
     animePackMap = null;
 
+    onUpdate = null;
+    onPlayStateChangeCallback = null;
 
     // ssfbFilePath;
     constructor(ssfbFilePath){
@@ -22,10 +24,10 @@ class SS6PlayerController {
     }
 
     load(previewElement) {
-        const previewWidth = 320;
-        const previewHeight = 320;        
+        const previewWidth = 500;
+        const previewHeight = 500;        
         this.pixiApplication = new PIXI.Application(previewWidth, previewHeight, {
-            transparent: true
+            transparent: true,
         });
         previewElement.appendChild(this.pixiApplication.view);
 
@@ -78,6 +80,19 @@ class SS6PlayerController {
             const animationCenterY = previewHeight - 10;
             this.ss6Player.position = new PIXI.Point(animationCenterX, animationCenterY);
 
+            this.ss6Player.onUserDataCallback = (player) => {
+                console.log('onUserDataCallback');
+            };
+            this.ss6Player.onUpdateCallback = (player) => {
+                if (this.onUpdate !== null){
+                    this.onUpdate(player);
+                }
+            };
+            this.ss6Player.onPlayStateChangeCallback = (isPlaying, isPausing) => {
+                if(this.onPlayStateChangeCallback !== null){
+                    this.onPlayStateChangeCallback(isPlaying, isPausing);
+                }
+            };
         }else{
             this.ss6Player.Setup(ssaeName, animeName);
         }

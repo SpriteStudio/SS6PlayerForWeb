@@ -39,6 +39,8 @@ export class SS6Player extends PIXI.Container {
   private pastTime: number;
   private onUserDataCallback: (data: any) => void;
   private playEndCallback: (player: SS6Player) => void;
+  private onUpdateCallback: (player: SS6Player) => void;
+  private onPlayStateChangeCallback: (isPlaying: boolean, isPausing: boolean) => void;
 
   public get startFrame(): number {
     return this._startFrame;
@@ -152,8 +154,9 @@ export class SS6Player extends PIXI.Container {
     this.skipEnabled = false;
     this.updateInterval = 1000 / this.curAnimation.fps();
     this.playDirection = 1; // forward
-    this.onUserDataCallback = null;
-    this.playEndCallback = null;
+    // this.onUserDataCallback = null;
+    // this.playEndCallback = null;
+    // this.onUpdateCallback = null;
     this.parentAlpha = 1.0;
   }
 
@@ -221,6 +224,13 @@ export class SS6Player extends PIXI.Container {
     } else {
       this.SetFrameAnimation(this._currentFrame);
     }
+
+    // 毎回実行されるコールバック
+    if(this.isPlaying && !this.isPausing){
+      if (this.onUpdateCallback !== null) {
+        this.onUpdateCallback(this);
+      }
+    }
   }
 
   /**
@@ -272,6 +282,10 @@ export class SS6Player extends PIXI.Container {
    * アニメーション再生を開始する
    */
   public Play(): void {
+    if (this.isPlaying){
+      // 既に開始しているため、処理しない
+      return;
+    }
     this.isPlaying = true;
     this.isPausing = false;
     this._currentFrame = this._startFrame;
@@ -286,19 +300,36 @@ export class SS6Player extends PIXI.Container {
     for (let i = 0; i < layers; i++) {
       this.liveFrame[i] = 0;
     }
+    if (this.onPlayStateChangeCallback !== null) {
+      this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
+    }
   }
   /**
    * アニメーション再生を一時停止する
    */
   public Pause(): void {
+    if (this.isPausing) {
+      // 既に一時停止されているため、処理しない
+      return;
+    }
     this.isPausing = true;
+    if (this.onPlayStateChangeCallback !== null) {
+      this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
+    }
   }
 
   /**
    * アニメーション再生を再開する
    */
   public Resume(): void {
+    if(!this.isPausing){
+      // 既に再開されているため、処理しない
+      return;
+    }
     this.isPausing = false;
+    if (this.onPlayStateChangeCallback !== null) {
+      this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
+    }
   }
 
   /**
@@ -306,7 +337,14 @@ export class SS6Player extends PIXI.Container {
    * @constructor
    */
   public Stop(): void {
+    if(!this.isPlaying){
+      // 既に停止しているため、処理しない
+      return;
+    }
     this.isPlaying = false;
+    if (this.onPlayStateChangeCallback !== null) {
+      this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
+    }
   }
 
   /**
