@@ -77,7 +77,7 @@
       animationAreaElement = playerElement.querySelector('.animation-area');
 
       playControlAreaElement = playerElement.querySelector('.play-control-area');
-      playSwitchButtonElement = playControlAreaElement.querySelector('.play-switch-area .button-area');
+      playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
       frameNumberElement = playControlAreaElement.querySelector('.frame-number');
       endFrameNumberElement = playControlAreaElement.querySelector('.end-frame-number');
       seekBarElement = playControlAreaElement.querySelector('.seek-bar');
@@ -182,15 +182,27 @@
         playerController.ss6Player.SetFrameAnimation(value);
       }, false);
 
-      previewElement.addEventListener('click', (event) => {
-        // if (ss6Player.isPausing) {
-        //   playerController.ss6Player.Resume();
-        // } else if(ss6Player.isPlaying){
-        //   playerController.ss6Player.Pause();
-        // } else {
-        //   playerController.ss6Player.Play();
-        // }
+      previewElement.addEventListener('mousedown', (event) => {
+        // console.log('mousedown');
       });
+      previewElement.addEventListener('mousemove', (event)=>{
+        if(event.buttons === 1){
+          // 左クリック時のみ
+          const targetElement = event.target;
+          if (event.target.tagName === 'CANVAS') {
+            // キャンバス自体をドラッグ時のみ
+            const movementX = event.movementX;
+            const movementY = event.movementY;
+            // console.log('movementX', movementX);
+            // console.log('movementY', movementY);
+
+            playerController.movePosition(movementX, movementY);
+
+          }
+
+
+        }
+      })
 
     };
 
@@ -217,13 +229,15 @@
         <label>FPS</label><span class="fps"></span>
 
       </div>
+      <div class="play-switch-area">
+        <div class="button-area">
+          <div class="play-switch-sign"></div>
+        </div>
+      </div>
+
+
       <div class="play-control-area">
         <div class="contents">
-          <div class="play-switch-area">
-            <div class="button-area">
-              <div class="play-switch-sign"></div>
-            </div>
-          </div>
           
           <input type="range" class="seek-bar" value="0">
           <div class="frame-area">

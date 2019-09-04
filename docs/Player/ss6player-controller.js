@@ -148,6 +148,13 @@ class SS6PlayerController {
         this.ss6Player.scale = new PIXI.Point(scaleRatio, scaleRatio);
 
     }
+
+    movePosition(movementX, movementY) {
+        const position = this.ss6Player.position;
+        position.x += movementX;
+        position.y += movementY;
+        this.ss6Player.position = position;
+    }
     
 
 }
