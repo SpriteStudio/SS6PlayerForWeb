@@ -1,3 +1,4 @@
+const PREVIEW_POSITION_MARGIN = 30;
 class SS6PlayerController {
     
     pixiApplication = null;
@@ -76,9 +77,6 @@ class SS6PlayerController {
             this.ss6Player = new ss6PlayerPixi.SS6Player(this.ss6Project, ssaeName, animeName);
             this.pixiApplication.stage.addChild(this.ss6Player);
 
-            const animationCenterX = previewWidth / 2;
-            const animationCenterY = previewHeight - 30;
-            this.ss6Player.position = new PIXI.Point(animationCenterX, animationCenterY);
 
             this.ss6Player.onUserDataCallback = (player) => {
                 console.log('onUserDataCallback');
@@ -101,6 +99,36 @@ class SS6PlayerController {
         // console.log('現状のフレームNo:', this.ss6Player.currentCachedFrameNumber);
         console.log('フレームカウント:', this.ss6Player.curAnimation.frameDataLength());
         
+
+        // ポジション設定
+        const canvasPvotX = this.ss6Player.curAnimation.canvasPvotX();
+        const canvasPvotY = this.ss6Player.curAnimation.canvasPvotY();
+
+        let positionX;
+        switch (canvasPvotX) {
+            case 0.5:
+                positionX = PREVIEW_POSITION_MARGIN;
+                break;
+            case 0:
+                positionX = previewWidth * 0.5;
+                break;
+            case -0.5:
+                positionX = previewWidth - PREVIEW_POSITION_MARGIN;
+                break;
+        }
+        let positionY;
+        switch (canvasPvotY){
+            case 0.5: 
+                positionY = PREVIEW_POSITION_MARGIN;
+                break;
+            case 0: 
+                positionY = previewHeight * 0.5;
+                break;
+            case -0.5:
+                positionY = previewHeight - PREVIEW_POSITION_MARGIN;
+        }
+
+        this.ss6Player.position = new PIXI.Point(positionX, positionY);
 
         // スケール値自動調整
         const playerHeight = this.ss6Player.curAnimation.canvasSizeH();
