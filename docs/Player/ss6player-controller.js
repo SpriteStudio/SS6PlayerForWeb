@@ -1,4 +1,6 @@
 const PREVIEW_POSITION_MARGIN = 30;
+const ZOOM_ARRAY = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
+
 class SS6PlayerController {
     
     pixiApplication = null;
@@ -16,6 +18,9 @@ class SS6PlayerController {
 
     onUpdate = null;
     onPlayStateChangeCallback = null;
+
+    defaultScaleRatio = null;
+    zoomPercent = null;
 
     // ssfbFilePath;
     constructor(ssfbFilePath){
@@ -143,9 +148,11 @@ class SS6PlayerController {
             scaleRatio = heightRatio;
         }
         // scaleRatio *= 0.5;
-
-        // スケールを設定
-        this.ss6Player.scale = new PIXI.Point(scaleRatio, scaleRatio);
+        this.defaultScaleRatio = scaleRatio;
+        this.zoom(100);
+        // zoomPercent = 100;
+        // // スケールを設定
+        // this.ss6Player.scale = new PIXI.Point(defaultScaleRatio, defaultScaleRatio);
 
     }
 
@@ -179,6 +186,39 @@ class SS6PlayerController {
         }
         this.setFrame(currentFrame - 1);
     }
+
+    zoom(zoomPercent) {
+        let scaleRatio = this.defaultScaleRatio;
+        if (zoomPercent !== 100){
+            scaleRatio = this.defaultScaleRatio * (zoomPercent * 0.01);
+        }
+        this.zoomPercent = zoomPercent;
+        this.ss6Player.scale = new PIXI.Point(scaleRatio, scaleRatio);
+    }
+    zoomIn() {
+        const zoomArrayIndex = ZOOM_ARRAY.indexOf(this.zoomPercent);
+        const nextZoomArrayIndex = zoomArrayIndex + 1;
+        if (nextZoomArrayIndex >= ZOOM_ARRAY.length){
+            // 拡大するズーム率が存在しない場合は処理しない
+            return;
+        }
+        const nextZoomPercent = ZOOM_ARRAY[nextZoomArrayIndex];
+        this.zoom(nextZoomPercent);
+    }
+
+    zoomOut() {
+        const zoomArrayIndex = ZOOM_ARRAY.indexOf(this.zoomPercent);
+        const prevZoomArrayIndex = zoomArrayIndex - 1;
+        if (prevZoomArrayIndex < 0) {
+            // 縮小するズーム率が存在しない場合は処理しない
+            return;
+        }
+        const prevZoomPercent = ZOOM_ARRAY[prevZoomArrayIndex];
+        this.zoom(prevZoomPercent);
+
+    }
+
+
     
 
 }

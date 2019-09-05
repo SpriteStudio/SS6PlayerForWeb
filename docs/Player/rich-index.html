@@ -33,8 +33,8 @@
 
     let playerElement;
     let previewElement;
-    let animationPackAreaElement;
-    let animationAreaElement;
+    let animationSelectAreaElement;
+    let zoomAreaElement;
 
     let playControlAreaElement;
     let playSwitchButtonElement;
@@ -89,6 +89,7 @@
       playerElement = document.querySelector('.player');
       previewElement = playerElement.querySelector('.preview');
       animationSelectAreaElement = playerElement.querySelector('.animation-select-area');
+      zoomAreaElement = playerElement.querySelector('.zoom-area');
 
       playControlAreaElement = playerElement.querySelector('.play-control-area');
       playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
@@ -255,6 +256,18 @@
         playerController.setFrame(value);
       }, false);
 
+      // ズームイン
+      const zoomInElement = zoomAreaElement.querySelector('.zoom-in');
+      zoomInElement.addEventListener('click', (event) => {
+        playerController.zoomIn();
+      });
+      
+      // ズームアウト
+      const zoomOutElement = zoomAreaElement.querySelector('.zoom-out');
+      zoomOutElement.addEventListener('click', (event) => {
+        playerController.zoomOut();
+      });
+      
       previewElement.addEventListener('mousedown', (event) => {
         // console.log('mousedown');
       });
@@ -303,6 +316,11 @@
         <div class="button-area">
           <div class="play-switch-sign"></div>
         </div>
+      </div>
+
+      <div class="zoom-area">
+        <img class="zoom-in zoom-control" title="ズームイン" src="./images/zoom_in.png" />
+        <img class="zoom-out zoom-control" title="ズームアウト" src="./images/zoom_out.png" />
       </div>
 
 

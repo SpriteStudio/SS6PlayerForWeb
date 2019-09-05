@@ -173,6 +173,25 @@
 }  
 
 
+.player .preview .zoom-area {
+    position: absolute;
+    bottom: 30px;
+    right: 0px;
+    transition-duration: 0.25s;
+    transition-delay: 1.5s;
+    transform: translateX(100%);
+    padding-right: 5px;
+}
+
+.player .preview:hover .zoom-area {
+    transition-delay: 0s;
+    transform: translateX(0%);
+}
+.player .zoom-area .zoom-control {
+    display: block;
+    cursor: pointer;
+}
+
 .player .preview .play-control-area {
     position: absolute;
     bottom: 0px;
