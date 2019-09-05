@@ -253,6 +253,16 @@
         playerController.ss6Player.SetAnimationSpeed(value);
       });
 
+      // プレビューの背景色設定
+      const backgroundColorPickerElement = playerElement.querySelector('.background-color');
+      backgroundColorPickerElement.addEventListener('change', (event)=>{
+        const element = event.currentTarget;
+        const value = element.value;
+        // console.log('color', value);
+        previewElement.style.backgroundColor = value;
+
+      });
+
       // SeekBar変更
       seekBarElement.addEventListener('input', (event)=> {
         const rangeElement = event.currentTarget;
@@ -326,6 +336,8 @@
 
     <div class="preview" tabIndex=0>
       <div class="head-bar-area">
+        <label>背景色</label>
+        <input type="color" class="background-color" value="#ffffff" />
         <label>再生速度:</label>
         <select class="animation-speed">
           <option value=0.5>x0.5</option>
@@ -363,7 +375,6 @@
       
       
       </div>
-
     </div>
   </div>
 
