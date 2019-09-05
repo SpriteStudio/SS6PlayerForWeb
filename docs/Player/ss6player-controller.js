@@ -15,6 +15,8 @@ class SS6PlayerController {
     onRetry = null;
 
     animePackMap = null;
+    previewHeight = null;
+    previewWidth = null;
 
     onUpdate = null;
     onPlayStateChangeCallback = null;
@@ -30,9 +32,9 @@ class SS6PlayerController {
     }
 
     load(previewElement) {
-        const previewWidth = 500;
-        const previewHeight = 500;        
-        this.pixiApplication = new PIXI.Application(previewWidth, previewHeight, {
+        this.previewWidth = previewElement.clientWidth;
+        this.previewHeight = previewElement.clientHeight;
+        this.pixiApplication = new PIXI.Application(this.previewWidth, this.previewHeight, {
             transparent: true,
         });
         previewElement.appendChild(this.pixiApplication.view);
@@ -115,10 +117,10 @@ class SS6PlayerController {
                 positionX = PREVIEW_POSITION_MARGIN;
                 break;
             case 0:
-                positionX = previewWidth * 0.5;
+                positionX = this.previewWidth * 0.5;
                 break;
             case -0.5:
-                positionX = previewWidth - PREVIEW_POSITION_MARGIN;
+                positionX = this.previewWidth - PREVIEW_POSITION_MARGIN;
                 break;
         }
         let positionY;
@@ -127,10 +129,10 @@ class SS6PlayerController {
                 positionY = PREVIEW_POSITION_MARGIN;
                 break;
             case 0: 
-                positionY = previewHeight * 0.5;
+                positionY = this.previewHeight * 0.5;
                 break;
             case -0.5:
-                positionY = previewHeight - PREVIEW_POSITION_MARGIN;
+                positionY = this.previewHeight - PREVIEW_POSITION_MARGIN;
         }
 
         this.ss6Player.position = new PIXI.Point(positionX, positionY);
@@ -139,8 +141,8 @@ class SS6PlayerController {
         const playerHeight = this.ss6Player.curAnimation.canvasSizeH();
         const playerWidth = this.ss6Player.curAnimation.canvasSizeW();
 
-        const widthRatio = previewWidth / playerWidth;
-        const heightRatio = previewHeight / playerHeight;
+        const widthRatio = this.previewWidth / playerWidth;
+        const heightRatio = this.previewHeight / playerHeight;
         let scaleRatio = null;
         if (widthRatio < heightRatio) {
             scaleRatio = widthRatio;
