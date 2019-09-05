@@ -155,6 +155,30 @@ class SS6PlayerController {
         position.y += movementY;
         this.ss6Player.position = position;
     }
+
+    setFrame(frameNumber) {
+        this.ss6Player._currentFrame = frameNumber;
+        this.ss6Player.SetFrameAnimation(frameNumber);
+        if (this.onUpdate !== null) {
+            this.onUpdate(this.ss6Player);
+        }
+    }
+    nextFrame() {
+        const currentFrame = this.ss6Player._currentFrame;
+        const endFrame = this.ss6Player.endFrame;
+        if (currentFrame == endFrame) {
+            return;
+        }
+        this.setFrame(currentFrame + 1);
+    }
+
+    prevFrame() {
+        const currentFrame = this.ss6Player._currentFrame;
+        if (currentFrame === 0){
+            return;
+        }
+        this.setFrame(currentFrame - 1);
+    }
     
 
 }

@@ -160,7 +160,23 @@
           playerController.ss6Player.Play();
         }
       });
-      
+      previewElement.addEventListener('keydown', (event) => {
+        // console.log('keydown', event);
+        if (event.code === "Space") {
+          // スペースキーを押された場合、再生ボタンをクリックさせる
+          if (!event.repeat) {
+            // 初回の Key入力のみ
+            playSwitchButtonElement.click();
+          }
+        } else if (event.code === "ArrowRight") {
+          playerController.ss6Player.Pause();
+
+          playerController.nextFrame();
+        } else if (event.code === "ArrowLeft") {
+          playerController.ss6Player.Pause();
+          playerController.prevFrame();
+        }
+      });
 
       
       // アニメーションスピード
@@ -174,12 +190,11 @@
       // SeekBar変更
       seekBarElement.addEventListener('input', (event)=> {
         const rangeElement = event.currentTarget;
-        const value = rangeElement.value;
+        const value = rangeElement.valueAsNumber;
         playerController.ss6Player.Pause();
 
         frameNumberElement.innerText = value;
-        playerController.ss6Player._currentFrame = value;
-        playerController.ss6Player.SetFrameAnimation(value);
+        playerController.setFrame(value);
       }, false);
 
       previewElement.addEventListener('mousedown', (event) => {
@@ -217,16 +232,16 @@
 
     </div>
 
-    <div class="preview">
+    <div class="preview" tabIndex=0>
       <div class="head-bar-area">
-        <label>再生速度</label>
+        <label>再生速度:</label>
         <select class="animation-speed">
           <option value=0.5>x0.5</option>
           <option value=1 selected>x1</option>
           <option value=2>x2</option>
           <option value=3>x3</option>
         </select>
-        <label>FPS</label><span class="fps"></span>
+        <label>FPS:</label><span class="fps"></span>
 
       </div>
       <div class="play-switch-area">

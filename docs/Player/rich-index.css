@@ -11,6 +11,7 @@
     box-sizing: border-box;
 
     overflow: hidden;
+    outline: none;
 }
 .player .preview .head-bar-area {
     position: absolute;
@@ -40,6 +41,7 @@
 .player .preview canvas {
     width: 100%;
     height: calc(100% - 20px);
+    
     
 }
 
