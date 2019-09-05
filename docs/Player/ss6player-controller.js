@@ -62,7 +62,11 @@ class SS6PlayerController {
 
                         animationMap[animationName] = animation;
                     }
-                    this.animePackMap[animePackName] = animationMap;
+                    const partsCount = animePack.partsLength();
+                    this.animePackMap[animePackName] = {
+                        animations: animationMap,
+                        parts_count: partsCount,
+                    };
                 }
 
                 if (this.onComplete != null){

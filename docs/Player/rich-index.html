@@ -107,6 +107,7 @@
         const animePackMap = playerController.animePackMap;
         for(let animePackName in animePackMap){
           const animePackElement = document.createElement('div');
+          const animePackData = animePackMap[animePackName];
 
           // アニメーションパック名のラベルの追加
           const animePackLabelAreaElement = document.createElement('div');
@@ -139,12 +140,16 @@
           animePackElement.appendChild(animePackLabelAreaElement);
 
           animePackElement.setAttribute('data-name', animePackName);
+          const partsCount = animePackData['parts_count'];
+          animePackElement.setAttribute('data-parts-count', partsCount);
+          animePackElement.title = "パーツ数: " + partsCount;
+
           animePackElement.classList.add('animation-pack');
           // animePackElement.classList.add('extend');
 
           const animationAreaElement = document.createElement('div');
           animationAreaElement.classList.add('animation-area');
-          const animationMap = animePackMap[animePackName];
+          const animationMap = animePackData['animations'];
           for (let animationName in animationMap) {
             const animationElement = document.createElement('div');
 
