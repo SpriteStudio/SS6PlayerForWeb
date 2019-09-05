@@ -47,6 +47,9 @@
     let currentSsaeName = null;
     let currentAnimationName = null;
 
+    // 前回ズームしたときのタイムスタンプ
+    let lastPreviewZoomTimeStamp = null;
+
     function loadAnimation(ssaeName, animationName) {
       currentSsaeName = ssaeName;
       currentAnimationName = animationName;
@@ -285,10 +288,25 @@
             playerController.movePosition(movementX, movementY);
 
           }
-
-
         }
-      })
+      });
+
+      previewElement.addEventListener('mousewheel', (event) => {
+        console.log('mousewheel', event);
+        const timeStamp = event.timeStamp;
+        if(this.lastPreviewZoomTimeStamp !== null){
+          if((timeStamp - this.lastPreviewZoomTimeStamp) < 100) {
+            return;
+          }
+        }
+        this.lastPreviewZoomTimeStamp = timeStamp;
+        const deltaY = event.deltaY;
+        if(deltaY > 0){
+          playerController.zoomIn();
+        }else if(deltaY < -0){
+          playerController.zoomOut();
+        }
+      });
 
     };
 
