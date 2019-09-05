@@ -1,5 +1,78 @@
+
 .player {
+    display: flex;
 }
+
+.player .animation-select-area {
+    width: 200px;
+    background-color: rgb(53,53,53);
+    color: #fff;
+    font-size: 14px;
+    padding: 5px;
+}
+.player .animation-select-area .label-area,
+.player .animation-select-area label {
+    cursor: pointer;
+}
+
+.player .animation-select-area .animation-pack .extend-icon {
+    margin-left: 3px;
+    margin-right: 3px;
+    transform: rotateZ(90deg);
+    transition-duration: 0.25s;
+    display: inline-block;
+    font-size: 0.8em;
+    color: #fff6;
+}
+
+.player .animation-select-area .animation-pack.extend .extend-icon{
+    transform: rotateZ(140deg) scaleX(1.5);
+    color: #fff;
+}
+.player .animation-select-area .animation-pack > .label-area .icon {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+
+.player .animation-select-area .animation-pack .animation-area {
+    max-height: 0px;
+    opacity: 0;
+    pointer-events: none;
+
+    transition-duration: 0.25s;
+}
+.player .animation-select-area .animation-pack.extend .animation-area {
+    max-height: 100vh;
+    opacity: 1;
+    pointer-events: all;
+}
+.player .animation-select-area .animation-pack > .label-area:hover {
+    font-weight: bold;
+}
+
+.player .animation-select-area .animation-pack .animation-area .animation {
+    padding-left: 20px;
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+}
+.player .animation-select-area .animation-pack .animation-area .animation.selected {
+    background-color: rgb(42,48,102);
+    border-color: rgb(37,215,253);
+
+}
+.player .animation-select-area .animation-pack .animation-area .animation > .label-area:hover {
+    font-weight: bold;
+}
+.player .animation-select-area .animation-pack .animation-area .animation > .label-area .icon {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+
+
 
 .player .preview {
     position: relative;

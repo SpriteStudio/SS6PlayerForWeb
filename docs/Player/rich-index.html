@@ -44,6 +44,21 @@
     let fpsElement;
 
 
+    let currentSsaeName = null;
+    let currentAnimationName = null;
+
+    function loadAnimation(ssaeName, animationName) {
+      currentSsaeName = ssaeName;
+      currentAnimationName = animationName;
+      playerController.setupAnimation(currentSsaeName, currentAnimationName);
+
+      const selectedAnimations = playerElement.querySelectorAll('.animation.selected');
+      for(let selectedAnimation of selectedAnimations){
+        selectedAnimation.classList.remove('selected');
+      }
+      const currentAnimation = playerElement.querySelector('.animation[data-animation-pack-name="' + currentSsaeName + '"][data-name="' + currentAnimationName + '"]')
+      currentAnimation.classList.add('selected');
+    }
 
       
     function refreshPlaySwitch() {
@@ -73,8 +88,7 @@
 
       playerElement = document.querySelector('.player');
       previewElement = playerElement.querySelector('.preview');
-      animationPackAreaElement = playerElement.querySelector('.animation-pack-area');
-      animationAreaElement = playerElement.querySelector('.animation-area');
+      animationSelectAreaElement = playerElement.querySelector('.animation-select-area');
 
       playControlAreaElement = playerElement.querySelector('.play-control-area');
       playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
@@ -89,39 +103,83 @@
       playerController.onComplete = () => {
         const animePackMap = playerController.animePackMap;
         for(let animePackName in animePackMap){
-          const element = document.createElement('button');
-          element.innerText = animePackName;
-          element.classList.add('animation-pack');
-          element.addEventListener('click', (event) => {
-            const element = event.currentTarget;
-            const animePackName = element.innerText;
+          const animePackElement = document.createElement('div');
 
-            const animePackMap = playerController.animePackMap;
-            console.log(animePackMap);
-            const animationMap = animePackMap[animePackName];
-            console.log(animationMap);
+          // アニメーションパック名のラベルの追加
+          const animePackLabelAreaElement = document.createElement('div');
+          animePackLabelAreaElement.classList.add('label-area');
 
-            animationAreaElement.innerHTML = '';
-            for(let animationName in animationMap){
-              const element = document.createElement('button');
-              element.innerText = animationName;
-              element.classList.add('animation');
-              element.setAttribute('data-animation-pack-name', animePackName);
-              element.addEventListener('click', (event) => {
-                const element = event.currentTarget;
-                const animationName = element.innerText;
+          // 折りたたみアイコンの追加
+          const animePackExtendIconElement = document.createElement('span');
+          animePackExtendIconElement.classList.add('extend-icon');
+          animePackExtendIconElement.textContent = "▲";
+          animePackLabelAreaElement.appendChild(animePackExtendIconElement);
 
-                const ssaeName = element.getAttribute('data-animation-pack-name');
-                playerController.setupAnimation(ssaeName, animationName);
-              });
+          // アイコンの追加
+          const animePackIconElement = document.createElement('img');
+          animePackIconElement.classList.add('icon');
+          animePackIconElement.src = './images/animation_pack.png';
+          animePackLabelAreaElement.appendChild(animePackIconElement);
 
-              animationAreaElement.appendChild(element);
-            }
+          // ラベルの追加
+          const animePackLabelElement = document.createElement('label');
+          animePackLabelElement.textContent = animePackName;
+          animePackLabelAreaElement.appendChild(animePackLabelElement);
 
-            
 
+          animePackLabelAreaElement.addEventListener('click', (event) => {
+            const animePackLabelAreaElement = event.currentTarget;
+            const animePackElement = animePackLabelAreaElement.closest('.animation-pack');
+            animePackElement.classList.toggle('extend');
           });
-          animationPackAreaElement.appendChild(element);
+
+          animePackElement.appendChild(animePackLabelAreaElement);
+
+          animePackElement.setAttribute('data-name', animePackName);
+          animePackElement.classList.add('animation-pack');
+          // animePackElement.classList.add('extend');
+
+          const animationAreaElement = document.createElement('div');
+          animationAreaElement.classList.add('animation-area');
+          const animationMap = animePackMap[animePackName];
+          for (let animationName in animationMap) {
+            const animationElement = document.createElement('div');
+
+            // アニメーション名のラベルの追加
+            const animationLabelAreaElement = document.createElement('div');
+            animationLabelAreaElement.classList.add('label-area');
+
+            // アイコンの追加
+            const animationIconElement = document.createElement('img');
+            animationIconElement.classList.add('icon');
+            animationIconElement.src = './images/animation.png';
+            animationLabelAreaElement.appendChild(animationIconElement);
+            
+            // ラベルの追加
+            // animationLabelElement.textContent = animationName;
+            const animationLabelElement = document.createElement('label');
+            animationLabelElement.textContent = animationName;
+            animationLabelAreaElement.appendChild(animationLabelElement);
+
+            animationElement.appendChild(animationLabelAreaElement);
+
+            animationElement.setAttribute('data-animation-pack-name', animePackName);
+            animationElement.setAttribute('data-name', animationName);
+
+            animationElement.classList.add('animation');
+            animationElement.addEventListener('click', (event) => {
+              const animationElement = event.currentTarget;
+              const ssaeName = animationElement.getAttribute('data-animation-pack-name');
+              const animationName = animationElement.getAttribute('data-name');
+              loadAnimation(ssaeName, animationName);
+            });
+
+            animationAreaElement.appendChild(animationElement);
+            
+          }
+          animePackElement.appendChild(animationAreaElement);
+
+          animationSelectAreaElement.appendChild(animePackElement);
 
         }
 
@@ -225,10 +283,7 @@
 
 
   <div class="player">
-    <div class="animation-pack-area">
-
-    </div>
-    <div class="animation-area">
+    <div class="animation-select-area">
 
     </div>
 
