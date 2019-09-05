@@ -28,7 +28,7 @@
     let ss6Project = null;
     let ss6Player = null;
     const ssfbFilePath = "./MeshBone/Knight.ssbp.ssfb";
-
+    // const ssfbFilePath ="../../../TestData/character_sample1/character_sample1.ssbp.ssfb";
     
     let playerElement;
     let previewElement;
@@ -291,7 +291,9 @@
       });
 
       previewElement.addEventListener('mousewheel', (event) => {
-        console.log('mousewheel', event);
+        // console.log('mousewheel', event);
+        event.preventDefault();
+
         const timeStamp = event.timeStamp;
         if(this.lastPreviewZoomTimeStamp !== null){
           if((timeStamp - this.lastPreviewZoomTimeStamp) < 100) {
