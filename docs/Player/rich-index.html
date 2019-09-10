@@ -263,6 +263,16 @@
 
       });
 
+      const gridCheckElement = playerElement.querySelector('.display-grid');
+      gridCheckElement.addEventListener('change', (event)=>{
+        const element = event.currentTarget;
+        const checked = element.checked;
+        console.log('checked', checked);
+        playerController.isDisplayGrid = checked;
+        playerController.switchGrid();
+
+      });
+
       // SeekBar変更
       seekBarElement.addEventListener('input', (event)=> {
         const rangeElement = event.currentTarget;
@@ -336,6 +346,8 @@
 
     <div class="preview" tabIndex=0>
       <div class="head-bar-area">
+        <label>グリッド</label>
+        <input type="checkbox" class="display-grid" />
         <label>背景色</label>
         <input type="color" class="background-color" value="#ffffff" />
         <label>再生速度:</label>

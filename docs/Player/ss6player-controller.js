@@ -5,6 +5,9 @@ class SS6PlayerController {
     
     pixiApplication = null;
     ssfbFilePath = null;
+    container = null;
+    rootLineGraphics = null;
+    gridGraphics = null;
     ss6Project = null;
     ss6Player = null;
     onComplete = null;
@@ -24,6 +27,8 @@ class SS6PlayerController {
     defaultScaleRatio = null;
     zoomPercent = null;
 
+    isDisplayGrid = false;
+
     // ssfbFilePath;
     constructor(ssfbFilePath){
         this.ssfbFilePath = ssfbFilePath;
@@ -37,8 +42,9 @@ class SS6PlayerController {
         this.pixiApplication = new PIXI.Application(this.previewWidth, this.previewHeight, {
             transparent: true,
         });
-        previewElement.appendChild(this.pixiApplication.view);
 
+        const canvasElement = this.pixiApplication.view;
+        previewElement.appendChild(canvasElement);
 
         this.ss6Project = new ss6PlayerPixi.SS6Project(
             this.ssfbFilePath, 
@@ -69,6 +75,8 @@ class SS6PlayerController {
                     };
                 }
 
+
+
                 if (this.onComplete != null){
                     this.onComplete();
                 }
@@ -85,8 +93,20 @@ class SS6PlayerController {
         console.log('setupAnimation: ssae:', ssaeName, ', animation:', animeName);
 
         if (this.ss6Player === null){
+            // アニメーションやグリッドなどを入れるコンテナ
+            this.container = new PIXI.Container();
+
+            this.rootLineGraphics = new PIXI.Graphics(true);
+            this.gridGraphics = new PIXI.Graphics(true);
+
+
+            // コンテナに追加する
+            this.container.addChild(this.rootLineGraphics);
+            this.container.addChild(this.gridGraphics);
+
+
             this.ss6Player = new ss6PlayerPixi.SS6Player(this.ss6Project, ssaeName, animeName);
-            this.pixiApplication.stage.addChild(this.ss6Player);
+            this.container.addChild(this.ss6Player);
 
 
             this.ss6Player.onUserDataCallback = (player) => {
@@ -102,6 +122,10 @@ class SS6PlayerController {
                     this.onPlayStateChangeCallback(isPlaying, isPausing);
                 }
             };
+
+
+            this.pixiApplication.stage.addChild(this.container);
+
         }else{
             this.ss6Player.Setup(ssaeName, animeName);
         }
@@ -139,7 +163,7 @@ class SS6PlayerController {
                 positionY = this.previewHeight - PREVIEW_POSITION_MARGIN;
         }
 
-        this.ss6Player.position = new PIXI.Point(positionX, positionY);
+        this.container.position = new PIXI.Point(positionX, positionY);
 
         // スケール値自動調整
         const playerHeight = this.ss6Player.curAnimation.canvasSizeH();
@@ -159,14 +183,52 @@ class SS6PlayerController {
         // zoomPercent = 100;
         // // スケールを設定
         // this.ss6Player.scale = new PIXI.Point(defaultScaleRatio, defaultScaleRatio);
+        // var renderer = PIXI.autoDetectRenderer(1000, 1000);
 
+        this.switchGrid();
+        
     }
 
+    switchGrid() {
+        if (this.rootLineGraphics == null || this.gridGraphics == null){
+            return;
+        }
+        this.rootLineGraphics.clear();
+        this.gridGraphics.clear();
+        if (this.isDisplayGrid) {
+            const min = -5000;
+            const max = (min * -1) + 1;
+
+            // 基準点の描画            
+            this.rootLineGraphics.lineStyle(1, 0x000000);
+            this.rootLineGraphics.alpha = 0.3;
+            this.rootLineGraphics.moveTo(min, 0).lineTo(max, 0);
+            this.rootLineGraphics.moveTo(0, min).lineTo(0, max);
+
+            // グリッドの描画
+            this.gridGraphics.lineStyle(1, 0x000000);
+            this.gridGraphics.alpha = 0.1;
+
+            let gridSize = 100;
+            for (let x = min; x < max; x += gridSize) {
+                this.gridGraphics.moveTo(x, min).lineTo(x, max);
+
+            }
+            for (let y = min; y < max; y += gridSize) {
+                this.gridGraphics.moveTo(min, -y).lineTo(max, -y);
+
+            }
+        }
+    }
+
+
+
+
     movePosition(movementX, movementY) {
-        const position = this.ss6Player.position;
+        const position = this.container.position;
         position.x += movementX;
         position.y += movementY;
-        this.ss6Player.position = position;
+        this.container.position = position;
     }
 
     setFrame(frameNumber) {
@@ -199,7 +261,7 @@ class SS6PlayerController {
             scaleRatio = this.defaultScaleRatio * (zoomPercent * 0.01);
         }
         this.zoomPercent = zoomPercent;
-        this.ss6Player.scale = new PIXI.Point(scaleRatio, scaleRatio);
+        this.container.scale = new PIXI.Point(scaleRatio, scaleRatio);
     }
     zoomIn() {
         const zoomArrayIndex = ZOOM_ARRAY.indexOf(this.zoomPercent);
