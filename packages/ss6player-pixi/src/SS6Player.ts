@@ -37,10 +37,10 @@ export class SS6Player extends PIXI.Container {
   private updateInterval: number;
   private playDirection: number;
   private pastTime: number;
-  private onUserDataCallback: (data: any) => void;
-  private playEndCallback: (player: SS6Player) => void;
-  private onUpdateCallback: (player: SS6Player) => void;
-  private onPlayStateChangeCallback: (isPlaying: boolean, isPausing: boolean) => void;
+  private onUserDataCallback: (data: any) => void = null;
+  private playEndCallback: (player: SS6Player) => void = null;
+  private onUpdateCallback: (player: SS6Player) => void = null;
+  private onPlayStateChangeCallback: (isPlaying: boolean, isPausing: boolean) => void = null;
 
   public get startFrame(): number {
     return this._startFrame;
