@@ -138,12 +138,12 @@
 
     transition-duration: 0.25s;
     transition-delay: 1.5s;
-    transform: translateX(-100%);
+    transform: scale(0.4) translateY(35px);
 }
 
 .player .preview:hover .play-switch-area {
     transition-delay: 0s;
-    transform: translateX(0%);
+    transform: scale(1) translateY(0%);
 }
 
 .player .preview .play-switch-area .button-area {
@@ -209,12 +209,12 @@
 
     transition-duration: 0.25s;
     transition-delay: 1s;
-    transform: translateY(100%);
+    /* transform: translateY(100%); */
 
 }
 .player .preview:hover .play-control-area {
     transition-delay: 0s;
-    transform: translateY(0%);
+    /* transform: translateY(0%); */
 }
 
 .player .preview .play-control-area .contents {
