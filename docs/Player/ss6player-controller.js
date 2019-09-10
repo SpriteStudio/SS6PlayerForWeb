@@ -129,10 +129,16 @@ class SS6PlayerController {
         }else{
             this.ss6Player.Setup(ssaeName, animeName);
         }
-        this.ss6Player.Play();
+        // ループの設定
+        // if(this.isLoop){
+        //     this.ss6Player.loop = -1;
+        // }else{
+        //     this.ss6Player.loop = 1;
+        // }
+        this.play();
 
         // console.log('現状のフレームNo:', this.ss6Player.currentCachedFrameNumber);
-        console.log('フレームカウント:', this.ss6Player.curAnimation.frameDataLength());
+        // console.log('フレームカウント:', this.ss6Player.curAnimation.frameDataLength());
         
 
         // ポジション設定
@@ -185,11 +191,26 @@ class SS6PlayerController {
         // this.ss6Player.scale = new PIXI.Point(defaultScaleRatio, defaultScaleRatio);
         // var renderer = PIXI.autoDetectRenderer(1000, 1000);
 
-        this.switchGrid();
+        this.switchGridDisplay();
         
     }
 
-    switchGrid() {
+    play() {
+        // ループ回数が 0回になっている場合は1回にする
+        if (this.ss6Player.loop === 0) {
+            this.ss6Player.loop = 1;
+        }
+
+        this.ss6Player.Play();
+    }
+    pause() {
+        this.ss6Player.Pause();
+    }
+    resume() {
+        this.ss6Player.Resume();
+    }
+
+    switchGridDisplay() {
         if (this.rootLineGraphics == null || this.gridGraphics == null){
             return;
         }
@@ -284,6 +305,14 @@ class SS6PlayerController {
         const prevZoomPercent = ZOOM_ARRAY[prevZoomArrayIndex];
         this.zoom(prevZoomPercent);
 
+    }
+
+    switchLoop(infinity) {
+        if(infinity){
+            this.ss6Player.loop = -1;
+        }else{
+            this.ss6Player.loop = 1;
+        }
     }
 
 

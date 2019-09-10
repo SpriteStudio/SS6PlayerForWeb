@@ -32,10 +32,10 @@ export class SS6Player extends PIXI.Container {
   private _endFrame: number;
   private _currentFrame: number;
   private nextFrameTime: number;
-  private _loops: number;
+  private _loops: number = -1;
   private skipEnabled: boolean;
   private updateInterval: number;
-  private playDirection: number;
+  private playDirection: number = 1;
   private pastTime: number;
   private onUserDataCallback: (data: any) => void = null;
   private playEndCallback: (player: SS6Player) => void = null;
@@ -150,10 +150,11 @@ export class SS6Player extends PIXI.Container {
     this._endFrame = this.curAnimation.endFrames();
     this._currentFrame = this.curAnimation.startFrames();
     this.nextFrameTime = 0;
-    this._loops = -1;
     this.skipEnabled = false;
     this.updateInterval = 1000 / this.curAnimation.fps();
-    this.playDirection = 1; // forward
+
+    // this._loops = -1;
+    // this.playDirection = 1; // forward
     // this.onUserDataCallback = null;
     // this.playEndCallback = null;
     // this.onUpdateCallback = null;
@@ -175,6 +176,10 @@ export class SS6Player extends PIXI.Container {
    * @param {number} delta - expected 1
    */
   private Update(delta: number): void {
+    if (this._loops === 0) {
+      this.Stop();
+      return;
+    }
     const currentTime = Date.now();
     const elapsedTime = currentTime - this.pastTime;
     const toNextFrame = this.isPlaying && !this.isPausing;
@@ -196,7 +201,9 @@ export class SS6Player extends PIXI.Container {
             if (this.playEndCallback !== null) {
               this.playEndCallback(this);
             }
-            if (this._loops === 0) this.isPlaying = false;
+            if (this._loops === 0) {
+              this.Stop();
+            }
           }
         }
         // speed -
@@ -209,7 +216,9 @@ export class SS6Player extends PIXI.Container {
             if (this.playEndCallback !== null) {
               this.playEndCallback(this);
             }
-            if (this._loops === 0) this.isPlaying = false;
+            if (this._loops === 0) {
+              this.Stop();
+            }
           }
         }
         this.SetFrameAnimation(this._currentFrame);

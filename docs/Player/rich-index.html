@@ -219,11 +219,11 @@
       // 再生ボタン
       playSwitchButtonElement.addEventListener('click', (event) => {
         if(playerController.ss6Player.isPausing){
-          playerController.ss6Player.Resume();
+          playerController.resume();
         }else if(playerController.ss6Player.isPlaying) {
-          playerController.ss6Player.Pause();
+          playerController.pause();
         }else{
-          playerController.ss6Player.Play();
+          playerController.play();
         }
       });
       previewElement.addEventListener('keydown', (event) => {
@@ -235,11 +235,10 @@
             playSwitchButtonElement.click();
           }
         } else if (event.code === "ArrowRight") {
-          playerController.ss6Player.Pause();
-
+          playerController.pause();
           playerController.nextFrame();
         } else if (event.code === "ArrowLeft") {
-          playerController.ss6Player.Pause();
+          playerController.pause();
           playerController.prevFrame();
         }
       });
@@ -263,21 +262,33 @@
 
       });
 
+      // グリッド表示
       const gridCheckElement = playerElement.querySelector('.display-grid');
       gridCheckElement.addEventListener('change', (event)=>{
         const element = event.currentTarget;
         const checked = element.checked;
-        console.log('checked', checked);
+        // console.log('checked', checked);
         playerController.isDisplayGrid = checked;
-        playerController.switchGrid();
+        playerController.switchGridDisplay();
 
       });
+
+      // ループのON/OFF
+      const loopCheckElement = playerElement.querySelector('.loop');
+      loopCheckElement.addEventListener('change', (event) => {
+        const element = event.currentTarget;
+        const checked = element.checked;
+        console.log('checked', checked);
+        playerController.switchLoop(checked);
+
+      });
+
 
       // SeekBar変更
       seekBarElement.addEventListener('input', (event)=> {
         const rangeElement = event.currentTarget;
         const value = rangeElement.valueAsNumber;
-        playerController.ss6Player.Pause();
+        playerController.pause();
 
         frameNumberElement.innerText = value;
         playerController.setFrame(value);
@@ -348,6 +359,8 @@
       <div class="head-bar-area">
         <label>グリッド</label>
         <input type="checkbox" class="display-grid" />
+        <label>ループ</label>
+        <input type="checkbox" class="loop" checked/>
         <label>背景色</label>
         <input type="color" class="background-color" value="#ffffff" />
         <label>再生速度:</label>
