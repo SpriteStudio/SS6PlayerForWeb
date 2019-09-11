@@ -129,12 +129,6 @@ class SS6PlayerController {
         }else{
             this.ss6Player.Setup(ssaeName, animeName);
         }
-        // ループの設定
-        // if(this.isLoop){
-        //     this.ss6Player.loop = -1;
-        // }else{
-        //     this.ss6Player.loop = 1;
-        // }
         this.play();
 
         // console.log('現状のフレームNo:', this.ss6Player.currentCachedFrameNumber);
