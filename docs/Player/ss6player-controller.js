@@ -196,6 +196,9 @@ class SS6PlayerController {
     }
 
     play() {
+        if (this.ss6Player === null) {
+            return;
+        }
         // ループ回数が 0回になっている場合は1回にする
         if (this.ss6Player.loop === 0) {
             this.ss6Player.loop = 1;
@@ -204,9 +207,15 @@ class SS6PlayerController {
         this.ss6Player.Play();
     }
     pause() {
+        if (this.ss6Player === null){
+            return;
+        }
         this.ss6Player.Pause();
     }
     resume() {
+        if (this.ss6Player === null) {
+            return;
+        }
         this.ss6Player.Resume();
     }
 
