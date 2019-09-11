@@ -60,6 +60,78 @@
       }
       const currentAnimation = playerElement.querySelector('.animation[data-animation-pack-name="' + currentSsaeName + '"][data-name="' + currentAnimationName + '"]')
       currentAnimation.classList.add('selected');
+
+      // ユーザーデータの表示
+      const frameDataMap = playerController.frameDataMap;
+      console.log('frameDataMap', frameDataMap);
+
+      const frameInformationTableElement = playerElement.querySelector('.frame-information-table');
+      const frameInformationTableTBodyElement = frameInformationTableElement.querySelector('tbody');
+      frameInformationTableTBodyElement.innerHTML = '';
+      for(let frameIndex in frameDataMap){
+        const trElement = document.createElement('tr');
+
+        const frameIndexTdElement = document.createElement('td');
+        frameIndexTdElement.textContent = frameIndex;
+        frameIndexTdElement.classList.add('frame-index');
+        frameIndexTdElement.addEventListener('click', (event)=>{
+          const element = event.currentTarget;
+          playerController.pause();
+
+          const value = element.textContent;
+          frameNumberElement.innerText = value;
+          playerController.setFrame(value);
+        });
+        trElement.appendChild(frameIndexTdElement);
+
+        // frameData からの情報取得
+        const labelTdElement = document.createElement('td');
+        const userDataTdElement = document.createElement('td');
+
+        const frameData = playerController.frameDataMap[frameIndex];
+        if(frameData !== null){
+          // ラベル
+          const labelName = frameData['label'];
+          if(labelName != null){
+
+          }else{
+            labelTdElement.textContent = '';
+          }
+
+          // ユーザーデータ
+          const userData = frameData['userData'];
+          if(userData != null){
+            const templateElement = document.querySelector('#template-user-data-table');
+            const userDataTableElement = document.importNode(templateElement.content, true);
+            const userDataTBodyElement = userDataTableElement.querySelector('tbody');
+            for(let partsName in userData){
+              const data = userData[partsName];
+              console.log('userData.data', partsName, data);
+              const userDataTrElement = document.createElement('tr');
+
+              // パーツ名
+              const partsTdElement = document.createElement('td');
+              partsTdElement.textContent = partsName;
+              userDataTrElement.appendChild(partsTdElement);
+
+              // 文字列
+              const stringValue = data['string'];
+              const stringTdElement = document.createElement('td');
+              stringTdElement.textContent = stringValue;
+              userDataTrElement.appendChild(stringTdElement);
+
+
+              userDataTBodyElement.appendChild(userDataTrElement);
+            }
+            userDataTdElement.appendChild(userDataTableElement);
+          }
+        }
+        trElement.appendChild(labelTdElement);
+        trElement.appendChild(userDataTdElement);
+        
+        frameInformationTableTBodyElement.appendChild(trElement);
+      }
+
     }
 
       
@@ -104,6 +176,7 @@
 
       playerController = new SS6PlayerController(ssfbFilePath);
       playerController.onComplete = () => {
+        // ツリービューの表示
         const animePackMap = playerController.animePackMap;
         for(let animePackName in animePackMap){
           const animePackElement = document.createElement('div');
@@ -190,7 +263,6 @@
           animationSelectAreaElement.appendChild(animePackElement);
 
         }
-
         
 
       };
@@ -401,7 +473,43 @@
       
       </div>
     </div>
+    <div class="frame-information-area">
+      <label>フレーム情報</label>
+      <div class="contents">
+        <table class="frame-information-table">
+          <thead>
+            <tr>
+              <th>フレーム</th>
+              <th>ラベル名</th>
+              <th>ユーザーデータ</th>
+            </th>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    </div>
+
+
   </div>
+
+  <template id="template-user-data-table">
+    <table class="user-data-table">
+      <thead>
+        <tr>
+          <th>パーツ名</th>
+          <th>文字列</th>
+        </th>
+
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </template>
 
 </body>
 </html>

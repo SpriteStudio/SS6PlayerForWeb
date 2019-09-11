@@ -243,3 +243,56 @@
 }
 
 
+.player .frame-information-area {
+    width: 400px;
+    background-color: rgb(53,53,53);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px;
+
+    overflow: scroll;
+
+}
+
+.player .frame-information-area table {
+    border-spacing: 0;
+    font-size: 0.8em;
+    width: 100%;
+}
+.player .frame-information-area table th {
+    border-top-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    padding-left:  5px;
+    padding-right: 5px;
+    font-size: 0.9em;
+    color: #ccc;
+    background-color: #666;
+}
+.player .frame-information-area table th:last-child {
+    border-right-style: solid;
+}
+
+.player .frame-information-area table td {
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    padding-left:  5px;
+    padding-right: 5px;
+
+
+} 
+.player .frame-information-area table td:last-child {
+    border-right-style: solid;
+}
+
+.player .frame-information-area table td.frame-index {
+    cursor: pointer;
+}
+.player .frame-information-area table td.frame-index:hover {
+    background-color: #666;
+
+}

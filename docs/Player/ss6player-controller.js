@@ -28,6 +28,7 @@ class SS6PlayerController {
     zoomPercent = null;
 
     isDisplayGrid = false;
+    frameDataMap = {};
 
     // ssfbFilePath;
     constructor(ssfbFilePath){
@@ -133,11 +134,11 @@ class SS6PlayerController {
 
         // console.log('現状のフレームNo:', this.ss6Player.currentCachedFrameNumber);
         // console.log('フレームカウント:', this.ss6Player.curAnimation.frameDataLength());
-        
+        const curAnimation = this.ss6Player.curAnimation;
 
         // ポジション設定
-        const canvasPvotX = this.ss6Player.curAnimation.canvasPvotX();
-        const canvasPvotY = this.ss6Player.curAnimation.canvasPvotY();
+        const canvasPvotX = curAnimation.canvasPvotX();
+        const canvasPvotY = curAnimation.canvasPvotY();
 
         let positionX;
         switch (canvasPvotX) {
@@ -166,8 +167,8 @@ class SS6PlayerController {
         this.container.position = new PIXI.Point(positionX, positionY);
 
         // スケール値自動調整
-        const playerHeight = this.ss6Player.curAnimation.canvasSizeH();
-        const playerWidth = this.ss6Player.curAnimation.canvasSizeW();
+        const playerHeight = curAnimation.canvasSizeH();
+        const playerWidth = curAnimation.canvasSizeW();
 
         const widthRatio = this.previewWidth / playerWidth;
         const heightRatio = this.previewHeight / playerHeight;
@@ -186,7 +187,67 @@ class SS6PlayerController {
         // var renderer = PIXI.autoDetectRenderer(1000, 1000);
 
         this.switchGridDisplay();
-        
+
+        // ラベルデータ
+        const labelDataLength = curAnimation.labelDataLength();
+        console.log('labelDataLength', labelDataLength);
+        for(let i = 0; i < labelDataLength; i++ ){
+            const labelData = curAnimation.labelData(i);
+        }
+
+        this.frameDataMap = {};
+
+        // ラベルデータ
+        // TODO
+
+        // ユーザーデータ
+        const userDataLength = curAnimation.userDataLength();
+        console.log('userDataLength', userDataLength);
+        for (let i = 0; i < userDataLength; i++) {
+            const userData = curAnimation.userData(i);
+            const frameIndex = userData.frameIndex();
+
+            // 既存のフレームデータを取得
+            let frameData = this.frameDataMap[frameIndex];
+            if (frameData == null){
+                frameData = {};
+            }
+
+            console.log('userData', frameIndex);
+            const data = this.ss6Player.GetUserData(frameIndex);
+            console.log('userData.data', data);
+
+            const frameUserDataMap = {};
+            const dataLength = data.length;
+            for(let dataIndex = 0; dataIndex < dataLength; dataIndex++ ){
+                const dataArray = data[dataIndex];
+
+                // data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
+                const partsArrayIndex = dataArray[0]; // パーツと紐づく
+                const parts = this.ss6Player.curAnimePack.parts(partsArrayIndex);
+                const partsName = parts.name();
+
+                const intValue = dataArray[2];
+                const rectXValue = dataArray[3];
+                const rectYValue = dataArray[4];
+                const rectWidthValue = dataArray[5];
+                const rectHeightValue = dataArray[6];
+                const posXValue = dataArray[7];
+                const posYValue = dataArray[8];
+                const stringLengthValue = dataArray[9];
+                const stringValue = dataArray[10];
+
+
+
+
+                console.log('userData.data.dataArray.stringValue', partsName, stringValue);
+                frameUserDataMap[partsName] = {
+                    string: stringValue
+                };
+            }
+            frameData['userData'] = frameUserDataMap;
+            this.frameDataMap[frameIndex] = frameData;
+        }
     }
 
     play() {
@@ -317,6 +378,8 @@ class SS6PlayerController {
             this.ss6Player.loop = 1;
         }
     }
+
+
 
 
     

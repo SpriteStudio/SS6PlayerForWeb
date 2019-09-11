@@ -7,8 +7,8 @@ export class SS6Player extends PIXI.Container {
   private readonly fbObj: ss.ssfb.ProjectData;
   private readonly resources: PIXI.loaders.ResourceDictionary;
   private animation: number[] = [];
+  private curAnimePack: ss.ssfb.AnimePackData = null;
   private curAnimation: ss.ssfb.AnimationData = null;
-  private parts: number = -1;
   private parentIndex: number[] = [];
   private prio2index: any[] = [];
   private userData: any[] = [];
@@ -106,39 +106,42 @@ export class SS6Player extends PIXI.Container {
     this.clearCaches();
     const animePacksLength = this.fbObj.animePacksLength();
     for (let i = 0; i < animePacksLength; i++) {
-      if (this.fbObj.animePacks(i).name() === animePackName) {
-        let j;
-        const animationsLength = this.fbObj.animePacks(i).animationsLength();
-        for (j = 0; j < animationsLength; j++) {
-          if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
-            this.animation = [i, j];
-            this.curAnimation = this.fbObj.animePacks(this.animation[0]).animations(this.animation[1]);
-            break;
-          }
-        }
+      if (this.fbObj.animePacks(i).name() !== animePackName) {
+        continue;
+      }
 
-        // default data map
-        const defaultDataLength = this.curAnimation.defaultDataLength();
-        for (let i = 0; i < defaultDataLength; i++) {
-          const curDefaultData = this.curAnimation.defaultData(i);
-          this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
-        }
+      this.curAnimePack = this.fbObj.animePacks(i);
 
-        // parts
-        this.parts = i;
-        const partsLength = this.fbObj.animePacks(this.parts).partsLength();
-        this.parentIndex = new Array(partsLength);
-        // cell再利用
-        this.prevCellID = new Array(partsLength);
-        this.prevMesh = new Array(partsLength);
-        for (j = 0; j < partsLength; j++) {
-          const index = this.fbObj.animePacks(this.parts).parts(j).index();
-          this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
-          // cell再利用
-          this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-          this.prevMesh[index] = null;
+      const animationsLength = this.curAnimePack.animationsLength();
+      for (let j = 0; j < animationsLength; j++) {
+        if (this.curAnimePack.animations(j).name() === animeName) {
+          this.animation = [i, j];
+          this.curAnimation = this.fbObj.animePacks(this.animation[0]).animations(this.animation[1]);
+          break;
         }
       }
+
+      // default data map
+      const defaultDataLength = this.curAnimation.defaultDataLength();
+      for (let i = 0; i < defaultDataLength; i++) {
+        const curDefaultData = this.curAnimation.defaultData(i);
+        this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
+      }
+
+      // parts
+      const partsLength = this.curAnimePack.partsLength();
+      this.parentIndex = new Array(partsLength);
+      // cell再利用
+      this.prevCellID = new Array(partsLength);
+      this.prevMesh = new Array(partsLength);
+      for (let partsIndex = 0; partsIndex < partsLength; partsIndex++) {
+        const index = this.curAnimePack.parts(partsIndex).index();
+        this.parentIndex[index] = this.curAnimePack.parts(partsIndex).parentIndex();
+        // cell再利用
+        this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
+        this.prevMesh[index] = null;
+      }
+
     }
 
     // 各アニメーションステータスを初期化
@@ -449,9 +452,9 @@ export class SS6Player extends PIXI.Container {
    * @param {number} frameNumber - フレーム番号
    * @return {array} - ユーザーデータ
    */
-  private GetUserData(frameNumber: number): any[] {
+  public GetUserData(frameNumber: number): any[] {
     // HaveUserDataでデータのキャッシュするので、ここで確認しておく
-    if (this.HaveUserData(this._currentFrame) === false) {
+    if (this.HaveUserData(frameNumber) === false) {
       return;
     }
     const framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
@@ -505,9 +508,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 全パーツの描画モード
    */
   private GetPartsBlendMode(): any[] {
-    const l = this.fbObj.animePacks(this.parts).partsLength();
+    const l = this.curAnimePack.partsLength();
     const ret = [];
-    const animePacks = this.fbObj.animePacks(this.parts);
+    const animePacks = this.curAnimePack;
     for (let i = 0; i < l; i++) {
       ret.push(animePacks.parts(i).alphaBlendType());
     }
@@ -697,7 +700,7 @@ export class SS6Player extends PIXI.Container {
 
       // NULLパーツにダミーのセルIDを設定する
       if (
-        this.fbObj.animePacks(this.parts).parts(index).type() === 0
+        this.curAnimePack.parts(index).type() === 0
       ) {
         frameData[index].cellIndex = -2;
       }
@@ -862,7 +865,7 @@ export class SS6Player extends PIXI.Container {
       // cell再利用
       let mesh: any = this.prevMesh[i];
 
-      const part = this.fbObj.animePacks(this.parts).parts(i);
+      const part = this.curAnimePack.parts(i);
       const partType = part.type();
 
       // 処理分岐処理
