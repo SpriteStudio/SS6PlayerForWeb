@@ -4,19 +4,12 @@ import { SS6Project } from './SS6Project';
 export class SS6Player extends PIXI.Container {
   // Properties
   private readonly ss6project: SS6Project;
-  private readonly fbObj: ss.ssfb.ProjectData;
-  private readonly resources: PIXI.loaders.ResourceDictionary;
-  private animation: number[] = [];
-  private curAnimePack: ss.ssfb.AnimePackData = null;
-  private curAnimation: ss.ssfb.AnimationData = null;
+  // private readonly fbObj: ss.ssfb.ProjectData;
+  // private readonly resources: PIXI.loaders.ResourceDictionary;
+  // private curAnimePack: ss.ssfb.AnimePackData = null;
+  // private curAnimation: ss.ssfb.AnimationData = null;
   private parentIndex: number[] = [];
-  private prio2index: any[] = [];
-  private userData: any[] = [];
-  private frameDataCache: any = {};
-  private currentCachedFrameNumber: number = -1;
   private liveFrame: any[] = [];
-  private colorMatrixFilterCache: any[] = [];
-  private defaultFrameMap: any[] = [];
 
   private parentAlpha: number = 1.0;
 
@@ -47,15 +40,15 @@ export class SS6Player extends PIXI.Container {
   }
 
   public get endFrame(): number {
-    return this.curAnimation.endFrames();
+    return this.ss6project.ssfbReader.curAnimation.endFrames();
   }
 
   public get totalFrame(): number {
-    return this.curAnimation.totalFrames();
+    return this.ss6project.ssfbReader.curAnimation.totalFrames();
   }
 
   public get fps(): number {
-    return this.curAnimation.fps();
+    return this.ss6project.ssfbReader.curAnimation.fps();
   }
 
   public get frameNo(): number {
@@ -84,8 +77,8 @@ export class SS6Player extends PIXI.Container {
     PIXI.Container.call(this);
 
     this.ss6project = ss6project;
-    this.fbObj = this.ss6project.fbObj;
-    this.resources = this.ss6project.resources;
+    // this.fbObj = this.ss6project.ssfbReader.fbObj;
+    // this.resources = this.ss6project.ssfbReader.resources;
     this.parentAlpha = 1.0;
 
     if (animePackName !== null && animeName !== null) {
@@ -104,44 +97,22 @@ export class SS6Player extends PIXI.Container {
    */
   public Setup(animePackName: string, animeName: string): void {
     this.clearCaches();
-    const animePacksLength = this.fbObj.animePacksLength();
-    for (let i = 0; i < animePacksLength; i++) {
-      if (this.fbObj.animePacks(i).name() !== animePackName) {
-        continue;
-      }
 
-      this.curAnimePack = this.fbObj.animePacks(i);
+    this.ss6project.ssfbReader.Setup(animePackName, animeName);
 
-      const animationsLength = this.curAnimePack.animationsLength();
-      for (let j = 0; j < animationsLength; j++) {
-        if (this.curAnimePack.animations(j).name() === animeName) {
-          this.animation = [i, j];
-          this.curAnimation = this.fbObj.animePacks(this.animation[0]).animations(this.animation[1]);
-          break;
-        }
-      }
-
-      // default data map
-      const defaultDataLength = this.curAnimation.defaultDataLength();
-      for (let i = 0; i < defaultDataLength; i++) {
-        const curDefaultData = this.curAnimation.defaultData(i);
-        this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
-      }
-
-      // parts
-      const partsLength = this.curAnimePack.partsLength();
-      this.parentIndex = new Array(partsLength);
+    const curAnimePack = this.ss6project.ssfbReader.curAnimePack;
+    // parts
+    const partsLength = curAnimePack.partsLength();
+    this.parentIndex = new Array(partsLength);
+    // cell再利用
+    this.prevCellID = new Array(partsLength);
+    this.prevMesh = new Array(partsLength);
+    for (let partsIndex = 0; partsIndex < partsLength; partsIndex++) {
+      const index = curAnimePack.parts(partsIndex).index();
+      this.parentIndex[index] = curAnimePack.parts(partsIndex).parentIndex();
       // cell再利用
-      this.prevCellID = new Array(partsLength);
-      this.prevMesh = new Array(partsLength);
-      for (let partsIndex = 0; partsIndex < partsLength; partsIndex++) {
-        const index = this.curAnimePack.parts(partsIndex).index();
-        this.parentIndex[index] = this.curAnimePack.parts(partsIndex).parentIndex();
-        // cell再利用
-        this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-        this.prevMesh[index] = null;
-      }
-
+      this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
+      this.prevMesh[index] = null;
     }
 
     // 各アニメーションステータスを初期化
@@ -149,12 +120,12 @@ export class SS6Player extends PIXI.Container {
 
     this.isPlaying = false;
     this.isPausing = true;
-    this._startFrame = this.curAnimation.startFrames();
-    this._endFrame = this.curAnimation.endFrames();
-    this._currentFrame = this.curAnimation.startFrames();
+    this._startFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
+    this._endFrame = this.ss6project.ssfbReader.curAnimation.endFrames();
+    this._currentFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
     this.nextFrameTime = 0;
     this.skipEnabled = false;
-    this.updateInterval = 1000 / this.curAnimation.fps();
+    this.updateInterval = 1000 / this.ss6project.ssfbReader.curAnimation.fps();
 
     // this._loops = -1;
     // this.playDirection = 1; // forward
@@ -165,13 +136,8 @@ export class SS6Player extends PIXI.Container {
   }
 
   private clearCaches() {
-    this.prio2index = [];
-    this.userData = [];
-    this.frameDataCache = [];
-    this.currentCachedFrameNumber = -1;
+    this.ss6project.ssfbReader.clearCaches();
     this.liveFrame = [];
-    this.colorMatrixFilterCache = [];
-    this.defaultFrameMap = [];
   }
 
   /**
@@ -226,9 +192,9 @@ export class SS6Player extends PIXI.Container {
         }
         this.SetFrameAnimation(this._currentFrame);
         if (this.isPlaying) {
-          if (this.HaveUserData(this._currentFrame)) {
+          if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
             if (this.onUserDataCallback !== null) {
-              this.onUserDataCallback(this.GetUserData(this._currentFrame));
+              this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
             }
           }
         }
@@ -264,7 +230,7 @@ export class SS6Player extends PIXI.Container {
   public SetAnimationSpeed(fpsRate: number, _skipEnabled: boolean = true): void {
     if (fpsRate === 0) return; // illegal?
     this.playDirection = fpsRate > 0 ? 1 : -1;
-    this.updateInterval = 1000 / (this.curAnimation.fps() * fpsRate * this.playDirection);
+    this.updateInterval = 1000 / (this.ss6project.ssfbReader.curAnimation.fps() * fpsRate * this.playDirection);
     this.skipEnabled = _skipEnabled;
   }
 
@@ -275,10 +241,10 @@ export class SS6Player extends PIXI.Container {
    * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
    */
   public SetAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1): void {
-    if (_startframe >= 0 && _startframe < this.curAnimation.totalFrames()) {
+    if (_startframe >= 0 && _startframe < this.ss6project.ssfbReader.curAnimation.totalFrames()) {
       this._startFrame = _startframe;
     }
-    if (_endframe >= 0 && _endframe < this.curAnimation.totalFrames()) {
+    if (_endframe >= 0 && _endframe < this.ss6project.ssfbReader.curAnimation.totalFrames()) {
       this._endFrame = _endframe;
     }
     if (_loops > 0) {
@@ -303,12 +269,12 @@ export class SS6Player extends PIXI.Container {
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
     this.SetFrameAnimation(this._currentFrame);
-    if (this.HaveUserData(this._currentFrame)) {
+    if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
       if (this.onUserDataCallback !== null) {
-        this.onUserDataCallback(this.GetUserData(this._currentFrame));
+        this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
       }
     }
-    const layers = this.curAnimation.defaultDataLength();
+    const layers = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
     for (let i = 0; i < layers; i++) {
       this.liveFrame[i] = 0;
     }
@@ -419,445 +385,41 @@ export class SS6Player extends PIXI.Container {
     this.playEndCallback = fn;
   }
 
-  /**
-   * ユーザーデータの存在チェック
-   * @param {number} frameNumber - フレーム番号
-   * @return {boolean} - 存在するかどうか
-   */
-  private HaveUserData(frameNumber: number): boolean {
-    if (this.userData[frameNumber] === -1) {
-      // データはない
-      return false;
-    }
-    if (this.userData[frameNumber]) {
-      // キャッシュされたデータがある
-      return true;
-    }
-    // ユーザーデータ検索する
-    for (let k = 0; k < this.curAnimation.userDataLength(); k++) {
-      // フレームデータがあるかを調べる
-      if (frameNumber === this.curAnimation.userData(k).frameIndex()) {
-        // ついでにキャッシュしておく
-        this.userData[frameNumber] = this.curAnimation.userData(k);
-        return true;
-      }
-    }
-    // データなしにしておく
-    this.userData[frameNumber] = -1;
-    return false;
-  }
 
-  /**
-   * ユーザーデータの取得
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - ユーザーデータ
-   */
-  public GetUserData(frameNumber: number): any[] {
-    // HaveUserDataでデータのキャッシュするので、ここで確認しておく
-    if (this.HaveUserData(frameNumber) === false) {
-      return;
-    }
-    const framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
-    const layers = framedata.dataLength();
-    let id = 0;
-    let data = [];
-    for (let i = 0; i < layers; i++) {
-      const bit = framedata.data(i).flags();
-      const partsID = framedata.data(i).arrayIndex();
-      let d_int = null;
-      let d_rect_x = null;
-      let d_rect_y = null;
-      let d_rect_w = null;
-      let d_rect_h = null;
-      let d_pos_x = null;
-      let d_pos_y = null;
-      let d_string_length = null;
-      let d_string = null;
-      if (bit & 1) {
-        // int
-        d_int = framedata.data(i).data(id, new ss.ssfb.userDataInteger()).integer();
-        id++;
-      }
-      if (bit & 2) {
-        // rect
-        d_rect_x = framedata.data(i).data(id, new ss.ssfb.userDataRect()).x();
-        d_rect_y = framedata.data(i).data(id, new ss.ssfb.userDataRect()).y();
-        d_rect_w = framedata.data(i).data(id, new ss.ssfb.userDataRect()).w();
-        d_rect_h = framedata.data(i).data(id, new ss.ssfb.userDataRect()).h();
-        id++;
-      }
-      if (bit & 4) {
-        // pos
-        d_pos_x = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).x();
-        d_pos_y = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).y();
-        id++;
-      }
-      if (bit & 8) {
-        // string
-        d_string_length = framedata.data(i).data(id, new ss.ssfb.userDataString()).length();
-        d_string = framedata.data(i).data(id, new ss.ssfb.userDataString()).data();
-        id++;
-      }
-      data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
-    }
-    return data;
-  }
+
 
   /**
    * パーツの描画モードを取得する
    * @return {array} - 全パーツの描画モード
    */
   private GetPartsBlendMode(): any[] {
-    const l = this.curAnimePack.partsLength();
+    const l = this.ss6project.ssfbReader.curAnimePack.partsLength();
     const ret = [];
-    const animePacks = this.curAnimePack;
+    const animePacks = this.ss6project.ssfbReader.curAnimePack;
     for (let i = 0; i < l; i++) {
       ret.push(animePacks.parts(i).alphaBlendType());
     }
     return ret;
   }
 
-  private _uint32 = new Uint32Array(1);
-  private _float32 = new Float32Array(this._uint32.buffer);
-  /**
-   * int型からfloat型に変換する
-   * @return {floatView[0]} - float型に変換したデータ
-   */
-  private I2F(i: number): number {
-    this._uint32[0] = i;
-    return this._float32[0];
-  }
 
-  private defaultColorFilter: PIXI.filters.ColorMatrixFilter = new PIXI.filters.ColorMatrixFilter();
 
-  /**
-   * １フレーム分のデータを取得する（未設定項目はデフォルト）
-   * [注意]現verでは未対応項目があると正常動作しない可能性があります
-   * @param {number} frameNumber - フレーム番号
-   */
-  private GetFrameData(frameNumber: number): any {
-    if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
-      return this.frameDataCache;
-    }
-    const layers = this.curAnimation.defaultDataLength();
-    let frameData = new Array(layers);
-    this.prio2index = new Array(layers);
-    const curFrameData = this.curAnimation.frameData(frameNumber);
-    for (let i = 0; i < layers; i++) {
-      const curPartState = curFrameData.states(i);
-      const index = curPartState.index();
-      let f1 = curPartState.flag1();
-      let f2 = curPartState.flag2();
-      let blendType = -1;
-      let fd = this.GetDefaultDataByIndex(index);
-      // データにフラグを追加する
-      fd.flag1 = f1;
-      fd.flag2 = f2;
 
-      let id = 0;
-      if (f1 & ss.ssfb.PART_FLAG.INVISIBLE) fd.f_hide = true;
-      if (f1 & ss.ssfb.PART_FLAG.FLIP_H) fd.f_flipH = true;
-      if (f1 & ss.ssfb.PART_FLAG.FLIP_V) fd.f_flipV = true;
-      if (f1 & ss.ssfb.PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
-      if (f1 & ss.ssfb.PART_FLAG.POSITION_Z) id++; // 64
-      if (f1 & ss.ssfb.PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
-      if (f1 & ss.ssfb.PART_FLAG.PIVOT_Y) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONX) id++; // 512
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONY) id++; // 1024
-      if (f1 & ss.ssfb.PART_FLAG.ROTATIONZ) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
-      if (f1 & ss.ssfb.PART_FLAG.SCALE_X) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
-      if (f1 & ss.ssfb.PART_FLAG.SCALE_Y) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
-      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_X) fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
-      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_Y) fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
-      if (f1 & ss.ssfb.PART_FLAG.OPACITY) fd.opacity = curPartState.data(id++); // 65536
-      if (f1 & ss.ssfb.PART_FLAG.LOCALOPACITY) fd.localopacity = curPartState.data(id++); // 131072
-      if (f1 & ss.ssfb.PART_FLAG.SIZE_X) fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
-      if (f1 & ss.ssfb.PART_FLAG.SIZE_Y) fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
-      if (f1 & ss.ssfb.PART_FLAG.U_MOVE) fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
-      if (f1 & ss.ssfb.PART_FLAG.V_MOVE) fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
-      if (f1 & ss.ssfb.PART_FLAG.UV_ROTATION) fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
-      if (f1 & ss.ssfb.PART_FLAG.U_SCALE) fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
-      if (f1 & ss.ssfb.PART_FLAG.V_SCALE) fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
-      if (f1 & ss.ssfb.PART_FLAG.BOUNDINGRADIUS) id++; // 134217728 boundingRadius
-      if (f1 & ss.ssfb.PART_FLAG.MASK) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
-      if (f1 & ss.ssfb.PART_FLAG.PRIORITY) fd.priority = curPartState.data(id++); // 536870912 priority
-      //
-      if (f1 & ss.ssfb.PART_FLAG.INSTANCE_KEYFRAME) {
-        // 1073741824 instance keyframe
-        fd.instanceValue_curKeyframe = curPartState.data(id++);
-        fd.instanceValue_startFrame = curPartState.data(id++);
-        fd.instanceValue_endFrame = curPartState.data(id++);
-        fd.instanceValue_loopNum = curPartState.data(id++);
-        fd.instanceValue_speed = this.I2F(curPartState.data(id++));
-        fd.instanceValue_loopflag = curPartState.data(id++);
-      }
-      if (f1 & ss.ssfb.PART_FLAG.EFFECT_KEYFRAME) {
-        // 2147483648 effect keyframe
-        fd.effectValue_curKeyframe = curPartState.data(id++);
-        fd.effectValue_startTime = curPartState.data(id++);
-        fd.effectValue_speed = this.I2F(curPartState.data(id++));
-        fd.effectValue_loopflag = curPartState.data(id++);
-      }
-      if (f1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
-        // 524288 verts [4]
-        // verts
-        fd.f_mesh = true;
-        const f = (fd.i_transformVerts = curPartState.data(id++));
-        if (f & 1) {
-          fd.u00 = this.I2F(curPartState.data(id++));
-          fd.v00 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 2) {
-          fd.u01 = this.I2F(curPartState.data(id++));
-          fd.v01 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 4) {
-          fd.u10 = this.I2F(curPartState.data(id++));
-          fd.v10 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 8) {
-          fd.u11 = this.I2F(curPartState.data(id++));
-          fd.v11 = this.I2F(curPartState.data(id++));
-        }
-      }
 
-      if (f1 & ss.ssfb.PART_FLAG.PARTS_COLOR) {
-        // 262144 parts color [3]
-        const f = curPartState.data(id++);
-        blendType = f & 0xff;
-        // 小西 - パーツカラーが乗算合成ならフィルタを使わないように
-        fd.useColorMatrix = blendType !== 1;
-        // [replaced]//fd.useColorMatrix = true;
-        if (f & 0x1000) {
-          // one color
-          // 小西 - プロパティを一時退避
-          const rate = this.I2F(curPartState.data(id++));
-          const bf = curPartState.data(id++);
-          const bf2 = curPartState.data(id++);
-          const argb32 = (bf << 16) | bf2;
-
-          // 小西 - パーツカラーが乗算合成ならtintで処理
-          fd.partsColorARGB = argb32 >>> 0;
-          if (blendType === 1) {
-            fd.tint = argb32 & 0xffffff;
-          } else {
-            // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
-            fd.colorMatrix = this.GetColorMatrixFilter(blendType, rate, argb32);
-          }
-        }
-
-        if (f & 0x0800) {
-          // LT color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0400) {
-          // RT color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0200) {
-          // LB color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0100) {
-          // RB color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-      }
-      if (f2 & ss.ssfb.PART_FLAG2.MESHDATA) {
-        // mesh [1]
-        fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
-        fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-        const mp = new Float32Array(fd.meshNum * 3);
-
-        for (let idx = 0; idx < fd.meshNum; idx++) {
-          const mx = this.I2F(curPartState.data(id++));
-          const my = this.I2F(curPartState.data(id++));
-          const mz = this.I2F(curPartState.data(id++));
-          mp[idx * 3 + 0] = mx;
-          mp[idx * 3 + 1] = my;
-          mp[idx * 3 + 2] = mz;
-
-        }
-        fd.meshDataPoint = mp;
-      }
-
-      frameData[index] = fd;
-      this.prio2index[i] = index;
-
-      // NULLパーツにダミーのセルIDを設定する
-      if (
-        this.curAnimePack.parts(index).type() === 0
-      ) {
-        frameData[index].cellIndex = -2;
-      }
-    }
-    this.frameDataCache = frameData;
-    this.currentCachedFrameNumber = frameNumber;
-    return frameData;
-  }
-
-  /**
-   * パーツカラーのブレンド用カラーマトリクス
-   * @param {number} blendType - ブレンド方法（0:mix, 1:multiply, 2:add, 3:sub)
-   * @param {number} rate - ミックス時の混色レート
-   * @param {number} argb32 - パーツカラー（単色）
-   * @return {PIXI.filters.ColorMatrixFilter} - カラーマトリクス
-   */
-  private GetColorMatrixFilter(blendType: number, rate: number, argb32: number): PIXI.filters.ColorMatrixFilter {
-    const key: string = blendType.toString() + '_' + rate.toString() + '_' + argb32.toString();
-    if (this.colorMatrixFilterCache[key]) return this.colorMatrixFilterCache[key];
-
-    const colorMatrix = new PIXI.filters.ColorMatrixFilter();
-    const ca = ((argb32 & 0xff000000) >>> 24) / 255;
-    const cr = ((argb32 & 0x00ff0000) >>> 16) / 255;
-    const cg = ((argb32 & 0x0000ff00) >>> 8) / 255;
-    const cb = (argb32 & 0x000000ff) / 255;
-    // Mix
-    if (blendType === 0) {
-      const rate_i = 1 - rate;
-
-      colorMatrix.matrix = [
-        rate_i, 0, 0, 0, cr * rate,
-        0, rate_i, 0, 0, cg * rate,
-        0, 0, rate_i, 0, cb * rate,
-        0, 0, 0, 1, 0
-      ];
-    } else if (blendType === 1) {
-      // Multiply
-      colorMatrix.matrix = [
-        cr, 0, 0, 0, 0,
-        0, cg, 0, 0, 0,
-        0, 0, cb, 0, 0,
-        0, 0, 0, ca, 0
-      ];
-    } else if (blendType === 2) {
-      // Add
-      colorMatrix.matrix = [
-        1, 0, 0, 0, cr,
-        0, 1, 0, 0, cg,
-        0, 0, 1, 0, cb,
-        0, 0, 0, ca, 0
-      ];
-    } else if (blendType === 3) {
-      // Sub
-      colorMatrix.matrix = [
-        1, 0, 0, 0, -cr,
-        0, 1, 0, 0, -cg,
-        0, 0, 1, 0, -cb,
-        0, 0, 0, ca, 0
-      ];
-    }
-    this.colorMatrixFilterCache[key] = colorMatrix;
-    return colorMatrix;
-  }
-
-  /**
-   * デフォルトデータを取得する
-   * @param {number} id - パーツ（レイヤー）ID
-   * @return {array} - データ
-   */
-  private GetDefaultDataByIndex(id: number): any {
-    const curDefaultData = this.defaultFrameMap[id];
-    let data = {
-      index: curDefaultData.index(),
-      lowflag: curDefaultData.lowflag(),
-      highflag: curDefaultData.highflag(),
-      priority: curDefaultData.priority(),
-      cellIndex: curDefaultData.cellIndex(),
-      opacity: curDefaultData.opacity(),
-      localopacity: curDefaultData.localopacity(),
-      masklimen: curDefaultData.masklimen(),
-      positionX: curDefaultData.positionX(),
-      positionY: curDefaultData.positionY(),
-      pivotX: curDefaultData.pivotX(),
-      pivotY: curDefaultData.pivotY(),
-      rotationX: curDefaultData.rotationX(),
-      rotationY: curDefaultData.rotationY(),
-      rotationZ: curDefaultData.rotationZ(),
-      scaleX: curDefaultData.scaleX(),
-      scaleY: curDefaultData.scaleY(),
-      localscaleX: curDefaultData.localscaleX(),
-      localscaleY: curDefaultData.localscaleY(),
-      size_X: curDefaultData.sizeX(),
-      size_Y: curDefaultData.sizeY(),
-      uv_move_X: curDefaultData.uvMoveX(),
-      uv_move_Y: curDefaultData.uvMoveY(),
-      uv_rotation: curDefaultData.uvRotation(),
-      uv_scale_X: curDefaultData.uvScaleX(),
-      uv_scale_Y: curDefaultData.uvScaleY(),
-      boundingRadius: curDefaultData.boundingRadius(),
-      instanceValue_curKeyframe: curDefaultData.instanceValueCurKeyframe(),
-      instanceValue_endFrame: curDefaultData.instanceValueEndFrame(),
-      instanceValue_startFrame: curDefaultData.instanceValueStartFrame(),
-      instanceValue_loopNum: curDefaultData.instanceValueLoopNum(),
-      instanceValue_speed: curDefaultData.instanceValueSpeed(),
-      instanceValue_loopflag: curDefaultData.instanceValueLoopflag(),
-      effectValue_curKeyframe: curDefaultData.effectValueCurKeyframe(),
-      effectValue_startTime: curDefaultData.effectValueStartTime(),
-      effectValue_speed: curDefaultData.effectValueSpeed(),
-      effectValue_loopflag: curDefaultData.effectValueLoopflag(),
-
-      // Add visiblity
-      f_hide: false,
-      // Add flip
-      f_flipH: false,
-      f_flipV: false,
-      // Add mesh
-      f_mesh: false,
-      // Add vert data
-      i_transformVerts: 0,
-      u00: 0,
-      v00: 0,
-      u01: 0,
-      v01: 0,
-      u10: 0,
-      v10: 0,
-      u11: 0,
-      v11: 0,
-      //
-      useColorMatrix: false,
-      colorMatrix: null,
-      //
-      meshIsBind: 0,
-      meshNum: 0,
-      meshDataPoint: 0,
-      //
-      flag1: 0,
-      flag2: 0,
-
-      partsColorARGB: 0
-    };
-
-    return data;
-  }
 
   /**
    * １フレーム分のアニメーション描画
    * @param {number} frameNumber - フレーム番号
    */
   private SetFrameAnimation(frameNumber: number): void {
-    const fd = this.GetFrameData(frameNumber);
+    const fd = this.ss6project.ssfbReader.GetFrameData(frameNumber);
     this.removeChildren();
 
     // 優先度順パーツ単位ループ
     const l = fd.length;
     for (let ii = 0; ii < l; ii = (ii + 1) | 0) {
       // 優先度に変換
-      const i = this.prio2index[ii];
+      const i = this.ss6project.ssfbReader.prio2index[ii];
 
       const data = fd[i];
       const cellID = data.cellIndex;
@@ -865,7 +427,7 @@ export class SS6Player extends PIXI.Container {
       // cell再利用
       let mesh: any = this.prevMesh[i];
 
-      const part = this.curAnimePack.parts(i);
+      const part = this.ss6project.ssfbReader.curAnimePack.parts(i);
       const partType = part.type();
 
       // 処理分岐処理
@@ -1087,10 +649,10 @@ export class SS6Player extends PIXI.Container {
           mesh.vertices = verts;
           if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
-            const u1 = this.fbObj.cells(cellID).u1() + data.uv_move_X;
-            const u2 = this.fbObj.cells(cellID).u2() + data.uv_move_X;
-            const v1 = this.fbObj.cells(cellID).v1() + data.uv_move_Y;
-            const v2 = this.fbObj.cells(cellID).v2() + data.uv_move_Y;
+            const u1 = this.ss6project.ssfbReader.fbObj.cells(cellID).u1() + data.uv_move_X;
+            const u2 = this.ss6project.ssfbReader.fbObj.cells(cellID).u2() + data.uv_move_X;
+            const v1 = this.ss6project.ssfbReader.fbObj.cells(cellID).v1() + data.uv_move_Y;
+            const v2 = this.ss6project.ssfbReader.fbObj.cells(cellID).v2() + data.uv_move_Y;
 
             // uv X/Yスケール
             const cx = (u2 + u1) / 2;
@@ -1205,7 +767,7 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.Point} - 座標
    */
   private GetPivot(verts: Float32Array, cellID: number): PIXI.Point {
-    const cell = this.fbObj.cells(cellID);
+    const cell = this.ss6project.ssfbReader.fbObj.cells(cellID);
     const px = cell.pivotX();
     const py = cell.pivotY();
 
@@ -1227,7 +789,7 @@ export class SS6Player extends PIXI.Container {
    * @return {number} - 透明度
    */
   private InheritOpacity(opacity: number, id: number, frameNumber: number): number {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
     opacity = data.opacity / 255.0;
 
     if (this.parentIndex[id] >= 0) {
@@ -1244,7 +806,7 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -1294,7 +856,7 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformMeshVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -1321,7 +883,7 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformPositionLocal(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
 
     pos[4] += -data.rotationZ;
 
@@ -1383,7 +945,7 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformVerts(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -1418,7 +980,7 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
+    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
 
     pos[4] += -data.rotationZ;
     const rz = (pos[4] * Math.PI) / 180;
@@ -1439,7 +1001,7 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
   private MakeCellMesh(id: number): PIXI.mesh.Mesh {
-    const cell = this.fbObj.cells(id);
+    const cell = this.ss6project.ssfbReader.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
     const v1 = cell.v1();
@@ -1449,7 +1011,7 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.mesh.Mesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+    const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[cell.cellMap().name()].texture, verts, uvs, indices);
     mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
     return mesh;
   }
@@ -1461,7 +1023,7 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
   private MakeMeshCellMesh(partID: number, cellID: number): PIXI.mesh.Mesh {
-    const meshsDataUV = this.curAnimation.meshsDataUV(partID);
+    const meshsDataUV = this.ss6project.ssfbReader.curAnimation.meshsDataUV(partID);
     const uvLength = meshsDataUV.uvLength();
 
     if (uvLength > 0) {
@@ -1473,7 +1035,7 @@ export class SS6Player extends PIXI.Container {
         uvs[idx - 2] = meshsDataUV.uv(idx);
       }
 
-      const meshsDataIndices = this.curAnimation.meshsDataIndices(partID);
+      const meshsDataIndices = this.ss6project.ssfbReader.curAnimation.meshsDataIndices(partID);
       const indicesLength = meshsDataIndices.indicesLength();
 
       // 先頭の1データはヘッダになる
@@ -1484,7 +1046,7 @@ export class SS6Player extends PIXI.Container {
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.mesh.Mesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+      const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[this.ss6project.ssfbReader.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
       mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
       return mesh;
     }
