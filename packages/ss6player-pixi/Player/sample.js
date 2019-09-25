@@ -66,7 +66,7 @@ var mySS6Project = new ss6PlayerPixi.SS6Project(ssfbFile, onComplete);
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation1() {
   {
-    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project);
+    var mySS6Player = mySS6Project.player;
     mySS6Player.Setup("character_template_3head", "attack1");
     mySS6Player.position = new PIXI.Point(320, 480);
     mySS6Player.scale = new PIXI.Point(0.5, 0.5);
@@ -94,7 +94,7 @@ function Play_sampleAnimation1() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation2() {
   {
-    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project);
+    var mySS6Player = mySS6Project.player;
     mySS6Player.Setup("AnimeMaking", "06_pose");
     mySS6Player.position = new PIXI.Point(240, 320);
     app.stage.addChild(mySS6Player);
@@ -117,7 +117,7 @@ function Play_sampleAnimation2() {
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation3() {
   {
-    var mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project);
+    var mySS6Player = mySS6Project.player;
     mySS6Player.Setup("Knight_bomb", "Balloon");
     mySS6Player.position = new PIXI.Point(320, 480);
     mySS6Player.scale = new PIXI.Point(0.5, 0.5);

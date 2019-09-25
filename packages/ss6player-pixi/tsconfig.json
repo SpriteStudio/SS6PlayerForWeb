@@ -4,7 +4,7 @@
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "typeRoots": [
-      "dist/types",
+      // "dist/types",
       "node_modules/@types"
     ]
   },

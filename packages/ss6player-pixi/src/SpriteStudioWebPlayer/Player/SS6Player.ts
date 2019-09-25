@@ -1,9 +1,15 @@
 import { ss } from 'ssfblib';
 import { SS6Project } from './SS6Project';
+import { Project } from '../Model/Project';
+import { AnimePack } from '../Model/AnimePack';
+import { AnimePackAnimation } from '../Model/AnimePackAnimation';
+import { Cell } from '../Model/Cell';
 
 export class SS6Player extends PIXI.Container {
   // Properties
   private readonly ss6project: SS6Project;
+
+  private resources: PIXI.loaders.ResourceDictionary;
   // private readonly fbObj: ss.ssfb.ProjectData;
   // private readonly resources: PIXI.loaders.ResourceDictionary;
   // private curAnimePack: ss.ssfb.AnimePackData = null;
@@ -22,10 +28,29 @@ export class SS6Player extends PIXI.Container {
   private isPlaying: boolean;
   private isPausing: boolean;
   private _startFrame: number;
+  public get startFrame(): number {
+    return this._startFrame;
+  }
+
   private _endFrame: number;
+  public get endFrame(): number {
+    return this._endFrame;
+  }
+
   private _currentFrame: number;
+  public get frameNo(): number {
+    return this._currentFrame;
+  }
+
   private nextFrameTime: number;
   private _loops: number = -1;
+  public set loop(loop: number) {
+    this._loops = loop;
+  }
+  public get loop(): number {
+    return this._loops;
+  }
+
   private skipEnabled: boolean;
   private updateInterval: number;
   private playDirection: number = 1;
@@ -35,33 +60,28 @@ export class SS6Player extends PIXI.Container {
   private onUpdateCallback: (player: SS6Player) => void = null;
   private onPlayStateChangeCallback: (isPlaying: boolean, isPausing: boolean) => void = null;
 
-  public get startFrame(): number {
-    return this._startFrame;
+  public get project() : Project {
+    return this.ss6project.project;
+  }
+  public get currentAnimePack(): AnimePack {
+    return this.project.currentAnimePack;
+  }
+  public get currentAnimation(): AnimePackAnimation {
+    return this.currentAnimePack.currentAnimePackAnimation;
   }
 
-  public get endFrame(): number {
-    return this.ss6project.ssfbReader.curAnimation.endFrames();
-  }
+
 
   public get totalFrame(): number {
-    return this.ss6project.ssfbReader.curAnimation.totalFrames();
+    return this.currentAnimation.totalFrame;
   }
 
   public get fps(): number {
-    return this.ss6project.ssfbReader.curAnimation.fps();
+    return this.currentAnimation.fps;
   }
 
-  public get frameNo(): number {
-    return this._currentFrame;
-  }
+  
 
-  public set loop(loop: number) {
-    this._loops = loop;
-  }
-
-  public get loop(): number {
-    return this._loops;
-  }
 
   /**
    * SS6Player (extends PIXI.Container)
@@ -99,6 +119,7 @@ export class SS6Player extends PIXI.Container {
     this.clearCaches();
 
     this.ss6project.ssfbReader.Setup(animePackName, animeName);
+    this.ss6project.project.setActiveAnimation(animePackName, animeName);
 
     const curAnimePack = this.ss6project.ssfbReader.curAnimePack;
     // parts
@@ -120,12 +141,19 @@ export class SS6Player extends PIXI.Container {
 
     this.isPlaying = false;
     this.isPausing = true;
-    this._startFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
-    this._endFrame = this.ss6project.ssfbReader.curAnimation.endFrames();
-    this._currentFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
+
+    const currentAnimePackAnimation = this.project.currentAnimePack.currentAnimePackAnimation;
+    // this._startFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
+    this._startFrame = currentAnimePackAnimation.startFrame;
+    // this._endFrame = this.ss6project.ssfbReader.curAnimation.endFrames();
+    this._endFrame = currentAnimePackAnimation.endFrame;
+    // this._currentFrame = this.ss6project.ssfbReader.curAnimation.startFrames();
+    this._currentFrame = this._startFrame;
+    
     this.nextFrameTime = 0;
     this.skipEnabled = false;
-    this.updateInterval = 1000 / this.ss6project.ssfbReader.curAnimation.fps();
+    const fps = this.currentAnimation.fps;
+    this.updateInterval = 1000 / fps;
 
     // this._loops = -1;
     // this.playDirection = 1; // forward
@@ -133,6 +161,9 @@ export class SS6Player extends PIXI.Container {
     // this.playEndCallback = null;
     // this.onUpdateCallback = null;
     this.parentAlpha = 1.0;
+
+
+    this.loadCellResources();
   }
 
   private clearCaches() {
@@ -230,7 +261,7 @@ export class SS6Player extends PIXI.Container {
   public SetAnimationSpeed(fpsRate: number, _skipEnabled: boolean = true): void {
     if (fpsRate === 0) return; // illegal?
     this.playDirection = fpsRate > 0 ? 1 : -1;
-    this.updateInterval = 1000 / (this.ss6project.ssfbReader.curAnimation.fps() * fpsRate * this.playDirection);
+    this.updateInterval = 1000 / (this.fps * fpsRate * this.playDirection);
     this.skipEnabled = _skipEnabled;
   }
 
@@ -241,10 +272,10 @@ export class SS6Player extends PIXI.Container {
    * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
    */
   public SetAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1): void {
-    if (_startframe >= 0 && _startframe < this.ss6project.ssfbReader.curAnimation.totalFrames()) {
+    if (_startframe >= 0 && _startframe < this.totalFrame) {
       this._startFrame = _startframe;
     }
-    if (_endframe >= 0 && _endframe < this.ss6project.ssfbReader.curAnimation.totalFrames()) {
+    if (_endframe >= 0 && _endframe < this.totalFrame) {
       this._endFrame = _endframe;
     }
     if (_loops > 0) {
@@ -274,8 +305,9 @@ export class SS6Player extends PIXI.Container {
         this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
       }
     }
-    const layers = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
-    for (let i = 0; i < layers; i++) {
+    // const defaultDataLength = this.currentAnimation.defaultDataMap.keys.length;
+    const defaultDataLength = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
+    for (let i = 0; i < defaultDataLength; i++) {
       this.liveFrame[i] = 0;
     }
     if (this.onPlayStateChangeCallback !== null) {
@@ -348,6 +380,49 @@ export class SS6Player extends PIXI.Container {
   }
 
   /**
+   * Load textures
+   */
+  private loadCellResources() {
+    const self = this;
+    // Load textures for all cell at once.
+    const loader = new PIXI.loaders.Loader();
+    let ids: any = [];
+    const cellMap = this.project.cellMap;
+    for (let cellId in cellMap){
+      const cell = cellMap[cellId];
+      const cellInnnerCellMap = cell.cellMap;
+      const cellMapIndex = cellInnnerCellMap.index;
+      const cellMapName = cellInnnerCellMap.name;
+      const imagePath = cellInnnerCellMap.imagePath;
+      const directoryPath = this.project.directoryPath;
+      if (!ids.some(function (id: number) {
+        return (id === cellMapIndex);
+      })) {
+        ids.push(cellMapIndex);
+        loader.add(cellMapName, directoryPath + imagePath);
+      }
+
+    }
+    // for (let i = 0; i < self.fbObj.cellsLength(); i++) {
+    //   if (!ids.some(function (id: number) {
+    //     return (id === self.fbObj.cells(i).cellMap().index());
+    //   })) {
+    //     ids.push(self.fbObj.cells(i).cellMap().index());
+    //     loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
+    //   }
+    // }
+    loader.load(function (loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) {
+      // SS6Project is ready.
+      self.resources = resources;
+      // self.status = 'ready';
+      // if (self.onComplete !== null) {
+      //   self.onComplete();
+      // }
+    });
+  }
+
+
+  /**
    * ユーザーデータコールバックの設定
    * @param fn
    * @constructor
@@ -393,12 +468,19 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 全パーツの描画モード
    */
   private GetPartsBlendMode(): any[] {
-    const l = this.ss6project.ssfbReader.curAnimePack.partsLength();
     const ret = [];
-    const animePacks = this.ss6project.ssfbReader.curAnimePack;
-    for (let i = 0; i < l; i++) {
-      ret.push(animePacks.parts(i).alphaBlendType());
+    
+    for (let partsName in this.currentAnimePack.partsModelMap){
+      const parts = this.currentAnimePack.partsModelMap[partsName];
+      ret.push(parts.alphaBlendType);
     }
+
+    // const partsLength = this.ss6project.ssfbReader.curAnimePack.partsLength();
+    // const animePacks = this.ss6project.ssfbReader.curAnimePack;
+    // for (let i = 0; i < partsLength; i++) {
+    //   ret.push(animePacks.parts(i).alphaBlendType());
+    // }
+
     return ret;
   }
 
@@ -413,6 +495,7 @@ export class SS6Player extends PIXI.Container {
    */
   private SetFrameAnimation(frameNumber: number): void {
     const fd = this.ss6project.ssfbReader.GetFrameData(frameNumber);
+    // const fd = this.currentAnimation.getFrameData(frameNumber);
     this.removeChildren();
 
     // 優先度順パーツ単位ループ
@@ -427,8 +510,11 @@ export class SS6Player extends PIXI.Container {
       // cell再利用
       let mesh: any = this.prevMesh[i];
 
-      const part = this.ss6project.ssfbReader.curAnimePack.parts(i);
-      const partType = part.type();
+      const partsModelMap = this.currentAnimePack.partsModelMap;
+      const part = partsModelMap[i];
+      // const part = this.ss6project.ssfbReader.curAnimePack.parts(i);
+      const partType = part.type;
+      // const partType = part.type();
 
       // 処理分岐処理
       switch (partType) {
@@ -649,10 +735,12 @@ export class SS6Player extends PIXI.Container {
           mesh.vertices = verts;
           if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
-            const u1 = this.ss6project.ssfbReader.fbObj.cells(cellID).u1() + data.uv_move_X;
-            const u2 = this.ss6project.ssfbReader.fbObj.cells(cellID).u2() + data.uv_move_X;
-            const v1 = this.ss6project.ssfbReader.fbObj.cells(cellID).v1() + data.uv_move_Y;
-            const v2 = this.ss6project.ssfbReader.fbObj.cells(cellID).v2() + data.uv_move_Y;
+            const cell = this.project.getCell(cellID);
+
+            const u1 = cell.u1 + data.uv_move_X;
+            const u2 = cell.u2 + data.uv_move_X;
+            const v1 = cell.v1 + data.uv_move_Y;
+            const v2 = cell.v2 + data.uv_move_Y;
 
             // uv X/Yスケール
             const cx = (u2 + u1) / 2;
@@ -767,9 +855,9 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.Point} - 座標
    */
   private GetPivot(verts: Float32Array, cellID: number): PIXI.Point {
-    const cell = this.ss6project.ssfbReader.fbObj.cells(cellID);
-    const px = cell.pivotX();
-    const py = cell.pivotY();
+    const cell = this.project.getCell(cellID);
+    const px = cell.pivotX;
+    const py = cell.pivotY;
 
     // const dx = new PIXI.Point(verts[4] - verts[2], verts[5] - verts[3]);
     const dxX = verts[4] - verts[2];
@@ -1001,17 +1089,19 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
   private MakeCellMesh(id: number): PIXI.mesh.Mesh {
-    const cell = this.ss6project.ssfbReader.fbObj.cells(id);
-    const u1 = cell.u1();
-    const u2 = cell.u2();
-    const v1 = cell.v1();
-    const v2 = cell.v2();
-    const w = cell.width() / 2;
-    const h = cell.height() / 2;
+    const cell = this.project.getCell(id);
+    const u1 = cell.u1;
+    const u2 = cell.u2;
+    const v1 = cell.v1;
+    const v2 = cell.v2;
+    const w = cell.width / 2;
+    const h = cell.height / 2;
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+    const cellMap = cell.cellMap;
+    const cellMapName = cellMap.name;
+    const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[cellMapName].texture, verts, uvs, indices);
     mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
     return mesh;
   }
@@ -1023,30 +1113,44 @@ export class SS6Player extends PIXI.Container {
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
   private MakeMeshCellMesh(partID: number, cellID: number): PIXI.mesh.Mesh {
-    const meshsDataUV = this.ss6project.ssfbReader.curAnimation.meshsDataUV(partID);
-    const uvLength = meshsDataUV.uvLength();
+    const meshsDataUvMap = this.currentAnimation.meshsDataUvMap;
+    const meshsDataUV = meshsDataUvMap[partID];
+    // const meshsDataUV = this.ss6project.ssfbReader.curAnimation.meshsDataUV(partID);
+    const uvArray = meshsDataUV.uvArray;
+    const uvLength = uvArray.length;
+    // const uvLength = meshsDataUV.uvLength();
 
     if (uvLength > 0) {
       // 先頭の2データはヘッダになる
       const uvs = new Float32Array(uvLength - 2);
-      const num = meshsDataUV.uv(1);
+      const num = uvArray[1];
+      // const num = meshsDataUV.uv(1);
 
       for (let idx = 2; idx < uvLength; idx++) {
-        uvs[idx - 2] = meshsDataUV.uv(idx);
+        // uvs[idx - 2] = meshsDataUV.uv(idx);
+        uvs[idx - 2] = uvArray[idx];
       }
 
-      const meshsDataIndices = this.ss6project.ssfbReader.curAnimation.meshsDataIndices(partID);
-      const indicesLength = meshsDataIndices.indicesLength();
+      const meshsDataIndicesMap = this.currentAnimation.meshsDataIndicesMap;
+      const meshsDataIndices = meshsDataIndicesMap[partID];
+      // const meshsDataIndices = this.ss6project.ssfbReader.curAnimation.meshsDataIndices(partID);
+      const indicesArray = meshsDataIndices.indicesArray;
+      const indicesLength = indicesArray.length;
+      // const indicesLength = meshsDataIndices.indicesLength();
 
       // 先頭の1データはヘッダになる
       const indices = new Uint16Array(indicesLength - 1);
       for (let idx = 1; idx < indicesLength; idx++) {
-        indices[idx - 1] = meshsDataIndices.indices(idx);
+        // indices[idx - 1] = meshsDataIndices.indices(idx);
+        indices[idx - 1] = indicesArray[idx];
       }
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[this.ss6project.ssfbReader.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+      const cell = this.project.getCell(cellID);
+      const cellMapName = cell.cellMap.name;
+      const texture = this.ss6project.ssfbReader.resources[cellMapName].texture;
+      const mesh = new PIXI.mesh.Mesh(texture, verts, uvs, indices);
       mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
       return mesh;
     }

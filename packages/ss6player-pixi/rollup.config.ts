@@ -11,7 +11,7 @@ const pkg = require('./package.json');
 const libraryName = 'ss6player-pixi';
 
 export default {
-  input: `src/${libraryName}.ts`,
+  input: `src/SpriteStudioWebPlayer/${libraryName}.ts`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
     { file: pkg.module, format: 'es', sourcemap: true },
@@ -21,7 +21,7 @@ export default {
     'pixi.js'
   ],
   watch: {
-    include: 'src/**',
+    include: 'src/**/*.ts',
   },
   plugins: [
     // Allow json resolution

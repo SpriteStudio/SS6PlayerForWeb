@@ -1,8 +1,7 @@
 import { flatbuffers } from 'flatbuffers';
 import { ss } from 'ssfblib';
 
-
-export class SS6SsfbReader {
+export class SS6SsfbReaderOld {
     public rootPath: string;
     public fbObj: ss.ssfb.ProjectData;
     public resources: PIXI.loaders.ResourceDictionary;
@@ -275,7 +274,9 @@ export class SS6SsfbReader {
             if (f1 & ss.ssfb.PART_FLAG.FLIP_H) fd.f_flipH = true;
             if (f1 & ss.ssfb.PART_FLAG.FLIP_V) fd.f_flipV = true;
             if (f1 & ss.ssfb.PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-            if (f1 & ss.ssfb.PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
+            if (f1 & ss.ssfb.PART_FLAG.POSITION_X) {
+                fd.positionX = this.I2F(curPartState.data(id++));
+            }
             if (f1 & ss.ssfb.PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
             if (f1 & ss.ssfb.PART_FLAG.POSITION_Z) id++; // 64
             if (f1 & ss.ssfb.PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
@@ -573,3 +574,4 @@ export class SS6SsfbReader {
         return this._float32[0];
     }
 }
+
