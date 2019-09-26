@@ -13,6 +13,8 @@ import { AnimePackAnimationDefaultData } from '../../../Model/AnimePackAnimation
 
 export class AnimePackReader {
 
+    private currentAnimePackModel: AnimePack;
+    private currentAnimePackAnimationModel: AnimePackAnimation;
     private currentSetupStateMap: Map<number, AnimePackAnimationFrameState>;
 
     public createAnimePackMap(projectData: ss.ssfb.ProjectData) {
@@ -24,6 +26,7 @@ export class AnimePackReader {
         for (let i = 0; i < animePacksLength; i++) {
             const animePack = projectData.animePacks(i);
             const animePackModel = new AnimePack();
+            this.currentAnimePackModel = animePackModel;
             animePackModel.name = animePack.name();
 
             animePackModelMap[animePackModel.name] = animePackModel;
@@ -62,6 +65,7 @@ export class AnimePackReader {
         for (let i = 0; i < animationsLength; i++) {
             const animation = animePack.animations(i);
             const animationModel = new AnimePackAnimation();
+            this.currentAnimePackAnimationModel = animationModel;
             animationModel.name = animation.name();
             animationModel.fps = animation.fps();
             animationModel.startFrame = animation.startFrames();
@@ -595,25 +599,35 @@ export class AnimePackReader {
             fd.meshDataPoint = mp;
         }
         */
-            // if (flag2 & ss.ssfb.PART_FLAG2.MESHDATA) {
+            const currentAnimePackAnimationModel = this.currentAnimePackAnimationModel;
+
+            if (flag2 & ss.ssfb.PART_FLAG2.MESHDATA) {
                 // mesh [1]
+                const meshsDataUvMap = currentAnimePackAnimationModel.meshsDataUvMap[index];
+                const uvArray = meshsDataUvMap.uvArray;
+                stateModel.meshIsBind = uvArray[0]
+                stateModel.meshNum = uvArray[1];
                 // stateModel.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
                 // stateModel.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-                // const mp = new Float32Array(stateModel.meshNum * 3);
+                const mp = new Float32Array(stateModel.meshNum * 3);
 
-                // for (let idx = 0; idx < stateModel.meshNum; idx++) {
-                //     const mx = I2F(state.data(stateDataId++));
-                //     const my = I2F(state.data(stateDataId++));
-                //     const mz = I2F(state.data(stateDataId++));
-                //     mp[idx * 3 + 0] = mx;
-                //     mp[idx * 3 + 1] = my;
-                //     mp[idx * 3 + 2] = mz;
+                for (let idx = 0; idx < stateModel.meshNum; idx++) {
+                    const mx = I2F(state.data(stateDataId++));
+                    const my = I2F(state.data(stateDataId++));
+                    const mz = I2F(state.data(stateDataId++));
+                    mp[idx * 3 + 0] = mx;
+                    mp[idx * 3 + 1] = my;
+                    mp[idx * 3 + 2] = mz;
 
-                // }
-                // stateModel.meshDataPoint = mp;
-            // }
+                }
+                stateModel.meshDataPoint = mp;
+            }
 
-
+            // NULLパーツにダミーのセルIDを設定する
+            const parts = this.currentAnimePackModel.partsModelMap[index];
+            if ( parts.type === 0 ) {
+                stateModel.cellIndex = -2;
+            }
 
             stateMap[i] = stateModel;
         }

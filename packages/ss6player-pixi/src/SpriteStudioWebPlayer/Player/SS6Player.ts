@@ -122,23 +122,32 @@ export class SS6Player extends PIXI.Container {
   public Setup(animePackName: string, animeName: string): void {
     this.clearCaches();
 
-    this.ss6project.ssfbReader.Setup(animePackName, animeName);
+    // this.ss6project.ssfbReader.Setup(animePackName, animeName);
     this.ss6project.project.setActiveAnimation(animePackName, animeName);
 
-    const curAnimePack = this.ss6project.ssfbReader.curAnimePack;
+    // const curAnimePack = this.ss6project.ssfbReader.curAnimePack;
+    const currentAnimePack = this.currentAnimePack;
     // parts
-    const partsLength = curAnimePack.partsLength();
+    const partsLength = Object.keys(currentAnimePack.partsModelMap).length;
     this.parentIndex = new Array(partsLength);
     // cell再利用
     this.prevCellID = new Array(partsLength);
     this.prevMesh = new Array(partsLength);
-    for (let partsIndex = 0; partsIndex < partsLength; partsIndex++) {
-      const index = curAnimePack.parts(partsIndex).index();
-      this.parentIndex[index] = curAnimePack.parts(partsIndex).parentIndex();
+    for(let partsIndex in currentAnimePack.partsModelMap){
+      const parts = currentAnimePack.partsModelMap[partsIndex];
+      this.parentIndex[partsIndex] = parts.parentIndex;
       // cell再利用
-      this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-      this.prevMesh[index] = null;
+      this.prevCellID[partsIndex] = -1; // 初期値（最初は必ず設定が必要）
+      this.prevMesh[partsIndex] = null;
+
     }
+    // for (let partsIndex = 0; partsIndex < partsLength; partsIndex++) {
+    //   const index = curAnimePack.parts(partsIndex).index();
+    //   this.parentIndex[index] = curAnimePack.parts(partsIndex).parentIndex();
+    //   // cell再利用
+    //   this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
+    //   this.prevMesh[index] = null;
+    // }
 
     // 各アニメーションステータスを初期化
     this.alphaBlendType = this.GetPartsBlendMode();
@@ -170,7 +179,7 @@ export class SS6Player extends PIXI.Container {
   }
 
   private clearCaches() {
-    this.ss6project.ssfbReader.clearCaches();
+    // this.ss6project.ssfbReader.clearCaches();
     this.liveFrame = [];
   }
 
@@ -226,11 +235,12 @@ export class SS6Player extends PIXI.Container {
         }
         this.SetFrameAnimation(this._currentFrame);
         if (this.isPlaying) {
-          if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
-            if (this.onUserDataCallback !== null) {
-              this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
-            }
-          }
+          // HaveUserData
+          // if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
+          //   if (this.onUserDataCallback !== null) {
+          //     this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
+          //   }
+          // }
         }
       }
     } else {
@@ -303,11 +313,11 @@ export class SS6Player extends PIXI.Container {
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
     this.SetFrameAnimation(this._currentFrame);
-    if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
-      if (this.onUserDataCallback !== null) {
-        this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
-      }
-    }
+    // if (this.ss6project.ssfbReader.HaveUserData(this._currentFrame)) {
+    //   if (this.onUserDataCallback !== null) {
+    //     this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
+    //   }
+    // }
     const defaultDataLength = Object.keys(this.currentAnimation.setupStateMap).length;
     // const defaultDataLength = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
     for (let i = 0; i < defaultDataLength; i++) {
@@ -501,7 +511,7 @@ export class SS6Player extends PIXI.Container {
    */
   private SetFrameAnimation(frameNumber: number): void {
     // console.log("SetFrameAnimation");
-    const fd = this.getFrameData(frameNumber);
+    const fd = this.getFrameData2(frameNumber);
     this.removeChildren();
 
     const prio2Index = this.currentAnimation.prio2Index;
@@ -512,6 +522,18 @@ export class SS6Player extends PIXI.Container {
       const i = prio2Index[ii];
 
       const data = fd[i];
+      data.localscaleX = data.localScaleX;
+      data.localscaleY = data.localScaleY;
+      data.uv_move_X = data.uvMoveX;
+      data.uv_move_Y = data.uvMoveY;
+      data.uv_rotation = data.uvRotation;
+      data.uv_scale_X = data.uvScaleX;
+      data.uv_scale_Y = data.uvScaleY;
+      data.size_X = data.sizeX;
+      data.size_Y = data.sizeY;
+      data.f_hide = data.isHide;
+
+      
       const cellID = data.cellIndex;
 
       // cell再利用
@@ -887,7 +909,7 @@ export class SS6Player extends PIXI.Container {
    */
   private InheritOpacity(opacity: number, id: number, frameNumber: number): number {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData(frameNumber);
+    const fd = this.getFrameData2(frameNumber);
     const data = fd[id];
 
     opacity = data.opacity / 255.0;
@@ -907,7 +929,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData(frameNumber);
+    const fd = this.getFrameData2(frameNumber);
     const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
@@ -988,7 +1010,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformPositionLocal(pos: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData(frameNumber);
+    const fd = this.getFrameData2(frameNumber);
     const data = fd[id];
 
     pos[4] += -data.rotationZ;
@@ -1052,7 +1074,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformVerts(verts: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData(frameNumber);
+    const fd = this.getFrameData2(frameNumber);
     const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
@@ -1240,13 +1262,14 @@ export class SS6Player extends PIXI.Container {
   }
 
 
-  private getFrameData(frameNumber: number) {
-    const test = this.ss6project.ssfbReader.GetFrameData(frameNumber);
-    const frame = this.currentAnimation.getFrameData(frameNumber);
-    return test;
-  }
+  // private getFrameData(frameNumber: number) {
+  //   const test = this.ss6project.ssfbReader.GetFrameData(frameNumber);
+  //   const frame = this.currentAnimation.getFrameData(frameNumber);
+  //   return test;
+  // }
   private getFrameData2(frameNumber: number) {
     const frame = this.currentAnimation.getFrameData(frameNumber);
+    // frame.localscaleX = frame.localScaleX;
     return frame;
   }
 }
