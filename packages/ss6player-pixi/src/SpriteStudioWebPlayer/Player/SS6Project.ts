@@ -37,8 +37,7 @@ export class SS6Project {
       ssfbReader2.load((project: Project) => {
         self.project = project;
 
-        self.player = new SS6Player(self);
-        onComplete();
+        self.player = new SS6Player(self, onComplete);
       });
     }, timeout, retry, onError, onTimeout, onRetry);
 

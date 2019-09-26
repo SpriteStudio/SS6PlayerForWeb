@@ -17,17 +17,17 @@ export class AnimePackAnimationFrameState {
 
     public rotationZ: number;
 
-    public scaleX: number;
-    public scaleY: number;
+    public scaleX: number = 1;
+    public scaleY: number = 1;
 
-    public localScaleX: number;
-    public localScaleY: number;
+    public localScaleX: number = 1;
+    public localScaleY: number = 1;
 
-    public opacity: number;
-    public localOpacity: number;
+    public opacity: number = 1;
+    public localOpacity: number = 1;
 
-    public sizeX: number;
-    public sizeY: number;
+    public sizeX: number = 1;
+    public sizeY: number = 1;
 
     public uvMoveX: number;
     public uvMoveY: number;
@@ -73,5 +73,7 @@ export class AnimePackAnimationFrameState {
     public partsColorARGB: number;
     public tint: any;
 
+    public lowflag: number;
+    public highflag: number;
 
 }

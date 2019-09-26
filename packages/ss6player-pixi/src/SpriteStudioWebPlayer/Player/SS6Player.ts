@@ -90,7 +90,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
-  public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
+  public constructor(ss6project: SS6Project, onComplete: () => void) {
     super();
 
     // extends PIXI.Container
@@ -101,13 +101,17 @@ export class SS6Player extends PIXI.Container {
     // this.resources = this.ss6project.ssfbReader.resources;
     this.parentAlpha = 1.0;
 
-    if (animePackName !== null && animeName !== null) {
-      this.Setup(animePackName, animeName);
-    }
+    
 
-    // Ticker
-    this.pastTime = 0;
-    PIXI.ticker.shared.add(this.Update, this);
+    this.loadCellResources(()=> {
+      // Ticker
+      this.pastTime = 0;
+      PIXI.ticker.shared.add(this.Update, this);
+
+      onComplete();
+
+    });
+
   }
 
   /**
@@ -163,7 +167,6 @@ export class SS6Player extends PIXI.Container {
     this.parentAlpha = 1.0;
 
 
-    this.loadCellResources();
   }
 
   private clearCaches() {
@@ -305,8 +308,8 @@ export class SS6Player extends PIXI.Container {
         this.onUserDataCallback(this.ss6project.ssfbReader.GetUserData(this._currentFrame));
       }
     }
-    // const defaultDataLength = this.currentAnimation.defaultDataMap.keys.length;
-    const defaultDataLength = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
+    const defaultDataLength = Object.keys(this.currentAnimation.setupStateMap).length;
+    // const defaultDataLength = this.ss6project.ssfbReader.curAnimation.defaultDataLength();
     for (let i = 0; i < defaultDataLength; i++) {
       this.liveFrame[i] = 0;
     }
@@ -382,7 +385,7 @@ export class SS6Player extends PIXI.Container {
   /**
    * Load textures
    */
-  private loadCellResources() {
+  private loadCellResources(onComplete:() => void) {
     const self = this;
     // Load textures for all cell at once.
     const loader = new PIXI.loaders.Loader();
@@ -418,6 +421,9 @@ export class SS6Player extends PIXI.Container {
       // if (self.onComplete !== null) {
       //   self.onComplete();
       // }
+      if (onComplete !== null){
+        onComplete();
+      }
     });
   }
 
@@ -494,15 +500,16 @@ export class SS6Player extends PIXI.Container {
    * @param {number} frameNumber - フレーム番号
    */
   private SetFrameAnimation(frameNumber: number): void {
-    const fd = this.ss6project.ssfbReader.GetFrameData(frameNumber);
-    // const fd = this.currentAnimation.getFrameData(frameNumber);
+    // console.log("SetFrameAnimation");
+    const fd = this.getFrameData(frameNumber);
     this.removeChildren();
 
+    const prio2Index = this.currentAnimation.prio2Index;
     // 優先度順パーツ単位ループ
     const l = fd.length;
     for (let ii = 0; ii < l; ii = (ii + 1) | 0) {
       // 優先度に変換
-      const i = this.ss6project.ssfbReader.prio2index[ii];
+      const i = prio2Index[ii];
 
       const data = fd[i];
       const cellID = data.cellIndex;
@@ -846,6 +853,8 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+    // console.log("SetFrameAnimation end");
+
   }
 
   /**
@@ -877,7 +886,10 @@ export class SS6Player extends PIXI.Container {
    * @return {number} - 透明度
    */
   private InheritOpacity(opacity: number, id: number, frameNumber: number): number {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData(frameNumber);
+    const data = fd[id];
+
     opacity = data.opacity / 255.0;
 
     if (this.parentIndex[id] >= 0) {
@@ -894,7 +906,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData(frameNumber);
+    const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -944,7 +958,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformMeshVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData2(frameNumber);
+    const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -971,7 +987,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformPositionLocal(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData(frameNumber);
+    const data = fd[id];
 
     pos[4] += -data.rotationZ;
 
@@ -1033,7 +1051,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformVerts(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData(frameNumber);
+    const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -1068,7 +1088,9 @@ export class SS6Player extends PIXI.Container {
    * @return {array} - 変換された頂点座標配列
    */
   private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
+    const fd = this.getFrameData2(frameNumber);
+    const data = fd[id];
 
     pos[4] += -data.rotationZ;
     const rz = (pos[4] * Math.PI) / 180;
@@ -1099,9 +1121,14 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
+
     const cellMap = cell.cellMap;
     const cellMapName = cellMap.name;
-    const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[cellMapName].texture, verts, uvs, indices);
+    const cellMapResource = this.resources[cellMapName];
+    const texture = cellMapResource.texture;
+
+    const mesh = new PIXI.mesh.Mesh(texture, verts, uvs, indices);
+    // const mesh = new PIXI.mesh.Mesh(this.ss6project.ssfbReader.resources[cellMapName].texture, verts, uvs, indices);
     mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
     return mesh;
   }
@@ -1149,7 +1176,9 @@ export class SS6Player extends PIXI.Container {
 
       const cell = this.project.getCell(cellID);
       const cellMapName = cell.cellMap.name;
-      const texture = this.ss6project.ssfbReader.resources[cellMapName].texture;
+      const cellMapResource = this.resources[cellMapName];
+      const texture = cellMapResource.texture;
+      // const texture = this.ss6project.ssfbReader.resources[cellMapName].texture;
       const mesh = new PIXI.mesh.Mesh(texture, verts, uvs, indices);
       mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
       return mesh;
@@ -1164,10 +1193,12 @@ export class SS6Player extends PIXI.Container {
    * @return {SS6Player} - インスタンス
    */
   private MakeCellPlayer(refname: string): SS6Player {
-    const split = refname.split('/');
-    const ssp = new SS6Player(this.ss6project);
-    ssp.Setup(split[0], split[1]);
-    ssp.Play();
+    const ssp = new SS6Player(this.ss6project, () => {
+      const split = refname.split('/');
+      ssp.Setup(split[0], split[1]);
+      ssp.Play();
+
+    });
 
     return ssp;
   }
@@ -1206,5 +1237,16 @@ export class SS6Player extends PIXI.Container {
   private static GetDummyVerts(): Float32Array {
     let verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     return verts;
+  }
+
+
+  private getFrameData(frameNumber: number) {
+    const test = this.ss6project.ssfbReader.GetFrameData(frameNumber);
+    const frame = this.currentAnimation.getFrameData(frameNumber);
+    return test;
+  }
+  private getFrameData2(frameNumber: number) {
+    const frame = this.currentAnimation.getFrameData(frameNumber);
+    return frame;
   }
 }

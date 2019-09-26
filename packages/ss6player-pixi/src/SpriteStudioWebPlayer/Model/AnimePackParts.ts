@@ -1,3 +1,5 @@
+import { AnimePackAnimationFrameState } from "./AnimePackAnimationFrameState";
+
 export class AnimePackParts {
     public name: string;
 
@@ -9,6 +11,7 @@ export class AnimePackParts {
     public index: number;
     public parentIndex: number;
 
+    public setupState: AnimePackAnimationFrameState;
 
 
 }

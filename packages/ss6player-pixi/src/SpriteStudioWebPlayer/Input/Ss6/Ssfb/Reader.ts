@@ -8,6 +8,7 @@ import { AnimePackReader } from './AnimePackReader';
 export class Reader {
 
     public ssfbPath: string;
+    private animePackReader: AnimePackReader;
     public requestRetryCount: number = 0;
     private requestRetryCurrentCount: number;
 
@@ -26,6 +27,7 @@ export class Reader {
         this.ssfbPath = ssfbPath;
         this.projectData = null;
 
+        this.animePackReader = new AnimePackReader();
     }
 
 
@@ -92,7 +94,7 @@ export class Reader {
         project.directoryPath = directoryPath;
 
         // アニメーションパック情報読み込み
-        project.animePackMap = AnimePackReader.createAnimePackMap(this.projectData);
+        project.animePackMap = this.animePackReader.createAnimePackMap(this.projectData);
 
         // セル情報読み込み
         project.cellMap = this.createCellMap();
