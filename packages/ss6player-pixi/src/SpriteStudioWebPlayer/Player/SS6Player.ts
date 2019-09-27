@@ -1,19 +1,14 @@
-import { ss } from 'ssfblib';
 import { SS6Project } from './SS6Project';
 import { Project } from '../Model/Project';
 import { AnimePack } from '../Model/AnimePack';
 import { AnimePackAnimation } from '../Model/AnimePackAnimation';
-import { Cell } from '../Model/Cell';
+import { PartType, PART_FLAG } from '../Model/AnimePackParts';
 
 export class SS6Player extends PIXI.Container {
   // Properties
   private readonly ss6project: SS6Project;
 
   private resources: PIXI.loaders.ResourceDictionary;
-  // private readonly fbObj: ss.ssfb.ProjectData;
-  // private readonly resources: PIXI.loaders.ResourceDictionary;
-  // private curAnimePack: ss.ssfb.AnimePackData = null;
-  // private curAnimation: ss.ssfb.AnimationData = null;
   private parentIndex: number[] = [];
   private liveFrame: any[] = [];
 
@@ -97,8 +92,6 @@ export class SS6Player extends PIXI.Container {
     PIXI.Container.call(this);
 
     this.ss6project = ss6project;
-    // this.fbObj = this.ss6project.ssfbReader.fbObj;
-    // this.resources = this.ss6project.ssfbReader.resources;
     this.parentAlpha = 1.0;
 
     
@@ -547,26 +540,26 @@ export class SS6Player extends PIXI.Container {
 
       // 処理分岐処理
       switch (partType) {
-        case ss.ssfb.SsPartType.Instance:
+        case PartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
           }
           break;
-        case ss.ssfb.SsPartType.Normal:
-        case ss.ssfb.SsPartType.Mask:
+        case PartType.Normal:
+        case PartType.Mask:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
           }
           break;
-        case ss.ssfb.SsPartType.Mesh:
+        case PartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
           }
           break;
-        case ss.ssfb.SsPartType.Nulltype:
-        case ss.ssfb.SsPartType.Joint:
+        case PartType.Nulltype:
+        case PartType.Joint:
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
@@ -589,7 +582,7 @@ export class SS6Player extends PIXI.Container {
 
       // 描画関係処理
       switch (partType) {
-        case ss.ssfb.SsPartType.Instance: {
+        case PartType.Instance: {
           // インスタンスパーツのアップデート
           let pos = new Float32Array(5);
           pos[0] = 0; // pos x
@@ -711,12 +704,12 @@ export class SS6Player extends PIXI.Container {
           continue;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
-        case ss.ssfb.SsPartType.Normal:
-        case ss.ssfb.SsPartType.Mesh:
-        case ss.ssfb.SsPartType.Joint:
-        case ss.ssfb.SsPartType.Mask: {
+        case PartType.Normal:
+        case PartType.Mesh:
+        case PartType.Joint:
+        case PartType.Mask: {
           let verts: Float32Array;
-          if (partType === ss.ssfb.SsPartType.Mesh) {
+          if (partType === PartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
@@ -729,7 +722,7 @@ export class SS6Player extends PIXI.Container {
             verts = this.TransformVertsLocal(SS6Player.GetVerts(cellID, data), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
-          if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
+          if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
             // 524288 verts [4]	//
             // 頂点変形の中心点を算出する
             const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -762,7 +755,7 @@ export class SS6Player extends PIXI.Container {
           }
 
           mesh.vertices = verts;
-          if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
+          if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const cell = this.project.getCell(cellID);
 
@@ -789,7 +782,7 @@ export class SS6Player extends PIXI.Container {
             mesh.uvs[8] = cx + uvw;
             mesh.uvs[9] = cy + uvh;
 
-            if (data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
+            if (data.flag1 & PART_FLAG.UV_ROTATION) {
               const rot = (data.uv_rotation * Math.PI) / 180;
               for (let idx = 0; idx < 5; idx++) {
                 const dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
@@ -856,10 +849,10 @@ export class SS6Player extends PIXI.Container {
           if (blendMode === 6) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
           if (blendMode === 7) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
-          if (partType !== ss.ssfb.SsPartType.Mask) this.addChild(mesh);
+          if (partType !== PartType.Mask) this.addChild(mesh);
           break;
         }
-        case ss.ssfb.SsPartType.Nulltype: {
+        case PartType.Nulltype: {
           // NULLパーツのOpacity/Transform設定
           const opacity = this.InheritOpacity(1.0, data.index, frameNumber);
           mesh.alpha = (opacity * data.localopacity) / 255.0;

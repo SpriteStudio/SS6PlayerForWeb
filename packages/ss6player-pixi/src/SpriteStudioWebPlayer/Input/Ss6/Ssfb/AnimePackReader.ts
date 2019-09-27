@@ -3,13 +3,27 @@ import { AnimePack } from '../../../Model/AnimePack';
 import { AnimePackAnimation } from '../../../Model/AnimePackAnimation';
 import { AnimePackAnimationFrame } from '../../../Model/AnimePackAnimationFrame';
 import { AnimePackAnimationFrameState } from '../../../Model/AnimePackAnimationFrameState';
-import { AnimePackParts } from '../../../Model/AnimePackParts';
+import { AnimePackParts, PartType } from '../../../Model/AnimePackParts';
 import { AnimePackAnimationMeshsDataUv } from '../../../Model/AnimePackAnimationMeshsDataUv';
 import { AnimePackAnimationMeshsDataIndices } from '../../../Model/AnimePackAnimationMeshsDataIndices';
-import { AnimePackAnimationDefaultData } from '../../../Model/AnimePackAnimationDefaultData';
 
 
 
+enum SsPartType {
+    Invalid = -1,
+    Nulltype = 0,
+    Normal = 1,
+    Text = 2,
+    Instance = 3,
+    Armature = 4,
+    Effect = 5,
+    Mesh = 6,
+    Movenode = 7,
+    Constraint = 8,
+    Mask = 9,
+    Joint = 10,
+    Bonepoint = 11
+}
 
 export class AnimePackReader {
 
@@ -17,6 +31,7 @@ export class AnimePackReader {
     private currentAnimePackAnimationModel: AnimePackAnimation;
     private currentSetupStateMap: Map<number, AnimePackAnimationFrameState>;
 
+    
     public createAnimePackMap(projectData: ss.ssfb.ProjectData) {
         if (projectData == null) {
             return;
@@ -47,12 +62,70 @@ export class AnimePackReader {
         for (let i = 0; i < partsLength; i++) {
             const parts = animePack.parts(i);
             const partsModel = new AnimePackParts();
+            const ssPartType = parts.type();
             partsModel.type = parts.type();
             partsModel.name = parts.name();
             partsModel.index = parts.index();
             partsModel.parentIndex = parts.parentIndex();
             partsModel.boundsType = parts.boundsType();
             partsModel.alphaBlendType = parts.alphaBlendType();
+
+
+            // Invalid = -1,
+            // Nulltype = 0,
+            // Normal = 1,
+            // Text = 2,
+            // Instance = 3,
+            // Armature = 4,
+            // Effect = 5,
+            // Mesh = 6,
+            // Movenode = 7,
+            // Constraint = 8,
+            // Mask = 9,
+            // Joint = 10,
+            // Bonepoint = 11            
+            let partType: PartType = null;
+            switch (ssPartType){
+                case SsPartType.Invalid:
+                    partType = PartType.Invalid;
+                    break;
+                case SsPartType.Nulltype:
+                    partType = PartType.Nulltype;
+                    break;
+                case SsPartType.Normal:
+                    partType = PartType.Normal;
+                    break;
+                case SsPartType.Text:
+                    partType = PartType.Text;
+                    break;
+                case SsPartType.Instance:
+                    partType = PartType.Instance;
+                    break;
+                case SsPartType.Armature:
+                    partType = PartType.Armature;
+                    break;
+                case SsPartType.Effect:
+                    partType = PartType.Effect;
+                    break;
+                case SsPartType.Mesh:
+                    partType = PartType.Mesh;
+                    break;
+                case SsPartType.Movenode:
+                    partType = PartType.Movenode;
+                    break;
+                case SsPartType.Constraint:
+                    partType = PartType.Constraint;
+                    break;
+                case SsPartType.Mask:
+                    partType = PartType.Mask;
+                    break;
+                case SsPartType.Joint:
+                    partType = PartType.Joint;
+                    break;
+                case SsPartType.Bonepoint:
+                    partType = PartType.Bonepoint;
+                    break;
+            }
 
             partsModelMap[partsModel.index] = partsModel;
         }

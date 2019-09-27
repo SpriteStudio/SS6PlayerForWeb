@@ -1,11 +1,9 @@
-import { SS6SsfbReaderOld } from '../Input/Ss6/SS6SsfbReaderOld';
 import * as Ss6Ssfb from '../Input/Ss6/Ssfb/Reader';
 import { Project } from '../Model/Project';
 import { SS6Player } from './SS6Player';
   
 export class SS6Project {
   public rootPath: string;
-  // public ssfbReader: SS6SsfbReaderOld;
   public project: Project;
   public player: SS6Player;
 
@@ -32,12 +30,10 @@ export class SS6Project {
     this.rootPath = rootPath.substring(0, index) + '/';
 
     const self = this;
-    // this.ssfbReader = new SS6SsfbReaderOld(rootPath, ()=> {
-    // }, timeout, retry, onError, onTimeout, onRetry);
 
 
-    const ssfbReader2 = new Ss6Ssfb.Reader(rootPath);
-    ssfbReader2.load((project: Project) => {
+    const ssfbReader = new Ss6Ssfb.Reader(rootPath);
+    ssfbReader.load((project: Project) => {
       self.project = project;
 
       self.player = new SS6Player(self, onComplete);
