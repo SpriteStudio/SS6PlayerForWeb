@@ -23,25 +23,22 @@ export class SS6Project {
     
   }
 
-  public loadForJson(url: string, onComplete: () => void) {
+  public loadForSS6Json(url: string, onComplete: () => void) {
     this.requestHttp(url, 'text', (text: string) => {
       const reader = new Ss6Json.Reader();
-      const project = reader.create(text);
-      this.project = project;
-      
+      this.project = reader.create(text);
+
       this.player = new SS6Player(this, onComplete);
     });
-
   }
 
-  public loadForSsfb(url: string, onComplete: () => void) {
+  public loadForSS6Ssfb(url: string, onComplete: () => void) {
     this.requestHttp(url, 'arraybuffer', (arrayBuffer: ArrayBuffer) => {
       const reader = new Ss6Ssfb.Reader();
       reader.setDirectoryPath(url);
-      const project = reader.create(arrayBuffer);
-      this.project = project;
-      this.player = new SS6Player(this, onComplete);
+      this.project = reader.create(arrayBuffer);
 
+      this.player = new SS6Player(this, onComplete);
     });
   }
 
