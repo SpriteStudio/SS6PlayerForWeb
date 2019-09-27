@@ -504,7 +504,7 @@ export class SS6Player extends PIXI.Container {
    */
   private SetFrameAnimation(frameNumber: number): void {
     // console.log("SetFrameAnimation");
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     this.removeChildren();
 
     const prio2Index = this.currentAnimation.prio2Index;
@@ -902,7 +902,7 @@ export class SS6Player extends PIXI.Container {
    */
   private InheritOpacity(opacity: number, id: number, frameNumber: number): number {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     opacity = data.opacity / 255.0;
@@ -922,7 +922,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
@@ -974,7 +974,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformMeshVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
@@ -1003,7 +1003,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformPositionLocal(pos: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     pos[4] += -data.rotationZ;
@@ -1067,7 +1067,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformVerts(verts: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     const rz = (-data.rotationZ * Math.PI) / 180;
@@ -1104,7 +1104,7 @@ export class SS6Player extends PIXI.Container {
    */
   private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
     // const data = this.ss6project.ssfbReader.GetFrameData(frameNumber)[id];
-    const fd = this.getFrameData2(frameNumber);
+    const fd = this.getFrameData(frameNumber);
     const data = fd[id];
 
     pos[4] += -data.rotationZ;
@@ -1260,7 +1260,7 @@ export class SS6Player extends PIXI.Container {
   //   const frame = this.currentAnimation.getFrameData(frameNumber);
   //   return test;
   // }
-  private getFrameData2(frameNumber: number) {
+  private getFrameData(frameNumber: number) {
     const frame = this.currentAnimation.getFrameData(frameNumber);
     // frame.localscaleX = frame.localScaleX;
     return frame;
