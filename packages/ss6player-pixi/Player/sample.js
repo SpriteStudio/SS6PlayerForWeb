@@ -61,7 +61,8 @@ switch (testVersion) {
     ssfbFile = "";
     break;
 }
-var mySS6Project = new ss6PlayerPixi.SS6Project(ssfbFile, onComplete);
+const mySS6Project = new ss6PlayerPixi.SS6Project(ssfbFile);
+mySS6Project.loadForUrl(ssfbFile, onComplete);
 
 // プレイヤーの使用方法サンプル
 function Play_sampleAnimation1() {

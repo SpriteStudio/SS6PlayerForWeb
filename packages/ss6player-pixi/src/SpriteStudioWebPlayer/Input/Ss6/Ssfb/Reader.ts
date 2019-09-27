@@ -6,92 +6,28 @@ import { Project } from '../../../Model/Project';
 import { AnimePackReader } from './AnimePackReader';
 
 export class Reader {
-
-    public ssfbPath: string;
     private animePackReader: AnimePackReader;
-    public requestRetryCount: number = 0;
-    private requestRetryCurrentCount: number;
-
-
-    public requestTimeout: number = 0;
-    private onComplete: (project: Project) => void;
-    private onError: (ssfbPath: string, requestRetryCurrentCount: number, httpObj: XMLHttpRequest) => void;
-    private onTimeout: (ssfbPath: string, httpObj: XMLHttpRequest) => void;
-    private onRetry: (ssfbPath: string, requestRetryCurrentCount: number, httpObj: XMLHttpRequest) => void;
-
     private projectData: ss.ssfb.ProjectData;
 
-
+    private directoryPath: string;
 
     public constructor(ssfbPath: string) {
-        this.ssfbPath = ssfbPath;
-        this.projectData = null;
+        const index = ssfbPath.lastIndexOf('/');
+        this.directoryPath = ssfbPath.substring(0, index) + '/';
 
         this.animePackReader = new AnimePackReader();
     }
+    
 
+    public create(arrayBuffer: any):  Project {
+        const bytes = new Uint8Array(arrayBuffer);
+        const buffer = new flatbuffers.ByteBuffer(bytes);
 
-
-    public load(onComplete: (project: Project) => void) {
-        this.onComplete = onComplete;
-
-        this.requestRetryCurrentCount = this.requestRetryCount;
-        this.innerLoad();
-    }
-
-    public innerLoad() {
-        const self = this;
-        const ssfbPath = this.ssfbPath;
-
-        const httpObj = new XMLHttpRequest();
-        httpObj.open('GET', ssfbPath, true);
-        httpObj.responseType = 'arraybuffer';
-        httpObj.timeout = this.requestTimeout;
-        httpObj.onload = function () {
-            const arrayBuffer = this.response;
-            const bytes = new Uint8Array(arrayBuffer);
-            const buffer = new flatbuffers.ByteBuffer(bytes);
-
-            const project = self.create(buffer);
-
-            self.onComplete(project);
-        };
-        httpObj.ontimeout = function () {
-            if (self.requestRetryCurrentCount > 0) {
-                self.requestRetryCurrentCount--;
-                if (self.onRetry !== null) {
-                    self.onRetry(ssfbPath, self.requestRetryCurrentCount, httpObj);
-                }
-                // 再Httpリクエスト                
-                self.innerLoad();
-
-            } else {
-                if (self.onTimeout !== null) {
-                    self.onTimeout(ssfbPath, httpObj);
-                }
-            }
-        };
-
-        httpObj.onerror = function () {
-            if (self.onTimeout !== null) {
-                self.onError(ssfbPath, self.requestRetryCurrentCount, httpObj);
-            }
-        };
-
-        httpObj.send(null);
-    }
-
-
-
-    private create(buffer: flatbuffers.ByteBuffer):  Project {
-        const index = this.ssfbPath.lastIndexOf('/');
-        const directoryPath = this.ssfbPath.substring(0, index) + '/';
 
         this.projectData = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
 
         const project: Project = new Project();
-        project.filePath = this.ssfbPath;
-        project.directoryPath = directoryPath;
+        project.directoryPath = this.directoryPath;
 
         // アニメーションパック情報読み込み
         project.animePackMap = this.animePackReader.createAnimePackMap(this.projectData);
