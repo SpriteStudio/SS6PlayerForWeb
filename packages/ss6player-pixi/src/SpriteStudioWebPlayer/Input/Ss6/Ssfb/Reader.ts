@@ -12,17 +12,24 @@ export class Reader {
     private directoryPath: string;
 
     public constructor(ssfbPath: string) {
-        const index = ssfbPath.lastIndexOf('/');
-        this.directoryPath = ssfbPath.substring(0, index) + '/';
 
         this.animePackReader = new AnimePackReader();
+    }
+
+    public setDirectoryPath(ssfbPath: string) {
+        const index = ssfbPath.lastIndexOf('/');
+        this.directoryPath = ssfbPath.substring(0, index) + '/';
     }
     
 
     public create(arrayBuffer: any):  Project {
+        if (this.directoryPath === null) {
+            console.error("directoryPath が指定されていません。事前に setDirectoryPath にて設定してください");
+            return null;
+        }
+
         const bytes = new Uint8Array(arrayBuffer);
         const buffer = new flatbuffers.ByteBuffer(bytes);
-
 
         this.projectData = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
 

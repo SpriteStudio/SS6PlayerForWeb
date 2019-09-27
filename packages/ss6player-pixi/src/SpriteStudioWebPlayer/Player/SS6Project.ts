@@ -65,6 +65,8 @@ export class SS6Project {
     httpObj.timeout = this.requestTimeout;
     httpObj.onload = function () {
       const arrayBuffer = this.response;
+      
+      self.ssfbReader.setDirectoryPath(url);
       self.loadForBytes(arrayBuffer, onComplete);
 
     };
