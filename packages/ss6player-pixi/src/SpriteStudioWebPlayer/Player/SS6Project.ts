@@ -1,4 +1,5 @@
 import * as Ss6Ssfb from '../Input/Ss6/Ssfb/Reader';
+import * as Ss6Json from '../Input/Ss6/Json/Reader';
 import { Project } from '../Model/Project';
 import { SS6Player } from './SS6Player';
   
@@ -7,7 +8,6 @@ export class SS6Project {
   public project: Project;
   public player: SS6Player;
 
-  private ssfbReader: Ss6Ssfb.Reader;
 
   public onErrorHttpRequest: (ssfbPath: string, requestRetryCurrentCount: number, httpObj: XMLHttpRequest) => void;
   public onTimeoutHttpRequest: (ssfbPath: string, httpObj: XMLHttpRequest) => void;
@@ -18,56 +18,44 @@ export class SS6Project {
   /**
    * SS6Project (used for several SS6Player(s))
    * @constructor
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param onComplete - callback on complete
-   * @param timeout
-   * @param retry
-   * @param onError - callback on error
-   * @param onTimeout - callback on timeout
-   * @param onRetry - callback on retry
    */
-  public constructor(rootPath: string) {
+  public constructor() {
+    
+  }
 
-    // const index = rootPath.lastIndexOf('/');
-    // this.rootPath = rootPath.substring(0, index) + '/';
-
-    // const self = this;
-
-    this.ssfbReader = new Ss6Ssfb.Reader(rootPath);
-    // const ssfbReader = new Ss6Ssfb.Reader(rootPath);
-    // ssfbReader.load((project: Project) => {
-    //   self.project = project;
-
-    //   self.player = new SS6Player(self, onComplete);
-    // });
+  public loadForJson(url: string, onComplete: () => void) {
+    this.requestHttp(url, 'text', (text: string) => {
+      const reader = new Ss6Json.Reader();
+      const project = reader.create(text);
+      this.project = project;
+      
+      this.player = new SS6Player(this, onComplete);
+    });
 
   }
 
-  public loadForBytes(arrayBuffer: any, onComplete: () => void) {
-    // const bytes = new Uint8Array(arrayBuffer);
-    // const buffer = new flatbuffers.ByteBuffer(bytes);
+  public loadForSsfb(url: string, onComplete: () => void) {
+    this.requestHttp(url, 'arraybuffer', (arrayBuffer: ArrayBuffer) => {
+      const reader = new Ss6Ssfb.Reader();
+      reader.setDirectoryPath(url);
+      const project = reader.create(arrayBuffer);
+      this.project = project;
+      this.player = new SS6Player(this, onComplete);
 
-    const project = this.ssfbReader.create(arrayBuffer);
-    this.project = project;
-    this.player = new SS6Player(this, onComplete);
-
-    // const project = self.create(buffer);
-
-    // self.onComplete(project);
-
+    });
   }
-  public loadForUrl(url: string, onComplete: () => void) {
+
+  
+  private requestHttp(url: string, responseType: XMLHttpRequestResponseType, onComplete: (response: any) => void) {
     const self = this;
 
     const httpObj = new XMLHttpRequest();
     httpObj.open('GET', url, true);
-    httpObj.responseType = 'arraybuffer';
+    httpObj.responseType = responseType;
     httpObj.timeout = this.requestTimeout;
     httpObj.onload = function () {
-      const arrayBuffer = this.response;
-      
-      self.ssfbReader.setDirectoryPath(url);
-      self.loadForBytes(arrayBuffer, onComplete);
+      onComplete(this.response);
+
 
     };
     httpObj.ontimeout = function () {
@@ -77,7 +65,7 @@ export class SS6Project {
           self.onRetryHttpRequest(url, self.requestRetryCurrentCount, httpObj);
         }
         // 再Httpリクエスト                
-        self.loadForUrl(url, onComplete);
+        self.requestHttp(url, responseType, onComplete);
 
       } else {
         if (self.onTimeoutHttpRequest !== null) {

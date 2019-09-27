@@ -5,14 +5,14 @@ import { CellMap } from '../../../Model/CellMap';
 import { Project } from '../../../Model/Project';
 import { AnimePackReader } from './AnimePackReader';
 
+
 export class Reader {
     private animePackReader: AnimePackReader;
     private projectData: ss.ssfb.ProjectData;
 
     private directoryPath: string;
 
-    public constructor(ssfbPath: string) {
-
+    public constructor() {
         this.animePackReader = new AnimePackReader();
     }
 
@@ -22,7 +22,7 @@ export class Reader {
     }
     
 
-    public create(arrayBuffer: any):  Project {
+    public create(arrayBuffer: ArrayBuffer):  Project {
         if (this.directoryPath === null) {
             console.error("directoryPath が指定されていません。事前に setDirectoryPath にて設定してください");
             return null;
