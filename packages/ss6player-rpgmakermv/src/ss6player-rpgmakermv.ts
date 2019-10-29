@@ -75,14 +75,18 @@ class SS6PlayerForRPGMakerMVArguments {
     switch (param[0].toUpperCase()) {
       case 'X':
         if ((/^v\[[0-9]+\]/i).test(param[1])) {
-          this.x = $gameVariables.value((/^v\[([0-9]+)\]/i).exec(param[1])[1]);
+          let reg: RegExp = /^v\[([0-9]+)\]/i;
+          let result = reg.exec(param[1]);
+          this.x = $gameVariables.value(parseInt(result[1], 10));
         } else {
           this.x = Number(param[1] || 0);
         }
         break;
       case 'Y':
         if ((/^v\[[0-9]+\]/i).test(param[1])) {
-          this.y = $gameVariables.value((/^v\[([0-9]+)\]/i).exec(param[1])[1]);
+          let reg: RegExp = /^v\[([0-9]+)\]/i;
+          let result = reg.exec(param[1]);
+          this.y = $gameVariables.value(parseInt(result[1], 10));
         } else {
           this.y = Number(param[1] || 0);
         }
@@ -410,20 +414,22 @@ class SS6PFMVManager {
   }
 
   private processSsPlay(args: string[]) {
+    console.log("processSsPlay args: " + args);
     let params = new SS6PlayerForRPGMakerMVArguments();
     if (!args[0] || !args[1] || !args[2]) {
       return;
     }
+    console.log("arg check pass");
     params.ssfbFilePath = args[0];
     if (!/\.ssbp.ssfb$/i.test(params.ssfbFilePath)) {
       params.ssfbFilePath += '.ssbp.ssfb';
     }
-    params.pictureId = args[1];
-    params.animePackName = args[2];
-    params.animeName = args[3];
+    // params.pictureId = args[1];
+    params.animePackName = args[1];
+    params.animeName = args[2];
 
-    args.slice(4, args.length).forEach(SSP4MV.processSsPlayerArgument, params);
-    this.loadPlayer(params.pictureId, params.ssfbFilePath, params.animePackName, params.animeName);
+    // args.slice(4, args.length).forEach(SSP4MV.processSsPlayerArgument, params);
+    // this.loadPlayer(params.pictureId, params.ssfbFilePath, params.animePackName, params.animeName);
   }
 
   private processSsMove(args: string[]) {
