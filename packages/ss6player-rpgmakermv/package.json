@@ -39,7 +39,7 @@
     "deploy": "npm run build && cpy dist/ss6player-rpgmakermv.js SampleProject/js/plugins/",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
-    "view": "concurrently \"http-server -p 8083 ./SampleProject\" \"opener http://localhost:8083/index.html\"",
+    "view": "concurrently \"http-server -c-1 -p 8083 ./SampleProject\" \"opener http://localhost:8083/index.html\"",
     "clean": "rimraf dist"
   },
   "dependencies": {
