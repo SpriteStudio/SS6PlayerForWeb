@@ -155,6 +155,11 @@ class SS6PlayerForRPGMakerMVArguments {
  */
 class SS6PlayerForRPGMakerMV {
 
+  animationDir: string = String(plugin_parameters['Animation File Path']
+    || plugin_parameters['アニメーションフォルダ']
+    || 'img/animations/ssas')
+    + '/';
+
   private _project: SS6Project;
   private _ss6player: SS6Player;
 
@@ -206,7 +211,7 @@ class SS6PlayerForRPGMakerMV {
   private _pictureId: string;
   private _ssfbPath: string;
   private _animePackName: string;
-  private _animePack: string;
+  private _animeName: string;
   get pictureId(): string {
     return this._pictureId;
   }
@@ -216,20 +221,32 @@ class SS6PlayerForRPGMakerMV {
     return this._loadFinish;
   }
 
-  constructor(pitureId: string, ssfbPath: string, animePackName: string, animePack: string) {
-    this._pictureId = pitureId;
-    this._ssfbPath = ssfbPath;
-    this._animePackName = animePackName;
-    this._animePack = animePack;
+  constructor(params: SS6PlayerForRPGMakerMVArguments) {
+    this._pictureId = params.pictureId;
+    this._ssfbPath = this.animationDir + params.ssfbFilePath;
+    this._animePackName = params.animePackName;
+    this._animeName = params.animeName;
+
+    this._x = params.x;
+    this._y = params.y;
+    this._loop = params.loop;
+    this._scaleX = params.scaleX;
+    this._scaleY = params.scaleY;
+    this._opacity = params.opacity;
+    this._blendMode = params.blendMode;
+    this._step = params.speed;
   }
 
-  get ss6player(): SS6Player {
+  public get ss6player(): SS6Player {
     return this._ss6player;
+  }
+  public set ss6player(_ss6player: SS6Player) {
+    this._ss6player = _ss6player;
   }
 
   loadAnimation(cb: () => void, cBargs: any) {
     this._project = new SS6Project(this._ssfbPath, () => {
-      this._ss6player = new SS6Player(this._project, this._animePackName, this._animePack);
+      this._ss6player = new SS6Player(this._project, this._animePackName, this._animeName);
       this._loadFinish = true;
       cb();
     });
@@ -249,13 +266,13 @@ class SS6PlayerForRPGMakerMV {
   }
 
   // 移動パラメータの追加
-  move(params: any) {
+  move(params: SS6PlayerForRPGMakerMVArguments) {
     this._targetX = params.x;
     this._targetY = params.y;
     this._targetScaleX = params.scaleX;
     this._targetScaleY = params.scaleY;
     this._targetOpacity = params.opacity;
-    this._blendMode = params.blend;
+    this._blendMode = params.blendMode;
     this._duration = params.duration;
     this._loop = params.loop;
     this._step = params.speed;
@@ -266,16 +283,14 @@ class SS6PlayerForRPGMakerMV {
   }
 
   // 現在のシーンをセット
-  setScene(params: any[]) {
-    /*
-    if (params instanceof SSP4MV.SsPlayerArguments && params.showInAllScene) {
-      this._scene = SsPlayer.SCENE_MARK.all;
+  setScene(params: SS6PlayerForRPGMakerMVArguments) {
+    if (params.showInAllScene) {
+      this._scene = SCENE_MARK.all;
     } else if ($gameParty.inBattle()) {
-      this._scene = SsPlayer.SCENE_MARK.battle;
+      this._scene = SCENE_MARK.battle;
     } else {
-      this._scene = SsPlayer.SCENE_MARK.map;
+      this._scene = SCENE_MARK.map;
     }
-     */
   }
 
   // 特定のシーンでアニメーションを表示できるか
@@ -316,25 +331,21 @@ class SS6PlayerForRPGMakerMV {
 }
 
 class SS6PFMVManager {
-  animationDir: string = String(plugin_parameters['Animation File Path']
-    || plugin_parameters['アニメーションフォルダ']
-    || 'img/animations/ssas')
-    + '/';
   private _playersMap: {[key: string]: SS6PlayerForRPGMakerMV} = {};
   private _ss6playersArray: SS6Player[] = [];
   constructor() {
   }
 
-  loadPlayer(pictureId: string, ssfbFile: string, animePackName: string, animeName: string) {
-    let ssfbPath: string = this.animationDir + ssfbFile;
-    let player = new SS6PlayerForRPGMakerMV(pictureId, ssfbPath, animePackName, animeName);
-    // player.setScene(params); // TODO:
+  loadPlayer(params: SS6PlayerForRPGMakerMVArguments) {
+    let player = new SS6PlayerForRPGMakerMV(params);
+    player.setScene(params);
     player.loadAnimation(() => {
-      this._playersMap[this.wrapPictureId(pictureId)] = player;
+      let key = this.wrapPictureId(params.pictureId);
+      this._playersMap[key] = player;
       this._ss6playersArray.push(player.ss6player);
-      if (this.isPictureLayer(pictureId)) {
+      if (this.isPictureLayer(params.pictureId)) {
         // showPicture(pictureId: number, name: string, origin: number, x: number, y: number, scaleX: number, scaleY: number, opacity: number, blendMode: number): void;
-        $gameScreen.showPicture(Number(pictureId), SSDUMMY, 0,
+        $gameScreen.showPicture(Number(params.pictureId), SSDUMMY, 0,
           player.x, player.y, player.scaleX, player.scaleY, player.opacity, player.blendMode);
       }
     }, this);
@@ -378,8 +389,12 @@ class SS6PFMVManager {
   Spriteset_Base_update(): void {
     for (let key in this._playersMap) {
       let player = this._playersMap[key];
-      if (this._container.children.indexOf(player.ss6player) < 0) {
-        this._container.addChild(player.ss6player);
+      if (player !== null &&  player.ss6player !== null && player.loadFinish() === true) {
+        if (player.ss6player.parent === null) {
+          let child = this._container.addChild(player.ss6player);
+          console.log("parent is this._container " + (child.parent !== this._container));
+          player.ss6player = child;
+        }
       }
     }
 
@@ -419,17 +434,17 @@ class SS6PFMVManager {
     if (!args[0] || !args[1] || !args[2]) {
       return;
     }
-    console.log("arg check pass");
+
     params.ssfbFilePath = args[0];
     if (!/\.ssbp.ssfb$/i.test(params.ssfbFilePath)) {
       params.ssfbFilePath += '.ssbp.ssfb';
     }
-    // params.pictureId = args[1];
     params.animePackName = args[1];
     params.animeName = args[2];
+    params.pictureId = args[3];
 
-    // args.slice(4, args.length).forEach(SSP4MV.processSsPlayerArgument, params);
-    // this.loadPlayer(params.pictureId, params.ssfbFilePath, params.animePackName, params.animeName);
+    args.slice(4, args.length).forEach(params.processSsPlayerArgument, params);
+    this.loadPlayer(params);
   }
 
   private processSsMove(args: string[]) {

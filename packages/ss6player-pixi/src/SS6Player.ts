@@ -3,7 +3,7 @@ import { SS6Project } from './SS6Project';
 
 export class SS6Player extends PIXI.Container {
   // Properties
-  private readonly ss6project: SS6Project;
+  private readonly _ss6project: SS6Project;
   private readonly fbObj: ss.ssfb.ProjectData;
   private readonly resources: PIXI.loaders.ResourceDictionary;
   private animation: number[] = [];
@@ -68,6 +68,10 @@ export class SS6Player extends PIXI.Container {
     return this._loops;
   }
 
+  public get ss6project(): SS6Project {
+    return this._ss6project;
+  }
+
   /**
    * SS6Player (extends PIXI.Container)
    * @constructor
@@ -81,9 +85,9 @@ export class SS6Player extends PIXI.Container {
     // extends PIXI.Container
     PIXI.Container.call(this);
 
-    this.ss6project = ss6project;
-    this.fbObj = this.ss6project.fbObj;
-    this.resources = this.ss6project.resources;
+    this._ss6project = ss6project;
+    this.fbObj = this._ss6project.fbObj;
+    this.resources = this._ss6project.resources;
     this.parentAlpha = 1.0;
 
     if (animePackName !== null && animeName !== null) {
@@ -1449,7 +1453,7 @@ export class SS6Player extends PIXI.Container {
    */
   private MakeCellPlayer(refname: string): SS6Player {
     const split = refname.split('/');
-    const ssp = new SS6Player(this.ss6project);
+    const ssp = new SS6Player(this._ss6project);
     ssp.Setup(split[0], split[1]);
     ssp.Play();
 
