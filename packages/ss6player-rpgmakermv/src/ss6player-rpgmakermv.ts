@@ -401,7 +401,7 @@ class SS6PFMVManager {
   Spriteset_Base_update(): void {
     for (let key in this._playersMap) {
       let player = this._playersMap[key];
-      if (player !== null &&  player.ss6player !== null && player.loadFinish() === true) {
+      if (player !== null && player.ss6player !== null && player.loadFinish() === true) {
         if (player.ss6player.parent === null) {
           let child = this._container.addChild(player.ss6player);
           console.log('parent is this._container ' + (child.parent !== this._container));
@@ -448,6 +448,7 @@ class SS6PFMVManager {
         return String.fromCharCode(tmpStr.charCodeAt(0) - 0xFEE0);
       }
     );
+    // tslint:disable-next-line
     return halfVal.replace(/”/g, '\"').replace(/’/g, "'").replace(/‘/g, '`').replace(/￥/g, '\\').replace(/　/g, ' ').replace(/〜/g, '~');
   }
 
