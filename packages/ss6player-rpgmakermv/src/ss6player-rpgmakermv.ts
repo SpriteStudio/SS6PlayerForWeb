@@ -36,6 +36,7 @@ enum SCENE_MARK {
 }
 
 class SS6PlayerForRPGMakerMVArguments {
+
   // ss6player plugin parameters
   public ssfbFilePath: string = '';
   public animePackName: string = '';
@@ -49,10 +50,8 @@ class SS6PlayerForRPGMakerMVArguments {
   public scaleX = 100;
   public scaleY = 100;
   public opacity = 255;
-  public blendMode = 0;
+  // public blendMode = 0;
   public speed = 1;
-
-  // plugin parameters
   public duration = 0;
   public waitForCompletion = false;
   public showInAllScene = false;
@@ -72,12 +71,13 @@ class SS6PlayerForRPGMakerMVArguments {
       return;
     }
     let param = val.split(':');
+
     switch (param[0].toUpperCase()) {
       case 'X':
         if ((/^v\[[0-9]+\]/i).test(param[1])) {
           let reg: RegExp = /^v\[([0-9]+)\]/i;
-          let result = reg.exec(param[1]);
-          this.x = $gameVariables.value(parseInt(result[1], 10));
+          let num: number = parseInt(reg.exec(param[1])[1], 10);
+          this.x = $gameVariables.value(num);
         } else {
           this.x = Number(param[1] || 0);
         }
@@ -85,8 +85,8 @@ class SS6PlayerForRPGMakerMVArguments {
       case 'Y':
         if ((/^v\[[0-9]+\]/i).test(param[1])) {
           let reg: RegExp = /^v\[([0-9]+)\]/i;
-          let result = reg.exec(param[1]);
-          this.y = $gameVariables.value(parseInt(result[1], 10));
+          let num: number = parseInt(reg.exec(param[1])[1], 10);
+          this.y = $gameVariables.value(num);
         } else {
           this.y = Number(param[1] || 0);
         }
@@ -95,15 +95,6 @@ class SS6PlayerForRPGMakerMVArguments {
       case 'LOOP':
       case 'REPEAT':
         this.loop = param[1].match(/^[0-9]+/) !== null ? Number(param[1].match(/^[0-9]+/)[0]) : 0;
-        break;
-      case 'アニメパック名':
-      case 'ANIMATIONPACKNAME':
-      case 'SSAE':
-        this.animePackName = String(param[1] || '');
-        break;
-      case 'アニメ名':
-      case 'ANIMATIONNAME':
-        this.animeName = String(param[1] || '');
         break;
       case '拡大率X':
       case 'SCALEX':
@@ -117,6 +108,7 @@ class SS6PlayerForRPGMakerMVArguments {
       case 'OPACITY':
         this.opacity = Math.min(255, Math.max(0, Number(param[1] || 255)));
         break;
+/*
       case '合成方法':
       case 'BLENDTYPE':
         switch (param[1].toUpperCase()) {
@@ -139,13 +131,17 @@ class SS6PlayerForRPGMakerMVArguments {
             break;
         }
         break;
+ */
       case '再生速度':
       case 'SPEED':
         this.speed = Math.min(10, Math.max(0.01, Number(param[1].match(/^[0-9]+/) !== null ? Number(param[1].match(/^[0-9]+/)[0]) : 100) / 100));
         break;
+  /*
       case 'フレーム':
       case 'FRAME':
         this.duration = Math.floor(Math.max(0, Number(param[1] || 0)));
+        break;
+   */
     }
   }
 }
@@ -233,7 +229,7 @@ class SS6PlayerForRPGMakerMV {
     this._scaleX = params.scaleX;
     this._scaleY = params.scaleY;
     this._opacity = params.opacity;
-    this._blendMode = params.blendMode;
+    // this._blendMode = params.blendMode;
     this._step = params.speed;
   }
 
@@ -272,7 +268,7 @@ class SS6PlayerForRPGMakerMV {
     this._targetScaleX = params.scaleX;
     this._targetScaleY = params.scaleY;
     this._targetOpacity = params.opacity;
-    this._blendMode = params.blendMode;
+    // this._blendMode = params.blendMode;
     this._duration = params.duration;
     this._loop = params.loop;
     this._step = params.speed;
@@ -309,7 +305,7 @@ class SS6PlayerForRPGMakerMV {
     params.scaleX = this._scaleX;
     params.scaleY = this._scaleY;
     params.opacity = this._opacity;
-    params.blendMode = this._blendMode;
+    // params.blendMode = this._blendMode;
     params.loop = this._loop;
     params.speed = this._step;
     return params;
@@ -323,7 +319,7 @@ class SS6PlayerForRPGMakerMV {
     params.scaleX = picture.scaleX();
     params.scaleY = picture.scaleY();
     params.opacity = picture.opacity();
-    params.blendMode = picture.blendMode();
+    // params.blendMode = picture.blendMode();
     params.loop = player._loop;
     params.speed = player._step;
     return params;
@@ -331,9 +327,25 @@ class SS6PlayerForRPGMakerMV {
 }
 
 class SS6PFMVManager {
+  animationDir: string = String(plugin_parameters['Animation File Path']
+    || plugin_parameters['アニメーションフォルダ']
+    || 'img/animations/ssfb')
+    + '/';
   private _playersMap: {[key: string]: SS6PlayerForRPGMakerMV} = {};
   private _ss6playersArray: SS6Player[] = [];
-  constructor() {
+  private waitForCompletion: boolean = false;
+  private showInAllScene: boolean = true;
+  private x: number;
+  private y: number;
+
+  private static instance: SS6PFMVManager;
+  private constructor() {
+  }
+  public static getInstance(): SS6PFMVManager {
+    if (!SS6PFMVManager.instance) {
+      SS6PFMVManager.instance = new SS6PFMVManager();
+    }
+    return SS6PFMVManager.instance;
   }
 
   loadPlayer(params: SS6PlayerForRPGMakerMVArguments) {
@@ -392,7 +404,7 @@ class SS6PFMVManager {
       if (player !== null &&  player.ss6player !== null && player.loadFinish() === true) {
         if (player.ss6player.parent === null) {
           let child = this._container.addChild(player.ss6player);
-          console.log("parent is this._container " + (child.parent !== this._container));
+          console.log('parent is this._container ' + (child.parent !== this._container));
           player.ss6player = child;
         }
       }
@@ -419,7 +431,7 @@ class SS6PFMVManager {
         break;
       case 'SS6アニメーション完了までウェイト':
       case 'WAITFORCOMPLETESS6ANIMATION':
-        this.processWaitforCompletion(args);
+        this.processWaitForCompletion(args);
         break;
       case 'SS6アニメーション停止':
       case 'STOPSS6ANIMATION':
@@ -428,8 +440,19 @@ class SS6PFMVManager {
     }
   }
 
+  // 全角英数字記号を半角へ変換
+  // http://jquery.nj-clucker.com/change-double-byte-to-half-width/
+  private toHalfWidth(strVal: string) {
+    let halfVal = strVal.replace(/[！-～]/g,
+      function(tmpStr) {
+        return String.fromCharCode(tmpStr.charCodeAt(0) - 0xFEE0);
+      }
+    );
+    return halfVal.replace(/”/g, '\"').replace(/’/g, "'").replace(/‘/g, '`').replace(/￥/g, '\\').replace(/　/g, ' ').replace(/〜/g, '~');
+  }
+
   private processSsPlay(args: string[]) {
-    console.log("processSsPlay args: " + args);
+    console.log('processSsPlay args: ' + args);
     let params = new SS6PlayerForRPGMakerMVArguments();
     if (!args[0] || !args[1] || !args[2]) {
       return;
@@ -451,7 +474,7 @@ class SS6PFMVManager {
 
   }
 
-  private processWaitforCompletion(args: string[]) {
+  private processWaitForCompletion(args: string[]) {
 
   }
 
@@ -462,16 +485,14 @@ class SS6PFMVManager {
   // ピクチャレイヤー上に描画するかどうか
   private isPictureLayer(pictureId: string) {
     // ラベル名が整数かつピクチャIDの範囲内に収まっているか
-    return !isNaN(Number(pictureId)) &&
-            Number(pictureId) > 0 && Number(pictureId) < $gameScreen.maxPictures();
+    return !isNaN(Number(pictureId)) && Number(pictureId) > 0 && Number(pictureId) < $gameScreen.maxPictures();
   }
 }
-let ss6pfmv = new SS6PFMVManager();
 
 let _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
 Game_Interpreter.prototype.pluginCommand = function(command, args) {
   _Game_Interpreter_pluginCommand.call(this, command, args);
-  ss6pfmv.pluginCommand(command, args);
+  SS6PFMVManager.getInstance().pluginCommand(command, args);
 };
 
 // 再生完了までウェイト
@@ -507,7 +528,7 @@ Game_Screen.prototype.erasePicture = function(pictureId) {
   _Game_Screen_erasePicture.call(this, pictureId);
 
   console.log('Game_Screen.prototype.erasePicture: pictureId: ' + pictureId);
-  ss6pfmv.removeSsPlayerByPictureId(String(pictureId));
+  SS6PFMVManager.getInstance().removeSsPlayerByPictureId(String(pictureId));
 };
 
 // SsPlayerのアップデート
@@ -562,7 +583,7 @@ let _Spriteset_Base_createUpperLayer = Spriteset_Base.prototype.createUpperLayer
 Spriteset_Base.prototype.createUpperLayer = function () {
   _Spriteset_Base_createUpperLayer.call(this);
 
-  let container = ss6pfmv.getSS6PlayerContainer();
+  let container = SS6PFMVManager.getInstance().getSS6PlayerContainer();
   this.addChild(container);
 };
 
@@ -571,5 +592,5 @@ let _Spriteset_Base_update = Spriteset_Base.prototype.update;
 Spriteset_Base.prototype.update = function () {
   _Spriteset_Base_update.call(this);
 
-  ss6pfmv.Spriteset_Base_update();
+  SS6PFMVManager.getInstance().Spriteset_Base_update();
 };
