@@ -32,10 +32,10 @@
     "docs": "typedoc --out ../../docs/ssfblib_api --target es6 --theme minimal --mode file src"
   },
   "dependencies": {
-    "flatbuffers": "^1.11.0"
+    "flatbuffers": "^1.12.0"
   },
   "devDependencies": {
-    "@types/flatbuffers": "^1.9.1",
+    "@types/flatbuffers": "^1.10.0",
     "typescript": "^3.6.4",
     "typedoc": "^0.15.0",
     "lodash.camelcase": "^4.3.0",
