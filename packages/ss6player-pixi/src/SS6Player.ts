@@ -195,6 +195,7 @@ export class SS6Player extends PIXI.Container {
             }
             if (this._loops === 0) this.isPlaying = false;
           }
+          this.resetLiveFrame();
         }
         // speed -
         if (this._currentFrame < this._startFrame) {
@@ -277,10 +278,7 @@ export class SS6Player extends PIXI.Container {
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
 
-    const layers = this.curAnimation.defaultDataLength();
-    for (let i = 0; i < layers; i++) {
-      this.liveFrame[i] = 0;
-    }
+    this.resetLiveFrame();
 
     this.SetFrameAnimation(this._currentFrame);
     if (this.HaveUserData(this._currentFrame)) {
@@ -924,7 +922,7 @@ export class SS6Player extends PIXI.Container {
 
           // 独立動作の場合
           if (independent === true) {
-            const delta = this.updateInterval * 0.1;
+            const delta = this.updateInterval * (1.0 / this.curAnimation.fps());
 
             this.liveFrame[ii] += delta;
             time = Math.floor(this.liveFrame[ii]);
@@ -1277,7 +1275,7 @@ export class SS6Player extends PIXI.Container {
 
     pos[4] += -data.rotationZ;
 
-    const rz = pos[4] * Math.PI / 180;
+    const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
     const x = pos[0];// * (data.size_X | 1);
@@ -1384,7 +1382,7 @@ export class SS6Player extends PIXI.Container {
     }
 
     pos[4] += -data.rotationZ;
-    const rz = (pos[4] * Math.PI) / 180;
+    const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
     const x = pos[0];
@@ -1505,5 +1503,12 @@ export class SS6Player extends PIXI.Container {
   private static GetDummyVerts(): Float32Array {
     let verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     return verts;
+  }
+
+  private resetLiveFrame() {
+    const layers = this.curAnimation.defaultDataLength();
+    for (let i = 0; i < layers; i++) {
+      this.liveFrame[i] = 0;
+    }
   }
 }
