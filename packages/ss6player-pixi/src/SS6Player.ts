@@ -276,15 +276,17 @@ export class SS6Player extends PIXI.Container {
     this.isPausing = false;
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
+
+    const layers = this.curAnimation.defaultDataLength();
+    for (let i = 0; i < layers; i++) {
+      this.liveFrame[i] = 0;
+    }
+
     this.SetFrameAnimation(this._currentFrame);
     if (this.HaveUserData(this._currentFrame)) {
       if (this.onUserDataCallback !== null) {
         this.onUserDataCallback(this.GetUserData(this._currentFrame));
       }
-    }
-    const layers = this.curAnimation.defaultDataLength();
-    for (let i = 0; i < layers; i++) {
-      this.liveFrame[i] = 0;
     }
   }
   /**
@@ -1275,14 +1277,21 @@ export class SS6Player extends PIXI.Container {
 
     pos[4] += -data.rotationZ;
 
+    const rz = pos[4] * Math.PI / 180;
+    const cos = Math.cos(rz);
+    const sin = Math.sin(rz);
+    const x = pos[0];// * (data.size_X | 1);
+    const y = pos[1];// * (data.size_Y | 1);
+
     pos[2] *= data.scaleX;
     pos[3] *= data.scaleY;
-    pos[0] += data.positionX;
-    pos[1] -= data.positionY;
+    pos[0] = (cos * x - sin * y) + data.positionX;
+    pos[1] = (sin * x + cos * y) - data.positionY;
 
     if (this.parentIndex[id] >= 0) {
       pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
     }
+
     return pos;
   }
 
@@ -1370,16 +1379,22 @@ export class SS6Player extends PIXI.Container {
   private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
     const data = this.GetFrameData(frameNumber)[id];
 
-    pos[4] += -data.rotationZ;
-    const rz = (pos[4] * Math.PI) / 180;
-    pos[2] *= data.scaleX;
-    pos[3] *= data.scaleY;
-    pos[0] += data.positionX;
-    pos[1] -= data.positionY;
-
     if (this.parentIndex[id] >= 0) {
       pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
     }
+
+    pos[4] += -data.rotationZ;
+    const rz = (pos[4] * Math.PI) / 180;
+    const cos = Math.cos(rz);
+    const sin = Math.sin(rz);
+    const x = pos[0];
+    const y = pos[1];
+
+    pos[2] *= data.scaleX;
+    pos[3] *= data.scaleY;
+    pos[0] = (cos * x - sin * y) + data.positionX;
+    pos[1] = (sin * x + cos * y) - data.positionY;
+
     return pos;
   }
 
