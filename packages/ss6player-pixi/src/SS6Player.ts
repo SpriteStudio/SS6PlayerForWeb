@@ -78,9 +78,6 @@ export class SS6Player extends PIXI.Container {
   public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
 
-    // extends PIXI.Container
-    PIXI.Container.call(this);
-
     this.ss6project = ss6project;
     this.fbObj = this.ss6project.fbObj;
     this.resources = this.ss6project.resources;
