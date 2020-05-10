@@ -42,29 +42,29 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "flatbuffers": "^1.11.0",
-    "pixi.js": "^4.8.8",
+    "flatbuffers": "^1.12.0",
+    "pixi.js": "^4.8.9",
     "ssfblib": "^1.0.0"
   },
   "devDependencies": {
-    "@types/flatbuffers": "^1.9.1",
+    "@types/flatbuffers": "^1.10.0",
     "@types/pixi.js": "^4.8.9",
     "concurrently": "^5.0.0",
-    "http-server": "^0.11.1",
+    "http-server": "^0.12.3",
     "lodash.camelcase": "^4.3.0",
     "opener": "^1.5.1",
-    "rimraf": "^3.0.0",
-    "rollup": "^1.25.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.8.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-license": "^0.12.1",
+    "rollup-plugin-license": "^2.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "tslint": "^5.20.0",
-    "tslint-config-standard": "^8.0.1",
-    "typedoc": "^0.15.0",
-    "typescript": "^3.6.4"
+    "rollup-plugin-sourcemaps": "^0.6.2",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "tslint": "^6.1.2",
+    "tslint-config-standard": "^9.0.0",
+    "typedoc": "^0.17.6",
+    "typescript": "^3.8.3"
   }
 }
