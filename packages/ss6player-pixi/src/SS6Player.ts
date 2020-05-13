@@ -192,7 +192,6 @@ export class SS6Player extends PIXI.Container {
             }
             if (this._loops === 0) this.isPlaying = false;
           }
-          this.resetLiveFrame();
         }
         // speed -
         if (this._currentFrame < this._startFrame) {
