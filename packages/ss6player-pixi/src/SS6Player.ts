@@ -1373,10 +1373,6 @@ export class SS6Player extends PIXI.Container {
   private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
     const data = this.GetFrameData(frameNumber)[id];
 
-    if (this.parentIndex[id] >= 0) {
-      pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-    }
-
     pos[4] += -data.rotationZ;
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
@@ -1388,6 +1384,10 @@ export class SS6Player extends PIXI.Container {
     pos[3] *= data.scaleY;
     pos[0] = (cos * x - sin * y) + data.positionX;
     pos[1] = (sin * x + cos * y) - data.positionY;
+
+    if (this.parentIndex[id] >= 0) {
+      pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
+    }
 
     return pos;
   }
