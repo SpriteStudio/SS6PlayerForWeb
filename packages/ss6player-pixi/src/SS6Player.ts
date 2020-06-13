@@ -1075,15 +1075,14 @@ export class SS6Player extends PIXI.Container {
             mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
           }
 
-          let pivot: PIXI.Point;
-          if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
-            pivot = new PIXI.Point(0, 0);
-          } else {
-            pivot = this.GetPivot(verts, cellID);
-          }
           //
-          mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-          mesh.scale.set(data.localscaleX, data.localscaleY);
+          if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
+            mesh.position.set(px, py);
+          } else {
+            const pivot = this.GetPivot(verts, cellID);
+            mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
+            mesh.scale.set(data.localscaleX, data.localscaleY);
+          }
           //
           // 小西: 256指定と1.0指定が混在していたので統一
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
