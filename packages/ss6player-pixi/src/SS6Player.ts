@@ -627,7 +627,7 @@ export class SS6Player extends PIXI.Container {
         // mesh [1]
         fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
         fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-        const mp = new Float32Array(fd.meshNum * 3);
+        let mp = new Float32Array(fd.meshNum * 3);
 
         for (let idx = 0; idx < fd.meshNum; idx++) {
           const mx = this.I2F(curPartState.data(id++));
@@ -977,7 +977,7 @@ export class SS6Player extends PIXI.Container {
           mesh.SetFrame(Math.floor(_time));
           mesh.Pause();
           this.addChild(mesh);
-          continue;
+          break;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
         case ss.ssfb.SsPartType.Normal:
@@ -1075,7 +1075,12 @@ export class SS6Player extends PIXI.Container {
             mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
           }
 
-          const pivot = this.GetPivot(verts, cellID);
+          let pivot: PIXI.Point;
+          if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
+            pivot = new PIXI.Point(0, 0);
+          } else {
+            pivot = this.GetPivot(verts, cellID);
+          }
           //
           mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
           mesh.scale.set(data.localscaleX, data.localscaleY);
