@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js'
+import * as PIXI from 'pixi.js';
 import { flatbuffers } from 'flatbuffers';
 import { ss } from 'ssfblib';
 
