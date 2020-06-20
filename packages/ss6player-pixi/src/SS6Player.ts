@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js'
 import { ss } from 'ssfblib';
 import { SS6Project } from './SS6Project';
 
@@ -5,7 +6,7 @@ export class SS6Player extends PIXI.Container {
   // Properties
   private readonly ss6project: SS6Project;
   private readonly fbObj: ss.ssfb.ProjectData;
-  private readonly resources: PIXI.loaders.ResourceDictionary;
+  private readonly resources: Partial<Record<string, PIXI.LoaderResource>>;
   private animation: number[] = [];
   private curAnimation: ss.ssfb.AnimationData = null;
   private parts: number = -1;
@@ -23,7 +24,7 @@ export class SS6Player extends PIXI.Container {
   //
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
-  private prevMesh: (SS6Player | PIXI.mesh.Mesh)[] = [];
+  private prevMesh: (SS6Player | PIXI.SimpleMesh)[] = [];
 
   private alphaBlendType: number[] = [];
   private isPlaying: boolean;
@@ -89,7 +90,7 @@ export class SS6Player extends PIXI.Container {
 
     // Ticker
     this.pastTime = 0;
-    PIXI.ticker.shared.add(this.Update, this);
+    PIXI.Ticker.shared.add(this.Update, this);
   }
 
   /**
@@ -1401,7 +1402,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} id - セルID
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
-  private MakeCellMesh(id: number): PIXI.mesh.Mesh {
+  private MakeCellMesh(id: number): PIXI.SimpleMesh {
     const cell = this.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
@@ -1412,8 +1413,8 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.mesh.Mesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-    mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
+    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+    mesh.drawMode = 4;
     return mesh;
   }
 
@@ -1423,7 +1424,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} cellID - セルID
    * @return {PIXI.mesh.Mesh} - メッシュ
    */
-  private MakeMeshCellMesh(partID: number, cellID: number): PIXI.mesh.Mesh {
+  private MakeMeshCellMesh(partID: number, cellID: number): PIXI.SimpleMesh {
     const meshsDataUV = this.curAnimation.meshsDataUV(partID);
     const uvLength = meshsDataUV.uvLength();
 
@@ -1447,8 +1448,8 @@ export class SS6Player extends PIXI.Container {
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.mesh.Mesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-      mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
+      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+      mesh.drawMode = 4;
       return mesh;
     }
 
