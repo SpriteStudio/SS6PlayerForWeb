@@ -7444,7 +7444,7 @@
       /**
        * 矩形セルをメッシュ（5verts4Tri）で作成
        * @param {number} id - セルID
-       * @return {PIXI.mesh.Mesh} - メッシュ
+       * @return {PIXI.SimpleMesh} - メッシュ
        */
       SS6Player.prototype.MakeCellMesh = function (id) {
           var cell = this.fbObj.cells(id);
@@ -7458,14 +7458,14 @@
           var uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
           var indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
           var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-          mesh.drawMode = 4;
+          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
           return mesh;
       };
       /**
        * メッシュセルからメッシュを作成
        * @param {number} partID - パーツID
        * @param {number} cellID - セルID
-       * @return {PIXI.mesh.Mesh} - メッシュ
+       * @return {PIXI.SimpleMesh} - メッシュ
        */
       SS6Player.prototype.MakeMeshCellMesh = function (partID, cellID) {
           var meshsDataUV = this.curAnimation.meshsDataUV(partID);
@@ -7486,7 +7486,7 @@
               }
               var verts = new Float32Array(num * 2); // Zは必要ない？
               var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-              mesh.drawMode = 4;
+              mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
               return mesh;
           }
           return null;

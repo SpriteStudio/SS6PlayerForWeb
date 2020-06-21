@@ -1400,7 +1400,7 @@ export class SS6Player extends PIXI.Container {
   /**
    * 矩形セルをメッシュ（5verts4Tri）で作成
    * @param {number} id - セルID
-   * @return {PIXI.mesh.Mesh} - メッシュ
+   * @return {PIXI.SimpleMesh} - メッシュ
    */
   private MakeCellMesh(id: number): PIXI.SimpleMesh {
     const cell = this.fbObj.cells(id);
@@ -1414,7 +1414,7 @@ export class SS6Player extends PIXI.Container {
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
     const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-    mesh.drawMode = 4;
+    mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
     return mesh;
   }
 
@@ -1422,7 +1422,7 @@ export class SS6Player extends PIXI.Container {
    * メッシュセルからメッシュを作成
    * @param {number} partID - パーツID
    * @param {number} cellID - セルID
-   * @return {PIXI.mesh.Mesh} - メッシュ
+   * @return {PIXI.SimpleMesh} - メッシュ
    */
   private MakeMeshCellMesh(partID: number, cellID: number): PIXI.SimpleMesh {
     const meshsDataUV = this.curAnimation.meshsDataUV(partID);
@@ -1449,7 +1449,7 @@ export class SS6Player extends PIXI.Container {
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
       const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-      mesh.drawMode = 4;
+      mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
       return mesh;
     }
 
