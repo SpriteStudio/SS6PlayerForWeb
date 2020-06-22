@@ -23,7 +23,7 @@
     "lint": "lerna run lint",
     "test": "lerna run test",
     "docs": "lerna run docs",
-    "dist": "npm run build && npm run docs",
+    "dist": "npm run build && npm run docs && npx ncp packages/ss6player-pixi/dist/ss6player-pixi.umd.js ./docs/Player/ss6player-pixi.umd.js",
     "view": "lerna run view --scope=ss6player-pixi"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
     "tslint": "^6.1.2",
     "tslint-config-standard": "^9.0.0",
     "typedoc": "^0.17.7",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "ncp": "^2.0.0"
   }
 }
