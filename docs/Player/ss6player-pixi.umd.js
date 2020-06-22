@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Web v1.1.0
+ * SS6Player For Web v1.2.0
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -11,7 +11,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.ss6PlayerPixi = {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   /// @file
   /// @addtogroup flatbuffers_javascript_api
@@ -49,6 +49,12 @@
    * @const
    */
   flatbuffers.FILE_IDENTIFIER_LENGTH = 4;
+
+  /**
+   * @type {number}
+   * @const
+   */
+  flatbuffers.SIZE_PREFIX_LENGTH = 4;
 
   /**
    * @enum {number}
@@ -106,7 +112,7 @@
   /**
    * @param {number} low
    * @param {number} high
-   * @returns {flatbuffers.Long}
+   * @returns {!flatbuffers.Long}
    */
   flatbuffers.Long.create = function(low, high) {
     // Special-case zero to avoid GC overhead for default values
@@ -129,7 +135,7 @@
   };
 
   /**
-   * @type {flatbuffers.Long}
+   * @type {!flatbuffers.Long}
    * @const
    */
   flatbuffers.Long.ZERO = new flatbuffers.Long(0, 0);
@@ -267,7 +273,7 @@
    * Get the bytes representing the FlatBuffer. Only call this after you've
    * called finish().
    *
-   * @returns {Uint8Array}
+   * @returns {!Uint8Array}
    */
   flatbuffers.Builder.prototype.asUint8Array = function() {
     return this.bb.bytes().subarray(this.bb.position(), this.bb.position() + this.offset());
@@ -552,7 +558,7 @@
    * the end of the new buffer (since we build the buffer backwards).
    *
    * @param {flatbuffers.ByteBuffer} bb The current buffer with the existing data
-   * @returns {flatbuffers.ByteBuffer} A new byte buffer with the old data copied
+   * @returns {!flatbuffers.ByteBuffer} A new byte buffer with the old data copied
    * to it. The data is located at the end of the buffer.
    *
    * uint8Array.set() formally takes {Array<number>|ArrayBufferView}, so to pass
@@ -678,12 +684,14 @@
    *
    * @param {flatbuffers.Offset} root_table
    * @param {string=} opt_file_identifier
+   * @param {boolean=} opt_size_prefix
    */
-  flatbuffers.Builder.prototype.finish = function(root_table, opt_file_identifier) {
+  flatbuffers.Builder.prototype.finish = function(root_table, opt_file_identifier, opt_size_prefix) {
+    var size_prefix = opt_size_prefix ? flatbuffers.SIZE_PREFIX_LENGTH : 0;
     if (opt_file_identifier) {
       var file_identifier = opt_file_identifier;
       this.prep(this.minalign, flatbuffers.SIZEOF_INT +
-        flatbuffers.FILE_IDENTIFIER_LENGTH);
+        flatbuffers.FILE_IDENTIFIER_LENGTH + size_prefix);
       if (file_identifier.length != flatbuffers.FILE_IDENTIFIER_LENGTH) {
         throw new Error('FlatBuffers: file identifier must be length ' +
           flatbuffers.FILE_IDENTIFIER_LENGTH);
@@ -692,9 +700,22 @@
         this.writeInt8(file_identifier.charCodeAt(i));
       }
     }
-    this.prep(this.minalign, flatbuffers.SIZEOF_INT);
+    this.prep(this.minalign, flatbuffers.SIZEOF_INT + size_prefix);
     this.addOffset(root_table);
+    if (size_prefix) {
+      this.addInt32(this.bb.capacity() - this.space);
+    }
     this.bb.setPosition(this.space);
+  };
+
+  /**
+   * Finalize a size prefixed buffer, pointing to the given `root_table`.
+   *
+   * @param {flatbuffers.Offset} root_table
+   * @param {string=} opt_file_identifier
+   */
+  flatbuffers.Builder.prototype.finishSizePrefixed = function (root_table, opt_file_identifier) {
+    this.finish(root_table, opt_file_identifier, true);
   };
 
   /// @cond FLATBUFFERS_INTERNAL
@@ -806,7 +827,7 @@
    *
    * @param {number} low
    * @param {number} high
-   * @returns {flatbuffers.Long}
+   * @returns {!flatbuffers.Long}
    */
   flatbuffers.Builder.prototype.createLong = function(low, high) {
     return flatbuffers.Long.create(low, high);
@@ -837,7 +858,7 @@
    * Create and allocate a new ByteBuffer with a given size.
    *
    * @param {number} byte_size
-   * @returns {flatbuffers.ByteBuffer}
+   * @returns {!flatbuffers.ByteBuffer}
    */
   flatbuffers.ByteBuffer.allocate = function(byte_size) {
     return new flatbuffers.ByteBuffer(new Uint8Array(byte_size));
@@ -933,7 +954,7 @@
 
   /**
    * @param {number} offset
-   * @returns {flatbuffers.Long}
+   * @returns {!flatbuffers.Long}
    */
   flatbuffers.ByteBuffer.prototype.readInt64 = function(offset) {
     return new flatbuffers.Long(this.readInt32(offset), this.readInt32(offset + 4));
@@ -941,7 +962,7 @@
 
   /**
    * @param {number} offset
-   * @returns {flatbuffers.Long}
+   * @returns {!flatbuffers.Long}
    */
   flatbuffers.ByteBuffer.prototype.readUint64 = function(offset) {
     return new flatbuffers.Long(this.readUint32(offset), this.readUint32(offset + 4));
@@ -1116,7 +1137,7 @@
    *
    * @param {number} offset
    * @param {flatbuffers.Encoding=} opt_encoding Defaults to UTF16_STRING
-   * @returns {string|Uint8Array}
+   * @returns {string|!Uint8Array}
    */
   flatbuffers.ByteBuffer.prototype.__string = function(offset, opt_encoding) {
     offset += this.readInt32(offset);
@@ -1227,7 +1248,7 @@
    *
    * @param {number} low
    * @param {number} high
-   * @returns {flatbuffers.Long}
+   * @returns {!flatbuffers.Long}
    */
   flatbuffers.ByteBuffer.prototype.createLong = function(low, high) {
     return flatbuffers.Long.create(low, high);
@@ -6048,18 +6069,18 @@
   }());
 
   /*! *****************************************************************************
-  Copyright (c) Microsoft Corporation. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
+  Copyright (c) Microsoft Corporation.
 
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted.
 
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** */
   /* global Reflect, Promise */
 
@@ -6109,8 +6130,6 @@
           _this._uint32 = new Uint32Array(1);
           _this._float32 = new Float32Array(_this._uint32.buffer);
           _this.defaultColorFilter = new PIXI.filters.ColorMatrixFilter();
-          // extends PIXI.Container
-          PIXI.Container.call(_this);
           _this.ss6project = ss6project;
           _this.fbObj = _this.ss6project.fbObj;
           _this.resources = _this.ss6project.resources;
@@ -6127,35 +6146,35 @@
           get: function () {
               return this._startFrame;
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       Object.defineProperty(SS6Player.prototype, "endFrame", {
           get: function () {
               return this.curAnimation.endFrames();
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       Object.defineProperty(SS6Player.prototype, "totalFrame", {
           get: function () {
               return this.curAnimation.totalFrames();
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       Object.defineProperty(SS6Player.prototype, "fps", {
           get: function () {
               return this.curAnimation.fps();
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       Object.defineProperty(SS6Player.prototype, "frameNo", {
           get: function () {
               return this._currentFrame;
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       Object.defineProperty(SS6Player.prototype, "loop", {
@@ -6165,7 +6184,7 @@
           set: function (loop) {
               this._loops = loop;
           },
-          enumerable: true,
+          enumerable: false,
           configurable: true
       });
       /**
@@ -6174,6 +6193,7 @@
        * @param {string} animeName - The name of animation.
        */
       SS6Player.prototype.Setup = function (animePackName, animeName) {
+          this.clearCaches();
           var animePacksLength = this.fbObj.animePacksLength();
           for (var i = 0; i < animePacksLength; i++) {
               if (this.fbObj.animePacks(i).name() === animePackName) {
@@ -6222,6 +6242,16 @@
           this.playDirection = 1; // forward
           this.onUserDataCallback = null;
           this.playEndCallback = null;
+          this.parentAlpha = 1.0;
+      };
+      SS6Player.prototype.clearCaches = function () {
+          this.prio2index = [];
+          this.userData = [];
+          this.frameDataCache = [];
+          this.currentCachedFrameNumber = -1;
+          this.liveFrame = [];
+          this.colorMatrixFilterCache = [];
+          this.defaultFrameMap = [];
       };
       /**
        * Update is called PIXI.ticker
@@ -6337,15 +6367,12 @@
           this.isPausing = false;
           this._currentFrame = this._startFrame;
           this.pastTime = Date.now();
+          this.resetLiveFrame();
           this.SetFrameAnimation(this._currentFrame);
           if (this.HaveUserData(this._currentFrame)) {
               if (this.onUserDataCallback !== null) {
                   this.onUserDataCallback(this.GetUserData(this._currentFrame));
               }
-          }
-          var layers = this.curAnimation.defaultDataLength();
-          for (var i = 0; i < layers; i++) {
-              this.liveFrame[i] = 0;
           }
       };
       /**
@@ -6973,7 +7000,7 @@
                       var time = frameNumber;
                       // 独立動作の場合
                       if (independent === true) {
-                          var delta = this.updateInterval * 0.1;
+                          var delta = this.updateInterval * (1.0 / this.curAnimation.fps());
                           this.liveFrame[ii] += delta;
                           time = Math.floor(this.liveFrame[ii]);
                       }
@@ -7026,7 +7053,7 @@
                       mesh.SetFrame(Math.floor(_time));
                       mesh.Pause();
                       this.addChild(mesh);
-                      continue;
+                      break;
                   }
                   //  Instance以外の通常のMeshと空のContainerで処理分岐
                   case ss.ssfb.SsPartType.Normal:
@@ -7116,10 +7143,15 @@
                           }
                           mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
                       }
-                      var pivot = this.GetPivot(verts, cellID);
                       //
-                      mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-                      mesh.scale.set(data.localscaleX, data.localscaleY);
+                      if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
+                          mesh.position.set(px, py);
+                      }
+                      else {
+                          var pivot = this.GetPivot(verts, cellID);
+                          mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
+                          mesh.scale.set(data.localscaleX, data.localscaleY);
+                      }
                       //
                       // 小西: 256指定と1.0指定が混在していたので統一
                       var opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
@@ -7304,10 +7336,15 @@
       SS6Player.prototype.TransformPositionLocal = function (pos, id, frameNumber) {
           var data = this.GetFrameData(frameNumber)[id];
           pos[4] += -data.rotationZ;
+          var rz = (-data.rotationZ * Math.PI) / 180;
+          var cos = Math.cos(rz);
+          var sin = Math.sin(rz);
+          var x = pos[0]; // * (data.size_X | 1);
+          var y = pos[1]; // * (data.size_Y | 1);
           pos[2] *= data.scaleX;
           pos[3] *= data.scaleY;
-          pos[0] += data.positionX;
-          pos[1] -= data.positionY;
+          pos[0] = (cos * x - sin * y) + data.positionX;
+          pos[1] = (sin * x + cos * y) - data.positionY;
           if (this.parentIndex[id] >= 0) {
               pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
           }
@@ -7390,11 +7427,15 @@
       SS6Player.prototype.TransformPosition = function (pos, id, frameNumber) {
           var data = this.GetFrameData(frameNumber)[id];
           pos[4] += -data.rotationZ;
-          var rz = (pos[4] * Math.PI) / 180;
+          var rz = (-data.rotationZ * Math.PI) / 180;
+          var cos = Math.cos(rz);
+          var sin = Math.sin(rz);
+          var x = pos[0];
+          var y = pos[1];
           pos[2] *= data.scaleX;
           pos[3] *= data.scaleY;
-          pos[0] += data.positionX;
-          pos[1] -= data.positionY;
+          pos[0] = (cos * x - sin * y) + data.positionX;
+          pos[1] = (sin * x + cos * y) - data.positionY;
           if (this.parentIndex[id] >= 0) {
               pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
           }
@@ -7495,6 +7536,12 @@
           var verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
           return verts;
       };
+      SS6Player.prototype.resetLiveFrame = function () {
+          var layers = this.curAnimation.defaultDataLength();
+          for (var i = 0; i < layers; i++) {
+              this.liveFrame[i] = 0;
+          }
+      };
       return SS6Player;
   }(PIXI.Container));
 
@@ -7503,5 +7550,5 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=ss6player-pixi.umd.js.map
