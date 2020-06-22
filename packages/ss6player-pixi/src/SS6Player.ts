@@ -75,33 +75,17 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
-  public constructor(ss6project: SS6Project, animePackName: string, animeName: string) {
+  public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
-
-    // extends PIXI.Container
-    PIXI.Container.call(this);
 
     this.ss6project = ss6project;
     this.fbObj = this.ss6project.fbObj;
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
-    this.Setup(animePackName, animeName);
-
-    this.alphaBlendType = this.GetPartsBlendMode();
-
-    this.isPlaying = false;
-    this.isPausing = true;
-    this._startFrame = this.curAnimation.startFrames();
-    this._endFrame = this.curAnimation.endFrames();
-    this._currentFrame = this.curAnimation.startFrames();
-    this.nextFrameTime = 0;
-    this._loops = -1;
-    this.skipEnabled = false;
-    this.updateInterval = 1000 / this.curAnimation.fps();
-    this.playDirection = 1; // forward
-    this.onUserDataCallback = null;
-    this.playEndCallback = null;
+    if (animePackName !== null && animeName !== null) {
+      this.Setup(animePackName, animeName);
+    }
 
     // Ticker
     this.pastTime = 0;
@@ -114,6 +98,7 @@ export class SS6Player extends PIXI.Container {
    * @param {string} animeName - The name of animation.
    */
   public Setup(animePackName: string, animeName: string): void {
+    this.clearCaches();
     const animePacksLength = this.fbObj.animePacksLength();
     for (let i = 0; i < animePacksLength; i++) {
       if (this.fbObj.animePacks(i).name() === animePackName) {
@@ -150,6 +135,33 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+
+    // 各アニメーションステータスを初期化
+    this.alphaBlendType = this.GetPartsBlendMode();
+
+    this.isPlaying = false;
+    this.isPausing = true;
+    this._startFrame = this.curAnimation.startFrames();
+    this._endFrame = this.curAnimation.endFrames();
+    this._currentFrame = this.curAnimation.startFrames();
+    this.nextFrameTime = 0;
+    this._loops = -1;
+    this.skipEnabled = false;
+    this.updateInterval = 1000 / this.curAnimation.fps();
+    this.playDirection = 1; // forward
+    this.onUserDataCallback = null;
+    this.playEndCallback = null;
+    this.parentAlpha = 1.0;
+  }
+
+  private clearCaches() {
+    this.prio2index = [];
+    this.userData = [];
+    this.frameDataCache = [];
+    this.currentCachedFrameNumber = -1;
+    this.liveFrame = [];
+    this.colorMatrixFilterCache = [];
+    this.defaultFrameMap = [];
   }
 
   /**
@@ -261,15 +273,14 @@ export class SS6Player extends PIXI.Container {
     this.isPausing = false;
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
+
+    this.resetLiveFrame();
+
     this.SetFrameAnimation(this._currentFrame);
     if (this.HaveUserData(this._currentFrame)) {
       if (this.onUserDataCallback !== null) {
         this.onUserDataCallback(this.GetUserData(this._currentFrame));
       }
-    }
-    const layers = this.curAnimation.defaultDataLength();
-    for (let i = 0; i < layers; i++) {
-      this.liveFrame[i] = 0;
     }
   }
   /**
@@ -486,53 +497,40 @@ export class SS6Player extends PIXI.Container {
       let blendType = -1;
       let fd = this.GetDefaultDataByIndex(index);
       // データにフラグを追加する
-      fd.flag1L = f1 & 0x0000ffff;
-      fd.flag1H = f1 >>> 16;
-      fd.flag2L = f2 & 0x0000ffff;
-      fd.flag2H = f2 >>> 16;
-
-      // フラグによってid（バイナリ内の参照位置を）をインクリメントしていくので、
-      // 途中でデータがおかしい（ずれるとindexの値が巨大になる）場合はおかしくなる前のフラグを見て
-      // そのアトリビュートの解析でidが正しく消費されているかを確認する
-      //        console.log("[flag1L:%d, i=%d", fd.flag1L, i);
-      //        console.log("[flag1H:%d, i=%d", fd.flag1H, i);
-      //        console.log("[flag2L:%d, i=%d", fd.flag2L, i);
-      //        console.log("[flag2H:%d, i=%d", fd.flag2H, i);
+      fd.flag1 = f1;
+      fd.flag2 = f2;
 
       let id = 0;
-
-      if (f1 & 0b0000000000000001) fd.f_hide = true;
-      if (f1 & 0b0000000000000010) fd.f_flipH = true;
-      if (f1 & 0b0000000000000100) fd.f_flipV = true;
-      if (f1 & 0b0000000000001000) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-      if (f1 & 0b0000000000010000) fd.positionX = this.I2F(curPartState.data(id++));
-      if (f1 & 0b0000000000100000) fd.positionY = this.I2F(curPartState.data(id++));
-      if (f1 & 0b0000000001000000) id++; // 64
-      if (f1 & 0b0000000010000000) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
-      if (f1 & 0b0000000100000000) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
-      if (f1 & 0b0000001000000000) id++; // 512
-      if (f1 & 0b0000010000000000) id++; // 1024
-      if (f1 & 0b0000100000000000) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
-      if (f1 & 0b0001000000000000) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
-      if (f1 & 0b0010000000000000) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
-      if (f1 & 0b0100000000000000) fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
-      if (f1 & 0b1000000000000000) fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
-      f1 = f1 >>> 16;
-      if (f1 & 0b0000000000000001) fd.opacity = curPartState.data(id++); // 65536
-      if (f1 & 0b0000000000000010) fd.localopacity = curPartState.data(id++); // 131072
+      if (f1 & ss.ssfb.PART_FLAG.INVISIBLE) fd.f_hide = true;
+      if (f1 & ss.ssfb.PART_FLAG.FLIP_H) fd.f_flipH = true;
+      if (f1 & ss.ssfb.PART_FLAG.FLIP_V) fd.f_flipV = true;
+      if (f1 & ss.ssfb.PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
+      if (f1 & ss.ssfb.PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
+      if (f1 & ss.ssfb.PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
+      if (f1 & ss.ssfb.PART_FLAG.POSITION_Z) id++; // 64
+      if (f1 & ss.ssfb.PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
+      if (f1 & ss.ssfb.PART_FLAG.PIVOT_Y) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
+      if (f1 & ss.ssfb.PART_FLAG.ROTATIONX) id++; // 512
+      if (f1 & ss.ssfb.PART_FLAG.ROTATIONY) id++; // 1024
+      if (f1 & ss.ssfb.PART_FLAG.ROTATIONZ) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
+      if (f1 & ss.ssfb.PART_FLAG.SCALE_X) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
+      if (f1 & ss.ssfb.PART_FLAG.SCALE_Y) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
+      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_X) fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
+      if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_Y) fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
+      if (f1 & ss.ssfb.PART_FLAG.OPACITY) fd.opacity = curPartState.data(id++); // 65536
+      if (f1 & ss.ssfb.PART_FLAG.LOCALOPACITY) fd.localopacity = curPartState.data(id++); // 131072
+      if (f1 & ss.ssfb.PART_FLAG.SIZE_X) fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
+      if (f1 & ss.ssfb.PART_FLAG.SIZE_Y) fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
+      if (f1 & ss.ssfb.PART_FLAG.U_MOVE) fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
+      if (f1 & ss.ssfb.PART_FLAG.V_MOVE) fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
+      if (f1 & ss.ssfb.PART_FLAG.UV_ROTATION) fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
+      if (f1 & ss.ssfb.PART_FLAG.U_SCALE) fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
+      if (f1 & ss.ssfb.PART_FLAG.V_SCALE) fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
+      if (f1 & ss.ssfb.PART_FLAG.BOUNDINGRADIUS) id++; // 134217728 boundingRadius
+      if (f1 & ss.ssfb.PART_FLAG.MASK) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
+      if (f1 & ss.ssfb.PART_FLAG.PRIORITY) fd.priority = curPartState.data(id++); // 536870912 priority
       //
-      if (f1 & 0b0000000000010000) fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
-      if (f1 & 0b0000000000100000) fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
-      if (f1 & 0b0000000001000000) fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
-      if (f1 & 0b0000000010000000) fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
-      if (f1 & 0b0000000100000000) fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
-      if (f1 & 0b0000001000000000) fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
-      if (f1 & 0b0000010000000000) fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
-      if (f1 & 0b0000100000000000) id++; // 134217728 boundingRadius
-      if (f1 & 0b0001000000000000) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
-      if (f1 & 0b0010000000000000) fd.priority = curPartState.data(id++); // 536870912 priority
-      //
-      if (f1 & 0b0100000000000000) {
+      if (f1 & ss.ssfb.PART_FLAG.INSTANCE_KEYFRAME) {
         // 1073741824 instance keyframe
         fd.instanceValue_curKeyframe = curPartState.data(id++);
         fd.instanceValue_startFrame = curPartState.data(id++);
@@ -541,14 +539,14 @@ export class SS6Player extends PIXI.Container {
         fd.instanceValue_speed = this.I2F(curPartState.data(id++));
         fd.instanceValue_loopflag = curPartState.data(id++);
       }
-      if (f1 & 0b1000000000000000) {
+      if (f1 & ss.ssfb.PART_FLAG.EFFECT_KEYFRAME) {
         // 2147483648 effect keyframe
         fd.effectValue_curKeyframe = curPartState.data(id++);
         fd.effectValue_startTime = curPartState.data(id++);
         fd.effectValue_speed = this.I2F(curPartState.data(id++));
         fd.effectValue_loopflag = curPartState.data(id++);
       }
-      if (f1 & 0b0000000000001000) {
+      if (f1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
         // 524288 verts [4]
         // verts
         fd.f_mesh = true;
@@ -571,7 +569,7 @@ export class SS6Player extends PIXI.Container {
         }
       }
 
-      if (f1 & 0b0000000000000100) {
+      if (f1 & ss.ssfb.PART_FLAG.PARTS_COLOR) {
         // 262144 parts color [3]
         const f = curPartState.data(id++);
         blendType = f & 0xff;
@@ -625,11 +623,11 @@ export class SS6Player extends PIXI.Container {
           fd.colorMatrix = this.defaultColorFilter; // TODO
         }
       }
-      if (f2 & 0b0000000000000001) {
+      if (f2 & ss.ssfb.PART_FLAG2.MESHDATA) {
         // mesh [1]
         fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
         fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-        const mp = new Float32Array(fd.meshNum * 3);
+        let mp = new Float32Array(fd.meshNum * 3);
 
         for (let idx = 0; idx < fd.meshNum; idx++) {
           const mx = this.I2F(curPartState.data(id++));
@@ -784,10 +782,8 @@ export class SS6Player extends PIXI.Container {
       meshNum: 0,
       meshDataPoint: 0,
       //
-      flag1L: 0,
-      flag1H: 0,
-      flag2L: 0,
-      flag2H: 0,
+      flag1: 0,
+      flag2: 0,
 
       partsColorARGB: 0
     };
@@ -802,15 +798,6 @@ export class SS6Player extends PIXI.Container {
   private SetFrameAnimation(frameNumber: number): void {
     const fd = this.GetFrameData(frameNumber);
     this.removeChildren();
-
-    let prevtype = -1; // prev parttype
-
-    const TYPE_NORMAL = 1; // パーツ種別: 通常
-    const TYPE_NULL = 0; // パーツ種別: NULL
-    const TYPE_MASK = 9; // パーツ種別: マスク
-    const TYPE_INSTANCE = 3; // パーツ種別: インスタンス
-    const TYPE_MESH = 6; // パーツ種別: MESH
-    const TYPE_JOINT = 10; // パーツ種別: JOINT
 
     // 優先度順パーツ単位ループ
     const l = fd.length;
@@ -829,26 +816,26 @@ export class SS6Player extends PIXI.Container {
 
       // 処理分岐処理
       switch (partType) {
-        case TYPE_INSTANCE:
+        case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
           }
           break;
-        case TYPE_NORMAL:
-        case TYPE_MASK:
+        case ss.ssfb.SsPartType.Normal:
+        case ss.ssfb.SsPartType.Mask:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
           }
           break;
-        case TYPE_MESH:
+        case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
           }
           break;
-        case TYPE_NULL:
-        case TYPE_JOINT:
+        case ss.ssfb.SsPartType.Nulltype:
+        case ss.ssfb.SsPartType.Joint:
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
@@ -871,7 +858,7 @@ export class SS6Player extends PIXI.Container {
 
       // 描画関係処理
       switch (partType) {
-        case TYPE_INSTANCE: {
+        case ss.ssfb.SsPartType.Instance: {
           // インスタンスパーツのアップデート
           let pos = new Float32Array(5);
           pos[0] = 0; // pos x
@@ -931,7 +918,7 @@ export class SS6Player extends PIXI.Container {
 
           // 独立動作の場合
           if (independent === true) {
-            const delta = this.updateInterval * 0.1;
+            const delta = this.updateInterval * (1.0 / this.curAnimation.fps());
 
             this.liveFrame[ii] += delta;
             time = Math.floor(this.liveFrame[ii]);
@@ -990,15 +977,15 @@ export class SS6Player extends PIXI.Container {
           mesh.SetFrame(Math.floor(_time));
           mesh.Pause();
           this.addChild(mesh);
-          continue;
+          break;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
-        case TYPE_NORMAL:
-        case TYPE_MESH:
-        case TYPE_JOINT:
-        case TYPE_MASK: {
+        case ss.ssfb.SsPartType.Normal:
+        case ss.ssfb.SsPartType.Mesh:
+        case ss.ssfb.SsPartType.Joint:
+        case ss.ssfb.SsPartType.Mask: {
           let verts: Float32Array;
-          if (partType === TYPE_MESH) {
+          if (partType === ss.ssfb.SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
@@ -1011,7 +998,7 @@ export class SS6Player extends PIXI.Container {
             verts = this.TransformVertsLocal(SS6Player.GetVerts(cellID, data), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
-          if (data.flag1H & 0b0000000000001000) {
+          if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
             // 524288 verts [4]	//
             // 頂点変形の中心点を算出する
             const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -1044,8 +1031,7 @@ export class SS6Player extends PIXI.Container {
           }
 
           mesh.vertices = verts;
-
-          if (data.flag1H & 0b0000000001000000 || data.flag1H & 0b0000000010000000 || (data.flag1H & 0b0000001000000000 || data.flag1H & 0b0000010000000000) || data.flag1H & 0b0000000100000000) {
+          if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const u1 = this.fbObj.cells(cellID).u1() + data.uv_move_X;
             const u2 = this.fbObj.cells(cellID).u2() + data.uv_move_X;
@@ -1070,7 +1056,7 @@ export class SS6Player extends PIXI.Container {
             mesh.uvs[8] = cx + uvw;
             mesh.uvs[9] = cy + uvh;
 
-            if (data.flag1H & 0b0000000100000000) {
+            if (data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
               const rot = (data.uv_rotation * Math.PI) / 180;
               for (let idx = 0; idx < 5; idx++) {
                 const dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
@@ -1089,10 +1075,14 @@ export class SS6Player extends PIXI.Container {
             mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
           }
 
-          const pivot = this.GetPivot(verts, cellID);
           //
-          mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-          mesh.scale.set(data.localscaleX, data.localscaleY);
+          if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
+            mesh.position.set(px, py);
+          } else {
+            const pivot = this.GetPivot(verts, cellID);
+            mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
+            mesh.scale.set(data.localscaleX, data.localscaleY);
+          }
           //
           // 小西: 256指定と1.0指定が混在していたので統一
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
@@ -1137,10 +1127,10 @@ export class SS6Player extends PIXI.Container {
           if (blendMode === 6) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
           if (blendMode === 7) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
-          if (partType !== TYPE_MASK) this.addChild(mesh);
+          if (partType !== ss.ssfb.SsPartType.Mask) this.addChild(mesh);
           break;
         }
-        case TYPE_NULL: {
+        case ss.ssfb.SsPartType.Nulltype: {
           // NULLパーツのOpacity/Transform設定
           const opacity = this.InheritOpacity(1.0, data.index, frameNumber);
           mesh.alpha = (opacity * data.localopacity) / 255.0;
@@ -1285,14 +1275,21 @@ export class SS6Player extends PIXI.Container {
 
     pos[4] += -data.rotationZ;
 
+    const rz = (-data.rotationZ * Math.PI) / 180;
+    const cos = Math.cos(rz);
+    const sin = Math.sin(rz);
+    const x = pos[0];// * (data.size_X | 1);
+    const y = pos[1];// * (data.size_Y | 1);
+
     pos[2] *= data.scaleX;
     pos[3] *= data.scaleY;
-    pos[0] += data.positionX;
-    pos[1] -= data.positionY;
+    pos[0] = (cos * x - sin * y) + data.positionX;
+    pos[1] = (sin * x + cos * y) - data.positionY;
 
     if (this.parentIndex[id] >= 0) {
       pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
     }
+
     return pos;
   }
 
@@ -1381,15 +1378,21 @@ export class SS6Player extends PIXI.Container {
     const data = this.GetFrameData(frameNumber)[id];
 
     pos[4] += -data.rotationZ;
-    const rz = (pos[4] * Math.PI) / 180;
+    const rz = (-data.rotationZ * Math.PI) / 180;
+    const cos = Math.cos(rz);
+    const sin = Math.sin(rz);
+    const x = pos[0];
+    const y = pos[1];
+
     pos[2] *= data.scaleX;
     pos[3] *= data.scaleY;
-    pos[0] += data.positionX;
-    pos[1] -= data.positionY;
+    pos[0] = (cos * x - sin * y) + data.positionX;
+    pos[1] = (sin * x + cos * y) - data.positionY;
 
     if (this.parentIndex[id] >= 0) {
       pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
     }
+
     return pos;
   }
 
@@ -1459,7 +1462,8 @@ export class SS6Player extends PIXI.Container {
    */
   private MakeCellPlayer(refname: string): SS6Player {
     const split = refname.split('/');
-    const ssp = new SS6Player(this.ss6project, split[0], split[1]);
+    const ssp = new SS6Player(this.ss6project);
+    ssp.Setup(split[0], split[1]);
     ssp.Play();
 
     return ssp;
@@ -1499,5 +1503,12 @@ export class SS6Player extends PIXI.Container {
   private static GetDummyVerts(): Float32Array {
     let verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     return verts;
+  }
+
+  private resetLiveFrame() {
+    const layers = this.curAnimation.defaultDataLength();
+    for (let i = 0; i < layers; i++) {
+      this.liveFrame[i] = 0;
+    }
   }
 }
