@@ -812,7 +812,7 @@ export class SS6Player extends PIXI.Container {
       // cell再利用
       let mesh: any = this.prevMesh[i];
 
-      const part = this.fbObj.animePacks(this.parts).parts(i);
+      const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
 
       // 処理分岐処理
@@ -853,6 +853,8 @@ export class SS6Player extends PIXI.Container {
 
       // 初期化が行われなかった場合(あるの？)
       if (mesh == null) continue;
+
+      mesh.name = part.name();
 
       this.prevCellID[i] = cellID;
       this.prevMesh[i] = mesh;
