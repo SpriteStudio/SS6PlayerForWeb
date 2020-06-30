@@ -814,12 +814,14 @@ export class SS6Player extends PIXI.Container {
 
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
+      const partName = part.name();
 
       // 処理分岐処理
       switch (partType) {
         case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Normal:
@@ -827,12 +829,14 @@ export class SS6Player extends PIXI.Container {
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Nulltype:
@@ -840,6 +844,7 @@ export class SS6Player extends PIXI.Container {
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
+            mesh.name = partName;
           }
           break;
         default:
@@ -847,14 +852,13 @@ export class SS6Player extends PIXI.Container {
             // 小西 - デストロイ処理
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
       }
 
       // 初期化が行われなかった場合(あるの？)
       if (mesh == null) continue;
-
-      mesh.name = part.name();
 
       this.prevCellID[i] = cellID;
       this.prevMesh[i] = mesh;
