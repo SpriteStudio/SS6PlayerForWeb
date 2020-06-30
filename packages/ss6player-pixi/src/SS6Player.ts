@@ -1087,8 +1087,7 @@ export class SS6Player extends PIXI.Container {
             mesh.position.set(px, py);
           } else {
             const pivot = this.GetPivot(verts, cellID);
-            mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-            mesh.scale.set(data.localscaleX, data.localscaleY);
+            mesh.position.set(px + pivot.x, py + pivot.y);
           }
           //
           // 小西: 256指定と1.0指定が混在していたので統一
@@ -1225,8 +1224,8 @@ export class SS6Player extends PIXI.Container {
         x += data.u11;
         y -= data.v11; // 上下修正
       }
-      x *= data.scaleX;
-      y *= data.scaleY;
+      x *= data.scaleX * data.localscaleX;
+      y *= data.scaleY * data.localscaleY;
       verts[i * 2] = cos * x - sin * y + data.positionX;
       verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
       //
@@ -1259,8 +1258,8 @@ export class SS6Player extends PIXI.Container {
     for (let i = 0; i < verts.length / 2; i++) {
       let x = verts[i * 2]; // * (data.size_X | 1);
       let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
-      x *= data.scaleX;
-      y *= data.scaleY;
+      x *= data.scaleX * data.localscaleX;
+      y *= data.scaleY * data.localscaleY;
       verts[i * 2] = cos * x - sin * y + data.positionX;
       verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
     }
