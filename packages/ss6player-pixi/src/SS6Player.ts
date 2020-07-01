@@ -1287,8 +1287,8 @@ export class SS6Player extends PIXI.Container {
     const x = pos[0];// * (data.size_X | 1);
     const y = pos[1];// * (data.size_Y | 1);
 
-    pos[2] *= data.scaleX;
-    pos[3] *= data.scaleY;
+    pos[2] *= data.scaleX * data.localscaleX;
+    pos[3] *= data.scaleY * data.localscaleY;
     pos[0] = (cos * x - sin * y) + data.positionX;
     pos[1] = (sin * x + cos * y) - data.positionY;
 
