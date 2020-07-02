@@ -814,12 +814,14 @@ export class SS6Player extends PIXI.Container {
 
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
+      const partName = part.name();
 
       // 処理分岐処理
       switch (partType) {
         case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Normal:
@@ -827,12 +829,14 @@ export class SS6Player extends PIXI.Container {
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
         case ss.ssfb.SsPartType.Nulltype:
@@ -840,6 +844,7 @@ export class SS6Player extends PIXI.Container {
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
+            mesh.name = partName;
           }
           break;
         default:
@@ -847,14 +852,13 @@ export class SS6Player extends PIXI.Container {
             // 小西 - デストロイ処理
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+            mesh.name = partName;
           }
           break;
       }
 
       // 初期化が行われなかった場合(あるの？)
       if (mesh == null) continue;
-
-      mesh.name = part.name();
 
       this.prevCellID[i] = cellID;
       this.prevMesh[i] = mesh;
@@ -1083,8 +1087,7 @@ export class SS6Player extends PIXI.Container {
             mesh.position.set(px, py);
           } else {
             const pivot = this.GetPivot(verts, cellID);
-            mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-            mesh.scale.set(data.localscaleX, data.localscaleY);
+            mesh.position.set(px + pivot.x, py + pivot.y);
           }
           //
           // 小西: 256指定と1.0指定が混在していたので統一
@@ -1221,8 +1224,8 @@ export class SS6Player extends PIXI.Container {
         x += data.u11;
         y -= data.v11; // 上下修正
       }
-      x *= data.scaleX;
-      y *= data.scaleY;
+      x *= data.scaleX * data.localscaleX;
+      y *= data.scaleY * data.localscaleY;
       verts[i * 2] = cos * x - sin * y + data.positionX;
       verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
       //
@@ -1255,8 +1258,8 @@ export class SS6Player extends PIXI.Container {
     for (let i = 0; i < verts.length / 2; i++) {
       let x = verts[i * 2]; // * (data.size_X | 1);
       let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
-      x *= data.scaleX;
-      y *= data.scaleY;
+      x *= data.scaleX * data.localscaleX;
+      y *= data.scaleY * data.localscaleY;
       verts[i * 2] = cos * x - sin * y + data.positionX;
       verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
     }
@@ -1284,8 +1287,8 @@ export class SS6Player extends PIXI.Container {
     const x = pos[0];// * (data.size_X | 1);
     const y = pos[1];// * (data.size_Y | 1);
 
-    pos[2] *= data.scaleX;
-    pos[3] *= data.scaleY;
+    pos[2] *= data.scaleX * data.localscaleX;
+    pos[3] *= data.scaleY * data.localscaleY;
     pos[0] = (cos * x - sin * y) + data.positionX;
     pos[1] = (sin * x + cos * y) - data.positionY;
 
