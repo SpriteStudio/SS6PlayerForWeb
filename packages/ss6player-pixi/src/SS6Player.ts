@@ -829,7 +829,7 @@ export class SS6Player extends PIXI.Container {
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
       const partName = part.name();
-      let overWrite: boolean = (this.substituteOverWrite[i] !== null)? this.substituteOverWrite[i] : false;
+      let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
       let overWritekeyParam: SS6PlayerInstanceKeyParam = this.substituteKeyParam[i];
 
       // 処理分岐処理
@@ -936,7 +936,7 @@ export class SS6Player extends PIXI.Container {
             independent = true;
           }
 
-          //インスタンスパラメータを上書きする
+          // インスタンスパラメータを上書きする
           if (overWrite) {
             refStartframe = overWritekeyParam.refStartframe;
             refEndframe = overWritekeyParam.refEndframe;
