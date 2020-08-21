@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ss } from 'ssfblib';
 import { SS6Project } from './SS6Project';
+import { SS6PlayerInstanceKeyParam } from './SS6PlayerInstanceKeyParam';
 
 export class SS6Player extends PIXI.Container {
   // Properties
@@ -8,7 +9,10 @@ export class SS6Player extends PIXI.Container {
   private readonly fbObj: ss.ssfb.ProjectData;
   private readonly resources: Partial<Record<string, PIXI.LoaderResource>>;
   private animation: number[] = [];
+  private curAnimePackName: string = null;
+  private curAnimaName: string = null;
   private curAnimation: ss.ssfb.AnimationData = null;
+  private curAnimePackData: ss.ssfb.AnimePackData = null;
   private parts: number = -1;
   private parentIndex: number[] = [];
   private prio2index: any[] = [];
@@ -25,6 +29,10 @@ export class SS6Player extends PIXI.Container {
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
   private prevMesh: (SS6Player | PIXI.SimpleMesh)[] = [];
+
+  // for change instance
+  private substituteOverWrite: boolean[] = [];
+  private substituteKeyParam: SS6PlayerInstanceKeyParam[] = [];
 
   private alphaBlendType: number[] = [];
   private isPlaying: boolean;
@@ -108,7 +116,10 @@ export class SS6Player extends PIXI.Container {
         for (j = 0; j < animationsLength; j++) {
           if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
             this.animation = [i, j];
-            this.curAnimation = this.fbObj.animePacks(this.animation[0]).animations(this.animation[1]);
+            this.curAnimePackName = animePackName;
+            this.curAnimaName = animeName;
+            this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
+            this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
             break;
           }
         }
@@ -127,12 +138,16 @@ export class SS6Player extends PIXI.Container {
         // cell再利用
         this.prevCellID = new Array(partsLength);
         this.prevMesh = new Array(partsLength);
+        this.substituteOverWrite = new Array(partsLength);
+        this.substituteKeyParam = new Array(partsLength);
         for (j = 0; j < partsLength; j++) {
           const index = this.fbObj.animePacks(this.parts).parts(j).index();
           this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
           // cell再利用
           this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
           this.prevMesh[index] = null;
+          this.substituteOverWrite[index] = null;
+          this.substituteKeyParam[index] = null;
         }
       }
     }
@@ -811,10 +826,11 @@ export class SS6Player extends PIXI.Container {
 
       // cell再利用
       let mesh: any = this.prevMesh[i];
-
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
       const partName = part.name();
+      let overWrite: boolean = (this.substituteOverWrite[i] !== null)? this.substituteOverWrite[i] : false;
+      let overWritekeyParam: SS6PlayerInstanceKeyParam = this.substituteKeyParam[i];
 
       // 処理分岐処理
       switch (partType) {
@@ -888,11 +904,11 @@ export class SS6Player extends PIXI.Container {
           mesh.visible = !data.f_hide;
 
           // 描画
-          const refKeyframe = data.instanceValue_curKeyframe;
-          const refStartframe = data.instanceValue_startFrame;
-          const refEndframe = data.instanceValue_endFrame;
-          const refSpeed = data.instanceValue_speed;
-          const refloopNum = data.instanceValue_loopNum;
+          let refKeyframe = data.instanceValue_curKeyframe;
+          let refStartframe = data.instanceValue_startFrame;
+          let refEndframe = data.instanceValue_endFrame;
+          let refSpeed = data.instanceValue_speed;
+          let refloopNum = data.instanceValue_loopNum;
           let infinity = false;
           let reverse = false;
           let pingpong = false;
@@ -918,6 +934,18 @@ export class SS6Player extends PIXI.Container {
           if (lflags & INSTANCE_LOOP_FLAG_INDEPENDENT) {
             // 独立
             independent = true;
+          }
+
+          //インスタンスパラメータを上書きする
+          if (overWrite) {
+            refStartframe = overWritekeyParam.refStartframe;
+            refEndframe = overWritekeyParam.refEndframe;
+            refSpeed = overWritekeyParam.refSpeed;
+            refloopNum = overWritekeyParam.refloopNum;
+            infinity = overWritekeyParam.infinity;
+            reverse = overWritekeyParam.reverse;
+            pingpong = overWritekeyParam.pingpong;
+            independent = overWritekeyParam.independent;
           }
 
           // タイムライン上の時間 （絶対時間）
@@ -1029,6 +1057,10 @@ export class SS6Player extends PIXI.Container {
             const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
             verts[0] = vec2[0];
             verts[1] = vec2[1];
+
+            mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_FAN;
+          } else {
+            mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_STRIP;
           }
           const px = verts[0];
           const py = verts[1];
@@ -1152,6 +1184,61 @@ export class SS6Player extends PIXI.Container {
         }
       }
     }
+  }
+
+  /**
+   *
+   * 名前を指定してパーツの再生するインスタンスアニメを変更します。
+   * 指定したパーツがインスタンスパーツでない場合、falseを返します.
+   * インスタンスパーツ名はディフォルトでは「ssae名:モーション名」とつけられています。
+   * 再生するアニメの名前は アニメパック名 と アニメ名 で指定してください。
+   * 現在再生しているアニメを指定することは入れ子となり無限ループとなるためできません。
+   *
+   * 変更するアニメーションは同じ ssfb に含まれる必要があります。
+   * インスタンスパーツが再生するアニメを変更します
+   *
+   * インスタンスキーは
+   *
+   * @param partName SS上のパーツ名
+   * @param animePackName 参照するアニメパック名
+   * @param animeName 参照するアニメ名
+   * @param overWrite インスタンスキーの上書きフラグ
+   * @param keyParam インスタンスキー
+   *
+   * @constructor
+   */
+  public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
+    let rc = false;
+
+    if (this.curAnimePackName !== null && this.curAnimation !== null) {
+      let packData: ss.ssfb.AnimePackData = this.curAnimePackData;
+      let partsLength = packData.partsLength();
+      for (let index = 0; index < partsLength; index++) {
+
+        let partData = packData.parts(index);
+        if (partData.name() === partName) {
+          let mesh = this.prevMesh[index];
+          if (mesh === null || mesh instanceof SS6Player) {
+            mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
+            mesh.name = partData.name();
+
+            this.prevMesh[index] = mesh;
+            this.substituteOverWrite[index] = overWrite;
+            if (keyParam === null) {
+              let defaultKeyParam = new SS6PlayerInstanceKeyParam();
+              defaultKeyParam.refStartframe = mesh.startFrame;
+              defaultKeyParam.refEndframe = mesh.endFrame;
+              this.substituteKeyParam[index] = defaultKeyParam;
+            } else {
+              this.substituteKeyParam[index] = keyParam;
+            }
+            rc = true;
+            break;
+          }
+        }
+      }
+    }
+    return rc;
   }
 
   /**
@@ -1419,7 +1506,6 @@ export class SS6Player extends PIXI.Container {
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
     const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-    mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
     return mesh;
   }
 
@@ -1454,7 +1540,6 @@ export class SS6Player extends PIXI.Container {
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
       const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-      mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
       return mesh;
     }
 
