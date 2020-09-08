@@ -1,10 +1,11 @@
+// import * as PIXI from 'pixi.js';
 import { flatbuffers } from 'flatbuffers';
 import { ss } from 'ssfblib';
 
 export class SS6Project {
   public rootPath: string;
   public fbObj: ss.ssfb.ProjectData;
-  public resources: PIXI.loaders.ResourceDictionary;
+  public resources: Partial<Record<string, PIXI.LoaderResource>>;
   public status: string;
   private onComplete: () => void; // ()
   private onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
@@ -89,7 +90,7 @@ export class SS6Project {
   private LoadCellResources() {
     const self = this;
     // Load textures for all cell at once.
-    const loader = new PIXI.loaders.Loader();
+    let loader = new PIXI.Loader();
     let ids: any = [];
     for (let i = 0; i < self.fbObj.cellsLength(); i++) {
       if (!ids.some(function(id: number) {
@@ -99,7 +100,7 @@ export class SS6Project {
         loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
       }
     }
-    loader.load(function(loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) {
+    loader.load(function(loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) {
       // SS6Project is ready.
       self.resources = resources;
       self.status = 'ready';

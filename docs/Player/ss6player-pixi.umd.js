@@ -8,10 +8,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = global || self, factory(global.ss6PlayerPixi = {}));
-}(this, (function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('pixi.js')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'pixi.js'], factory) :
+  (global = global || self, factory(global.ss6PlayerPixi = {}, global.PIXI));
+}(this, (function (exports, PIXI) { 'use strict';
 
   /// @file
   /// @addtogroup flatbuffers_javascript_api
@@ -6042,7 +6042,7 @@
       SS6Project.prototype.LoadCellResources = function () {
           var self = this;
           // Load textures for all cell at once.
-          var loader = new PIXI.loaders.Loader();
+          var loader = new PIXI.Loader();
           var ids = [];
           var _loop_1 = function (i) {
               if (!ids.some(function (id) {
@@ -6139,7 +6139,7 @@
           }
           // Ticker
           _this.pastTime = 0;
-          PIXI.ticker.shared.add(_this.Update, _this);
+          PIXI.Ticker.shared.add(_this.Update, _this);
           return _this;
       }
       Object.defineProperty(SS6Player.prototype, "startFrame", {
@@ -7444,7 +7444,7 @@
       /**
        * 矩形セルをメッシュ（5verts4Tri）で作成
        * @param {number} id - セルID
-       * @return {PIXI.mesh.Mesh} - メッシュ
+       * @return {PIXI.SimpleMesh} - メッシュ
        */
       SS6Player.prototype.MakeCellMesh = function (id) {
           var cell = this.fbObj.cells(id);
@@ -7457,15 +7457,15 @@
           var verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
           var uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
           var indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-          var mesh = new PIXI.mesh.Mesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-          mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
+          var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
           return mesh;
       };
       /**
        * メッシュセルからメッシュを作成
        * @param {number} partID - パーツID
        * @param {number} cellID - セルID
-       * @return {PIXI.mesh.Mesh} - メッシュ
+       * @return {PIXI.SimpleMesh} - メッシュ
        */
       SS6Player.prototype.MakeMeshCellMesh = function (partID, cellID) {
           var meshsDataUV = this.curAnimation.meshsDataUV(partID);
@@ -7485,8 +7485,8 @@
                   indices[idx - 1] = meshsDataIndices.indices(idx);
               }
               var verts = new Float32Array(num * 2); // Zは必要ない？
-              var mesh = new PIXI.mesh.Mesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-              mesh.drawMode = 1; // drawMode=0は四角ポリゴン、drawMode=1は三角ポリゴン
+              var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+              mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
               return mesh;
           }
           return null;
