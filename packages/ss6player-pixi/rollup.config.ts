@@ -38,7 +38,7 @@ export default {
     sourceMaps(),
     license({
       banner: `-----------------------------------------------------------
- SS6Player For Web v<%= pkg.version %>
+ SS6Player For pixi.js v<%= pkg.version %>
 
  Copyright(C) <%= pkg.author.name %>
  <%= pkg.author.url %>
