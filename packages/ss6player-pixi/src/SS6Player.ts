@@ -1057,11 +1057,9 @@ export class SS6Player extends PIXI.Container {
             const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
             verts[0] = vec2[0];
             verts[1] = vec2[1];
-
-            mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_FAN;
-          } else {
-            mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_STRIP;
           }
+          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
+
           const px = verts[0];
           const py = verts[1];
           for (let j = 0; j < verts.length / 2; j++) {
