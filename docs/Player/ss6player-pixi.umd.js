@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Web v1.2.0
+ * SS6Player For pixi.js v1.3.0
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -8,10 +8,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('pixi.js')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'pixi.js'], factory) :
-  (global = global || self, factory(global.ss6PlayerPixi = {}, global.PIXI));
-}(this, (function (exports, PIXI) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi = {}));
+}(this, (function (exports) { 'use strict';
 
   /// @file
   /// @addtogroup flatbuffers_javascript_api
@@ -5967,6 +5967,7 @@
       })(ssfb = ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
 
+  // import * as PIXI from 'pixi.js';
   var SS6Project = /** @class */ (function () {
       /**
        * SS6Project (used for several SS6Player(s))
@@ -6087,7 +6088,7 @@
   var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf ||
           ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-          function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+          function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
       return extendStatics(d, b);
   };
 
@@ -6096,6 +6097,23 @@
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   }
+
+  /**
+   * インスタンス差し替え用のキーパラメーター
+   */
+  var SS6PlayerInstanceKeyParam = /** @class */ (function () {
+      function SS6PlayerInstanceKeyParam() {
+          this.refStartframe = 0;
+          this.refEndframe = 0;
+          this.refSpeed = 1.0;
+          this.refloopNum = 0;
+          this.infinity = false;
+          this.reverse = false;
+          this.pingpong = false;
+          this.independent = false;
+      }
+      return SS6PlayerInstanceKeyParam;
+  }());
 
   var SS6Player = /** @class */ (function (_super) {
       __extends(SS6Player, _super);
@@ -6111,7 +6129,10 @@
           if (animeName === void 0) { animeName = null; }
           var _this = _super.call(this) || this;
           _this.animation = [];
+          _this.curAnimePackName = null;
+          _this.curAnimaName = null;
           _this.curAnimation = null;
+          _this.curAnimePackData = null;
           _this.parts = -1;
           _this.parentIndex = [];
           _this.prio2index = [];
@@ -6126,6 +6147,9 @@
           // cell再利用
           _this.prevCellID = []; // 各パーツ（レイヤー）で前回使用したセルID
           _this.prevMesh = [];
+          // for change instance
+          _this.substituteOverWrite = [];
+          _this.substituteKeyParam = [];
           _this.alphaBlendType = [];
           _this._uint32 = new Uint32Array(1);
           _this._float32 = new Float32Array(_this._uint32.buffer);
@@ -6202,7 +6226,10 @@
                   for (j = 0; j < animationsLength; j++) {
                       if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
                           this.animation = [i, j];
-                          this.curAnimation = this.fbObj.animePacks(this.animation[0]).animations(this.animation[1]);
+                          this.curAnimePackName = animePackName;
+                          this.curAnimaName = animeName;
+                          this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
+                          this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
                           break;
                       }
                   }
@@ -6219,12 +6246,16 @@
                   // cell再利用
                   this.prevCellID = new Array(partsLength);
                   this.prevMesh = new Array(partsLength);
+                  this.substituteOverWrite = new Array(partsLength);
+                  this.substituteKeyParam = new Array(partsLength);
                   for (j = 0; j < partsLength; j++) {
                       var index = this.fbObj.animePacks(this.parts).parts(j).index();
                       this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
                       // cell再利用
                       this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
                       this.prevMesh[index] = null;
+                      this.substituteOverWrite[index] = null;
+                      this.substituteKeyParam[index] = null;
                   }
               }
           }
@@ -6899,11 +6930,15 @@
               var mesh = this.prevMesh[i];
               var part = this.fbObj.animePacks(this.parts).parts(i);
               var partType = part.type();
+              var partName = part.name();
+              var overWrite = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
+              var overWritekeyParam = this.substituteKeyParam[i];
               // 処理分岐処理
               switch (partType) {
                   case ss.ssfb.SsPartType.Instance:
                       if (mesh == null) {
                           mesh = this.MakeCellPlayer(part.refname());
+                          mesh.name = partName;
                       }
                       break;
                   case ss.ssfb.SsPartType.Normal:
@@ -6912,6 +6947,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+                          mesh.name = partName;
                       }
                       break;
                   case ss.ssfb.SsPartType.Mesh:
@@ -6919,6 +6955,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
+                          mesh.name = partName;
                       }
                       break;
                   case ss.ssfb.SsPartType.Nulltype:
@@ -6927,6 +6964,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = new PIXI.Container();
+                          mesh.name = partName;
                       }
                       break;
                   default:
@@ -6935,6 +6973,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeCellMesh(cellID); // (cellID, i)?
+                          mesh.name = partName;
                       }
                       break;
               }
@@ -6995,6 +7034,17 @@
                       if (lflags & INSTANCE_LOOP_FLAG_INDEPENDENT) {
                           // 独立
                           independent = true;
+                      }
+                      // インスタンスパラメータを上書きする
+                      if (overWrite) {
+                          refStartframe = overWritekeyParam.refStartframe;
+                          refEndframe = overWritekeyParam.refEndframe;
+                          refSpeed = overWritekeyParam.refSpeed;
+                          refloopNum = overWritekeyParam.refloopNum;
+                          infinity = overWritekeyParam.infinity;
+                          reverse = overWritekeyParam.reverse;
+                          pingpong = overWritekeyParam.pingpong;
+                          independent = overWritekeyParam.independent;
                       }
                       // タイムライン上の時間 （絶対時間）
                       var time = frameNumber;
@@ -7098,6 +7148,10 @@
                           var vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
                           verts[0] = vec2[0];
                           verts[1] = vec2[1];
+                          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_FAN;
+                      }
+                      else {
+                          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_STRIP;
                       }
                       var px = verts[0];
                       var py = verts[1];
@@ -7149,8 +7203,7 @@
                       }
                       else {
                           var pivot = this.GetPivot(verts, cellID);
-                          mesh.position.set(px + pivot.x * data.localscaleX, py + pivot.y * data.localscaleY);
-                          mesh.scale.set(data.localscaleX, data.localscaleY);
+                          mesh.position.set(px + pivot.x, py + pivot.y);
                       }
                       //
                       // 小西: 256指定と1.0指定が混在していたので統一
@@ -7220,6 +7273,59 @@
           }
       };
       /**
+       *
+       * 名前を指定してパーツの再生するインスタンスアニメを変更します。
+       * 指定したパーツがインスタンスパーツでない場合、falseを返します.
+       * インスタンスパーツ名はディフォルトでは「ssae名:モーション名」とつけられています。
+       * 再生するアニメの名前は アニメパック名 と アニメ名 で指定してください。
+       * 現在再生しているアニメを指定することは入れ子となり無限ループとなるためできません。
+       *
+       * 変更するアニメーションは同じ ssfb に含まれる必要があります。
+       * インスタンスパーツが再生するアニメを変更します
+       *
+       * インスタンスキーは
+       *
+       * @param partName SS上のパーツ名
+       * @param animePackName 参照するアニメパック名
+       * @param animeName 参照するアニメ名
+       * @param overWrite インスタンスキーの上書きフラグ
+       * @param keyParam インスタンスキー
+       *
+       * @constructor
+       */
+      SS6Player.prototype.ChangeInstanceAnime = function (partName, animePackName, animeName, overWrite, keyParam) {
+          if (keyParam === void 0) { keyParam = null; }
+          var rc = false;
+          if (this.curAnimePackName !== null && this.curAnimation !== null) {
+              var packData = this.curAnimePackData;
+              var partsLength = packData.partsLength();
+              for (var index = 0; index < partsLength; index++) {
+                  var partData = packData.parts(index);
+                  if (partData.name() === partName) {
+                      var mesh = this.prevMesh[index];
+                      if (mesh === null || mesh instanceof SS6Player) {
+                          mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
+                          mesh.name = partData.name();
+                          this.prevMesh[index] = mesh;
+                          this.substituteOverWrite[index] = overWrite;
+                          if (keyParam === null) {
+                              var defaultKeyParam = new SS6PlayerInstanceKeyParam();
+                              defaultKeyParam.refStartframe = mesh.startFrame;
+                              defaultKeyParam.refEndframe = mesh.endFrame;
+                              this.substituteKeyParam[index] = defaultKeyParam;
+                          }
+                          else {
+                              this.substituteKeyParam[index] = keyParam;
+                          }
+                          rc = true;
+                          break;
+                      }
+                  }
+              }
+          }
+          return rc;
+      };
+      /**
        * 矩形セルの中心(0,1)から、X軸方向：右下(4,5)-左下(2,3)、Y軸方向：左上（6,7）-左下(2,3)の座標系でpivot分ずらした座標
        * @param {array} verts - 頂点情報配列
        * @param {number} cellID - セルID
@@ -7284,8 +7390,8 @@
                   x += data.u11;
                   y -= data.v11; // 上下修正
               }
-              x *= data.scaleX;
-              y *= data.scaleY;
+              x *= data.scaleX * data.localscaleX;
+              y *= data.scaleY * data.localscaleY;
               verts[i * 2] = cos * x - sin * y + data.positionX;
               verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
               //
@@ -7316,8 +7422,8 @@
           for (var i = 0; i < verts.length / 2; i++) {
               var x = verts[i * 2]; // * (data.size_X | 1);
               var y = verts[i * 2 + 1]; // * (data.size_Y | 1);
-              x *= data.scaleX;
-              y *= data.scaleY;
+              x *= data.scaleX * data.localscaleX;
+              y *= data.scaleY * data.localscaleY;
               verts[i * 2] = cos * x - sin * y + data.positionX;
               verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
           }
@@ -7341,8 +7447,8 @@
           var sin = Math.sin(rz);
           var x = pos[0]; // * (data.size_X | 1);
           var y = pos[1]; // * (data.size_Y | 1);
-          pos[2] *= data.scaleX;
-          pos[3] *= data.scaleY;
+          pos[2] *= data.scaleX * data.localscaleX;
+          pos[3] *= data.scaleY * data.localscaleY;
           pos[0] = (cos * x - sin * y) + data.positionX;
           pos[1] = (sin * x + cos * y) - data.positionY;
           if (this.parentIndex[id] >= 0) {
@@ -7458,7 +7564,6 @@
           var uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
           var indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
           var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
-          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
           return mesh;
       };
       /**
@@ -7486,7 +7591,6 @@
               }
               var verts = new Float32Array(num * 2); // Zは必要ない？
               var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
-              mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
               return mesh;
           }
           return null;
@@ -7546,6 +7650,7 @@
   }(PIXI.Container));
 
   exports.SS6Player = SS6Player;
+  exports.SS6PlayerInstanceKeyParam = SS6PlayerInstanceKeyParam;
   exports.SS6Project = SS6Project;
 
   Object.defineProperty(exports, '__esModule', { value: true });
