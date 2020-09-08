@@ -13,34 +13,39 @@
  * @type string
  *
  *
- * @command register
- * @text ssfb登録
- * @desc ssfbを登録します。
+ * @command load
+ * @text ssfbロード
+ * @desc ssfbをロードし登録します。
  *
  * @arg pictureId
  * @text picture ID
- * @desc picture ID、数値で指定してください。
+ * @desc 登録する ID です。数値で指定してください。
+ * @type number
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
- * @desc アニメーションフォルダからの相対パスで指定してください。  (e.g. MeshBone/Knight.ssbp.ssfb )
+ * @desc ssfb ファイルをアニメーションフォルダからの相対パスで指定してください。  (e.g. MeshBone/Knight.ssbp.ssfb )
+ * @type string
  *
  * @arg animePackName
- * @text animePackName
- * @desc anime pack name
+ * @text anime Pack Name
+ * @desc ロードするアニメパック名を指定してください。 (e.g. Knight_bomb )
+ * @type string
  *
  * @arg animeName
- * @text animeName
- * @desc anime name
- *
+ * @text アニメ名
+ * @desc ロードするアニメ名を指定してください。 (e.g. Balloon )
+ * @type string
+  *
  * @command play
  * @text ssfb再生
  * @desc 登録した ssfb を再生します。
- *
+  *
  * @arg pictureId
  * @text picture ID
  * @desc picture ID、数値で指定してください。
-  *
+ * @type number
+ *
  */
 
 import { SS6Player, SS6Project } from 'ss6player-pixi';
@@ -50,24 +55,24 @@ import {SSPlayerManager} from './SSPlayerManager';
 const pluginName = "ss6player-rpgmakermz";
 const ssfbLoadWaitMode = "ssfbWait";
 
-
-PluginManager.registerCommand(pluginName, "register", args => {
+PluginManager.registerCommand(pluginName, "load", args => {
+  console.log("this.setWaitMode: " + this.setWaitMode);
+  //this.setWaitMode('ssfbWait');
   const ssfbPath = PluginParameters.getInstance().animationDir + args.ssfbFile;
   console.log("load ssfbPath: " + ssfbPath);
-  Game_Interpreter.prototype.setWaitMode.call(ssfbLoadWaitMode);
+
   let project = new SS6Project(ssfbPath, () => {
     console.log("load args.animePackName: " + args.animePackName);
     console.log("load args.animeName: " + args.animeName);
     let player = new SS6Player(project, args.animePackName, args.animeName);
     SSPlayerManager.getInstance().set(args.pictureId, player);
-    Game_Interpreter.prototype.setWaitMode.call("");
+
     SceneManager._scene.addChild(player);
     player.position = new PIXI.Point(240, 320);
     player.Play();
   });
 });
 
-/*
 PluginManager.registerCommand(pluginName, "play", args => {
   let player = SSPlayerManager.getInstance().get(args.pictureId);
   if (player === null) {
@@ -77,19 +82,21 @@ PluginManager.registerCommand(pluginName, "play", args => {
   SceneManager._scene.addChild(player);
   player.play();
 });
- */
 
+/*
 let _Game_Interpreter_updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
 Game_Interpreter.prototype.updateWaitMode = function() {
+  console.log("Game_Interpreter.prototype.updateWaitMode: " + this._waitMode);
   let waiting = false;
   if (this._waitMode === ssfbLoadWaitMode) {
     console.log("waiting " + ssfbLoadWaitMode);
-    waiting = true;
+    waiting = SSPlayerManager.getInstance().isLoaded();
   } else {
     waiting = _Game_Interpreter_updateWaitMode.call(this);
   }
   return waiting;
 }
+ */
 
 /*
 let _Sprite_Picture_updateBitmap = Sprite_Picture.prototype.updateBitmap;
@@ -112,3 +119,4 @@ Sprite_Picture.prototype.updateBitmap = function() {
   }
 }
 */
+

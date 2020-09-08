@@ -2,12 +2,25 @@ export class SSPlayerManager {
   static instance;
 
   ssfbDictionary;
+  _isLoading
+
   constructor() {
     this.clear();
+    this._isLoading = false;
+  }
+
+  prepare(ssfbId) {
+    this.ssfbDictionary[ssfbId] = null;
+    this._isLoading = true;
+  }
+
+  isLoading() {
+    return this._isLoading;
   }
 
   set(ssfbId, ssplayer) {
     this.ssfbDictionary[ssfbId] = ssplayer;
+    this._isLoading = false;
   }
 
   get(ssfbId) {

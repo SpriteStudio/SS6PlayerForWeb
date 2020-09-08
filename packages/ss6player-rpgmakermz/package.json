@@ -34,7 +34,8 @@
   "scripts": {
     "start": "npm run watch",
     "prebuild": "npm run clean",
-    "build": "rollup -c rollup.config.ts",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "postbuild": "replace '^\\(function \\(\\) {$' '(() => {' dist/ss6player-rpgmakermz.js && replace '^}\\(\\)\\);$' '})();' dist/ss6player-rpgmakermz.js",
     "deploy": "npm run build && cpy dist/ss6player-rpgmakermz.js SampleProject/js/plugins/",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
@@ -42,10 +43,11 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.2.0"
+    "ss6player-pixi": "^1.2.0",
+    "pixi.js": "^5.3.3"
   },
   "devDependencies": {
-    "pixi.js": "^5.3.3",
+    "replace": "^1.2.0",
     "concurrently": "^5.3.0",
     "http-server": "^0.12.3",
     "opener": "^1.5.2",
