@@ -7148,11 +7148,8 @@
                           var vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
                           verts[0] = vec2[0];
                           verts[1] = vec2[1];
-                          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_FAN;
                       }
-                      else {
-                          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLE_STRIP;
-                      }
+                      mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
                       var px = verts[0];
                       var py = verts[1];
                       for (var j = 0; j < verts.length / 2; j++) {
