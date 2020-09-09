@@ -3,7 +3,7 @@
  * @plugindesc RPG ツクール MZ で動作する SS6Player プラグインです。
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb
- * @help SS6Player for RPGMakerMZ
+ * @help SS6Player for RPG Maker MZ
  * (T.B.D)
  *
  * @param animationDir
