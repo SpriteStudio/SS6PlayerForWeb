@@ -23,8 +23,12 @@
     "lint": "lerna run lint",
     "test": "lerna run test",
     "docs": "lerna run docs",
-    "dist": "npm run build && npm run docs && npx ncp packages/ss6player-pixi/dist/ss6player-pixi.umd.js ./docs/Player/ss6player-pixi.umd.js",
-    "view": "lerna run view --scope=ss6player-pixi"
+    "dist": "npm run build && npm run docs && npm run deploy",
+    "deploy": "npm run deploy:pixi && npm run deploy:mz",
+    "deploy:pixi": "npx ncp packages/ss6player-pixi/dist/ss6player-pixi.umd.js ./docs/Player/ss6player-pixi.umd.js",
+    "deploy:mz": "npx ncp packages/ss6player-rpgmakermz/dist/ss6player-rpgmakermz.js ./docs/mz/ss6player-rpgmakermz.js",
+    "view": "lerna run view --scope=ss6player-pixi",
+    "mzview": "lerna run view --scope=ss6player-rpgmakermz"
   },
   "devDependencies": {
     "lerna": "^3.22.1",
