@@ -2,7 +2,7 @@
   "name": "ss6player-rpgmakermz",
   "private": true,
   "version": "1.0.0",
-  "description": "ss6player for RPG Maker MZ",
+  "description": "SS6Player for RPG Maker MZ",
   "keywords": [
     "SpriteStudio",
     "SS6Player",
@@ -10,11 +10,11 @@
     "Animation",
     "Sprite",
     "Skeletal",
-    "pixi",
-    "RPGMakerMZ"
+    "pixi.js",
+    "RPG Maker MZ",
+    "RMMZ"
   ],
   "main": "dist/ss6player-rpgmakermz.js",
-  "module": "dist/ss6player-rpgmakermz.es5.js",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
   },
@@ -35,7 +35,6 @@
     "start": "npm run watch",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "postbuild": "replace --silent '^\\(function \\(\\) {$' '(() => {' dist/ss6player-rpgmakermz.js && replace --silent '^}\\(\\)\\);$' '})();' dist/ss6player-rpgmakermz.js",
     "deploy": "npm run build && cpy dist/ss6player-rpgmakermz.js SampleProject/js/plugins/",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
