@@ -9,9 +9,9 @@
  * @param animationDir
  * @text ssfb アニメーションベースフォルダ
  * @desc ssfb のフォルダを格納するベースフォルダのパスです。
+ * @type file
  * @default img/ssfb
- * @type dir
- *
+ * @requiredAssets img/ssfb
  *
  * @command load
  * @text ssfbロード
@@ -21,6 +21,7 @@
  * @text ssfb ID
  * @desc 登録する ID です。
  * @type number
+ * @min 1
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
@@ -36,14 +37,16 @@
  * @text player ID
  * @desc プレイヤーの ID を指定してください。
  * @type number
+ * @min 1
  *
  * @arg ssfbId
  * @text ssfb ID
  * @desc 利用する ssfb ID を指定してください。
  * @type number
+ * @min 1
  *
  * @arg animePackName
- * @text anime Pack Name
+ * @text アニメパック名
  * @desc 再生するアニメパック名を指定してください。 (e.g. Knight_bomb )
  * @type string
  *
@@ -52,22 +55,47 @@
  * @desc 再生するアニメ名を指定してください。 (e.g. Balloon )
  * @type string
  *
- * @arg loop
- * @text 無限ループ
- * @desc 無限ループします。
+ * @arg x
+ * @text X座標
+ * @desc X 座標を指定します。原点は中央になります。
+ * @type number
+ * @default 0
+ *
+ * @arg y
+ * @text Y座標
+ * @desc Y 座標を指定します。原点は中央になります。
+ * @type number
+ * @default 0
+ *
+ * @arg scale
+ * @text スケール
+ * @desc スケールを指定します
+ * @type decimals
+ * @default 1.0
+ *
+ * @arg waiting
+ * @text 完了までウェイトする
+ * @desc 再生が完了するまで待ちます。無限ループ再生の場合は false になりウェイトしません。
  * @type boolean
  * @default false
  *
+ * @arg loop
+ * @text 再生ループ回数
+ * @desc 再生ループ回数を指定します。 -1 を指定すると無限ループで再生します。
+ * @type number
+ * @default 1
+ * @min -1
  *
- * @command wait
- * @text 再生終了待ち
- * @desc 再生中のアニメーションの再生が終わるまで待ちます。無限ループの場合は無視します。
+ *
+ * @command stop
+ * @text ssfb停止
+ * @desc 再生中のアニメーションを停止し、非表示にします。
  *
  * @arg playerId
  * @text player ID
- * @desc 停止するプレイヤー ID を指定してください。
+ * @desc プレイヤーの ID を指定してください。
  * @type number
- *
+ * @min 1
  *
  */
 
@@ -78,21 +106,25 @@ import {SS6PlayerManager} from "./SS6PlayerManager";
 
 const pluginName = "ss6player-rpgmakermz";
 const ss6projectLoadWaitMode = "ss6projectLoadWait";
+const ss6playerPlayWaitMode = "ss6playerPlayWaitMode";
+let ss6playerPlayWaiting = false;
 
 PluginManager.registerCommand(pluginName, "load", function(args) {
-  const ssfbPath = PluginParameters.getInstance().animationDir + args.ssfbFile;
+  const ssfbId = Number(args.ssfbId);
+  const ssfbFile = args.ssfbFile;
+  const ssfbPath = PluginParameters.getInstance().animationDir + ssfbFile;
 
-  if (SS6ProjectManager.getInstance().isExist(args.ssfbId)) {
-    const existProject= SS6ProjectManager.getInstance().get(args.ssfbId);
+  if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+    const existProject= SS6ProjectManager.getInstance().get(ssfbId);
     if (ssfbPath === existProject.ssfbPath) {
       // already loaded same project.
       return;
     }
   }
   this.setWaitMode(ss6projectLoadWaitMode);
-  SS6ProjectManager.getInstance().prepare(args.ssfbId);
+  SS6ProjectManager.getInstance().prepare(ssfbId);
   let project = new SS6Project(ssfbPath, () => {
-    SS6ProjectManager.getInstance().set(args.ssfbId, project);
+    SS6ProjectManager.getInstance().set(ssfbId, project);
   },
     30, 0,
     (ssfbPath, timeout, retry, httpObj) => {
@@ -107,29 +139,59 @@ PluginManager.registerCommand(pluginName, "load", function(args) {
 });
 
 PluginManager.registerCommand(pluginName, "play", function(args) {
-  let project = SS6ProjectManager.getInstance().get(args.ssfbId);
+  const playerId = Number(args.playerId);
+  const ssfbId = args.ssfbId;
+  const animePackName = args.animePackName;
+  const animeName = args.animeName;
+  const x = Number(args.x) || 0;
+  const y = Number(args.y) || 0;
+  const scale = Number(args.scale) || 1.0;
+  const waiting = Boolean(args.waiting) || false;
+  const loop = Number(args.loop) || 1;
+
+  let project = SS6ProjectManager.getInstance().get(ssfbId);
   if (project === null) {
-    console.error("not found ssfbId: " + args.ssfbId);
+    console.error("not found ssfbId: " + ssfbId);
     return;
   }
-  // console.log("load args.animePackName: " + args.animePackName);
-  // console.log("load args.animeName: " + args.animeName);
-  let player = new SS6Player(project, args.animePackName, args.animeName);
+  // console.log("load animePackName: " + animePackName);
+  // console.log("load animeName: " + animeName);
+  let player = new SS6Player(project, animePackName, animeName);
+  player.name = String(playerId);
+  player.loop = loop;
 
-  SS6PlayerManager.getInstance().set(args.playerId, player);
+  let sprite = new Sprite();
+  sprite.addChild(player);
+  sprite.position = new PIXI.Point(x, y);
+  sprite.scale = new PIXI.Point(scale, scale);
+  SceneManager._scene.addChild(sprite); // TODO:
 
-  SceneManager._scene.addChild(player); // TODO:
-  player.loop = (args.loop === "true")? -1 : 1;
-/*
+
+  if(loop !== -1 && waiting === true) {
+    this.setWaitMode(ss6playerPlayWaitMode);
+    ss6playerPlayWaiting = true;
+  }
   player.SetPlayEndCallback(() => {
-    SceneManager._scene.removeChild(player); // TODO:
+    if(player.loop === 0) {
+      ss6playerPlayWaiting = false;
+
+      SceneManager._scene.removeChild(sprite); // TODO:
+    }
   });
- */
-  player.position = new PIXI.Point(240, 320); // TODO;
   player.Play();
+
+  if (waiting === false) {
+    SS6PlayerManager.getInstance().set(playerId, sprite);
+  }
 });
 
-PluginManager.registerCommand(pluginName, "wait", function(args) {
+PluginManager.registerCommand(pluginName, "stop", function(args) {
+  const playerId = Number(args.playerId);
+  let sprite = SS6PlayerManager.getInstance().get(playerId);
+  if (sprite === null) {
+    console.error("not found player: " + playerId);
+    return;
+  }
 
 });
 
@@ -139,11 +201,28 @@ Game_Interpreter.prototype.updateWaitMode = function() {
   if (this._waitMode === ss6projectLoadWaitMode) {
     // console.log("waiting " + ssfbLoadWaitMode);
     waiting = SS6ProjectManager.getInstance().isLoading();
+  } else if (this._waitMode === ss6playerPlayWaitMode) {
+    waiting = ss6playerPlayWaiting;
   } else {
     waiting = _Game_Interpreter_updateWaitMode.call(this);
   }
   return waiting;
-}
+};
+
+let _Game_Screen_clear = Game_Screen.prototype.clear;
+Game_Screen.prototype.clear = function () {
+  SS6PlayerManager.getInstance().clear();
+  SS6ProjectManager.getInstance().clear();
+  _Game_Screen_clear.call(this);
+};
+
+let _Game_Screen_erasePicture = Game_Screen.prototype.erasePicture;
+Game_Screen.prototype.erasePicture = function(pictureId) {
+  _Game_Screen_erasePicture.call(this, pictureId);
+  // $gameScreen.removeSsPlayerByLabel(String(pictureId));
+};
+
+
 
 /*
 let _Sprite_Picture_updateBitmap = Sprite_Picture.prototype.updateBitmap;

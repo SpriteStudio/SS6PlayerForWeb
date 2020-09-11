@@ -22,6 +22,11 @@ export class SS6PlayerManager {
   }
 
   clear() {
+    if (this.ssplayerDictionary !== null) {
+      for(let player in this.ssplayerDictionary) {
+        player.Stop();
+      }
+    }
     this.ssplayerDictionary = {}
   }
 
