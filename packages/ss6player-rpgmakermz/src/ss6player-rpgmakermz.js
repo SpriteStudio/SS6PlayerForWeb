@@ -193,7 +193,8 @@ PluginManager.registerCommand(pluginName, "stop", function(args) {
     console.error("not found player: " + playerId);
     return;
   }
-  let player = sprite.getChildByName(String(playerId))
+
+  // let player = sprite.getChildByName(String(playerId))
   SceneManager._scene.removeChild(sprite); // TODO:
   SS6PlayerManager.getInstance().set(playerId, null);
 });
