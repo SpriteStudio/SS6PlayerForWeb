@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_core.js v1.0.0
+// rmmz_core.js v1.0.2
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ Utils.RPGMAKER_NAME = "MZ";
  * @type string
  * @constant
  */
-Utils.RPGMAKER_VERSION = "1.0.0";
+Utils.RPGMAKER_VERSION = "1.0.2";
 
 /**
  * Checks whether the current RPG Maker version is greater than or equal to
@@ -5361,7 +5361,9 @@ WebAudio.prototype._readLoopComments = function(arrayBuffer) {
             while (segments[0] === 255) {
                 packetSize += segments.shift();
             }
-            packetSize += segments.shift();
+            if (segments.length > 0) {
+                packetSize += segments.shift();
+            }
             packets.push(packetSize);
         }
         let vorbisHeaderFound = false;
