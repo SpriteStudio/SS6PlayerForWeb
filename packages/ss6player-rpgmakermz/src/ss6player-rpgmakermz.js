@@ -154,6 +154,7 @@ PluginManager.registerCommand(pluginName, "play", function(args) {
     console.error("not found ssfbId: " + ssfbId);
     return;
   }
+
   // console.log("load animePackName: " + animePackName);
   // console.log("load animeName: " + animeName);
   let player = new SS6Player(project, animePackName, animeName);
@@ -166,7 +167,6 @@ PluginManager.registerCommand(pluginName, "play", function(args) {
   sprite.scale = new PIXI.Point(scale, scale);
   SceneManager._scene.addChild(sprite); // TODO:
 
-
   if(loop !== -1 && waiting === true) {
     this.setWaitMode(ss6playerPlayWaitMode);
     ss6playerPlayWaiting = true;
@@ -176,11 +176,12 @@ PluginManager.registerCommand(pluginName, "play", function(args) {
       ss6playerPlayWaiting = false;
 
       SceneManager._scene.removeChild(sprite); // TODO:
+      SS6PlayerManager.getInstance().set(playerId, null);
     }
   });
   player.Play();
 
-  if (waiting === false) {
+  if (!(loop !== -1 && waiting === true)) {
     SS6PlayerManager.getInstance().set(playerId, sprite);
   }
 });
@@ -192,7 +193,9 @@ PluginManager.registerCommand(pluginName, "stop", function(args) {
     console.error("not found player: " + playerId);
     return;
   }
-
+  let player = sprite.getChildByName(String(playerId))
+  SceneManager._scene.removeChild(sprite); // TODO:
+  SS6PlayerManager.getInstance().set(playerId, null);
 });
 
 let _Game_Interpreter_updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
