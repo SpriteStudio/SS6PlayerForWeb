@@ -14,8 +14,7 @@
     "typeRoots": [
       "node_modules/pixi.js/pixi.js.d.ts",
       "dist/types",
-      "node_modules/@types",
-      "lunalite-mz.d.ts"
+      "node_modules/@types"
     ],
     "types": ["pixi.js"]
   },

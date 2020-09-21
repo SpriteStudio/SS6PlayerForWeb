@@ -1,33 +1,31 @@
 export class SS6PlayerManager {
   static instance;
 
-  ssplayerDictionary;
+  ss6playerDictionary;
 
   constructor() {
     this.clear();
-    this._isLoading = false;
   }
 
   isExist(playerId) {
-    return (this.ssplayerDictionary[playerId] !== undefined && this.ssplayerDictionary[playerId] !== null);
+    return (this.ss6playerDictionary[playerId] !== undefined && this.ss6playerDictionary[playerId] !== null);
   }
 
   set(playerId, ssplayer) {
-    this.ssplayerDictionary[playerId] = ssplayer;
-    this._isLoading = false;
+    this.ss6playerDictionary[playerId] = ssplayer;
   }
 
   get(playerId) {
-    return (this.ssplayerDictionary[playerId] !== undefined) ? this.ssplayerDictionary[playerId] : null;
+    return (this.ss6playerDictionary[playerId] !== undefined) ? this.ss6playerDictionary[playerId] : null;
   }
 
   clear() {
-    if (this.ssplayerDictionary !== null) {
-      for(let player in this.ssplayerDictionary) {
+    if (this.ss6playerDictionary !== null) {
+      for(let player in this.ss6playerDictionary) {
         player.Stop();
       }
     }
-    this.ssplayerDictionary = {}
+    this.ss6playerDictionary = {}
   }
 
   static getInstance() {

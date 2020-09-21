@@ -35,7 +35,7 @@ export class SS6Player extends PIXI.Container {
   private substituteKeyParam: SS6PlayerInstanceKeyParam[] = [];
 
   private alphaBlendType: number[] = [];
-  private isPlaying: boolean;
+  private _isPlaying: boolean;
   private isPausing: boolean;
   private _startFrame: number;
   private _endFrame: number;
@@ -75,6 +75,10 @@ export class SS6Player extends PIXI.Container {
 
   public get loop(): number {
     return this._loops;
+  }
+
+  public get isPlaying(): boolean {
+    return this._isPlaying;
   }
 
   /**
@@ -155,7 +159,7 @@ export class SS6Player extends PIXI.Container {
     // 各アニメーションステータスを初期化
     this.alphaBlendType = this.GetPartsBlendMode();
 
-    this.isPlaying = false;
+    this._isPlaying = false;
     this.isPausing = true;
     this._startFrame = this.curAnimation.startFrames();
     this._endFrame = this.curAnimation.endFrames();
@@ -187,7 +191,7 @@ export class SS6Player extends PIXI.Container {
   private Update(delta: number): void {
     const currentTime = Date.now();
     const elapsedTime = currentTime - this.pastTime;
-    const toNextFrame = this.isPlaying && !this.isPausing;
+    const toNextFrame = this._isPlaying && !this.isPausing;
     this.pastTime = currentTime;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
@@ -206,7 +210,7 @@ export class SS6Player extends PIXI.Container {
             if (this.playEndCallback !== null) {
               this.playEndCallback(this);
             }
-            if (this._loops === 0) this.isPlaying = false;
+            if (this._loops === 0) this._isPlaying = false;
           }
         }
         // speed -
@@ -219,11 +223,11 @@ export class SS6Player extends PIXI.Container {
             if (this.playEndCallback !== null) {
               this.playEndCallback(this);
             }
-            if (this._loops === 0) this.isPlaying = false;
+            if (this._loops === 0) this._isPlaying = false;
           }
         }
         this.SetFrameAnimation(this._currentFrame);
-        if (this.isPlaying) {
+        if (this._isPlaying) {
           if (this.HaveUserData(this._currentFrame)) {
             if (this.onUserDataCallback !== null) {
               this.onUserDataCallback(this.GetUserData(this._currentFrame));
@@ -285,7 +289,7 @@ export class SS6Player extends PIXI.Container {
    * アニメーション再生を開始する
    */
   public Play(): void {
-    this.isPlaying = true;
+    this._isPlaying = true;
     this.isPausing = false;
     this._currentFrame = this._startFrame;
     this.pastTime = Date.now();
@@ -318,7 +322,7 @@ export class SS6Player extends PIXI.Container {
    * @constructor
    */
   public Stop(): void {
-    this.isPlaying = false;
+    this._isPlaying = false;
   }
 
   /**
