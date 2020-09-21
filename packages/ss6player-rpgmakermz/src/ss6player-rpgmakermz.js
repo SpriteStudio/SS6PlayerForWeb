@@ -13,9 +13,9 @@
  * @default img/ssfb
  * @requiredAssets img/ssfb
  *
- * @command load
+ * @command loadSsfb
  * @text ssfbロード
- * @desc ssfbをと画像をロードし登録します。
+ * @desc ssfbを画像をロードし登録します。
  *
  * @arg ssfbId
  * @text ssfb ID
@@ -25,96 +25,15 @@
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
- * @desc ssfb ファイルをアニメーションフォルダからの相対パスで指定してください。  (e.g. MeshBone/Knight.ssbp.ssfb )
+ * @desc ssfb ファイルをアニメーションフォルダからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssbp.ssfb)
  * @type string
  *
  *
- * @command play
- * @text ssfb再生
- * @desc アニメーションを表示し再生します。
- *
- * @arg playerId
- * @text player ID
- * @desc プレイヤーの ID を指定してください。
- * @type number
- * @min 1
- *
- * @arg ssfbId
- * @text ssfb ID
- * @desc 利用する ssfb ID を指定してください。
- * @type number
- * @min 1
- *
- * @arg animePackName
- * @text アニメパック名
- * @desc 再生するアニメパック名を指定してください。 (e.g. Knight_bomb )
- * @type string
- *
- * @arg animeName
- * @text アニメ名
- * @desc 再生するアニメ名を指定してください。 (e.g. Balloon )
- * @type string
- *
- * @arg x
- * @text X座標
- * @desc X 座標を指定します。原点は中央になります。
- * @type number
- * @default 0
- *
- * @arg y
- * @text Y座標
- * @desc Y 座標を指定します。原点は中央になります。
- * @type number
- * @default 0
- *
- * @arg scaleX
- * @text スケールX
- * @desc X のスケールを指定します
- * @type decimals
- * @default 1.0
- *
- * @arg scaleY
- * @text スケールY
- * @desc Y のスケールを指定します
- * @type decimals
- * @default 1.0
- *
- * @arg waiting
- * @text 完了までウェイトする
- * @desc 再生が完了するまで待ちます。無限ループ再生の場合は false になりウェイトしません。
- * @type boolean
- * @default false
- *
- * @arg loop
- * @text 再生ループ回数
- * @desc 再生ループ回数を指定します。 -1 を指定すると無限ループで再生します。
- * @type number
- * @default 1
- * @min -1
- *
- *
- * @command stop
- * @text ssfb停止
- * @desc 再生中のアニメーションを停止し、非表示にします。
- *
- * @arg playerId
- * @text player ID
- * @desc プレイヤーの ID を指定してください。
- * @type number
- * @min 1
- *
- *
- * @command loadAsPicture
- * @text ピクチャロード
+ * @command setAsPicture
+ * @text SS6Player ピクチャの設定
  * @desc ピクチャとして表示する SS6Player を設定します。
  *       この後、画像を指定せずに「ピクチャの表示」を実行してください。
  *
- * @arg playerId
- * @text player ID
- * @desc プレイヤーの ID を指定してください。
- * @type number
- * @min 1
- *
  * @arg ssfbId
  * @text ssfb ID
  * @desc 利用する ssfb ID を指定してください。
@@ -123,12 +42,14 @@
  *
  * @arg animePackName
  * @text アニメパック名
- * @desc 再生するアニメパック名を指定してください。 (e.g. Knight_bomb )
+ * @desc 再生するアニメパック名を指定してください。
+ *       e.g. Knight_bomb
+ *
  * @type string
  *
  * @arg animeName
  * @text アニメ名
- * @desc 再生するアニメ名を指定してください。 (e.g. Balloon )
+ * @desc 再生するアニメ名を指定してください。 (e.g. Balloon)
  * @type string
  *
  * @arg scaleX
@@ -149,6 +70,18 @@
  * @type number
  * @default 1
  * @min -1
+ *
+ *
+ * @command waitForPicture
+ * @text ピクチャ再生待ち
+ * @desc ピクチャとして表示している SS6Player が再生完了するまで待ちます。
+ *       SS6Player がない場合、あるいは SS6Player がループ再生時には無視されます。
+ *
+ * @arg pictureId
+ * @text Picture ID
+ * @desc ピクチャの ID を指定してください。
+ * @type number
+ * @min 1
  *
  */
 
@@ -162,8 +95,11 @@ const ss6projectLoadWaitMode = "ss6projectLoadWait";
 const ss6playerPlayWaitMode = "ss6playerPlayWaitMode";
 let ss6playerPlayWaiting = false;
 let pictureSS6Player = null;
+let pictureSS6PlayerPrependCallback = null; // function (ss6player) {};
+let pictureSS6PlayerAppendCallback = null; // function (ss6player) {};
 
-PluginManager.registerCommand(pluginName, "load", function(args) {
+
+PluginManager.registerCommand(pluginName, "loadSsfb", function(args) {
   const ssfbId = Number(args.ssfbId);
   const ssfbFile = args.ssfbFile;
   const ssfbPath = PluginParameters.getInstance().animationDir + ssfbFile;
@@ -192,73 +128,7 @@ PluginManager.registerCommand(pluginName, "load", function(args) {
     null);
 });
 
-PluginManager.registerCommand(pluginName, "play", function(args) {
-  const playerId = Number(args.playerId);
-  const ssfbId = Number(args.ssfbId);
-  const animePackName = args.animePackName;
-  const animeName = args.animeName;
-  const x = Number(args.x) || 0;
-  const y = Number(args.y) || 0;
-  const scaleX = Number(args.scaleX) || 1.0;
-  const scaleY = Number(args.scaleY) || 1.0;
-  const waiting = Boolean(args.waiting) || false;
-  const loop = Number(args.loop) || 1;
-
-  let project = SS6ProjectManager.getInstance().get(ssfbId);
-  if (project === null) {
-    const err = "not found ssfbId: " + ssfbId;
-    console.error(err);
-    throw err;
-  }
-
-  // console.log("load animePackName: " + animePackName);
-  // console.log("load animeName: " + animeName);
-  let player = new SS6Player(project, animePackName, animeName);
-  player.name = String(playerId);
-  player.loop = loop;
-
-  player.position = new PIXI.Point(x, y);
-  player.scale = new PIXI.Point(scaleX, scaleY);
-  SceneManager._scene.addChild(player); // TODO:
-
-  if(loop !== -1 && waiting === true) {
-    this.setWaitMode(ss6playerPlayWaitMode);
-    ss6playerPlayWaiting = true;
-  }
-  player.SetPlayEndCallback(() => {
-    if(player.loop === 0) {
-      ss6playerPlayWaiting = false;
-
-      player.Stop();
-      SceneManager._scene.removeChild(player); // TODO:
-
-      if (!(loop !== -1 && waiting === true)) {
-        SS6PlayerManager.getInstance().set(playerId, null);
-      }
-    }
-  });
-  player.Play();
-
-  if (!(loop !== -1 && waiting === true)) {
-    SS6PlayerManager.getInstance().set(playerId, player);
-  }
-});
-
-PluginManager.registerCommand(pluginName, "stop", function(args) {
-  const playerId = Number(args.playerId);
-  let player = SS6PlayerManager.getInstance().get(playerId);
-  if (player === null) {
-    console.error("not found player: " + playerId);
-    return;
-  }
-
-  // let player = sprite.getChildByName(String(playerId))
-  SceneManager._scene.removeChild(player); // TODO:
-  SS6PlayerManager.getInstance().set(playerId, null);
-});
-
-PluginManager.registerCommand(pluginName, "loadAsPicture", function(args) {
-  const playerId = Number(args.playerId);
+PluginManager.registerCommand(pluginName, "setAsPicture", function(args) {
   const ssfbId = Number(args.ssfbId);
   const animePackName = args.animePackName;
   const animeName = args.animeName;
@@ -274,11 +144,30 @@ PluginManager.registerCommand(pluginName, "loadAsPicture", function(args) {
   }
 
   let player = new SS6Player(project, animePackName, animeName);
-  player.name = String(playerId);
   player.scale = new PIXI.Point(scaleX, scaleY);
   player.loop = loop;
 
   pictureSS6Player = player;
+});
+
+PluginManager.registerCommand(pluginName, "waitForPicture", function(args) {
+  const pictureId = Number(args.pictureId) || 1;
+  const picture = $gameScreen.picture(pictureId);
+  if (picture && picture.mzkpSS6player) {
+    if (picture.mzkpSS6player instanceof SS6Player) {
+      const ss6player = picture.mzkpSS6player;
+      if (ss6player.loop !== -1) {
+        // not loop
+        this.setWaitMode(ss6playerPlayWaitMode);
+        ss6playerPlayWaiting = true;
+      }
+      pictureSS6PlayerPrependCallback = function (ss6player) {
+        if (ss6player.loop === 0) {
+          ss6playerPlayWaiting = false;
+        }
+      }
+    }
+  }
 });
 
 const _Game_Interpreter_updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
@@ -298,7 +187,6 @@ Game_Interpreter.prototype.updateWaitMode = function() {
 const _Game_Picture_show = Game_Picture.prototype.show;
 Game_Picture.prototype.show = function() {
   _Game_Picture_show.apply(this, arguments);
-  console.log("Game_Picture.prototype.show");
   if (this._name === "" && pictureSS6Player !== null) {
     this.mzkpSS6player = pictureSS6Player;
     this.mzkpSS6playerChanged = true;
@@ -309,7 +197,6 @@ Game_Picture.prototype.show = function() {
 const _Sprite_Picture_destroy = Sprite_Picture.prototype.destroy;
 Sprite_Picture.prototype.destroy = function(options) {
   if (this.mzkpSS6player !== null && this.mzkpSS6player instanceof SS6Player) {
-    console.log("Sprite_Picture.prototype.destroy");
     this.mzkpSS6player.Stop();
     this.removeChild(this.mzkpSS6player);
     this.mzkpSS6player = null;
@@ -324,22 +211,36 @@ Sprite_Picture.prototype.updateBitmap = function() {
     const picture = this.picture();
     const ss6player = picture ? picture.mzkpSS6player || null : null;
     const ss6playerChanged = picture && picture.mzkpSS6playerChanged;
+
     if (this.mzkpSS6player !== ss6player || ss6playerChanged) {
-      if(this.mzkpSS6player !== null && this.mzkpSS6player instanceof SS6Player) {
+      if (this.mzkpSS6player !== null && this.mzkpSS6player instanceof SS6Player) {
+        // stop and remove previous ss6player instance
         this.mzkpSS6player.Stop();
         this.removeChild(this.mzkpSS6player);
       }
-      let spritePicture = this;
+      const prependCallback = pictureSS6PlayerPrependCallback;
+      const appendCallback = pictureSS6PlayerAppendCallback;
+      const spritePicture = this;
       ss6player.SetPlayEndCallback(() => {
+        if (prependCallback !== null) {
+          prependCallback(ss6player);
+        }
+
         if(ss6player.loop === 0) {
           ss6player.Stop();
           spritePicture.removeChild(ss6player);
+        }
+
+        if (appendCallback !== null) {
+          appendCallback(ss6player);
         }
       });
       this.mzkpSS6player = ss6player;
       this.mzkpSS6player.Play();
       this.addChild(this.mzkpSS6player);
       picture.mzkpSS6playerChanged = false;
+      pictureSS6PlayerPrependCallback = null;
+      pictureSS6PlayerAppendCallback = null;
     }
   } else {
     this.mzkpSS6player = null;
@@ -352,9 +253,3 @@ Game_Screen.prototype.clear = function () {
   SS6ProjectManager.getInstance().clear();
   _Game_Screen_clear.call(this);
 };
-
-const _Game_Screen_erasePicture = Game_Screen.prototype.erasePicture;
-Game_Screen.prototype.erasePicture = function(pictureId) {
-  _Game_Screen_erasePicture.apply(this, pictureId);
-};
-
