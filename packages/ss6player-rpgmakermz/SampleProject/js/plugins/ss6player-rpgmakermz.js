@@ -7859,7 +7859,6 @@
   let pictureSS6PlayerPrependCallback = null; // function (ss6player) {};
   let pictureSS6PlayerAppendCallback = null; // function (ss6player) {};
 
-
   PluginManager.registerCommand(pluginName, "loadSsfb", function(args) {
     const ssfbId = Number(args.ssfbId);
     const ssfbFile = args.ssfbFile;
@@ -7918,15 +7917,15 @@
       if (picture.mzkpSS6player instanceof SS6Player) {
         const ss6player = picture.mzkpSS6player;
         if (ss6player.loop !== -1) {
-          // not loop
+          // not infinity loop
           this.setWaitMode(ss6playerPlayWaitMode);
           ss6playerPlayWaiting = true;
+          pictureSS6PlayerPrependCallback = function (ss6player) {
+            if (ss6player.loop === 0) {
+              ss6playerPlayWaiting = false;
+            }
+          };
         }
-        pictureSS6PlayerPrependCallback = function (ss6player) {
-          if (ss6player.loop === 0) {
-            ss6playerPlayWaiting = false;
-          }
-        };
       }
     }
   });
@@ -7958,8 +7957,10 @@
   const _Sprite_Picture_destroy = Sprite_Picture.prototype.destroy;
   Sprite_Picture.prototype.destroy = function(options) {
     if (this.mzkpSS6player !== null && this.mzkpSS6player instanceof SS6Player) {
+      let SS6player = this.mzkpSS6player;
+      console.log(SS6player);
       this.mzkpSS6player.Stop();
-      this.removeChild(this.mzkpSS6player);
+      this.removeChild(SS6player);
       this.mzkpSS6player = null;
     }
     _Sprite_Picture_destroy.call(this, options);
@@ -7997,8 +7998,8 @@
           }
         });
         this.mzkpSS6player = ss6player;
-        this.mzkpSS6player.Play();
         this.addChild(this.mzkpSS6player);
+        this.mzkpSS6player.Play();
         picture.mzkpSS6playerChanged = false;
         pictureSS6PlayerPrependCallback = null;
         pictureSS6PlayerAppendCallback = null;
@@ -8013,6 +8014,33 @@
     SS6PlayerManager.getInstance().clear();
     SS6ProjectManager.getInstance().clear();
     _Game_Screen_clear.call(this);
+  };
+
+  let supending = false;
+  const _SceneManager_updateScene = SceneManager.updateScene;
+  SceneManager.updateScene = function() {
+    _SceneManager_updateScene.apply(this, arguments);
+    if (this._scene) {
+      if (this.isGameActive()) {
+        if(supending) {
+          // execute to resume all SS6Player instance
+          $gameScreen._pictures.forEach((picture, index, pictures) => {
+            if(picture && picture.mzkpSS6player) {
+              picture.mzkpSS6player.Resume();
+            }
+          });
+          supending = false;
+        }
+      } else {
+        // execute to suspend all SS6Player instance
+        $gameScreen._pictures.forEach((picture, index, pictures) => {
+          if (picture && picture.mzkpSS6player) {
+            picture.mzkpSS6player.Pause();
+          }
+        });
+        supending = true;
+      }
+    }
   };
 
 }());
