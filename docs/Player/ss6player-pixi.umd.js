@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.3.0
+ * SS6Player For pixi.js v1.3.1
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -5986,6 +5986,7 @@
           if (onError === void 0) { onError = null; }
           if (onTimeout === void 0) { onTimeout = null; }
           if (onRetry === void 0) { onRetry = null; }
+          this.ssfbPath = ssfbPath;
           var index = ssfbPath.lastIndexOf('/');
           this.rootPath = ssfbPath.substring(0, index) + '/';
           this.status = 'not ready'; // status
@@ -6211,6 +6212,13 @@
           enumerable: false,
           configurable: true
       });
+      Object.defineProperty(SS6Player.prototype, "isPlaying", {
+          get: function () {
+              return this._isPlaying;
+          },
+          enumerable: false,
+          configurable: true
+      });
       /**
        * Setup
        * @param {string} animePackName - The name of animePack(SSAE).
@@ -6261,7 +6269,7 @@
           }
           // 各アニメーションステータスを初期化
           this.alphaBlendType = this.GetPartsBlendMode();
-          this.isPlaying = false;
+          this._isPlaying = false;
           this.isPausing = true;
           this._startFrame = this.curAnimation.startFrames();
           this._endFrame = this.curAnimation.endFrames();
@@ -6291,7 +6299,7 @@
       SS6Player.prototype.Update = function (delta) {
           var currentTime = Date.now();
           var elapsedTime = currentTime - this.pastTime;
-          var toNextFrame = this.isPlaying && !this.isPausing;
+          var toNextFrame = this._isPlaying && !this.isPausing;
           this.pastTime = currentTime;
           if (toNextFrame && this.updateInterval !== 0) {
               this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
@@ -6310,7 +6318,7 @@
                               this.playEndCallback(this);
                           }
                           if (this._loops === 0)
-                              this.isPlaying = false;
+                              this._isPlaying = false;
                       }
                   }
                   // speed -
@@ -6323,11 +6331,11 @@
                               this.playEndCallback(this);
                           }
                           if (this._loops === 0)
-                              this.isPlaying = false;
+                              this._isPlaying = false;
                       }
                   }
                   this.SetFrameAnimation(this._currentFrame);
-                  if (this.isPlaying) {
+                  if (this._isPlaying) {
                       if (this.HaveUserData(this._currentFrame)) {
                           if (this.onUserDataCallback !== null) {
                               this.onUserDataCallback(this.GetUserData(this._currentFrame));
@@ -6394,7 +6402,7 @@
        * アニメーション再生を開始する
        */
       SS6Player.prototype.Play = function () {
-          this.isPlaying = true;
+          this._isPlaying = true;
           this.isPausing = false;
           this._currentFrame = this._startFrame;
           this.pastTime = Date.now();
@@ -6423,7 +6431,7 @@
        * @constructor
        */
       SS6Player.prototype.Stop = function () {
-          this.isPlaying = false;
+          this._isPlaying = false;
       };
       /**
        * アニメーション再生を位置（フレーム）を設定する
