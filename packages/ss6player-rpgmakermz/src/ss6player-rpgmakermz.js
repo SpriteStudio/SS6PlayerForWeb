@@ -3,6 +3,7 @@
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
+ * @version __VERSION__
  * @help SS6Player for RPG Maker MZ
  *
  * 詳しい使い方は、GitHub リポジトリの README.md をお読みください。
@@ -10,7 +11,7 @@
  *
  * デプロイメント時に「未使用ファイルを削除」オプションを使用した場合、
  * アニメーションを含むフォルダは削除されてしまいます。
- * 必ず、デプロイメント後にプラグインパラメータで指定したフォルダを、
+ * 必ず、デプロイメント後にプラグインパラメータで指定したディレクトリを、
  * 出力先の同じ位置にコピーしてください。
  *
  * @param animationDir
@@ -23,17 +24,17 @@
  *
  * @command loadSsfb
  * @text ssfbロード
- * @desc ssfbを画像をロードし登録します。
+ * @desc ssfb ファイルと関連画像をダウンロードしロードします。
  *
  * @arg ssfbId
  * @text ssfb ID
- * @desc 登録する ID です。
+ * @desc 登録する ssfb ID です。他のコマンドから参照するのに利用します。
  * @type number
  * @min 1
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
- * @desc ssfb ファイルをアニメーションフォルダからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssbp.ssfb)
+ * @desc ssfb ファイルをアニメーションディレクトリからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssbp.ssfb)
  * @type string
  *
  *
@@ -50,7 +51,7 @@
  *
  * @arg animePackName
  * @text アニメパック名
- * @desc 再生するアニメパック名を指定してください。
+ * @desc 再生するアニメパック名(ssae)を指定してください。
  *       e.g. Knight_bomb
  * @type string
  *
@@ -82,7 +83,7 @@
  *
  * @command waitForPicture
  * @text ピクチャ再生待ち
- * @desc アニメーションが再生完了するまで待ちます。アニメーションがない場合とループ再生時は無視されます。
+ * @desc アニメーションが再生完了するまでウエイトします。ピクチャにアニメーションがない場合とループ再生時は無視されます。
  *
  * @arg pictureId
  * @text Picture ID
@@ -95,7 +96,6 @@
 import {SS6Player, SS6Project} from 'ss6player-pixi';
 import {PluginParameters} from "./PluginParameters";
 import {SS6ProjectManager} from './SS6ProjectManager';
-import {SS6PlayerManager} from "./SS6PlayerManager";
 
 const PLUGIN_NAME = "ss6player-rpgmakermz";
 const SS6PROJECT_LOAD_WAIT_MODE = "ss6projectLoadWait";
@@ -217,7 +217,7 @@ Sprite_Picture.prototype.destroy = function(options) {
 const _Scene_Base_terminate = Scene_Base.prototype.terminate;
 Scene_Base.prototype.terminate = function() {
 
-  // delete all SS6Play instance at terminate Scene
+  // delete all SS6Play instance at terminating the Scene
   $gameScreen._pictures.forEach((picture, index, pictures) => {
     if(picture && picture.mzkpSS6Player) {
       picture.mzkpSS6Player.Stop();
@@ -268,6 +268,8 @@ Sprite_Picture.prototype.updateBitmap = function() {
         picture.mzkpSS6PlayerChanged = false;
         g_pictureSS6PlayerPrependCallback = null;
         g_pictureSS6PlayerAppendCallback = null;
+      } else {
+        this.mzkpSS6Player = null;
       }
     }
   } else {
@@ -277,7 +279,6 @@ Sprite_Picture.prototype.updateBitmap = function() {
 
 const _Game_Screen_clear = Game_Screen.prototype.clear;
 Game_Screen.prototype.clear = function () {
-  SS6PlayerManager.getInstance().clear();
   SS6ProjectManager.getInstance().clear();
   _Game_Screen_clear.call(this);
 };
