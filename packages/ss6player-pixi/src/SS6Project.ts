@@ -3,6 +3,7 @@ import { flatbuffers } from 'flatbuffers';
 import { ss } from 'ssfblib';
 
 export class SS6Project {
+  public ssfbPath: string;
   public rootPath: string;
   public fbObj: ss.ssfb.ProjectData;
   public resources: Partial<Record<string, PIXI.LoaderResource>>;
@@ -30,6 +31,7 @@ export class SS6Project {
                      onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
                      onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
                      onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null) {
+    this.ssfbPath = ssfbPath;
     const index = ssfbPath.lastIndexOf('/');
     this.rootPath = ssfbPath.substring(0, index) + '/';
 
