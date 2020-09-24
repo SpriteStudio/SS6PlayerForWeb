@@ -122,12 +122,13 @@ PluginManager.registerCommand(PLUGIN_NAME, "loadSsfb", function(args) {
   let project = new SS6Project(ssfbPath, () => {
     SS6ProjectManager.getInstance().set(ssfbId, project);
   },
-    30, 0,
+    180 * 1000, 3,
     (ssfbPath, timeout, retry, httpObj) => {
       this.setWaitMode('');
       throw httpObj;
     },
     (ssfbPath, timeout, retry, httpObj) => {
+      console.log("timeout download ssfb file: " + ssfbPath);
       this.setWaitMode('');
       throw httpObj;
     },
