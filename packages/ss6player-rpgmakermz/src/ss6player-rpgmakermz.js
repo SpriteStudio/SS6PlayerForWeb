@@ -301,12 +301,14 @@ SceneManager.updateScene = function() {
       }
     } else {
       // execute to suspend all SS6Player instance
-      $gameScreen._pictures.forEach((picture, index, pictures) => {
-        if (picture && picture.mzkpSS6Player) {
-          picture.mzkpSS6Player.Pause();
-        }
-      });
-      g_suspendPlayingSS6Player = true;
+      if ($gameScreen && $gameScreen._pictures) {
+        $gameScreen._pictures.forEach((picture, index, pictures) => {
+          if (picture && picture.mzkpSS6Player) {
+            picture.mzkpSS6Player.Pause();
+          }
+        });
+        g_suspendPlayingSS6Player = true;
+      }
     }
   }
 };

@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.1.1
+ * SS6Player For RPG Maker MZ v0.1.2
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
@@ -7730,7 +7730,7 @@
    * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
    * @author Web Technology Corp.
    * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
-   * @version 0.1.1
+   * @version 0.1.2
    * @help SS6Player for RPG Maker MZ
    *
    * 詳しい使い方は、GitHub リポジトリの README.md をお読みください。
@@ -8024,12 +8024,14 @@
         }
       } else {
         // execute to suspend all SS6Player instance
-        $gameScreen._pictures.forEach((picture, index, pictures) => {
-          if (picture && picture.mzkpSS6Player) {
-            picture.mzkpSS6Player.Pause();
-          }
-        });
-        g_suspendPlayingSS6Player = true;
+        if ($gameScreen && $gameScreen._pictures) {
+          $gameScreen._pictures.forEach((picture, index, pictures) => {
+            if (picture && picture.mzkpSS6Player) {
+              picture.mzkpSS6Player.Pause();
+            }
+          });
+          g_suspendPlayingSS6Player = true;
+        }
       }
     }
   };
