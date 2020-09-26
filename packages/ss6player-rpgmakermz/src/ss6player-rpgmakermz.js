@@ -21,6 +21,24 @@
  * @default img/ssfb
  * @requiredAssets img/ssfb
  *
+ * @param changeBattleSprite
+ * @text changeBattleSprite
+ * @desc battleCharacterDir
+ * @type boolean
+ * @default false
+ *
+ * @param battleCharacterDir
+ * @text battleCharacterDir
+ * @desc battleCharacterDir
+ * @type file
+ * @default img/ssfb/characters
+ * @requiredAssets img/ssfb/characters
+ *
+ * @param battleAnimePack
+ * @text battleAnimePack
+ * @desc battleCharacterDir
+ * @type string
+ *
  *
  * @command loadSsfb
  * @text ssfbロード
@@ -311,4 +329,53 @@ SceneManager.updateScene = function() {
       }
     }
   }
+};
+
+//
+//
+//
+//
+const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
+Sprite_Actor.prototype.createMainSprite = function () {
+  _Sprite_Actor_createMainSprite.call(this);
+  this._ss6playerSprite = new Sprite();
+  this._mainSprite.addChild(this._ss6playerSprite);
+};
+
+const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
+Sprite_Actor.prototype.setBattler = function (battler) {
+  const changed = (battler !== this._actor);
+  _Sprite_Actor_setBattler.call(this, battler);
+  if (changed) {
+    const actorId = this._actor.actorId();
+    const charDir = PluginParameters.getInstance().battleCharacterDir + actorId + "/";
+    console.log(charDir);
+    const fs = require('fs');
+    if (!fs.existsSync(charDir)) {
+      // not found character sub directory
+      return;
+    }
+    const ssfbId = "battle" + actorId;
+    const ssfbPath = charDir + "hoge.ssbp.ssfb"
+    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+      const existProject = SS6ProjectManager.getInstance().get(ssfbId);
+      if (ssfbPath === existProject.ssfbPath) {
+        // already loaded same project.
+        return;
+      }
+    }
+    let project = new SS6Project(ssfbPath, () => {
+        SS6ProjectManager.getInstance().set(ssfbId, project);
+      });
+  }
+};
+
+// オプションがONのとき、武器アニメーションを非表示に
+const _spriteActorSetupWeaponAnimation = Sprite_Actor.prototype.setupWeaponAnimation;
+Sprite_Actor.prototype.setupWeaponAnimation = function () {
+  _spriteActorSetupWeaponAnimation.call(this);
+  // console.log("Sprite_Actor.prototype.setupWeaponAnimation");
+  //if (parameters["HideWeaponGraphics"].toUpperCase() === "OFF") {
+    //_spriteActorSetupWeaponAnimation.call(this);
+  //}
 };

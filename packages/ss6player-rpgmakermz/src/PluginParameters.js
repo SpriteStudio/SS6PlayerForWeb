@@ -4,9 +4,12 @@ export class PluginParameters {
   pluginParameters;
   animationDir;
 
+  battleCharacterDir;
+
   constructor() {
     this.pluginParameters = PluginManager.parameters('ss6player-rpgmakermz');
     this.animationDir = String(this.pluginParameters['animationDir'] || 'img/ssfb') + '/';
+    this.battleCharacterDir = String(this.pluginParameters['battleCharacterDir'] || 'img/ssfb/battleCharacterDir') + '/';
   }
 
   static getInstance() {
