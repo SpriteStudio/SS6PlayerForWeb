@@ -11,12 +11,14 @@
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/SampleProject/index.html) になります。
 
 # アニメーションデータの作成方法
+
 SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。
 
 Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法に関しては[こちらを参照してください](https://github.com/SpriteStudio/SpriteStudio6-SDK/wiki/%E3%82%B3%E3%83%B3%E3%83%90%E3%83%BC%E3%82%BF%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9)
 
 # 使い方
 ## プラグインのセットアップ
+
 1. プラグイン `ss6player-rpgmakermz.js` をビルドするかダウンロードします。
 2. RPGツクールMZ プロジェクトの `js/plugins` ディレクトリへ `ss6player-rpgmakermz.js` を格納します。
 3. RPGツクールMZ メニューの `ツール -> プラグイン管理`　をクリックし、プラグイン管理ウィンドウを開き `ss6player-rpgmakermz` を有効にしてください。
@@ -70,6 +72,7 @@ npm run build
 ```
 
 ## ビルドと SampleProject への配置
+
 `SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で `npm run deploy` を実行すると、`ss6player-rpgmakermz.js` の単独ビルド後 `Sample/js/plugins/` ディレクトリへ配置します。
 
 ```
@@ -78,12 +81,15 @@ npm run deploy
 ```
 
 ## 動作確認
+
 RPG ツクール MZ を利用する方法とブラウザを利用する 2 つの方法があります。
 
 ### RPGツクールMZ
+
 RPGツクールMZ で `SS6PlayerForWeb/packages/ss6player-rpgmakermz/SampleProject/game.rmmzproject` を開いてください。
 
 ### ブラウザ
+
 `SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で下記コマンドを実行してください。
 
 ローカル環境で http サーバが起動し、ブラウザ上で ss6player-rpgmakermz を組み込んだサンプルゲームが起動します。
