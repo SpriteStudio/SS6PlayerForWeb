@@ -11,33 +11,37 @@
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/SampleProject/index.html) になります。
 
 # アニメーションデータの作成方法
+
 SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。
 
 Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法に関しては[こちらを参照してください](https://github.com/SpriteStudio/SpriteStudio6-SDK/wiki/%E3%82%B3%E3%83%B3%E3%83%90%E3%83%BC%E3%82%BF%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9)
 
 # 使い方
 ## プラグインのセットアップ
-1. プラグイン `ss6player-rpgmakermz.js` をビルドするかダウンロードします。
+
+1. プラグイン `ss6player-rpgmakermz.js` の最新版を[ダウンロード](#プラグイン)するか、あるいはお手元で[ビルド](#ビルド)してください。
 2. RPGツクールMZ プロジェクトの `js/plugins` ディレクトリへ `ss6player-rpgmakermz.js` を格納します。
-3. RPGツクールMZ メニューの `ツール -> プラグイン管理`　をクリックし、プラグイン管理ウィンドウを開き `ss6player-rpgmakermz` を有効にしてください。
+3. RPGツクールMZ メニューの `ツール -> プラグイン管理`　をクリックし、プラグイン管理ウィンドウを開き `ss6player-rpgmakermz` を追加し、状態を ON にして有効にしてください。
+
 
 ## アニメーションの配置
 
 ssfb ファイルと画像データをプラグインパラメーターの `ssfb アニメーションベースディレクトリ` で指定したディレクトリへ格納してください。
 デフォルトでは `img/ssfb` となっています。
 
-サブディレクトリへの格納が可能ですが、 ssfb ロード時にサブディレクトリパスの追加が必要になります。
+サブディレクトリへの格納が可能です。(サブディレクトリは ssfb ロード時にサブディレクトリの相対パスでの指定が必要になります。)
 
 ## アニメーションの表示
 
-アニメーションの表示方法について説明します。詳細は [SamplePoject](./SampleProject) を参照してください。
+アニメーションの表示方法について説明します。
+具体的なイベントコマンド実行方法などは [SamplePoject](./SampleProject) を参照してください。
 
 ### ピクチャとして表示
 
-1. プラグインコマンド `loadSsfb` で ssfb ファイルパスと画像ファイルの読み込みし、登録します。こちらのコマンドはダウンロード完了するまでウェイトします。
-2. プラグインコマンド `setAsPicture` でピクチャとして表示するアニメーションインスタンスを生成します。
-3. イベントコマンド `ピクチャの表示` で任意の pictureId を指定し、画像ファイルを未指定で実行してください。
-4. アニメーションが表示されます。アニメーションは再生が完了すると非表示になります。
+1. プラグインコマンド `ssfbロード`(`loadSsfb`) で ssfb ファイルパスと画像ファイルの読み込みし、登録します。こちらのコマンドはダウンロード完了するまでウェイトします。
+2. プラグインコマンド `アニメーションピクチャの設定`(`setAsPicture`) でピクチャとして表示するアニメーションインスタンスを生成します。
+3. イベントコマンド `ピクチャの表示` で任意の picture ID を指定し、画像ファイルを未指定で実行してください。
+4. `3.` のピクチャ表示で指定した座標にアニメーションが表示されます。アニメーションは再生が完了すると非表示になります。
 
 # For Plugin Developer
 
@@ -70,6 +74,7 @@ npm run build
 ```
 
 ## ビルドと SampleProject への配置
+
 `SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で `npm run deploy` を実行すると、`ss6player-rpgmakermz.js` の単独ビルド後 `Sample/js/plugins/` ディレクトリへ配置します。
 
 ```
@@ -78,12 +83,15 @@ npm run deploy
 ```
 
 ## 動作確認
+
 RPG ツクール MZ を利用する方法とブラウザを利用する 2 つの方法があります。
 
 ### RPGツクールMZ
+
 RPGツクールMZ で `SS6PlayerForWeb/packages/ss6player-rpgmakermz/SampleProject/game.rmmzproject` を開いてください。
 
 ### ブラウザ
+
 `SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で下記コマンドを実行してください。
 
 ローカル環境で http サーバが起動し、ブラウザ上で ss6player-rpgmakermz を組み込んだサンプルゲームが起動します。
