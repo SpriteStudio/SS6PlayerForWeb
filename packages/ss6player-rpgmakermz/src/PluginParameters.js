@@ -4,12 +4,17 @@ export class PluginParameters {
   pluginParameters;
   animationDir;
 
-  battleCharacterDir;
+  replaceSVActorSpriteFlag; // boolean
+  svActorDir; // string
+  svActorAnimationPack; // string
 
   constructor() {
     this.pluginParameters = PluginManager.parameters('ss6player-rpgmakermz');
     this.animationDir = String(this.pluginParameters['animationDir'] || 'img/ssfb') + '/';
-    this.battleCharacterDir = String(this.pluginParameters['battleCharacterDir'] || 'img/ssfb/battleCharacterDir') + '/';
+
+    this.replaceSVActorSpriteFlag = (this.pluginParameters['replaceSVActorSpriteFlag'] === 'true') || false;
+    this.svActorDir = String(this.pluginParameters['svActorDir'] || 'img/ssfb/sv_actors') + '/';
+    this.svActorAnimationPack = String(this.pluginParameters['svActorAnimationPack'] || 'motions');
   }
 
   static getInstance() {

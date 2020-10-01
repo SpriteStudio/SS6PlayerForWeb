@@ -21,23 +21,24 @@
  * @default img/ssfb
  * @requiredAssets img/ssfb
  *
- * @param changeBattleSprite
- * @text changeBattleSprite
- * @desc battleCharacterDir
+ * @param replaceSVActorSpriteFlag
+ * @text SV アクター置き換え
+ * @desc SV アクターを Sprite Studio アニメーションに置き換え機能の ON/OFF です。
  * @type boolean
  * @default false
  *
- * @param battleCharacterDir
- * @text battleCharacterDir
- * @desc battleCharacterDir
+ * @param svActorDir
+ * @text SV アクターディレクトリ
+ * @desc SV アクターの SpriteStudio データを覚野するディレクトリのパスです
  * @type file
- * @default img/ssfb/characters
- * @requiredAssets img/ssfb/characters
+ * @default img/ssfb/sv_actors
+ * @requiredAssets img/ssfb/sv_actors
  *
- * @param battleAnimePack
- * @text battleAnimePack
- * @desc battleCharacterDir
+ * @param svActorAnimationPack
+ * @text SV アクターアニメーションパック名
+ * @desc SV アクターが利用する Sprite Studio の共通アニメーションパック(ssae)名です
  * @type string
+ * @default motions
  *
  *
  * @command loadSsfb
@@ -333,42 +334,127 @@ SceneManager.updateScene = function() {
 
 //
 //
+// replace side view character sprite to sprite studio animation
 //
 //
+Sprite_Actor.prototype.svActorSsfbId = function (actorId) {
+  return "battle" + actorId;
+}
+Sprite_Actor.prototype.svActorSsfbDir = function(actorId) {
+  return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
+}
+Sprite_Actor.prototype.svActorSsfbPath = function (actorId) {
+  return this.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
+}
+
 const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
 Sprite_Actor.prototype.createMainSprite = function () {
   _Sprite_Actor_createMainSprite.call(this);
-  this._ss6playerSprite = new Sprite();
-  this._mainSprite.addChild(this._ss6playerSprite);
+  console.log(typeof PluginParameters.getInstance().replaceSVActorSpriteFlag);
+  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    this._ss6player = null;
+  }
 };
 
 const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
 Sprite_Actor.prototype.setBattler = function (battler) {
   const changed = (battler !== this._actor);
   _Sprite_Actor_setBattler.call(this, battler);
-  if (changed) {
-    const actorId = this._actor.actorId();
-    const charDir = PluginParameters.getInstance().battleCharacterDir + actorId + "/";
-    console.log(charDir);
-    const fs = require('fs');
-    if (!fs.existsSync(charDir)) {
-      // not found character sub directory
-      return;
-    }
-    const ssfbId = "battle" + actorId;
-    const ssfbPath = charDir + "hoge.ssbp.ssfb"
-    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
-      const existProject = SS6ProjectManager.getInstance().get(ssfbId);
-      if (ssfbPath === existProject.ssfbPath) {
-        // already loaded same project.
+  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    if (changed) {
+      const actorId = this._actor.actorId();
+      const charDir = this.svActorSsfbDir(actorId);
+      const fs = require('fs');
+      if (!fs.existsSync(charDir)) {
+        // not found character sub directory
         return;
       }
-    }
-    let project = new SS6Project(ssfbPath, () => {
+      const ssfbId = this.svActorSsfbId(actorId);
+      const ssfbPath = this.svActorSsfbPath(actorId);
+      if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+        const existProject = SS6ProjectManager.getInstance().get(ssfbId);
+        if (ssfbPath === existProject.ssfbPath) {
+          this._ss6player = new SS6Player(existProject);
+          this._mainSprite.addChild(this._ss6player);
+          return;
+        }
+      }
+      SS6ProjectManager.getInstance().prepare(ssfbId);
+      let project = new SS6Project(ssfbPath, () => {
+        this._ss6player = new SS6Player(project);
+        this._mainSprite.addChild(this._ss6player);
+
         SS6ProjectManager.getInstance().set(ssfbId, project);
       });
+    }
   }
 };
+
+// 元スプライトのビットマップを無効化し、SsSpriteのモーション更新を行う
+const  Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
+Sprite_Actor.prototype.updateBitmap = function () {
+  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    const actorId = this._actor.actorId();
+    const ssfbId = this.svActorSsfbId(actorId);
+    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+      Sprite_Battler.prototype.updateBitmap.call(this);
+
+      this._mainSprite.bitmap = null;
+      this.updateSS6Player();
+    } else {
+      Sprite_Actor_updateBitmap.call(this);
+    }
+  } else {
+    Sprite_Actor_updateBitmap.call(this);
+  }
+};
+
+let SPRITE_ACTOR_MOTIONS_KEYS = [];
+for (var key in Sprite_Actor.MOTIONS) {
+  let index = Sprite_Actor.MOTIONS[key].index;
+  SPRITE_ACTOR_MOTIONS_KEYS[index] = key;
+}
+
+Sprite_Actor.prototype.updateSS6Player = function () {
+  if (typeof this._motion === "object") {
+    const motionName = SPRITE_ACTOR_MOTIONS_KEYS[this._motion.index];
+    const loop = this._motion.loop;
+
+    if (this._ss6player === null || this._ss6player.curAnimaName !== motionName) {
+      // change to new motion
+      const animePackName = PluginParameters.getInstance().svActorAnimationPack;
+      this._ss6player.Setup(animePackName, motionName);
+      this._ss6player.loop = (loop)? -1 : 1;
+      this._ss6player.SetPlayEndCallback(player => {
+        if (player.loop === 0) {
+          this.refreshMotion();
+        }
+      });
+      this._ss6player.Play();
+    }
+  }
+}
+
+/*
+const Sprite_Actor_updateMotionCount = Sprite_Actor.prototype.updateMotionCount;
+Sprite_Actor.prototype.updateMotionCount = function () {
+  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    const actorId = this._actor.actorId();
+    const ssfbId = this.svActorSsfbId(actorId);
+    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+      if (this._motion && this._ssSprite.isPlaying()) {
+        this._motionCount = this._ssSprite.getFrameNo();
+      } else {
+        this.refreshMotion();
+      }
+    } else {
+      Sprite_Actor_updateMotionCount.call(this);
+    }
+  } else {
+    Sprite_Actor_updateMotionCount.call(this);
+  }
+};
+ */
 
 // オプションがONのとき、武器アニメーションを非表示に
 const _spriteActorSetupWeaponAnimation = Sprite_Actor.prototype.setupWeaponAnimation;
