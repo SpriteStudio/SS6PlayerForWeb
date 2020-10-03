@@ -375,14 +375,6 @@ Sprite_Actor.svActorSsfbPath = function (actorId) {
   return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
 }
 
-const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
-Sprite_Actor.prototype.createMainSprite = function () {
-  _Sprite_Actor_createMainSprite.call(this);
-  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
-
-  }
-};
-
 const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
 Sprite_Actor.prototype.setBattler = function (battler) {
   const changed = (battler !== this._actor);
@@ -415,7 +407,6 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   }
 };
 
-// 元スプライトのビットマップを無効化し、SsSpriteのモーション更新を行う
 const  Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
 Sprite_Actor.prototype.updateBitmap = function () {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
@@ -427,9 +418,11 @@ Sprite_Actor.prototype.updateBitmap = function () {
       this._mainSprite.bitmap = null;
       this.updateSS6Player();
     } else {
+      // not found ssfb instance
       Sprite_Actor_updateBitmap.call(this);
     }
   } else {
+    // unavailable replaceSVActorSpriteFlag
     Sprite_Actor_updateBitmap.call(this);
   }
 };
