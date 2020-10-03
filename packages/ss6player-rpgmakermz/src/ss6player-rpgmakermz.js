@@ -382,7 +382,6 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     if (changed) {
       const actorId = this._actor.actorId();
-      const charDir = Sprite_Actor.svActorSsfbDir(actorId);
       this._actor._svActorSS6Player = null;
       this._actor._svActorSS6PlayerParent = null;
 
@@ -395,9 +394,10 @@ Sprite_Actor.prototype.setBattler = function (battler) {
         }
       }
       SS6ProjectManager.getInstance().prepare(ssfbId);
-      let project = new SS6Project(ssfbPath, () => {
+      let project = new SS6Project(ssfbPath,
+        () => {
          SS6ProjectManager.getInstance().set(ssfbId, project);
-      },
+        },
         180 * 1000, 3,
         (ssfbPath, timeout, retry, httpObj) => {
           // not found character sub directory
@@ -428,40 +428,42 @@ Sprite_Actor.prototype.updateBitmap = function () {
   }
 };
 
-let SPRITE_ACTOR_MOTIONS_KEYS = [];
-for (var key in Sprite_Actor.MOTIONS) {
-  let index = Sprite_Actor.MOTIONS[key].index;
-  SPRITE_ACTOR_MOTIONS_KEYS[index] = key;
-}
-
 Sprite_Actor.prototype.updateSS6Player = function () {
-  if (typeof this._motion === "object") {
-    const motionName = SPRITE_ACTOR_MOTIONS_KEYS[this._motion.index];
-
-    if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.curAnimaName !== motionName) {
-      // change to new motion
-      if (this._actor._svActorSS6Player) {
-        // delete previous motion
-        this._mainSprite.removeChild(this._actor._svActorSS6Player);
-        this._actor._svActorSS6Playe = null;
-        this._actor._svActorSS6PlayerParent = null;
-      }
-
-      const loop = this._motion.loop;
-      const actorId = this._actor.actorId();
-      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
-      const project = SS6ProjectManager.getInstance().get(ssfbId);
-      const animePackName = PluginParameters.getInstance().svActorAnimationPack;
-      this._actor._svActorSS6Player = new SS6Player(project, animePackName, motionName);
-      this._actor._svActorSS6Player.loop = (loop)? -1 : 1;
-      this._actor._svActorSS6Player.SetPlayEndCallback(player => {
-        if (player.loop === 0) {
-          this.refreshMotion();
-        }
-      });
-      this._actor._svActorSS6Player.Play();
-      this._mainSprite.addChild(this._actor._svActorSS6Player);
-      this._actor._svActorSS6PlayerParent = this._mainSprite;
+  let motionName = "";
+  for (let key in Sprite_Actor.MOTIONS) {
+    const motion = Sprite_Actor.MOTIONS[key];
+    if (this._motion === motion) {
+      motionName = key;
     }
+  }
+  if (motionName === "") {
+    // not found motion
+    motionName = "walk";
+  }
+
+  if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.curAnimaName !== motionName) {
+    // change to new motion
+    if (this._actor._svActorSS6Player) {
+      // delete previous motion
+      this._mainSprite.removeChild(this._actor._svActorSS6Player);
+      this._actor._svActorSS6Playe = null;
+      this._actor._svActorSS6PlayerParent = null;
+    }
+
+    const loop = this._motion.loop;
+    const actorId = this._actor.actorId();
+    const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+    const project = SS6ProjectManager.getInstance().get(ssfbId);
+    const animePackName = PluginParameters.getInstance().svActorAnimationPack;
+    this._actor._svActorSS6Player = new SS6Player(project, animePackName, motionName);
+    this._actor._svActorSS6Player.loop = (loop) ? -1 : 1;
+    this._actor._svActorSS6Player.SetPlayEndCallback(player => {
+      if (player.loop === 0) {
+        this.refreshMotion();
+      }
+    });
+    this._actor._svActorSS6Player.Play();
+    this._mainSprite.addChild(this._actor._svActorSS6Player);
+    this._actor._svActorSS6PlayerParent = this._mainSprite;
   }
 }
