@@ -59,11 +59,72 @@
 <div class="container container-main">
 	<div class="content-wrap">
 		<div class="tsd-panel tsd-typography">
-			<a href="#spritestudio-6-player-for-web" id="spritestudio-6-player-for-web" style="color: inherit; text-decoration: none;">
-				<h3>SpriteStudio 6 Player for Web</h3>
+			<a href="#ss6player-for-pixijs" id="ss6player-for-pixijs" style="color: inherit; text-decoration: none;">
+				<h1>SS6Player for pixi.js</h1>
 			</a>
-			<p>ドキュメントはこちらです。</p>
-			<p><a href="https://github.com/SpriteStudio/SS6PlayerForWeb/wiki">https://github.com/SpriteStudio/SS6PlayerForWeb/wiki</a></p>
+			<p><a href="https://www.webtech.co.jp/spritestudio/index.html">SpriteStudio 6</a> で作成されたアニメーションを <a href="https://www.pixijs.com/">pixi.js</a> v5 で再生するライブラリです。</p>
+			<a href="#ライブラリ" id="ライブラリ" style="color: inherit; text-decoration: none;">
+				<h2>ライブラリ</h2>
+			</a>
+			<p>リリース最新版のライブラリソースは <a href="https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.umd.js">こちら</a> になります。</p>
+			<a href="#デモ" id="デモ" style="color: inherit; text-decoration: none;">
+				<h2>デモ</h2>
+			</a>
+			<p>リリース最新版のデモは <a href="https://spritestudio.github.io/SS6PlayerForWeb/Player/index.html">こちら</a> になります。</p>
+			<a href="#アニメーションデータの作成方法" id="アニメーションデータの作成方法" style="color: inherit; text-decoration: none;">
+				<h2>アニメーションデータの作成方法</h2>
+			</a>
+			<p>SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。</p>
+			<p>Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法に関しては<a href="https://github.com/SpriteStudio/SpriteStudio6-SDK/wiki/%E3%82%B3%E3%83%B3%E3%83%90%E3%83%BC%E3%82%BF%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">こちらを参照してください</a></p>
+			<a href="#使い方" id="使い方" style="color: inherit; text-decoration: none;">
+				<h2>使い方</h2>
+			</a>
+			<a href="#api-リファレンス" id="api-リファレンス" style="color: inherit; text-decoration: none;">
+				<h3>API リファレンス</h3>
+			</a>
+			<p>ss6player-pixi の API リファレンスは<a href="https://spritestudio.github.io/SS6PlayerForWeb/ss6player_pixi_api/index.html">こちら</a>です。</p>
+			<a href="#サンプル" id="サンプル" style="color: inherit; text-decoration: none;">
+				<h3>サンプル</h3>
+			</a>
+			<p><a href="./Player/">Player</a> ディレクトリの <a href="./Player/">index.html</a> と <a href="./Player/sample.js">sample.js</a> を参考にしてください。</p>
+			<p><a href="#%E3%83%87%E3%83%A2">デモ</a> ページを閲覧するか、あるいは<a href="#%E3%83%AD%E3%83%BC%E3%82%AB%E3%83%AB%E7%92%B0%E5%A2%83%E3%81%A7%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D">ローカル環境で動作確認</a>ができます。</p>
+			<a href="#for-developer" id="for-developer" style="color: inherit; text-decoration: none;">
+				<h1>For Developer</h1>
+			</a>
+			<p>ライブラリを開発する方、あるいは開発版のライブラリの動作を確認したい方向けです。</p>
+			<a href="#ビルド" id="ビルド" style="color: inherit; text-decoration: none;">
+				<h2>ビルド</h2>
+			</a>
+			<p>ソースの取得方法やビルドに必要な npm のインストール手順は <a href="https://github.com/SpriteStudio/SS6PlayerForWeb/wiki">wiki</a> を参照してください。</p>
+			<a href="#全ビルド" id="全ビルド" style="color: inherit; text-decoration: none;">
+				<h3>全ビルド</h3>
+			</a>
+			<p><code>SS6PlayerForWeb/</code> ディレクトリ上で下記コマンドを実行すると、 packages/ 以下の全ライブラリをビルドします。</p>
+			<pre><code class="language-bash"><span class="hljs-built_in">cd</span> SS6PlayerForWeb
+npm i
+npm run bootstrap
+npm run build</code></pre>
+			<p>ビルドが成功すると <code>ss6player-pixi.umd.js</code> と <code>ss6player-pixi.es5.js</code> が <code>SS6PlayerForWeb/packages/ss6player-pixi/dist</code> ディレクトリ以下に生成されます。</p>
+			<a href="#単独ビルド" id="単独ビルド" style="color: inherit; text-decoration: none;">
+				<h3>単独ビルド</h3>
+			</a>
+			<p><a href="#%E5%85%A8%E3%83%93%E3%83%AB%E3%83%89">全ビルド</a>実行後は <code>SS6PlayerForWeb/packages/ss6player-pixi</code> ディレクトリ上で <code>ss6player-pixi</code> の単独ビルドが可能になります。</p>
+			<pre><code class="language-bash"><span class="hljs-built_in">cd</span> SS6PlayerForWeb/packages/ss6player-pixi
+npm run build</code></pre>
+			<a href="#ローカル環境での動作確認" id="ローカル環境での動作確認" style="color: inherit; text-decoration: none;">
+				<h2>ローカル環境での動作確認</h2>
+			</a>
+			<p><a href="#%E5%85%A8%E3%83%93%E3%83%AB%E3%83%89">全ビルド</a>後、<code>SS6PlayerForWeb/packages/ss6player-pixi/</code> ディレクトリ上で下記コマンドを実行してください。</p>
+			<p>ローカル環境で http サーバが起動し、ブラウザ上で Player ディレクトリのサンプルを表示します。</p>
+			<pre><code class="language-bash"><span class="hljs-built_in">cd</span> SS6PlayerForWeb/packages/ss6player-pixi
+npm run view</code></pre>
+			<a href="#単独ビルドの監視" id="単独ビルドの監視" style="color: inherit; text-decoration: none;">
+				<h2>単独ビルドの監視</h2>
+			</a>
+			<p><code>SS6PlayerForWeb/packages/ss6player-pixi</code> ディレクトリ上で <code>npm run start</code> を実行すると、 <code>src/</code> ディレクトリのソースファイルが変更されると自動的に<a href="#%E5%8D%98%E7%8B%AC%E3%83%93%E3%83%AB%E3%83%89">単独ビルド</a>が走るようになります。 </p>
+			<p><a href="#%E3%83%AD%E3%83%BC%E3%82%AB%E3%83%AB%E7%92%B0%E5%A2%83%E3%81%A7%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D">ローカル環境での動作確認</a> と併用するとスムーズに動作確認が行なえます。</p>
+			<pre><code class="language-bash"><span class="hljs-built_in">cd</span> SS6PlayerForWeb/packages/ss6player-pixi
+npm run start</code></pre>
 		</div>
 		<section class="tsd-panel-group tsd-index-group">
 			<h2>Index</h2>

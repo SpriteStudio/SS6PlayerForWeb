@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.3.1
+ * SS6Player For pixi.js v1.3.2
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -6012,6 +6012,12 @@
           httpObj.responseType = 'arraybuffer';
           httpObj.timeout = timeout;
           httpObj.onload = function () {
+              if (!(httpObj.status >= 200 && httpObj.status < 400)) {
+                  if (self.onError !== null) {
+                      self.onError(ssfbPath, timeout, retry, httpObj);
+                  }
+                  return;
+              }
               var arrayBuffer = this.response;
               var bytes = new Uint8Array(arrayBuffer);
               var buf = new flatbuffers.ByteBuffer(bytes);
@@ -6032,7 +6038,7 @@
               }
           };
           httpObj.onerror = function () {
-              if (self.onTimeout !== null) {
+              if (self.onError !== null) {
                   self.onError(ssfbPath, timeout, retry, httpObj);
               }
           };
@@ -6131,7 +6137,7 @@
           var _this = _super.call(this) || this;
           _this.animation = [];
           _this.curAnimePackName = null;
-          _this.curAnimaName = null;
+          _this.curAnimeName = null;
           _this.curAnimation = null;
           _this.curAnimePackData = null;
           _this.parts = -1;
@@ -6219,6 +6225,20 @@
           enumerable: false,
           configurable: true
       });
+      Object.defineProperty(SS6Player.prototype, "animePackName", {
+          get: function () {
+              return this.curAnimePackName;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(SS6Player.prototype, "animeName", {
+          get: function () {
+              return this.curAnimeName;
+          },
+          enumerable: false,
+          configurable: true
+      });
       /**
        * Setup
        * @param {string} animePackName - The name of animePack(SSAE).
@@ -6235,7 +6255,7 @@
                       if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
                           this.animation = [i, j];
                           this.curAnimePackName = animePackName;
-                          this.curAnimaName = animeName;
+                          this.curAnimeName = animeName;
                           this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
                           this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
                           break;

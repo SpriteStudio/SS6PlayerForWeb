@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.1.2
+ * SS6Player For RPG Maker MZ v0.2.0
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
@@ -11,7 +11,7 @@
 
   /**
    * -----------------------------------------------------------
-   * SS6Player For pixi.js v1.3.1
+   * SS6Player For pixi.js v1.3.2
    *
    * Copyright(C) Web Technology Corp.
    * https://www.webtech.co.jp/
@@ -6017,6 +6017,12 @@
           httpObj.responseType = 'arraybuffer';
           httpObj.timeout = timeout;
           httpObj.onload = function () {
+              if (!(httpObj.status >= 200 && httpObj.status < 400)) {
+                  if (self.onError !== null) {
+                      self.onError(ssfbPath, timeout, retry, httpObj);
+                  }
+                  return;
+              }
               var arrayBuffer = this.response;
               var bytes = new Uint8Array(arrayBuffer);
               var buf = new flatbuffers.ByteBuffer(bytes);
@@ -6037,7 +6043,7 @@
               }
           };
           httpObj.onerror = function () {
-              if (self.onTimeout !== null) {
+              if (self.onError !== null) {
                   self.onError(ssfbPath, timeout, retry, httpObj);
               }
           };
@@ -6136,7 +6142,7 @@
           var _this = _super.call(this) || this;
           _this.animation = [];
           _this.curAnimePackName = null;
-          _this.curAnimaName = null;
+          _this.curAnimeName = null;
           _this.curAnimation = null;
           _this.curAnimePackData = null;
           _this.parts = -1;
@@ -6233,7 +6239,7 @@
       });
       Object.defineProperty(SS6Player.prototype, "animeName", {
           get: function () {
-              return this.curAnimaName;
+              return this.curAnimeName;
           },
           enumerable: false,
           configurable: true
@@ -6254,7 +6260,7 @@
                       if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
                           this.animation = [i, j];
                           this.curAnimePackName = animePackName;
-                          this.curAnimaName = animeName;
+                          this.curAnimeName = animeName;
                           this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
                           this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
                           break;
@@ -7752,7 +7758,7 @@
    * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
    * @author Web Technology Corp.
    * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
-   * @version 0.1.2
+   * @version 0.2.0
    * @help SS6Player for RPG Maker MZ
    *
    * 詳しい使い方は、GitHub リポジトリの README.md をお読みください。
@@ -7982,11 +7988,23 @@
   const _Scene_Base_terminate = Scene_Base.prototype.terminate;
   Scene_Base.prototype.terminate = function() {
 
-    // delete all SS6Play instance at terminating the Scene
+    // delete all SS6Play instance of Picture at terminating the Scene
     $gameScreen._pictures.forEach((picture, index, pictures) => {
       if(picture && picture.mzkpSS6Player) {
         picture.mzkpSS6Player.Stop();
+
         picture.mzkpSS6Player = null;
+      }
+    });
+
+    // delete all sv actor SS6Play instance at terminating the Scene
+    $gameActors._data.forEach((actor, index, actors) => {
+      if (actor._svActorSS6Player) {
+        actor._svActorSS6Player.Stop();
+        actor._svActorSS6PlayerParent.removeChild(actor._svActorSS6Player);
+
+        actor._svActorSS6Player = null;
+        actor._svActorSS6PlayerParent = null;
       }
     });
 
@@ -8007,6 +8025,7 @@
           // stop and remove previous ss6player instance
           this.mzkpSS6Player.Stop();
           this.removeChild(this.mzkpSS6Player);
+          this.mzkpSS6Player = null;
         }
 
         if(player !== null) {
@@ -8055,24 +8074,39 @@
     if (this._scene) {
       if (this.isGameActive()) {
         if(g_suspendPlayingSS6Player) {
-          // execute to resume all SS6Player instance
+          // execute to resume all SS6Player instance of Picture
           $gameScreen._pictures.forEach((picture, index, pictures) => {
             if(picture && picture.mzkpSS6Player) {
               picture.mzkpSS6Player.Resume();
             }
           });
+          // execute to resume SS6Player instance of SV Actor
+          $gameActors._data.forEach((actor, index, actors) => {
+            if (actor._svActorSS6Player) {
+              actor._svActorSS6Player.Resume();
+            }
+          });
           g_suspendPlayingSS6Player = false;
         }
       } else {
-        // execute to suspend all SS6Player instance
+        // execute to suspend all SS6Player instance of Picture
         if ($gameScreen && $gameScreen._pictures) {
           $gameScreen._pictures.forEach((picture, index, pictures) => {
             if (picture && picture.mzkpSS6Player) {
               picture.mzkpSS6Player.Pause();
             }
           });
-          g_suspendPlayingSS6Player = true;
         }
+
+        // execute to suspend all SS6Player instance of SV Actor
+        if ($gameActors && $gameActors._data) {
+          $gameActors._data.forEach((actor, index, actors) => {
+            if (actor._svActorSS6Player) {
+              actor._svActorSS6Player.Pause();
+            }
+          });
+        }
+        g_suspendPlayingSS6Player = true;
       }
     }
   };
@@ -8082,23 +8116,14 @@
   // replace side view character sprite to sprite studio animation
   //
   //
-  Sprite_Actor.prototype.svActorSsfbId = function (actorId) {
-    return "battle" + actorId;
+  Sprite_Actor.svActorSsfbId = function (actorId) {
+    return "sv_actor_" + actorId;
   };
-  Sprite_Actor.prototype.svActorSsfbDir = function(actorId) {
+  Sprite_Actor.svActorSsfbDir = function(actorId) {
     return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
   };
-  Sprite_Actor.prototype.svActorSsfbPath = function (actorId) {
-    return this.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
-  };
-
-  const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
-  Sprite_Actor.prototype.createMainSprite = function () {
-    _Sprite_Actor_createMainSprite.call(this);
-    console.log(typeof PluginParameters.getInstance().replaceSVActorSpriteFlag);
-    if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
-      this._ss6player = null;
-    }
+  Sprite_Actor.svActorSsfbPath = function (actorId) {
+    return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
   };
 
   const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
@@ -8108,107 +8133,90 @@
     if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
       if (changed) {
         const actorId = this._actor.actorId();
-        const charDir = this.svActorSsfbDir(actorId);
-        const fs = require('fs');
-        if (!fs.existsSync(charDir)) {
-          // not found character sub directory
-          return;
-        }
-        const ssfbId = this.svActorSsfbId(actorId);
-        const ssfbPath = this.svActorSsfbPath(actorId);
+        this._actor._svActorSS6Player = null;
+        this._actor._svActorSS6PlayerParent = null;
+
+        const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+        const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
         if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
           const existProject = SS6ProjectManager.getInstance().get(ssfbId);
           if (ssfbPath === existProject.ssfbPath) {
-            this._ss6player = new SS6Player(existProject);
-            this._mainSprite.addChild(this._ss6player);
             return;
           }
         }
         SS6ProjectManager.getInstance().prepare(ssfbId);
-        let project = new SS6Project(ssfbPath, () => {
-          this._ss6player = new SS6Player(project);
-          this._mainSprite.addChild(this._ss6player);
-
-          SS6ProjectManager.getInstance().set(ssfbId, project);
-        });
+        let project = new SS6Project(ssfbPath,
+          () => {
+           SS6ProjectManager.getInstance().set(ssfbId, project);
+          },
+          180 * 1000, 3,
+          (ssfbPath, timeout, retry, httpObj) => {
+            // not found character sub directory
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+          }
+        );
       }
     }
   };
 
-  // 元スプライトのビットマップを無効化し、SsSpriteのモーション更新を行う
   const  Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
   Sprite_Actor.prototype.updateBitmap = function () {
     if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
       const actorId = this._actor.actorId();
-      const ssfbId = this.svActorSsfbId(actorId);
+      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         Sprite_Battler.prototype.updateBitmap.call(this);
 
         this._mainSprite.bitmap = null;
         this.updateSS6Player();
       } else {
+        // not found ssfb instance
         Sprite_Actor_updateBitmap.call(this);
       }
     } else {
+      // unavailable replaceSVActorSpriteFlag
       Sprite_Actor_updateBitmap.call(this);
     }
   };
 
-  let SPRITE_ACTOR_MOTIONS_KEYS = [];
-  for (var key in Sprite_Actor.MOTIONS) {
-    let index = Sprite_Actor.MOTIONS[key].index;
-    SPRITE_ACTOR_MOTIONS_KEYS[index] = key;
-  }
-
   Sprite_Actor.prototype.updateSS6Player = function () {
-    if (typeof this._motion === "object") {
-      const motionName = SPRITE_ACTOR_MOTIONS_KEYS[this._motion.index];
-      const loop = this._motion.loop;
-
-      if (this._ss6player === null || this._ss6player.curAnimaName !== motionName) {
-        // change to new motion
-        const animePackName = PluginParameters.getInstance().svActorAnimationPack;
-        this._ss6player.Setup(animePackName, motionName);
-        this._ss6player.loop = (loop)? -1 : 1;
-        this._ss6player.SetPlayEndCallback(player => {
-          if (player.loop === 0) {
-            this.refreshMotion();
-          }
-        });
-        this._ss6player.Play();
+    let motionName = "";
+    for (let key in Sprite_Actor.MOTIONS) {
+      const motion = Sprite_Actor.MOTIONS[key];
+      if (this._motion === motion) {
+        motionName = key;
       }
     }
-  };
+    if (motionName === "") {
+      // not found motion
+      motionName = "walk";
+    }
 
-  /*
-  const Sprite_Actor_updateMotionCount = Sprite_Actor.prototype.updateMotionCount;
-  Sprite_Actor.prototype.updateMotionCount = function () {
-    if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.curAnimaName !== motionName) {
+      // change to new motion
+      if (this._actor._svActorSS6Player) {
+        // delete previous motion
+        this._mainSprite.removeChild(this._actor._svActorSS6Player);
+        this._actor._svActorSS6Playe = null;
+        this._actor._svActorSS6PlayerParent = null;
+      }
+
+      const loop = this._motion.loop;
       const actorId = this._actor.actorId();
-      const ssfbId = this.svActorSsfbId(actorId);
-      if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
-        if (this._motion && this._ssSprite.isPlaying()) {
-          this._motionCount = this._ssSprite.getFrameNo();
-        } else {
+      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+      const project = SS6ProjectManager.getInstance().get(ssfbId);
+      const animePackName = PluginParameters.getInstance().svActorAnimationPack;
+      this._actor._svActorSS6Player = new SS6Player(project, animePackName, motionName);
+      this._actor._svActorSS6Player.loop = (loop) ? -1 : 1;
+      this._actor._svActorSS6Player.SetPlayEndCallback(player => {
+        if (player.loop === 0) {
           this.refreshMotion();
         }
-      } else {
-        Sprite_Actor_updateMotionCount.call(this);
-      }
-    } else {
-      Sprite_Actor_updateMotionCount.call(this);
+      });
+      this._actor._svActorSS6Player.Play();
+      this._mainSprite.addChild(this._actor._svActorSS6Player);
+      this._actor._svActorSS6PlayerParent = this._mainSprite;
     }
-  };
-   */
-
-  // オプションがONのとき、武器アニメーションを非表示に
-  const _spriteActorSetupWeaponAnimation = Sprite_Actor.prototype.setupWeaponAnimation;
-  Sprite_Actor.prototype.setupWeaponAnimation = function () {
-    _spriteActorSetupWeaponAnimation.call(this);
-    // console.log("Sprite_Actor.prototype.setupWeaponAnimation");
-    //if (parameters["HideWeaponGraphics"].toUpperCase() === "OFF") {
-      //_spriteActorSetupWeaponAnimation.call(this);
-    //}
   };
 
 }());
