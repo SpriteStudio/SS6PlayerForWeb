@@ -10,7 +10,7 @@ export class SS6Player extends PIXI.Container {
   private readonly resources: Partial<Record<string, PIXI.LoaderResource>>;
   private animation: number[] = [];
   private curAnimePackName: string = null;
-  private curAnimaName: string = null;
+  private curAnimeName: string = null;
   private curAnimation: ss.ssfb.AnimationData = null;
   private curAnimePackData: ss.ssfb.AnimePackData = null;
   private parts: number = -1;
@@ -81,6 +81,14 @@ export class SS6Player extends PIXI.Container {
     return this._isPlaying;
   }
 
+  public get animePackName(): string {
+    return this.curAnimePackName;
+  }
+
+  public get animeName(): string {
+    return this.curAnimeName;
+  }
+
   /**
    * SS6Player (extends PIXI.Container)
    * @constructor
@@ -121,7 +129,7 @@ export class SS6Player extends PIXI.Container {
           if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
             this.animation = [i, j];
             this.curAnimePackName = animePackName;
-            this.curAnimaName = animeName;
+            this.curAnimeName = animeName;
             this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
             this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
             break;
