@@ -245,6 +245,16 @@ Scene_Base.prototype.terminate = function() {
     }
   });
 
+  $gameActors._data.forEach((actor, index, actors) => {
+    if (actor._svActorSS6Player) {
+      actor._svActorSS6Player.Stop();
+      actor._svActorSS6PlayerParent.removeChild(actor._svActorSS6Player);
+
+      actor._svActorSS6Player = null;
+      actor._svActorSS6PlayerParent = null;
+    }
+  });
+
   _Scene_Base_terminate.apply(this, arguments);
 };
 
@@ -338,7 +348,7 @@ SceneManager.updateScene = function() {
 //
 //
 Sprite_Actor.prototype.svActorSsfbId = function (actorId) {
-  return "battle" + actorId;
+  return "sv_actor_" + actorId;
 }
 Sprite_Actor.prototype.svActorSsfbDir = function(actorId) {
   return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
@@ -350,9 +360,8 @@ Sprite_Actor.prototype.svActorSsfbPath = function (actorId) {
 const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
 Sprite_Actor.prototype.createMainSprite = function () {
   _Sprite_Actor_createMainSprite.call(this);
-  console.log(typeof PluginParameters.getInstance().replaceSVActorSpriteFlag);
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
-    this._ss6player = null;
+
   }
 };
 
@@ -369,20 +378,25 @@ Sprite_Actor.prototype.setBattler = function (battler) {
         // not found character sub directory
         return;
       }
+      this._actor._svActorSS6Player = null;
+      this._actor._svActorSS6PlayerParent = null;
+
       const ssfbId = this.svActorSsfbId(actorId);
       const ssfbPath = this.svActorSsfbPath(actorId);
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         const existProject = SS6ProjectManager.getInstance().get(ssfbId);
         if (ssfbPath === existProject.ssfbPath) {
-          this._ss6player = new SS6Player(existProject);
-          this._mainSprite.addChild(this._ss6player);
+          this._actor._svActorSS6Player = new SS6Player(existProject);
+          this._mainSprite.addChild(this._actor._svActorSS6Player);
+          this._actor._svActorSS6PlayerParent = this._mainSprite;
           return;
         }
       }
       SS6ProjectManager.getInstance().prepare(ssfbId);
       let project = new SS6Project(ssfbPath, () => {
-        this._ss6player = new SS6Player(project);
-        this._mainSprite.addChild(this._ss6player);
+        this._actor._svActorSS6Player = new SS6Player(project);
+        this._mainSprite.addChild(this._actor._svActorSS6Player);
+        this._actor._svActorSS6PlayerParent = this._mainSprite;
 
         SS6ProjectManager.getInstance().set(ssfbId, project);
       });
@@ -420,17 +434,17 @@ Sprite_Actor.prototype.updateSS6Player = function () {
     const motionName = SPRITE_ACTOR_MOTIONS_KEYS[this._motion.index];
     const loop = this._motion.loop;
 
-    if (this._ss6player === null || this._ss6player.curAnimaName !== motionName) {
+    if (this._actor._svActorSS6Player.curAnimaName !== motionName) {
       // change to new motion
       const animePackName = PluginParameters.getInstance().svActorAnimationPack;
-      this._ss6player.Setup(animePackName, motionName);
-      this._ss6player.loop = (loop)? -1 : 1;
-      this._ss6player.SetPlayEndCallback(player => {
+      this._actor._svActorSS6Player.Setup(animePackName, motionName);
+      this._actor._svActorSS6Player.loop = (loop)? -1 : 1;
+      this._actor._svActorSS6Player.SetPlayEndCallback(player => {
         if (player.loop === 0) {
           this.refreshMotion();
         }
       });
-      this._ss6player.Play();
+      this._actor._svActorSS6Player.Play();
     }
   }
 }
