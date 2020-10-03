@@ -237,14 +237,16 @@ Sprite_Picture.prototype.destroy = function(options) {
 const _Scene_Base_terminate = Scene_Base.prototype.terminate;
 Scene_Base.prototype.terminate = function() {
 
-  // delete all SS6Play instance at terminating the Scene
+  // delete all SS6Play instance of Picture at terminating the Scene
   $gameScreen._pictures.forEach((picture, index, pictures) => {
     if(picture && picture.mzkpSS6Player) {
       picture.mzkpSS6Player.Stop();
+
       picture.mzkpSS6Player = null;
     }
   });
 
+  // delete all sv actor SS6Play instance at terminating the Scene
   $gameActors._data.forEach((actor, index, actors) => {
     if (actor._svActorSS6Player) {
       actor._svActorSS6Player.Stop();
@@ -272,6 +274,7 @@ Sprite_Picture.prototype.updateBitmap = function() {
         // stop and remove previous ss6player instance
         this.mzkpSS6Player.Stop();
         this.removeChild(this.mzkpSS6Player);
+        this.mzkpSS6Player = null;
       }
 
       if(player !== null) {
@@ -320,24 +323,39 @@ SceneManager.updateScene = function() {
   if (this._scene) {
     if (this.isGameActive()) {
       if(g_suspendPlayingSS6Player) {
-        // execute to resume all SS6Player instance
+        // execute to resume all SS6Player instance of Picture
         $gameScreen._pictures.forEach((picture, index, pictures) => {
           if(picture && picture.mzkpSS6Player) {
             picture.mzkpSS6Player.Resume();
           }
         });
+        // execute to resume SS6Player instance of SV Actor
+        $gameActors._data.forEach((actor, index, actors) => {
+          if (actor._svActorSS6Player) {
+            actor._svActorSS6Player.Resume();
+          }
+        });
         g_suspendPlayingSS6Player = false;
       }
     } else {
-      // execute to suspend all SS6Player instance
+      // execute to suspend all SS6Player instance of Picture
       if ($gameScreen && $gameScreen._pictures) {
         $gameScreen._pictures.forEach((picture, index, pictures) => {
           if (picture && picture.mzkpSS6Player) {
             picture.mzkpSS6Player.Pause();
           }
         });
-        g_suspendPlayingSS6Player = true;
       }
+
+      // execute to suspend all SS6Player instance of SV Actor
+      if ($gameActors && $gameActors._data) {
+        $gameActors._data.forEach((actor, index, actors) => {
+          if (actor._svActorSS6Player) {
+            actor._svActorSS6Player.Pause();
+          }
+        });
+      }
+      g_suspendPlayingSS6Player = true;
     }
   }
 };
@@ -347,14 +365,14 @@ SceneManager.updateScene = function() {
 // replace side view character sprite to sprite studio animation
 //
 //
-Sprite_Actor.prototype.svActorSsfbId = function (actorId) {
+Sprite_Actor.svActorSsfbId = function (actorId) {
   return "sv_actor_" + actorId;
 }
-Sprite_Actor.prototype.svActorSsfbDir = function(actorId) {
+Sprite_Actor.svActorSsfbDir = function(actorId) {
   return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
 }
-Sprite_Actor.prototype.svActorSsfbPath = function (actorId) {
-  return this.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
+Sprite_Actor.svActorSsfbPath = function (actorId) {
+  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
 }
 
 const _Sprite_Actor_createMainSprite = Sprite_Actor.prototype.createMainSprite;
@@ -372,7 +390,7 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     if (changed) {
       const actorId = this._actor.actorId();
-      const charDir = this.svActorSsfbDir(actorId);
+      const charDir = Sprite_Actor.svActorSsfbDir(actorId);
       const fs = require('fs');
       if (!fs.existsSync(charDir)) {
         // not found character sub directory
@@ -381,24 +399,17 @@ Sprite_Actor.prototype.setBattler = function (battler) {
       this._actor._svActorSS6Player = null;
       this._actor._svActorSS6PlayerParent = null;
 
-      const ssfbId = this.svActorSsfbId(actorId);
-      const ssfbPath = this.svActorSsfbPath(actorId);
+      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+      const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         const existProject = SS6ProjectManager.getInstance().get(ssfbId);
         if (ssfbPath === existProject.ssfbPath) {
-          this._actor._svActorSS6Player = new SS6Player(existProject);
-          this._mainSprite.addChild(this._actor._svActorSS6Player);
-          this._actor._svActorSS6PlayerParent = this._mainSprite;
           return;
         }
       }
       SS6ProjectManager.getInstance().prepare(ssfbId);
       let project = new SS6Project(ssfbPath, () => {
-        this._actor._svActorSS6Player = new SS6Player(project);
-        this._mainSprite.addChild(this._actor._svActorSS6Player);
-        this._actor._svActorSS6PlayerParent = this._mainSprite;
-
-        SS6ProjectManager.getInstance().set(ssfbId, project);
+         SS6ProjectManager.getInstance().set(ssfbId, project);
       });
     }
   }
@@ -409,7 +420,7 @@ const  Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
 Sprite_Actor.prototype.updateBitmap = function () {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     const actorId = this._actor.actorId();
-    const ssfbId = this.svActorSsfbId(actorId);
+    const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
     if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
       Sprite_Battler.prototype.updateBitmap.call(this);
 
@@ -432,12 +443,22 @@ for (var key in Sprite_Actor.MOTIONS) {
 Sprite_Actor.prototype.updateSS6Player = function () {
   if (typeof this._motion === "object") {
     const motionName = SPRITE_ACTOR_MOTIONS_KEYS[this._motion.index];
-    const loop = this._motion.loop;
 
-    if (this._actor._svActorSS6Player.curAnimaName !== motionName) {
+    if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.curAnimaName !== motionName) {
       // change to new motion
+      if (this._actor._svActorSS6Player) {
+        // delete previous motion
+        this._mainSprite.removeChild(this._actor._svActorSS6Player);
+        this._actor._svActorSS6Playe = null;
+        this._actor._svActorSS6PlayerParent = null;
+      }
+
+      const loop = this._motion.loop;
+      const actorId = this._actor.actorId();
+      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+      const project = SS6ProjectManager.getInstance().get(ssfbId);
       const animePackName = PluginParameters.getInstance().svActorAnimationPack;
-      this._actor._svActorSS6Player.Setup(animePackName, motionName);
+      this._actor._svActorSS6Player = new SS6Player(project, animePackName, motionName);
       this._actor._svActorSS6Player.loop = (loop)? -1 : 1;
       this._actor._svActorSS6Player.SetPlayEndCallback(player => {
         if (player.loop === 0) {
@@ -445,37 +466,8 @@ Sprite_Actor.prototype.updateSS6Player = function () {
         }
       });
       this._actor._svActorSS6Player.Play();
+      this._mainSprite.addChild(this._actor._svActorSS6Player);
+      this._actor._svActorSS6PlayerParent = this._mainSprite;
     }
   }
 }
-
-/*
-const Sprite_Actor_updateMotionCount = Sprite_Actor.prototype.updateMotionCount;
-Sprite_Actor.prototype.updateMotionCount = function () {
-  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
-    const actorId = this._actor.actorId();
-    const ssfbId = this.svActorSsfbId(actorId);
-    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
-      if (this._motion && this._ssSprite.isPlaying()) {
-        this._motionCount = this._ssSprite.getFrameNo();
-      } else {
-        this.refreshMotion();
-      }
-    } else {
-      Sprite_Actor_updateMotionCount.call(this);
-    }
-  } else {
-    Sprite_Actor_updateMotionCount.call(this);
-  }
-};
- */
-
-// オプションがONのとき、武器アニメーションを非表示に
-const _spriteActorSetupWeaponAnimation = Sprite_Actor.prototype.setupWeaponAnimation;
-Sprite_Actor.prototype.setupWeaponAnimation = function () {
-  _spriteActorSetupWeaponAnimation.call(this);
-  // console.log("Sprite_Actor.prototype.setupWeaponAnimation");
-  //if (parameters["HideWeaponGraphics"].toUpperCase() === "OFF") {
-    //_spriteActorSetupWeaponAnimation.call(this);
-  //}
-};
