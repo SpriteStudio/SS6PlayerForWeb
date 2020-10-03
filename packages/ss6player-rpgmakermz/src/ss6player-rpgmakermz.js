@@ -383,11 +383,6 @@ Sprite_Actor.prototype.setBattler = function (battler) {
     if (changed) {
       const actorId = this._actor.actorId();
       const charDir = Sprite_Actor.svActorSsfbDir(actorId);
-      const fs = require('fs');
-      if (!fs.existsSync(charDir)) {
-        // not found character sub directory
-        return;
-      }
       this._actor._svActorSS6Player = null;
       this._actor._svActorSS6PlayerParent = null;
 
@@ -402,7 +397,13 @@ Sprite_Actor.prototype.setBattler = function (battler) {
       SS6ProjectManager.getInstance().prepare(ssfbId);
       let project = new SS6Project(ssfbPath, () => {
          SS6ProjectManager.getInstance().set(ssfbId, project);
-      });
+      },
+        180 * 1000, 3,
+        (ssfbPath, timeout, retry, httpObj) => {
+          // not found character sub directory
+          SS6ProjectManager.getInstance().set(ssfbId, null);
+        }
+      );
     }
   }
 };
