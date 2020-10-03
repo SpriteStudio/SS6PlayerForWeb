@@ -58,6 +58,12 @@ export class SS6Project {
     httpObj.responseType = 'arraybuffer';
     httpObj.timeout = timeout;
     httpObj.onload = function() {
+      if (!(httpObj.status >= 200 && httpObj.status < 400)) {
+        if (self.onError !== null) {
+          self.onError(ssfbPath, timeout, retry, httpObj);
+        }
+        return;
+      }
       const arrayBuffer = this.response;
       const bytes = new Uint8Array(arrayBuffer);
       const buf = new flatbuffers.ByteBuffer(bytes);
@@ -78,7 +84,7 @@ export class SS6Project {
     };
 
     httpObj.onerror = function() {
-      if (self.onTimeout !== null) {
+      if (self.onError !== null) {
         self.onError(ssfbPath, timeout, retry, httpObj);
       }
     };
