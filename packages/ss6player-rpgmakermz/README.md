@@ -49,7 +49,7 @@ ssfb ファイルと画像ファイルをプラグインパラメーターの `s
 SV アクターアニメーションサンプルは [こちら](../../TestData/SideViewActorSample/) になります。
 
 下記のアニメーションを保持するアニメパック(ssae)を用意してください。
-アニメマップ名(ssae)はプラグインパラメーター `SV アクターアニメーションパック名`(`svActorAnimationPack`) で指定した名前にしてください。デフォルトでは `motions` になります。
+アニメパック名(ssae)はプラグインパラメーター `SV アクターアニメーションパック名`(`svActorAnimationPack`) で指定した名前にしてください。デフォルトでは `motions` になります。
 
 - walk
 - wait
@@ -74,17 +74,27 @@ SV アクターアニメーションサンプルは [こちら](../../TestData/S
 
 プラグインパラメーター `SV アクターディレクトリ`(`svActorDir`) で指定したディレクトリに ssfb ファイルと画像ファイルを配置します。デフォルトでは `img/ssfb/sv_actors` となっております。
 
-1. `SV アクターディレクトリ` へ置換したいキャラクターの ActorID と同じ名前のサブディレクトリを作成します。(例: ActorID 0001 を置換する場合、 `1/` というディレクトリを作成してください)
-2. `1.` で作成したディレクトリへ ssfb ファイルをディレクトリと同じ名前にして配置します。(例: `1/1.ssbp.ssfb`)
+1. `SV アクターディレクトリ` へ置換したいキャラクターの ActorID と同じ名前のサブディレクトリを作成します。
+2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
 3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
 
-例えば、SV で ActorID 0001 のスプライトを Sprite Studio アニメーションで置換する場合、下記のようなディレクトリ構成になります。
+下記の例は、 ActorID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/SideViewActorSample/) のアニメーションに置き換える例となります。
+
+ActorID 0001 の ID は `1` になります。
+
+1. `img/ssfb/sv_actors/1/` というディレクトリを作成します。
+2. ssfb ファイル `sv_actor_motions_template.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+3. 画像ファイル `motions.png` ファイルを `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+
+下記のようなディレクトリ構成になります。
 
 ```
 img/ssfb/sv_actors/1/
 |-- 1.ssbp.ssfb
 `-- motions.png
 ```
+
+アニメーションが配置されてない ActorID は `アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
 
 # For Plugin Developer
 
