@@ -441,7 +441,7 @@ Sprite_Actor.prototype.updateSS6Player = function () {
     motionName = "walk";
   }
 
-  if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.curAnimaName !== motionName) {
+  if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.animeName !== motionName) {
     // change to new motion
     if (this._actor._svActorSS6Player) {
       // delete previous motion
