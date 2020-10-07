@@ -2,11 +2,11 @@
 
 [SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを [RPGツクールMZ](https://tkool.jp/mz/) で再生するプラグインです。
 
-# プラグイン
+## プラグイン
 
 リリース最新版のプラグインソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/ss6player-rpgmakermz.js) になります。
 
-# デモ
+## デモ
 
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/SampleProject/index.html) になります。
 
@@ -16,29 +16,29 @@ ss6player-rpgmakermz のライセンスは [LISENCE](../../LICENSE) となりま
 ss6player-rpgmakermz は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi](../ss6player-pixi) をバンドルしています。
 ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
 
-# アニメーションデータの作成方法
+## アニメーションデータの作成方法
 
 SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。
 
 Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法に関しては[こちらを参照してください](https://github.com/SpriteStudio/SpriteStudio6-SDK/wiki/%E3%82%B3%E3%83%B3%E3%83%90%E3%83%BC%E3%82%BF%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9)
 
-# 使い方
-## プラグインのセットアップ
+## 使い方
+### プラグインのセットアップ
 
 1. プラグイン `ss6player-rpgmakermz.js` の最新版を[ダウンロード](#プラグイン)するか、あるいはお手元で[ビルド](#ビルド)してください。
 2. RPGツクールMZ プロジェクトの `js/plugins` ディレクトリへ `ss6player-rpgmakermz.js` を格納します。
 3. RPGツクールMZ メニューの `ツール -> プラグイン管理`　をクリックし、プラグイン管理ウィンドウを開き `ss6player-rpgmakermz` を追加し、状態を `ON` にして有効にしてください。
 
-## ピクチャとして表示
+### ピクチャとして表示
 
-### アニメーションの配置
+#### アニメーションの配置
 
 ssfb ファイルと画像ファイルをプラグインパラメーターの `ssfb アニメーションベースディレクトリ` (`animationDir`)で指定したディレクトリへ格納してください。
 デフォルトでは `img/ssfb` となっています。
 
 サブディレクトリへの格納が可能です。(サブディレクトリは ssfb ロード時にサブディレクトリの相対パスでの指定が必要になります。)
 
-### アニメーションの表示
+#### アニメーションの表示
 
 1. プラグインコマンド `ssfbロード`(`loadSsfb`) で ssfb ファイルと画像ファイルの読み込みし、登録します。こちらのコマンドはダウンロード完了するまでウェイトします。
 2. プラグインコマンド `アニメーションピクチャの設定`(`setAsPicture`) でピクチャとして表示するアニメーションインスタンスを生成します。
@@ -46,11 +46,11 @@ ssfb ファイルと画像ファイルをプラグインパラメーターの `s
 4. `3.` のピクチャ表示で指定した座標にアニメーションが表示されます。アニメーションは再生が完了すると非表示になります。
 
 
-## サイドビューアクターとして表示
+### サイドビューアクターとして表示
 
 プラグインパラメーターの `アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` にすると、サイドビューアクターの置き換え機能が有効になります。
 
-### アニメーションの用意
+#### アニメーションの用意
 
 SV アクターアニメーションサンプルは [こちら](../../TestData/SideViewActorSample/) になります。
 
@@ -76,7 +76,7 @@ SV アクターアニメーションサンプルは [こちら](../../TestData/S
 - sleep
 - dead
 
-### アニメーションの配置
+#### アニメーションの配置
 
 プラグインパラメーター `SV アクターディレクトリ`(`svActorDir`) で指定したディレクトリに ssfb ファイルと画像ファイルを配置します。デフォルトでは `img/ssfb/sv_actors` となっております。
 
