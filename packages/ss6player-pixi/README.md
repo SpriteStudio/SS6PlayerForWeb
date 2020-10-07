@@ -10,6 +10,12 @@
 
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/index.html) になります。
 
+## ライセンス
+ss6player-pixi のライセンスは [LISENCE](../../LICENSE) となります。
+
+ss6player-pixi は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) をバンドルしています。
+ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
+
 ## アニメーションデータの作成方法
 
 SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。

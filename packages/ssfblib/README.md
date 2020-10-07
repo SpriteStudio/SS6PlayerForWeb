@@ -9,6 +9,9 @@ ssfblib は [FlatBuffers](https://google.github.io/flatbuffers/) が schema か�
 ssfblib の schema ファイルは SpriteStudio6-SDK に同封しています。
 [こちらを参照してください](https://github.com/SpriteStudio/SpriteStudio6-SDK/blob/develop/Build/Converter/fbs/ssfb.fbs)
 
+## ライセンス
+ssfb のライセンスは [LISENCE](../../LICENSE) となります。 
+
 ## 使い方
 ### API リファレンス
 
