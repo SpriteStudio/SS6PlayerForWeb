@@ -10,6 +10,12 @@
 
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/SampleProject/index.html) になります。
 
+## ライセンス
+ss6player-rpgmakermz のライセンスは [LISENCE](../../LICENSE) となります。
+
+ss6player-rpgmakermz は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi](../ss6player-pixi) をバンドルしています。
+ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
+
 # アニメーションデータの作成方法
 
 SpriteStudio 6 のプロジェクトファイル sspj からアニメーションデータファイル ssfb ファイルをコンバートします。 コンバートには Ss6Converter を利用します。
