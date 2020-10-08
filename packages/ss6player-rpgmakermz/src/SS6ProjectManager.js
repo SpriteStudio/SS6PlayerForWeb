@@ -1,7 +1,7 @@
 export class SS6ProjectManager {
   static instance;
 
-  ssprojectDictionary;
+  ssprojectMap;
   _isLoading
 
   constructor() {
@@ -10,7 +10,7 @@ export class SS6ProjectManager {
   }
 
   prepare(ssfbId) {
-    this.ssprojectDictionary[ssfbId] = null;
+    this.ssprojectMap.set(ssfbId, null);
     this._isLoading = true;
   }
 
@@ -19,21 +19,22 @@ export class SS6ProjectManager {
   }
 
   isExist(ssfbId) {
-    return (this.ssprojectDictionary[ssfbId] !== undefined && this.ssprojectDictionary[ssfbId] !== null);
+    return (this.ssprojectMap.has(ssfbId) && this.ssprojectMap.get(ssfbId) !== null);
   }
 
   set(ssfbId, ssproject) {
-    this.ssprojectDictionary[ssfbId] = ssproject;
+    this.ssprojectMap.set(ssfbId, ssproject);
     this._isLoading = false;
   }
 
   get(ssfbId) {
-    return (this.ssprojectDictionary[ssfbId] !== undefined)? this.ssprojectDictionary[ssfbId] : null;
+    return (this.ssprojectMap.has(ssfbId))? this.ssprojectMap.get(ssfbId) : null;
   }
 
   clear() {
-    this.ssprojectDictionary = {}
+    this.ssprojectMap = new Map();
   }
+
 
   static getInstance() {
     if (SS6ProjectManager.instance) {

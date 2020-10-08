@@ -23,13 +23,13 @@
  *
  * @param replaceSVActorSpriteFlag
  * @text SV アクター置き換え
- * @desc SV アクターを Sprite Studio アニメーションに置き換え機能の ON/OFF です。
+ * @desc SV アクターを Sprite Studio アニメーションに置き換える機能の ON/OFF です。
  * @type boolean
  * @default false
  *
  * @param svActorDir
  * @text SV アクターディレクトリ
- * @desc SV アクターの SpriteStudio データを覚野するディレクトリのパスです
+ * @desc SV アクターの SpriteStudio データを格納するディレクトリのパスです
  * @type file
  * @default img/ssfb/sv_actors
  * @requiredAssets img/ssfb/sv_actors
@@ -39,6 +39,12 @@
  * @desc SV アクターが利用する Sprite Studio の共通アニメーションパック(ssae)名です
  * @type string
  * @default motions
+ *
+ * @param svActorHideWeaponGraphics
+ * @text SV アクター武器非表示
+ * @desc SV アクターの攻撃中の武器アニメーションを非表示にする機能の ON/OFF です。
+ * @type boolean
+ * @default true
  *
  *
  * @command loadSsfb
@@ -248,7 +254,7 @@ Scene_Base.prototype.terminate = function() {
 
   // delete all sv actor SS6Play instance at terminating the Scene
   $gameActors._data.forEach((actor, index, actors) => {
-    if (actor._svActorSS6Player) {
+    if (actor && actor._svActorSS6Player) {
       actor._svActorSS6Player.Stop();
       actor._svActorSS6PlayerParent.removeChild(actor._svActorSS6Player);
 
@@ -331,7 +337,7 @@ SceneManager.updateScene = function() {
         });
         // execute to resume SS6Player instance of SV Actor
         $gameActors._data.forEach((actor, index, actors) => {
-          if (actor._svActorSS6Player) {
+          if (actor && actor._svActorSS6Player) {
             actor._svActorSS6Player.Resume();
           }
         });
@@ -350,7 +356,7 @@ SceneManager.updateScene = function() {
       // execute to suspend all SS6Player instance of SV Actor
       if ($gameActors && $gameActors._data) {
         $gameActors._data.forEach((actor, index, actors) => {
-          if (actor._svActorSS6Player) {
+          if (actor && actor._svActorSS6Player) {
             actor._svActorSS6Player.Pause();
           }
         });
@@ -382,21 +388,26 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     if (changed) {
       const actorId = this._actor.actorId();
-      this._actor._svActorSS6Player = null;
-      this._actor._svActorSS6PlayerParent = null;
 
       const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
       const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         const existProject = SS6ProjectManager.getInstance().get(ssfbId);
         if (ssfbPath === existProject.ssfbPath) {
+          this._actor._svActorSS6Player = null;
+          this._actor._svActorSS6PlayerParent = null;
+
           return;
         }
       }
+
       SS6ProjectManager.getInstance().prepare(ssfbId);
       let project = new SS6Project(ssfbPath,
         () => {
-         SS6ProjectManager.getInstance().set(ssfbId, project);
+          this._actor._svActorSS6Player = null;
+          this._actor._svActorSS6PlayerParent = null;
+
+          SS6ProjectManager.getInstance().set(ssfbId, project);
         },
         180 * 1000, 3,
         (ssfbPath, timeout, retry, httpObj) => {
@@ -408,23 +419,23 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   }
 };
 
-const  Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
+const _Sprite_Actor_updateBitmap = Sprite_Actor.prototype.updateBitmap;
 Sprite_Actor.prototype.updateBitmap = function () {
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     const actorId = this._actor.actorId();
     const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
-    if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+    if (SS6ProjectManager.getInstance().isExist(ssfbId) && this._actor._svActorSS6Player !== undefined) {
       Sprite_Battler.prototype.updateBitmap.call(this);
 
       this._mainSprite.bitmap = null;
       this.updateSS6Player();
     } else {
       // not found ssfb instance
-      Sprite_Actor_updateBitmap.call(this);
+      _Sprite_Actor_updateBitmap.call(this);
     }
   } else {
     // unavailable replaceSVActorSpriteFlag
-    Sprite_Actor_updateBitmap.call(this);
+    _Sprite_Actor_updateBitmap.call(this);
   }
 };
 
@@ -467,3 +478,18 @@ Sprite_Actor.prototype.updateSS6Player = function () {
     this._actor._svActorSS6PlayerParent = this._mainSprite;
   }
 }
+
+const _Sprite_Actor_setupWeaponAnimation = Sprite_Actor.prototype.setupWeaponAnimation;
+Sprite_Actor.prototype.setupWeaponAnimation = function () {
+  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    if(PluginParameters.getInstance().svActorHideWeaponGraphics) {
+      if (this._actor._svActorSS6Player === undefined) {
+        _Sprite_Actor_setupWeaponAnimation.call(this);
+      }
+    } else {
+      _Sprite_Actor_setupWeaponAnimation.call(this);
+    }
+  } else {
+    _Sprite_Actor_setupWeaponAnimation.call(this);
+  }
+};

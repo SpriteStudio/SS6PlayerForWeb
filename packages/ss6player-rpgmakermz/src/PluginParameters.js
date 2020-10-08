@@ -7,6 +7,7 @@ export class PluginParameters {
   replaceSVActorSpriteFlag; // boolean
   svActorDir; // string
   svActorAnimationPack; // string
+  svActorHideWeaponGraphics; // boolean
 
   constructor() {
     this.pluginParameters = PluginManager.parameters('ss6player-rpgmakermz');
@@ -15,6 +16,7 @@ export class PluginParameters {
     this.replaceSVActorSpriteFlag = (this.pluginParameters['replaceSVActorSpriteFlag'] === 'true') || false;
     this.svActorDir = String(this.pluginParameters['svActorDir'] || 'img/ssfb/sv_actors') + '/';
     this.svActorAnimationPack = String(this.pluginParameters['svActorAnimationPack'] || 'motions');
+    this.svActorHideWeaponGraphics = (this.pluginParameters['svActorHideWeaponGraphics'] === 'true') || false;
   }
 
   static getInstance() {
