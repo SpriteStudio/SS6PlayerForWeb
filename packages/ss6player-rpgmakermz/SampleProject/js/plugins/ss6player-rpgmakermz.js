@@ -8091,7 +8091,7 @@
           });
           // execute to resume SS6Player instance of SV Actor
           $gameActors._data.forEach((actor, index, actors) => {
-            if (actor._svActorSS6Player) {
+            if (actor && actor._svActorSS6Player) {
               actor._svActorSS6Player.Resume();
             }
           });
@@ -8110,7 +8110,7 @@
         // execute to suspend all SS6Player instance of SV Actor
         if ($gameActors && $gameActors._data) {
           $gameActors._data.forEach((actor, index, actors) => {
-            if (actor._svActorSS6Player) {
+            if (actor && actor._svActorSS6Player) {
               actor._svActorSS6Player.Pause();
             }
           });
