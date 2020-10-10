@@ -8135,6 +8135,7 @@
     return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
   };
 
+  let notFoundSvActorSsfbMap = new Map();
   const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
   Sprite_Actor.prototype.setBattler = function (battler) {
     const changed = (battler !== this._actor);
@@ -8145,6 +8146,10 @@
 
         const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
         const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+        if(notFoundSvActorSsfbMap.has(ssfbId)) {
+          return;
+        }
+
         if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
           const existProject = SS6ProjectManager.getInstance().get(ssfbId);
           if (ssfbPath === existProject.ssfbPath) {
@@ -8166,6 +8171,7 @@
           180 * 1000, 3,
           (ssfbPath, timeout, retry, httpObj) => {
             // not found character sub directory
+            notFoundSvActorSsfbMap.set(ssfbId, null);
             SS6ProjectManager.getInstance().set(ssfbId, null);
           }
         );
