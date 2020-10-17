@@ -48,7 +48,7 @@ ssfb ファイルと画像ファイルをプラグインパラメーターの `s
 
 ### サイドビューアクターとして表示
 
-プラグインパラメーターの `アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` にすると、サイドビューアクターの置き換え機能が有効になります。
+プラグインパラメーターの `SV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` にすると、サイドビューアクターの置き換え機能が有効になります。
 
 #### アニメーションの用意
 
@@ -100,7 +100,105 @@ img/ssfb/sv_actors/1/
 `-- motions.png
 ```
 
-アニメーションが配置されてない ActorID は `アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
+アニメーションが配置されてない ActorID は `XV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
+
+### サイドビューエネミーとして表示
+
+プラグインパラメーターの `SV エネミー置き換え`(`replaceSVEnemySpriteFlag`) を `ON` にすると、サイドビューでの敵の置き換え機能が有効になります。
+
+#### アニメーションの配置
+
+プラグインパラメーター `SV エネミーディレクトリ`(`svEnemyDir`) で指定したディレクトリに ssfb ファイルと画像ファイルを配置します。デフォルトでは `img/ssfb/sv_enemies` となっております。
+
+1. `SV エネミーディレクトリ` へ置換したいキャラクターの EnemyID と同じ名前のサブディレクトリを作成します。
+2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
+3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
+
+下記の例は、 EnemyID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/SideViewActorSample/) のアニメーションに置き換える例となります。
+
+ActorID 0001 の ID は `1` になります。
+
+1. `img/ssfb/sv_actors/1/` というディレクトリを作成します。
+2. ssfb ファイル `sv_actor_motions_template.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+3. 画像ファイル `motions.png` ファイルを `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+
+下記のようなディレクトリ構成になります。
+
+```
+img/ssfb/sv_actors/1/
+|-- 1.ssbp.ssfb
+`-- motions.png
+```
+
+アニメーションが配置されてない ActorID は `XV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
+
+#### データベース設定
+
+設定したいエネミーのメモ欄でカスタマイズが可能です。
+
+##### `<SS6SVEnemy file:>`
+利用する ssfb ファイルパスを指定します。
+
+プラグインパラメーター `SV エネミーディレクトリ`(`svEnemyDir`) に配置された ssfb ファイル**以外**を利用する際に設定します。
+(e.g. 複数のエネミーで 1つ ssfb ファイルを利用する際など)
+
+プラグインパラメーター `ssfb アニメーションベースディレクトリ`(`animationDir`) からの相対パスで指定してください。
+
+e.g. `img/ssfb/MeshBone/Knight.ssbp.ssfb` を指定する場合は下記のように設定してください。
+
+```
+<SS6SVEnemy file:MeshBone/Knight.ssbp.ssfb>
+```
+
+##### `<SS6SVEnemy animationPackName:>`
+利用するアニメーションパック名を指定します。
+
+プラグインパラメーター `SV エネミーアニメーションパック名`(`svEnemyAnimationPack`) で指定したアニメーションパック名**以外**を利用する際に設定します。
+
+```
+<SS6SVEnemy animationPackName:Knight_bomb>
+```
+
+##### `<SS6SVEnemy animationName:>`
+利用するアニメーション名を指定します。
+
+プラグインパラメーター `SV エネミーアニメーション名`(`svEnemyAnimationName`) で指定したアニメーション名**以外**を利用する際に設定します。
+
+```
+<SS6SVEnemy animationPackName:Balloon>
+```
+
+##### `<SS6SVEnemy scaleX:>`
+再生するアニメーションの X スケールを変更します。
+
+```
+<SS6SVEnemy scaleX:0.5>
+```
+
+左右反転する場合はマイナス値で指定してください。
+
+```
+<SS6SVEnemy scaleX:-1>
+```
+
+##### `<SS6SVEnemy scaleY:>`
+再生するアニメーションの Y スケールを変更します。
+
+```
+<SS6SVEnemy scaleY:0.5>
+```
+
+上下反転する場合はマイナス値で指定してください。
+
+```
+<SS6SVEnemy scaleY:-1>
+```
+
+##### `<SS6SVEnemy offsetX:>`
+
+
+##### `<SS6SVEnemy offsetY:>`
+
 
 # For Plugin Developer
 
