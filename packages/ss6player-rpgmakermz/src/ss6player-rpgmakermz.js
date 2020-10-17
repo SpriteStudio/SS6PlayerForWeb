@@ -437,17 +437,19 @@ DataManager.isDatabaseLoaded = function() {
 }
 
 const SV_ENEMY_TAG = "SS6SVEnemy";
+const SV_ENEMY_ATTRIBUTE_FILE = "file";
 const SV_ENEMY_ATTRIBUTE_ANIMATIONPACK = "animationPackName";
 const SV_ENEMY_ATTRIBUTE_ANIMATIONNAME = "animationName";
 const SV_ENEMY_ATTRIBUTE_SCALE_X = "scaleX";
 const SV_ENEMY_ATTRIBUTE_SCALE_Y = "scaleY";
+const SV_ENEMY_ATTRIBUTE_OFFSET_X = "offsetX";
+const SV_ENEMY_ATTRIBUTE_OFFSET_Y = "offsetY";
 DataManager.loadEnemyNoteTags = function() {
   const regex = new RegExp('<' + SV_ENEMY_TAG + ' ' + '(.*):(.*)>', 'i');
   $dataEnemies.forEach((enemy, idx, enemies) => {
     if(enemy === null) {
       return;
     }
-    console.log(enemy);
     const noteData = enemy.note.split(/\r?\n/);
     noteData.forEach((line, idx, lines) => {
       const match = regex.exec(line);
@@ -455,6 +457,9 @@ DataManager.loadEnemyNoteTags = function() {
         const attribute = match[1].toLowerCase();
         const value = match[2];
         switch(attribute) {
+          case SV_ENEMY_ATTRIBUTE_FILE.toLowerCase():
+            enemy._svEnemyFile = value;
+            break;
           case SV_ENEMY_ATTRIBUTE_ANIMATIONPACK.toLowerCase():
             enemy._svEnemyAnimationPackName = value;
             break;
@@ -466,6 +471,12 @@ DataManager.loadEnemyNoteTags = function() {
             break;
           case SV_ENEMY_ATTRIBUTE_SCALE_Y.toLowerCase():
             enemy._svEnemyScaleY = Number(value);
+            break;
+          case SV_ENEMY_ATTRIBUTE_OFFSET_X.toLowerCase():
+            enemy._svEnemyOffsetX = Number(value);
+            break;
+          case SV_ENEMY_ATTRIBUTE_OFFSET_Y.toLowerCase():
+            enemy._svEnemyOffsetY = Number(value);
             break;
           default:
             break;
@@ -500,10 +511,12 @@ Sprite_Actor.prototype.setBattler = function (battler) {
       const actorId = this._actor.actorId();
 
       const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
-      const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
       if (notFoundSvActorSsfbMap.has(ssfbId)) {
         return;
       }
+
+      let ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         const existProject = SS6ProjectManager.getInstance().get(ssfbId);
         if (ssfbPath === existProject.ssfbPath) {
@@ -633,9 +646,15 @@ Sprite_Enemy.prototype.setBattler = function (battler) {
       const enemyId = this._enemy.enemyId();
 
       const ssfbId = Sprite_Enemy.svEnemySsfbId(enemyId);
-      const ssfbPath = Sprite_Enemy.svEnemySsfbPath(enemyId);
       if (notFoundSvEnemySsfbMap.has(ssfbId)) {
         return;
+      }
+
+      let ssfbPath = Sprite_Enemy.svEnemySsfbPath(enemyId);
+      // overwrite default plugin parameters by notetags
+      const dataEnemy = this._enemy.enemy();
+      if (dataEnemy._svEnemyFile) {
+        ssfbPath = PluginParameters.getInstance().animationDir + ssfbFile + dataEnemy._svEnemyFile;
       }
 
       this._enemy._svEnemySS6ProjectLoaded = false;
@@ -702,7 +721,9 @@ Sprite_Enemy.prototype.updateSS6Player = function () {
     let animeName = PluginParameters.getInstance().svEnemyAnimationName;
     let scaleX = 1;
     let scaleY = 1;
-    // overwrite parameters
+    let offsetX = 0;
+    let offsetY = 0;
+    // overwrite default plugin parameters by notetags
     const dataEnemy = this._enemy.enemy();
     if (dataEnemy._svEnemyAnimationPackName) {
       animePackName = dataEnemy._svEnemyAnimationPackName;
@@ -716,6 +737,12 @@ Sprite_Enemy.prototype.updateSS6Player = function () {
     if (dataEnemy._svEnemyScaleY) {
       scaleY = dataEnemy._svEnemyScaleY;
     }
+    if (dataEnemy._svEnemyOffsetX) {
+      offsetX = dataEnemy._svEnemyOffsetX;
+    }
+    if (dataEnemy._svEnemyOffsetY) {
+      offsetY = dataEnemy._svEnemyOffsetY;
+    }
     this._enemy._svEnemySS6Player = new SS6Player(project, animePackName, animeName);
     this._enemy._svEnemySS6Player.loop = -1;
     this._enemy._svEnemySS6Player.SetPlayEndCallback(player => {
@@ -723,6 +750,8 @@ Sprite_Enemy.prototype.updateSS6Player = function () {
     });
     this._enemy._svEnemySS6Player.scale.x = scaleX;
     this._enemy._svEnemySS6Player.scale.y = scaleY;
+    this._enemy._svEnemySS6Player.position.x += offsetX;
+    this._enemy._svEnemySS6Player.position.y += offsetY;
     this._enemy._svEnemySS6Player.Play();
     this.addChild(this._enemy._svEnemySS6Player);
     this._enemy._svEnemySS6PlayerParent = this;
