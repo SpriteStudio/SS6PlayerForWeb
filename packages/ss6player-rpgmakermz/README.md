@@ -114,33 +114,36 @@ img/ssfb/sv_actors/1/
 2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
 3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
 
-下記の例は、 EnemyID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/SideViewActorSample/) のアニメーションに置き換える例となります。
+下記の例は、 EnemyID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/CharactorBoxSamples/) のアニメーションに置き換える例となります。
 
-ActorID 0001 の ID は `1` になります。
+EnemyID 0001 の ID は `1` になります。
 
-1. `img/ssfb/sv_actors/1/` というディレクトリを作成します。
-2. ssfb ファイル `sv_actor_motions_template.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_actors/1/` ディレクトリに配置します。
-3. 画像ファイル `motions.png` ファイルを `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+1. `img/ssfb/sv_enemies/1/` というディレクトリを作成します。
+2. ssfb ファイル ` box_00_00.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
+3. 画像ファイル `box_00_00.png` ファイルを `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
 
 下記のようなディレクトリ構成になります。
 
 ```
-img/ssfb/sv_actors/1/
+img/ssfb/sv_enemies/1/
 |-- 1.ssbp.ssfb
-`-- motions.png
+`-- box_00_00.png
 ```
 
-アニメーションが配置されてない ActorID は `XV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
+アニメーションが配置されてない EnemyID は `SV エネミー置き換え`(`replaceSVEnemySpriteFlag`) を `ON` でも RPGツクールMZ で設定したエネミーの SV スプライトが表示されるのでご注意ください。
+
 
 #### データベース設定
 
-設定したいエネミーのメモ欄でカスタマイズが可能です。
+設定したいエネミーのメモ欄にノートタグ(Notetags)を記載することでカスタマイズが可能です。
 
 ##### `<SS6SVEnemy file:>`
 利用する ssfb ファイルパスを指定します。
 
 プラグインパラメーター `SV エネミーディレクトリ`(`svEnemyDir`) に配置された ssfb ファイル**以外**を利用する際に設定します。
 (e.g. 複数のエネミーで 1つ ssfb ファイルを利用する際など)
+
+`<SS6SVEnemy file:>` で指定された場合は、EnemyID のディレクトリに配置したアニメーションは無視されます。
 
 プラグインパラメーター `ssfb アニメーションベースディレクトリ`(`animationDir`) からの相対パスで指定してください。
 

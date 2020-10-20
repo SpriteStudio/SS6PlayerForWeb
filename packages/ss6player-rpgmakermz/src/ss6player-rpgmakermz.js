@@ -654,7 +654,7 @@ Sprite_Enemy.prototype.setBattler = function (battler) {
       // overwrite default plugin parameters by notetags
       const dataEnemy = this._enemy.enemy();
       if (dataEnemy._svEnemyFile) {
-        ssfbPath = PluginParameters.getInstance().animationDir + ssfbFile + dataEnemy._svEnemyFile;
+        ssfbPath = PluginParameters.getInstance().animationDir + dataEnemy._svEnemyFile;
       }
 
       this._enemy._svEnemySS6ProjectLoaded = false;
