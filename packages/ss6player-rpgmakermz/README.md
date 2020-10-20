@@ -146,7 +146,7 @@ img/ssfb/sv_actors/1/
 
 e.g. `img/ssfb/MeshBone/Knight.ssbp.ssfb` を指定する場合は下記のように設定してください。
 
-```
+```xml
 <SS6SVEnemy file:MeshBone/Knight.ssbp.ssfb>
 ```
 
@@ -155,7 +155,9 @@ e.g. `img/ssfb/MeshBone/Knight.ssbp.ssfb` を指定する場合は下記のよ�
 
 プラグインパラメーター `SV エネミーアニメーションパック名`(`svEnemyAnimationPack`) で指定したアニメーションパック名**以外**を利用する際に設定します。
 
-```
+e.g. アニメーションパック名を `Knight_bomb` を指定する場合は下記のように指定してください。
+
+```xml
 <SS6SVEnemy animationPackName:Knight_bomb>
 ```
 
@@ -164,40 +166,61 @@ e.g. `img/ssfb/MeshBone/Knight.ssbp.ssfb` を指定する場合は下記のよ�
 
 プラグインパラメーター `SV エネミーアニメーション名`(`svEnemyAnimationName`) で指定したアニメーション名**以外**を利用する際に設定します。
 
-```
+e.g. アニメーション名を `Balloon` を指定する場合は下記のように指定してください。
+
+```xml
 <SS6SVEnemy animationPackName:Balloon>
 ```
 
 ##### `<SS6SVEnemy scaleX:>`
 再生するアニメーションの X スケールを変更します。
 
-```
+e.g. X スケールを半分にする場合は下記のように指定してください。
+
+```xml
 <SS6SVEnemy scaleX:0.5>
 ```
 
-左右反転する場合はマイナス値で指定してください。
+e.g. 左右反転する場合はマイナス値で指定してください。
 
-```
+```xml
 <SS6SVEnemy scaleX:-1>
 ```
 
 ##### `<SS6SVEnemy scaleY:>`
 再生するアニメーションの Y スケールを変更します。
 
-```
+e.g. Y スケールを半分にする場合は下記のように指定してください。
+
+```xml
 <SS6SVEnemy scaleY:0.5>
 ```
 
-上下反転する場合はマイナス値で指定してください。
+e.g. 上下反転する場合はマイナス値で指定してください。
 
-```
+```xml
 <SS6SVEnemy scaleY:-1>
 ```
 
 ##### `<SS6SVEnemy offsetX:>`
+表示位置の X 座標を変更します。
+マイナス値で左へ配置、プラス値で右へ配置となります。
 
+e.g. 左に 100 移動する場合は下記のように指定してください。
+
+```xml
+<SS6SVEnemy offsetX:100>
+```
 
 ##### `<SS6SVEnemy offsetY:>`
+表示位置の X 座標を変更します。
+マイナス値で上へ配置、プラス値で下へ配置となります。
+
+e.g. 上に 100 移動する場合は下記のように指定してください。
+
+```xml
+<SS6SVEnemy offsetY:-100>
+```
 
 
 # For Plugin Developer
