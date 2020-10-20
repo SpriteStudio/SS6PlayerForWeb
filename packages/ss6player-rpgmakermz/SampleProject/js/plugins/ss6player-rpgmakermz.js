@@ -7690,6 +7690,11 @@
     svActorAnimationPack; // string
     svActorHideWeaponGraphics; // boolean
 
+    replaceSVEnemySpriteFlag; // boolean
+    svEnemyDir; // string
+    svEnemyAnimationPack; // string
+    svEnemyAnimationName; // string
+
     constructor() {
       this.pluginParameters = PluginManager.parameters('ss6player-rpgmakermz');
       this.animationDir = String(this.pluginParameters['animationDir'] || 'img/ssfb') + '/';
@@ -7698,6 +7703,11 @@
       this.svActorDir = String(this.pluginParameters['svActorDir'] || 'img/ssfb/sv_actors') + '/';
       this.svActorAnimationPack = String(this.pluginParameters['svActorAnimationPack'] || 'motions');
       this.svActorHideWeaponGraphics = (this.pluginParameters['svActorHideWeaponGraphics'] === 'true') || false;
+
+      this.replaceSVEnemySpriteFlag = (this.pluginParameters['replaceSVEnemySpriteFlag'] === 'true') || false;
+      this.svEnemyDir = String(this.pluginParameters['svEnemyDir'] || 'img/ssfb/sv_enemies') + '/';
+      this.svEnemyAnimationPack = String(this.pluginParameters['svEnemyAnimationPack'] || 'motions');
+      this.svEnemyAnimationName = String(this.pluginParameters['svEnemyAnimationName'] || 'walk');
     }
 
     static getInstance() {
@@ -7803,6 +7813,31 @@
    * @desc SV アクターの攻撃中の武器アニメーションを非表示にする機能の ON/OFF です。
    * @type boolean
    * @default true
+   *
+   * @param replaceSVEnemySpriteFlag
+   * @text SV エネミー置き換え
+   * @desc SV エネミーを Sprite Studio アニメーションに置き換える機能の ON/OFF です。
+   * @type boolean
+   * @default false
+   *
+   * @param svEnemyDir
+   * @text SV エネミーディレクトリ
+   * @desc SV アクターの SpriteStudio データを格納するディレクトリのパスです
+   * @type file
+   * @default img/ssfb/sv_enemies
+   * @requiredAssets img/ssfb/sv_enemies
+   *
+   * @param svEnemyAnimationPack
+   * @text SV エネミーアニメーションパック名
+   * @desc SV エネミーが利用する Sprite Studio の共通アニメーションパック(ssae)名です
+   * @type string
+   * @default motions
+   *
+   * @param svEnemyAnimationName
+   * @text SV エネミーアニメーション名
+   * @desc SV エネミーが利用する Sprite Studio の共通アニメーション名です。
+   * @type string
+   * @default walk
    *
    *
    * @command loadSsfb
@@ -8017,6 +8052,18 @@
       }
     });
 
+    // delete all sv enemy SS6Play instance at terminating the Scene
+    $gameTroop.members().forEach((enemy, index, enemies) => {
+      if (enemy && enemy._svEnemySS6Player) {
+        enemy._svEnemySS6Player.Stop();
+        enemy._svEnemySS6PlayerParent.removeChild(enemy._svEnemySS6Player);
+
+        enemy._svEnemySS6ProjectLoaded = false;
+        enemy._svEnemySS6Player = null;
+        enemy._svEnemySS6PlayerParent = null;
+      }
+    });
+
     _Scene_Base_terminate.apply(this, arguments);
   };
 
@@ -8095,6 +8142,12 @@
               actor._svActorSS6Player.Resume();
             }
           });
+          // execute to resume SS6Player instance of SV Enemy
+          $gameTroop.members().forEach((enemy, index, enemies) => {
+            if (enemy && enemy._svEnemySS6Player) {
+              enemy._svEnemySS6Player.Resume();
+            }
+          });
           g_suspendPlayingSS6Player = false;
         }
       } else {
@@ -8115,9 +8168,84 @@
             }
           });
         }
+
+        // execute to suspend all SS6Player instance of SV Enemy
+        if ($gameTroop && $gameTroop.members()) {
+          $gameTroop.members().forEach((enemy, index, enemies) => {
+            if (enemy && enemy._svEnemySS6Player) {
+              enemy._svEnemySS6Player.Pause();
+            }
+          });
+        }
+
         g_suspendPlayingSS6Player = true;
       }
     }
+  };
+
+  let loaded_EnemyNoteTags = false;
+  const _DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
+  DataManager.isDatabaseLoaded = function() {
+    if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+      if (!_DataManager_isDatabaseLoaded.call(this)) {
+        return false;
+      }
+      if (!loaded_EnemyNoteTags) {
+        this.loadEnemyNoteTags();
+        loaded_EnemyNoteTags = true;
+      }
+      return true;
+    } else {
+      return _DataManager_isDatabaseLoaded();
+    }
+  };
+
+  const SV_ENEMY_TAG = "SS6SVEnemy";
+  const SV_ENEMY_ATTRIBUTE_FILE = "file";
+  const SV_ENEMY_ATTRIBUTE_ANIMATIONPACK = "animationPackName";
+  const SV_ENEMY_ATTRIBUTE_ANIMATIONNAME = "animationName";
+  const SV_ENEMY_ATTRIBUTE_SCALE_X = "scaleX";
+  const SV_ENEMY_ATTRIBUTE_SCALE_Y = "scaleY";
+  const SV_ENEMY_ATTRIBUTE_OFFSET_X = "offsetX";
+  const SV_ENEMY_ATTRIBUTE_OFFSET_Y = "offsetY";
+  DataManager.loadEnemyNoteTags = function() {
+    const regex = new RegExp('<' + SV_ENEMY_TAG + ' ' + '(.*):(.*)>', 'i');
+    $dataEnemies.forEach((enemy, idx, enemies) => {
+      if(enemy === null) {
+        return;
+      }
+      const noteData = enemy.note.split(/\r?\n/);
+      noteData.forEach((line, idx, lines) => {
+        const match = regex.exec(line);
+        if (match && match.length === 3) {
+          const attribute = match[1].toLowerCase();
+          const value = match[2];
+          switch(attribute) {
+            case SV_ENEMY_ATTRIBUTE_FILE.toLowerCase():
+              enemy._svEnemyFile = value;
+              break;
+            case SV_ENEMY_ATTRIBUTE_ANIMATIONPACK.toLowerCase():
+              enemy._svEnemyAnimationPackName = value;
+              break;
+            case SV_ENEMY_ATTRIBUTE_ANIMATIONNAME.toLowerCase():
+              enemy._svEnemyAnimationName = value;
+              break;
+            case SV_ENEMY_ATTRIBUTE_SCALE_X.toLowerCase():
+              enemy._svEnemyScaleX = Number(value);
+              break;
+            case SV_ENEMY_ATTRIBUTE_SCALE_Y.toLowerCase():
+              enemy._svEnemyScaleY = Number(value);
+              break;
+            case SV_ENEMY_ATTRIBUTE_OFFSET_X.toLowerCase():
+              enemy._svEnemyOffsetX = Number(value);
+              break;
+            case SV_ENEMY_ATTRIBUTE_OFFSET_Y.toLowerCase():
+              enemy._svEnemyOffsetY = Number(value);
+              break;
+          }
+        }
+      });
+    });
   };
 
   //
@@ -8135,6 +8263,7 @@
     return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
   };
 
+  let notFoundSvActorSsfbMap = new Map();
   const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
   Sprite_Actor.prototype.setBattler = function (battler) {
     const changed = (battler !== this._actor);
@@ -8144,7 +8273,12 @@
         const actorId = this._actor.actorId();
 
         const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
-        const ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+        if (notFoundSvActorSsfbMap.has(ssfbId)) {
+          return;
+        }
+
+        let ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+
         if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
           const existProject = SS6ProjectManager.getInstance().get(ssfbId);
           if (ssfbPath === existProject.ssfbPath) {
@@ -8166,6 +8300,7 @@
           180 * 1000, 3,
           (ssfbPath, timeout, retry, httpObj) => {
             // not found character sub directory
+            notFoundSvActorSsfbMap.set(ssfbId, null);
             SS6ProjectManager.getInstance().set(ssfbId, null);
           }
         );
@@ -8245,6 +8380,207 @@
       }
     } else {
       _Sprite_Actor_setupWeaponAnimation.call(this);
+    }
+  };
+
+  //
+  //
+  // replace side view enemy sprite to sprite studio animation
+  //
+  //
+  Sprite_Enemy.svEnemySsfbId = function (enemyId) {
+    return "sv_enemy_" + enemyId;
+  };
+  Sprite_Enemy.svEnemySsfbDir = function(enemyId) {
+    return PluginParameters.getInstance().svEnemyDir + String(enemyId) + "/";
+  };
+  Sprite_Enemy.svEnemySsfbPath = function (enemyId) {
+    return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssbp.ssfb";
+  };
+
+  let notFoundSvEnemySsfbMap = new Map();
+  const _Sprite_Enemy_setBattler = Sprite_Enemy.prototype.setBattler;
+  Sprite_Enemy.prototype.setBattler = function (battler) {
+    const changed = (battler !== this._enemy);
+    _Sprite_Enemy_setBattler.call(this, battler);
+    if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
+      if (changed) {
+        const enemyId = this._enemy.enemyId();
+
+        const ssfbId = Sprite_Enemy.svEnemySsfbId(enemyId);
+        if (notFoundSvEnemySsfbMap.has(ssfbId)) {
+          return;
+        }
+
+        let ssfbPath = Sprite_Enemy.svEnemySsfbPath(enemyId);
+        // overwrite default plugin parameters by notetags
+        const dataEnemy = this._enemy.enemy();
+        if (dataEnemy._svEnemyFile) {
+          ssfbPath = PluginParameters.getInstance().animationDir + dataEnemy._svEnemyFile;
+        }
+
+        this._enemy._svEnemySS6ProjectLoaded = false;
+        if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
+          const existProject = SS6ProjectManager.getInstance().get(ssfbId);
+          if (ssfbPath === existProject.ssfbPath) {
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            this._enemy._svEnemySS6Player = null;
+            this._enemy._svEnemySS6PlayerParent = null;
+            return;
+          }
+        }
+
+        SS6ProjectManager.getInstance().prepare(ssfbId);
+        let project = new SS6Project(ssfbPath,
+          () => {
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            this._enemy._svEnemySS6Player = null;
+            this._enemy._svEnemySS6PlayerParent = null;
+            SS6ProjectManager.getInstance().set(ssfbId, project);
+          },
+          180 * 1000, 3,
+          (ssfbPath, timeout, retry, httpObj) => {
+            // not found character sub directory
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            notFoundSvEnemySsfbMap.set(ssfbId, null);
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+          }
+        );
+      }
+    }
+  };
+
+  const _Sprite_Enemy_updateBitmap = Sprite_Enemy.prototype.updateBitmap;
+  Sprite_Enemy.prototype.updateBitmap = function () {
+    if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
+      const enemyId = this._enemy.enemyId();
+      const ssfbId = Sprite_Enemy.svEnemySsfbId(enemyId);
+      if (!this._enemy._svEnemySS6ProjectLoaded) {
+        // downloading ssfb file and image files yet.
+        return;
+      }
+
+      if (SS6ProjectManager.getInstance().isExist(ssfbId) && this._enemy._svEnemySS6Player !== undefined) {
+        Sprite_Battler.prototype.updateBitmap.call(this);
+        this.bitmap = null;
+        this.updateSS6Player();
+      } else {
+        // not found ssfb instance
+        _Sprite_Enemy_updateBitmap.call(this);
+      }
+    } else {
+      // unavailable replaceSVEnemySpriteFlag
+      _Sprite_Enemy_updateBitmap.call(this);
+    }
+  };
+
+  Sprite_Enemy.prototype.updateSS6Player = function () {
+    if (this._enemy._svEnemySS6Player === null) {
+      const enemyId = this._enemy.enemyId();
+      const ssfbId = Sprite_Enemy.svEnemySsfbId(enemyId);
+      const project = SS6ProjectManager.getInstance().get(ssfbId);
+      let animePackName = PluginParameters.getInstance().svEnemyAnimationPack;
+      let animeName = PluginParameters.getInstance().svEnemyAnimationName;
+      let scaleX = 1;
+      let scaleY = 1;
+      let offsetX = 0;
+      let offsetY = 0;
+      // overwrite default plugin parameters by notetags
+      const dataEnemy = this._enemy.enemy();
+      if (dataEnemy._svEnemyAnimationPackName) {
+        animePackName = dataEnemy._svEnemyAnimationPackName;
+      }
+      if (dataEnemy._svEnemyAnimationName) {
+        animeName = dataEnemy._svEnemyAnimationName;
+      }
+      if (dataEnemy._svEnemyScaleX) {
+        scaleX = dataEnemy._svEnemyScaleX;
+      }
+      if (dataEnemy._svEnemyScaleY) {
+        scaleY = dataEnemy._svEnemyScaleY;
+      }
+      if (dataEnemy._svEnemyOffsetX) {
+        offsetX = dataEnemy._svEnemyOffsetX;
+      }
+      if (dataEnemy._svEnemyOffsetY) {
+        offsetY = dataEnemy._svEnemyOffsetY;
+      }
+      this._enemy._svEnemySS6Player = new SS6Player(project, animePackName, animeName);
+      this._enemy._svEnemySS6Player.loop = -1;
+      this._enemy._svEnemySS6Player.SetPlayEndCallback(player => {
+        // TODO:
+      });
+      this._enemy._svEnemySS6Player.scale.x = scaleX;
+      this._enemy._svEnemySS6Player.scale.y = scaleY;
+      this._enemy._svEnemySS6Player.position.x += offsetX;
+      this._enemy._svEnemySS6Player.position.y += offsetY;
+      this._enemy._svEnemySS6Player.Play();
+      this.addChild(this._enemy._svEnemySS6Player);
+      this._enemy._svEnemySS6PlayerParent = this;
+    }
+  };
+
+  const _Sprite_Enemy_updateFrame = Sprite_Enemy.prototype.updateFrame;
+  Sprite_Enemy.prototype.updateFrame = function() {
+    if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
+      const enemyId = this._enemy.enemyId();
+      const ssfbId = Sprite_Enemy.svEnemySsfbId(enemyId);
+      if (!this._enemy._svEnemySS6ProjectLoaded) {
+        // downloading ssfb file and image files yet.
+        return;
+      }
+
+      if (SS6ProjectManager.getInstance().isExist(ssfbId) && this._enemy._svEnemySS6Player !== undefined) {
+        const bitmap = this.bitmap;
+        if (bitmap) {
+          _Sprite_Enemy_updateFrame.call(this);
+          return;
+        }
+        Sprite_Battler.prototype.updateFrame.call(this);
+        const player = this._enemy._svEnemySS6Player;
+        let width = 0;
+        let height = 0;
+        if (player) {
+          width = player.width;
+          height = player.height;
+        }
+        if (this._effectType === "bossCollapse") {
+          this.setFrame(0, 0, width, this._effectDuration);
+        } else {
+          this.setFrame(0, 0, width, height);
+        }
+      } else {
+        // not found ssfb instance
+        _Sprite_Enemy_updateFrame.call(this);
+      }
+    } else {
+      // unavailable replaceSVEnemySpriteFlag
+      _Sprite_Enemy_updateFrame.call(this);
+    }
+  };
+
+  const _Sprite_Enemy__updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
+  Sprite_Enemy.prototype.updateStateSprite = function() {
+    if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
+      if (this.bitmap) {
+        // not found ssfb instance
+        this._stateIconSprite.y = -Math.round((this.bitmap.height + 40) * 0.9);
+        if (this._stateIconSprite.y < 20 - this.y) {
+          this._stateIconSprite.y = 20 - this.y;
+        }
+      } else {
+        let height = 0;
+        if (this._enemy && this._enemy._svEnemySS6Player) {
+          height = this._enemy._svEnemySS6Player;
+        }
+        this._stateIconSprite.y = -Math.round((height + 40) * 0.9);
+        if (this._stateIconSprite.y < 20 - this.y) {
+          this._stateIconSprite.y = 20 - this.y;
+        }
+      }
+    } else {
+      // unavailable replaceSVEnemySpriteFlag
+      _Sprite_Enemy__updateStateSprite.call(this);
     }
   };
 
