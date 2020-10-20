@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.2.2
+ * SS6Player For RPG Maker MZ v0.3.0
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
@@ -7771,7 +7771,7 @@
    * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
    * @author Web Technology Corp.
    * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
-   * @version 0.2.2
+   * @version 0.3.0
    * @help SS6Player for RPG Maker MZ
    *
    * 詳しい使い方は、GitHub リポジトリの README.md をお読みください。
