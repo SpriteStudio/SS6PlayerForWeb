@@ -100,7 +100,7 @@ img/ssfb/sv_actors/1/
 `-- motions.png
 ```
 
-アニメーションが配置されてない ActorID は `XV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
+アニメーションが配置されてない ActorID は `SV アクター置き換え`(`replaceSVActorSpriteFlag`) を `ON` でも RPGツクールMZ で設定したアクターの SV スプライトが表示されるのでご注意ください。
 
 ### サイドビューエネミーとして表示
 
