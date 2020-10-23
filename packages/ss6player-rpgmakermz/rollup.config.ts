@@ -5,7 +5,8 @@ import camelCase from 'lodash.camelcase';
 import typescript from 'rollup-plugin-typescript2';
 import json from 'rollup-plugin-json';
 import license from 'rollup-plugin-license';
-import replace from 'rollup-plugin-replace'
+import { terser } from 'rollup-plugin-terser';
+import * as path from 'path';
 
 const pkg = require('./package.json');
 
@@ -15,6 +16,7 @@ export default {
   input: `src/${libraryName}.js`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, plugins: [ terser() ] }
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
@@ -23,7 +25,7 @@ export default {
   watch: {
     include: 'src/**'
   },
-  context: "this",
+  context: 'this',
   plugins: [
     // Allow json resolution
     json(),
@@ -37,16 +39,14 @@ export default {
     resolve(),
     // Resolve source maps to the original source
     sourceMaps(),
-    replace({
-      __VERSION__: pkg.version
-    }),
     license({
-      banner: `-----------------------------------------------------------
- SS6Player For RPG Maker MZ v<%= pkg.version %>
- Copyright(C) <%= pkg.author.name %>
- <%= pkg.author.url %>
------------------------------------------------------------
-`
+      banner: {
+        commentStyle: 'none',
+        content: {
+          file: path.join(__dirname, 'src/header.ts'),
+          encoding: 'utf-8' // Default is utf-8
+        }
+      }
     })
   ]
 };
