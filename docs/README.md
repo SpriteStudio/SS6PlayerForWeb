@@ -2,4 +2,5 @@
 - [SS6Player for pixi.js API Reference](./ss6player_pixi_api/index.html)
 - [SS6Player for pixi.js Sample Page](./Player/index.html)
 - [SS6Player for RPG Maker MZ Plugin](./mz/ss6player-rpgmakermz.js)
+- [SS6Player for RPG Maker MZ Plugin(minified)](./mz/ss6player-rpgmakermz.min.js)
 - [SS6Player for RPG Maker MZ Plugin Sample Page](./mz/SampleProject/index.html)

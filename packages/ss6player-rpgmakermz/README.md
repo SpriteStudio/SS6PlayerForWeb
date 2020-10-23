@@ -4,7 +4,7 @@
 
 ## プラグイン
 
-リリース最新版のプラグインソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/ss6player-rpgmakermz.js) になります。
+リリース最新版のプラグインソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/mz/ss6player-rpgmakermz.js)([minified](https://spritestudio.github.io/SS6PlayerForWeb/mz/ss6player-rpgmakermz.min.js)) になります。
 
 ## デモ
 
@@ -113,14 +113,22 @@ img/ssfb/sv_actors/1/
 1. `SV エネミーディレクトリ` へ置換したいキャラクターの EnemyID と同じ名前のサブディレクトリを作成します。
 2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
 3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
+4. (optional)プラグインパラメータ `SV エネミーアニメーションパック名`(`svEnemyAnimationPack`)と `SV エネミーアニメーション名`(`svEnemyAnimationName`)で指定したものと異なるパラメータを指定する場合は、エネミーのメモ欄にノートタグに設定を記載します。
 
-下記の例は、 EnemyID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/CharactorBoxSamples/) のアニメーションに置き換える例となります。
+下記の例は、 EnemyID 0001 のスプライトを [アニメーションサンプル](../../TestData/CharactorBoxSamples/) のアニメーションに置き換える例となります。
 
 EnemyID 0001 の ID は `1` になります。
 
 1. `img/ssfb/sv_enemies/1/` というディレクトリを作成します。
 2. ssfb ファイル ` box_00_00.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
 3. 画像ファイル `box_00_00.png` ファイルを `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
+4. アニメーションサンプルのアニメパック名とアニメ名がプラグインパラメータで指定した値(`motions` と `walk`)とは異なるため、データベースで EnemyID 0001 のノートタグに下記条件を記載する。
+    - アニメパック名は `01_box_00_deform`
+    - アニメ名は `deform`
+    - scaleXを `-0.75` (0.75 倍にして、左右反転する)
+    - scaleY のスケールを `0.75` (0.75 倍にする)
+    - offsetX を `-20` (左に 20 移動して位置調整)
+    - offsetY を `-100` (上に 100 移動して位置調整)
 
 下記のようなディレクトリ構成になります。
 
@@ -128,6 +136,17 @@ EnemyID 0001 の ID は `1` になります。
 img/ssfb/sv_enemies/1/
 |-- 1.ssbp.ssfb
 `-- box_00_00.png
+```
+
+EnemyID 0001 のノートタグには下記が記載されます。
+
+```
+<SS6SVEnemy animationPackName:01_box_00_deform>
+<SS6SVEnemy animationName:deform>
+<SS6SVEnemy scaleX:-0.75>
+<SS6SVEnemy scaleY:0.75>
+<SS6SVEnemy offsetX:-20>
+<SS6SVEnemy offsetY:-100>
 ```
 
 アニメーションが配置されてない EnemyID は `SV エネミー置き換え`(`replaceSVEnemySpriteFlag`) を `ON` でも RPGツクールMZ で設定したエネミーの SV スプライトが表示されるのでご注意ください。
@@ -147,7 +166,7 @@ img/ssfb/sv_enemies/1/
 
 プラグインパラメーター `ssfb アニメーションベースディレクトリ`(`animationDir`) からの相対パスで指定してください。
 
-e.g. `img/ssfb/MeshBone/Knight.ssbp.ssfb` を指定する場合は下記のように設定してください。
+e.g. [img/ssfb/MeshBone/Knight.ssbp.ssfb](./SampleProject/img/ssfb/MeshBone/Knight.ssbp.ssfb) を指定する場合は下記のように設定してください。
 
 ```xml
 <SS6SVEnemy file:MeshBone/Knight.ssbp.ssfb>
@@ -172,11 +191,12 @@ e.g. アニメーションパック名を `Knight_bomb` を指定する場合は
 e.g. アニメーション名を `Balloon` を指定する場合は下記のように指定してください。
 
 ```xml
-<SS6SVEnemy animationPackName:Balloon>
+<SS6SVEnemy animationName:Balloon>
 ```
 
 ##### `<SS6SVEnemy scaleX:>`
 再生するアニメーションの X スケールを変更します。
+デフォルト値は `1` になります。
 
 e.g. X スケールを半分にする場合は下記のように指定してください。
 
@@ -192,6 +212,7 @@ e.g. 左右反転する場合はマイナス値で指定してください。
 
 ##### `<SS6SVEnemy scaleY:>`
 再生するアニメーションの Y スケールを変更します。
+デフォルト値は `1` になります。
 
 e.g. Y スケールを半分にする場合は下記のように指定してください。
 
@@ -258,7 +279,7 @@ npm run build
 
 ## ビルドと SampleProject への配置
 
-`SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で `npm run deploy` を実行すると、`ss6player-rpgmakermz.js` の単独ビルド後 `Sample/js/plugins/` ディレクトリへ配置します。
+`SS6PlayerForWeb/packages/ss6player-rpgmakermz/` ディレクトリ上で `npm run deploy` を実行すると、`ss6player-rpgmakermz.js` の単独ビルド後 `SampleProject/js/plugins/` ディレクトリへ配置します。
 
 ```
 cd SS6PlayerForWeb/packages/ss6player-rpgmakermz
