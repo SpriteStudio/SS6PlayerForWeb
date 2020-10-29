@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_core.js v1.0.2
+// rmmz_core.js v1.1.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ Utils.RPGMAKER_NAME = "MZ";
  * @type string
  * @constant
  */
-Utils.RPGMAKER_VERSION = "1.0.2";
+Utils.RPGMAKER_VERSION = "1.1.0";
 
 /**
  * Checks whether the current RPG Maker version is greater than or equal to
