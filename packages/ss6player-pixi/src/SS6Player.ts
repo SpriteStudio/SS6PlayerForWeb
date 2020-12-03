@@ -1031,18 +1031,19 @@ export class SS6Player extends PIXI.Container {
         case ss.ssfb.SsPartType.Mesh:
         case ss.ssfb.SsPartType.Joint:
         case ss.ssfb.SsPartType.Mask: {
+          const cell = this.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === ss.ssfb.SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cellID, data), data.index, frameNumber);
+              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = SS6Player.GetMeshVerts(cellID, data);
+              verts = SS6Player.GetMeshVerts(cell, data);
             }
           } else {
-            verts = this.TransformVertsLocal(SS6Player.GetVerts(cellID, data), data.index, frameNumber);
+            verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
           if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
@@ -1082,10 +1083,10 @@ export class SS6Player extends PIXI.Container {
           mesh.vertices = verts;
           if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
-            const u1 = this.fbObj.cells(cellID).u1() + data.uv_move_X;
-            const u2 = this.fbObj.cells(cellID).u2() + data.uv_move_X;
-            const v1 = this.fbObj.cells(cellID).v1() + data.uv_move_Y;
-            const v2 = this.fbObj.cells(cellID).v2() + data.uv_move_Y;
+            const u1 = cell.u1() + data.uv_move_X;
+            const u2 = cell.u2() + data.uv_move_X;
+            const v1 = cell.v1() + data.uv_move_Y;
+            const v2 = cell.v2() + data.uv_move_Y;
 
             // uv X/Yスケール
             const cx = (u2 + u1) / 2;
@@ -1125,12 +1126,8 @@ export class SS6Player extends PIXI.Container {
           }
 
           //
-          if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
-            mesh.position.set(px, py);
-          } else {
-            const pivot = this.GetPivot(verts, cellID);
-            mesh.position.set(px + pivot.x, py + pivot.y);
-          }
+          mesh.position.set(px, py);
+
           //
           // 小西: 256指定と1.0指定が混在していたので統一
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
@@ -1249,27 +1246,6 @@ export class SS6Player extends PIXI.Container {
       }
     }
     return rc;
-  }
-
-  /**
-   * 矩形セルの中心(0,1)から、X軸方向：右下(4,5)-左下(2,3)、Y軸方向：左上（6,7）-左下(2,3)の座標系でpivot分ずらした座標
-   * @param {array} verts - 頂点情報配列
-   * @param {number} cellID - セルID
-   * @return {PIXI.Point} - 座標
-   */
-  private GetPivot(verts: Float32Array, cellID: number): PIXI.Point {
-    const cell = this.fbObj.cells(cellID);
-    const px = cell.pivotX();
-    const py = cell.pivotY();
-
-    // const dx = new PIXI.Point(verts[4] - verts[2], verts[5] - verts[3]);
-    const dxX = verts[4] - verts[2];
-    const dxY = verts[5] - verts[3];
-    // const dy = new PIXI.Point(verts[6] - verts[2], verts[7] - verts[3]);
-    const dyX = verts[6] - verts[2];
-    const dyY = verts[7] - verts[3];
-    const p = new PIXI.Point(verts[0] - dxX * px + dyX * py, verts[1] - dxY * px + dyY * py);
-    return p;
   }
 
   /**
@@ -1572,26 +1548,27 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * 矩形セルメッシュの頂点情報のみ取得
-   * @param {number} id - セルID
+   * @param {ss.ssfb.Cell} cell - セル
    * @param {array} data - アニメーションフレームデータ
    * @return {array} - 頂点情報配列
    */
-  private static GetVerts(id: number, data: any): Float32Array {
+  private static GetVerts(cell: ss.ssfb.Cell, data: any): Float32Array {
     const w = data.size_X / 2;
     const h = data.size_Y / 2;
-    const px = -w * data.pivotX * 2;
-    const py = h * data.pivotY * 2;
+    const px = data.size_X * -(data.pivotX + cell.pivotX());
+    const py = data.size_Y * (data.pivotY + cell.pivotY());
+
     const verts = new Float32Array([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
     return verts;
   }
 
   /**
    * 矩形セルメッシュの頂点情報のみ取得
-   * @param {number} id - セルID
+   * @param {ss.ssfb.Cell} cell - セル
    * @param {array} data - アニメーションフレームデータ
    * @return {array} - 頂点情報配列
    */
-  private static GetMeshVerts(id: number, data: any): Float32Array {
+  private static GetMeshVerts(cell: ss.ssfb.Cell, data: any): Float32Array {
     // フレームデータからメッシュデータを取得しvertsを作成する
     let verts = new Float32Array(data.meshNum * 2);
     for (let idx = 0; idx < data.meshNum; idx++) {
