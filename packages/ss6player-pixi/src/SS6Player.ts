@@ -207,6 +207,7 @@ export class SS6Player extends PIXI.Container {
         // 処理落ち対応
         const step = Math.floor(this.nextFrameTime / this.updateInterval);
         this.nextFrameTime -= this.updateInterval * step;
+        const prevFrame = this._currentFrame;
         this._currentFrame += this.skipEnabled ? step * this.playDirection : this.playDirection;
         // speed +
         if (this._currentFrame > this._endFrame) {
@@ -234,7 +235,7 @@ export class SS6Player extends PIXI.Container {
             if (this._loops === 0) this._isPlaying = false;
           }
         }
-        this.SetFrameAnimation(this._currentFrame);
+        this.SetFrameAnimation(this._currentFrame, this._currentFrame - prevFrame);
         if (this._isPlaying) {
           if (this.HaveUserData(this._currentFrame)) {
             if (this.onUserDataCallback !== null) {
@@ -822,8 +823,9 @@ export class SS6Player extends PIXI.Container {
   /**
    * １フレーム分のアニメーション描画
    * @param {number} frameNumber - フレーム番号
+   * @param {number} ds - delta step
    */
-  private SetFrameAnimation(frameNumber: number): void {
+  private SetFrameAnimation(frameNumber: number, ds: number = 0.0): void {
     const fd = this.GetFrameData(frameNumber);
     this.removeChildren();
 
@@ -965,9 +967,7 @@ export class SS6Player extends PIXI.Container {
 
           // 独立動作の場合
           if (independent === true) {
-            const delta = this.updateInterval * (1.0 / this.curAnimation.fps());
-
-            this.liveFrame[ii] += delta;
+            this.liveFrame[ii] += ds;
             time = Math.floor(this.liveFrame[ii]);
           }
 
