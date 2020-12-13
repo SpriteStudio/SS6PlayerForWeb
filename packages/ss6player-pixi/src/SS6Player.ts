@@ -225,7 +225,7 @@ export class SS6Player extends PIXI.Container {
               }
               incFrameNo = this._startFrame;
             }
-            currentFrameNo = incFrameNo
+            currentFrameNo = incFrameNo;
             // Check User Data
             if (this._isPlaying) {
               if (this.HaveUserData(currentFrameNo)) {
