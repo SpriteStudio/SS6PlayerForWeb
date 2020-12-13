@@ -864,7 +864,6 @@ export class SS6Player extends PIXI.Container {
       let mesh: any = this.prevMesh[i];
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
-      const partName = part.name();
       let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
       let overWritekeyParam: SS6PlayerInstanceKeyParam = this.substituteKeyParam[i];
 
@@ -873,7 +872,7 @@ export class SS6Player extends PIXI.Container {
         case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Normal:
@@ -881,14 +880,14 @@ export class SS6Player extends PIXI.Container {
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Nulltype:
@@ -896,7 +895,7 @@ export class SS6Player extends PIXI.Container {
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         default:
@@ -904,7 +903,7 @@ export class SS6Player extends PIXI.Container {
             // 小西 - デストロイ処理
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
       }
@@ -1097,7 +1096,6 @@ export class SS6Player extends PIXI.Container {
             verts[0] = vec2[0];
             verts[1] = vec2[1];
           }
-          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
 
           const px = verts[0];
           const py = verts[1];
@@ -1517,7 +1515,7 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
     return mesh;
   }
 
@@ -1551,7 +1549,7 @@ export class SS6Player extends PIXI.Container {
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
       return mesh;
     }
 
