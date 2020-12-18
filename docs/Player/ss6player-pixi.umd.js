@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.3.2
+ * SS6Player For pixi.js v1.4.0
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -6169,7 +6169,6 @@
               _this.Setup(animePackName, animeName);
           }
           // Ticker
-          _this.pastTime = 0;
           PIXI.Ticker.shared.add(_this.Update, _this);
           return _this;
       }
@@ -6203,7 +6202,7 @@
       });
       Object.defineProperty(SS6Player.prototype, "frameNo", {
           get: function () {
-              return this._currentFrame;
+              return Math.floor(this._currentFrame);
           },
           enumerable: false,
           configurable: true
@@ -6296,7 +6295,7 @@
           this._currentFrame = this.curAnimation.startFrames();
           this.nextFrameTime = 0;
           this._loops = -1;
-          this.skipEnabled = false;
+          this.skipEnabled = true;
           this.updateInterval = 1000 / this.curAnimation.fps();
           this.playDirection = 1; // forward
           this.onUserDataCallback = null;
@@ -6317,55 +6316,79 @@
        * @param {number} delta - expected 1
        */
       SS6Player.prototype.Update = function (delta) {
-          var currentTime = Date.now();
-          var elapsedTime = currentTime - this.pastTime;
+          var elapsedTime = PIXI.Ticker.shared.elapsedMS;
           var toNextFrame = this._isPlaying && !this.isPausing;
-          this.pastTime = currentTime;
           if (toNextFrame && this.updateInterval !== 0) {
               this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
               if (this.nextFrameTime >= this.updateInterval) {
                   // 処理落ち対応
-                  var step = Math.floor(this.nextFrameTime / this.updateInterval);
+                  var step = this.nextFrameTime / this.updateInterval;
                   this.nextFrameTime -= this.updateInterval * step;
-                  this._currentFrame += this.skipEnabled ? step * this.playDirection : this.playDirection;
-                  // speed +
-                  if (this._currentFrame > this._endFrame) {
-                      this._currentFrame = this._startFrame + ((this._currentFrame - this._endFrame - 1) % (this._endFrame - this._startFrame + 1));
-                      if (this._loops === -1) ;
-                      else {
-                          this._loops--;
-                          if (this.playEndCallback !== null) {
-                              this.playEndCallback(this);
+                  var s = (this.skipEnabled ? step * this.playDirection : this.playDirection);
+                  var next = this._currentFrame + s;
+                  var nextFrameNo = Math.floor(next);
+                  var nextFrameDecimal = next - nextFrameNo;
+                  var currentFrameNo = Math.floor(this._currentFrame);
+                  if (this.playDirection >= 1) {
+                      // speed +
+                      for (var c = nextFrameNo - currentFrameNo; c; c--) {
+                          var incFrameNo = currentFrameNo + 1;
+                          if (incFrameNo > this._endFrame) {
+                              if (this._loops === -1) ;
+                              else {
+                                  this._loops--;
+                                  if (this.playEndCallback !== null) {
+                                      this.playEndCallback(this);
+                                  }
+                                  if (this._loops === 0)
+                                      this._isPlaying = false;
+                              }
+                              incFrameNo = this._startFrame;
                           }
-                          if (this._loops === 0)
-                              this._isPlaying = false;
-                      }
-                  }
-                  // speed -
-                  if (this._currentFrame < this._startFrame) {
-                      this._currentFrame = this._endFrame - ((this._startFrame - this._currentFrame - 1) % (this._endFrame - this._startFrame + 1));
-                      if (this._loops === -1) ;
-                      else {
-                          this._loops--;
-                          if (this.playEndCallback !== null) {
-                              this.playEndCallback(this);
-                          }
-                          if (this._loops === 0)
-                              this._isPlaying = false;
-                      }
-                  }
-                  this.SetFrameAnimation(this._currentFrame);
-                  if (this._isPlaying) {
-                      if (this.HaveUserData(this._currentFrame)) {
-                          if (this.onUserDataCallback !== null) {
-                              this.onUserDataCallback(this.GetUserData(this._currentFrame));
+                          currentFrameNo = incFrameNo;
+                          // Check User Data
+                          if (this._isPlaying) {
+                              if (this.HaveUserData(currentFrameNo)) {
+                                  if (this.onUserDataCallback !== null) {
+                                      this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                                  }
+                              }
                           }
                       }
                   }
+                  if (this.playDirection <= -1) {
+                      // speed -
+                      for (var c = currentFrameNo - nextFrameNo; c; c--) {
+                          var decFrameNo = currentFrameNo - 1;
+                          if (decFrameNo < this._startFrame) {
+                              if (this._loops === -1) ;
+                              else {
+                                  this._loops--;
+                                  if (this.playEndCallback !== null) {
+                                      this.playEndCallback(this);
+                                  }
+                                  if (this._loops === 0)
+                                      this._isPlaying = false;
+                              }
+                              decFrameNo = this._endFrame;
+                          }
+                          currentFrameNo = decFrameNo;
+                          // Check User Data
+                          if (this._isPlaying) {
+                              if (this.HaveUserData(currentFrameNo)) {
+                                  if (this.onUserDataCallback !== null) {
+                                      this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                                  }
+                              }
+                          }
+                      }
+                  }
+                  this._currentFrame = currentFrameNo + nextFrameDecimal;
+                  this.SetFrameAnimation(Math.floor(this._currentFrame), step);
               }
           }
           else {
-              this.SetFrameAnimation(this._currentFrame);
+              this.SetFrameAnimation(Math.floor(this._currentFrame));
           }
       };
       /**
@@ -6424,13 +6447,13 @@
       SS6Player.prototype.Play = function () {
           this._isPlaying = true;
           this.isPausing = false;
-          this._currentFrame = this._startFrame;
-          this.pastTime = Date.now();
+          this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
           this.resetLiveFrame();
-          this.SetFrameAnimation(this._currentFrame);
-          if (this.HaveUserData(this._currentFrame)) {
+          var currentFrameNo = Math.floor(this._currentFrame);
+          this.SetFrameAnimation(currentFrameNo);
+          if (this.HaveUserData(currentFrameNo)) {
               if (this.onUserDataCallback !== null) {
-                  this.onUserDataCallback(this.GetUserData(this._currentFrame));
+                  this.onUserDataCallback(this.GetUserData(currentFrameNo));
               }
           }
       };
@@ -6943,8 +6966,10 @@
       /**
        * １フレーム分のアニメーション描画
        * @param {number} frameNumber - フレーム番号
+       * @param {number} ds - delta step
        */
-      SS6Player.prototype.SetFrameAnimation = function (frameNumber) {
+      SS6Player.prototype.SetFrameAnimation = function (frameNumber, ds) {
+          if (ds === void 0) { ds = 0.0; }
           var fd = this.GetFrameData(frameNumber);
           this.removeChildren();
           // 優先度順パーツ単位ループ
@@ -6958,7 +6983,6 @@
               var mesh = this.prevMesh[i];
               var part = this.fbObj.animePacks(this.parts).parts(i);
               var partType = part.type();
-              var partName = part.name();
               var overWrite = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
               var overWritekeyParam = this.substituteKeyParam[i];
               // 処理分岐処理
@@ -6966,7 +6990,7 @@
                   case ss.ssfb.SsPartType.Instance:
                       if (mesh == null) {
                           mesh = this.MakeCellPlayer(part.refname());
-                          mesh.name = partName;
+                          mesh.name = part.name();
                       }
                       break;
                   case ss.ssfb.SsPartType.Normal:
@@ -6975,7 +6999,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-                          mesh.name = partName;
+                          mesh.name = part.name();
                       }
                       break;
                   case ss.ssfb.SsPartType.Mesh:
@@ -6983,7 +7007,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-                          mesh.name = partName;
+                          mesh.name = part.name();
                       }
                       break;
                   case ss.ssfb.SsPartType.Nulltype:
@@ -6992,7 +7016,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = new PIXI.Container();
-                          mesh.name = partName;
+                          mesh.name = part.name();
                       }
                       break;
                   default:
@@ -7001,7 +7025,7 @@
                           if (mesh != null)
                               mesh.destroy();
                           mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-                          mesh.name = partName;
+                          mesh.name = part.name();
                       }
                       break;
               }
@@ -7078,8 +7102,7 @@
                       var time = frameNumber;
                       // 独立動作の場合
                       if (independent === true) {
-                          var delta = this.updateInterval * (1.0 / this.curAnimation.fps());
-                          this.liveFrame[ii] += delta;
+                          this.liveFrame[ii] += ds;
                           time = Math.floor(this.liveFrame[ii]);
                       }
                       // このインスタンスが配置されたキーフレーム（絶対時間）
@@ -7118,6 +7141,9 @@
                               reverse = true; // 反転
                           }
                       }
+                      if (this.playDirection <= -1) {
+                          reverse = !reverse;
+                      }
                       if (reverse) {
                           // リバースの時
                           _time = refEndframe - temp_frame;
@@ -7138,20 +7164,21 @@
                   case ss.ssfb.SsPartType.Mesh:
                   case ss.ssfb.SsPartType.Joint:
                   case ss.ssfb.SsPartType.Mask: {
+                      var cell = this.fbObj.cells(cellID);
                       var verts = void 0;
                       if (partType === ss.ssfb.SsPartType.Mesh) {
                           // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
                           if (data.meshIsBind === 0) {
                               // バインドがない場合は親からのTRSを継承する
-                              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cellID, data), data.index, frameNumber);
+                              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data), data.index, frameNumber);
                           }
                           else {
                               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-                              verts = SS6Player.GetMeshVerts(cellID, data);
+                              verts = SS6Player.GetMeshVerts(cell, data);
                           }
                       }
                       else {
-                          verts = this.TransformVertsLocal(SS6Player.GetVerts(cellID, data), data.index, frameNumber);
+                          verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data), data.index, frameNumber);
                       }
                       // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
                       if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
@@ -7177,7 +7204,6 @@
                           verts[0] = vec2[0];
                           verts[1] = vec2[1];
                       }
-                      mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
                       var px = verts[0];
                       var py = verts[1];
                       for (var j = 0; j < verts.length / 2; j++) {
@@ -7187,10 +7213,10 @@
                       mesh.vertices = verts;
                       if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
                           // uv X/Y移動
-                          var u1 = this.fbObj.cells(cellID).u1() + data.uv_move_X;
-                          var u2 = this.fbObj.cells(cellID).u2() + data.uv_move_X;
-                          var v1 = this.fbObj.cells(cellID).v1() + data.uv_move_Y;
-                          var v2 = this.fbObj.cells(cellID).v2() + data.uv_move_Y;
+                          var u1 = cell.u1() + data.uv_move_X;
+                          var u2 = cell.u2() + data.uv_move_X;
+                          var v1 = cell.v1() + data.uv_move_Y;
+                          var v2 = cell.v2() + data.uv_move_Y;
                           // uv X/Yスケール
                           var cx = (u2 + u1) / 2;
                           var cy = (v2 + v1) / 2;
@@ -7223,13 +7249,7 @@
                           mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
                       }
                       //
-                      if (partType === ss.ssfb.SsPartType.Mesh && data.meshIsBind !== 0) {
-                          mesh.position.set(px, py);
-                      }
-                      else {
-                          var pivot = this.GetPivot(verts, cellID);
-                          mesh.position.set(px + pivot.x, py + pivot.y);
-                      }
+                      mesh.position.set(px, py);
                       //
                       // 小西: 256指定と1.0指定が混在していたので統一
                       var opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
@@ -7349,25 +7369,6 @@
               }
           }
           return rc;
-      };
-      /**
-       * 矩形セルの中心(0,1)から、X軸方向：右下(4,5)-左下(2,3)、Y軸方向：左上（6,7）-左下(2,3)の座標系でpivot分ずらした座標
-       * @param {array} verts - 頂点情報配列
-       * @param {number} cellID - セルID
-       * @return {PIXI.Point} - 座標
-       */
-      SS6Player.prototype.GetPivot = function (verts, cellID) {
-          var cell = this.fbObj.cells(cellID);
-          var px = cell.pivotX();
-          var py = cell.pivotY();
-          // const dx = new PIXI.Point(verts[4] - verts[2], verts[5] - verts[3]);
-          var dxX = verts[4] - verts[2];
-          var dxY = verts[5] - verts[3];
-          // const dy = new PIXI.Point(verts[6] - verts[2], verts[7] - verts[3]);
-          var dyX = verts[6] - verts[2];
-          var dyY = verts[7] - verts[3];
-          var p = new PIXI.Point(verts[0] - dxX * px + dyX * py, verts[1] - dxY * px + dyY * py);
-          return p;
       };
       /**
        * 親を遡って不透明度を継承する
@@ -7588,7 +7589,7 @@
           var verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
           var uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
           var indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-          var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+          var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
           return mesh;
       };
       /**
@@ -7615,7 +7616,7 @@
                   indices[idx - 1] = meshsDataIndices.indices(idx);
               }
               var verts = new Float32Array(num * 2); // Zは必要ない？
-              var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+              var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
               return mesh;
           }
           return null;
@@ -7634,25 +7635,25 @@
       };
       /**
        * 矩形セルメッシュの頂点情報のみ取得
-       * @param {number} id - セルID
+       * @param {ss.ssfb.Cell} cell - セル
        * @param {array} data - アニメーションフレームデータ
        * @return {array} - 頂点情報配列
        */
-      SS6Player.GetVerts = function (id, data) {
+      SS6Player.GetVerts = function (cell, data) {
           var w = data.size_X / 2;
           var h = data.size_Y / 2;
-          var px = -w * data.pivotX * 2;
-          var py = h * data.pivotY * 2;
+          var px = data.size_X * -(data.pivotX + cell.pivotX());
+          var py = data.size_Y * (data.pivotY + cell.pivotY());
           var verts = new Float32Array([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
           return verts;
       };
       /**
        * 矩形セルメッシュの頂点情報のみ取得
-       * @param {number} id - セルID
+       * @param {ss.ssfb.Cell} cell - セル
        * @param {array} data - アニメーションフレームデータ
        * @return {array} - 頂点情報配列
        */
-      SS6Player.GetMeshVerts = function (id, data) {
+      SS6Player.GetMeshVerts = function (cell, data) {
           // フレームデータからメッシュデータを取得しvertsを作成する
           var verts = new Float32Array(data.meshNum * 2);
           for (var idx = 0; idx < data.meshNum; idx++) {
