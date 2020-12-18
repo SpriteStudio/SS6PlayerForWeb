@@ -45,7 +45,6 @@ export class SS6Player extends PIXI.Container {
   private skipEnabled: boolean;
   private updateInterval: number;
   private playDirection: number;
-  private pastTime: number;
   private onUserDataCallback: (data: any) => void;
   private playEndCallback: (player: SS6Player) => void;
 
@@ -66,7 +65,7 @@ export class SS6Player extends PIXI.Container {
   }
 
   public get frameNo(): number {
-    return this._currentFrame;
+    return Math.floor(this._currentFrame);
   }
 
   public set loop(loop: number) {
@@ -109,7 +108,6 @@ export class SS6Player extends PIXI.Container {
     }
 
     // Ticker
-    this.pastTime = 0;
     PIXI.Ticker.shared.add(this.Update, this);
   }
 
@@ -174,7 +172,7 @@ export class SS6Player extends PIXI.Container {
     this._currentFrame = this.curAnimation.startFrames();
     this.nextFrameTime = 0;
     this._loops = -1;
-    this.skipEnabled = false;
+    this.skipEnabled = true;
     this.updateInterval = 1000 / this.curAnimation.fps();
     this.playDirection = 1; // forward
     this.onUserDataCallback = null;
@@ -197,55 +195,79 @@ export class SS6Player extends PIXI.Container {
    * @param {number} delta - expected 1
    */
   private Update(delta: number): void {
-    const currentTime = Date.now();
-    const elapsedTime = currentTime - this.pastTime;
+    const elapsedTime = PIXI.Ticker.shared.elapsedMS;
     const toNextFrame = this._isPlaying && !this.isPausing;
-    this.pastTime = currentTime;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
       if (this.nextFrameTime >= this.updateInterval) {
         // 処理落ち対応
-        const step = Math.floor(this.nextFrameTime / this.updateInterval);
+        const step = this.nextFrameTime / this.updateInterval;
         this.nextFrameTime -= this.updateInterval * step;
-        const prevFrame = this._currentFrame;
-        this._currentFrame += this.skipEnabled ? step * this.playDirection : this.playDirection;
-        // speed +
-        if (this._currentFrame > this._endFrame) {
-          this._currentFrame = this._startFrame + ((this._currentFrame - this._endFrame - 1) % (this._endFrame - this._startFrame + 1));
-          if (this._loops === -1) {
-            // infinite loop
-          } else {
-            this._loops--;
-            if (this.playEndCallback !== null) {
-              this.playEndCallback(this);
+        let s = (this.skipEnabled ? step * this.playDirection : this.playDirection);
+        let next = this._currentFrame + s;
+        let nextFrameNo = Math.floor(next);
+        let nextFrameDecimal = next - nextFrameNo;
+        let currentFrameNo = Math.floor(this._currentFrame);
+
+        if (this.playDirection >= 1) {
+          // speed +
+          for (let c = nextFrameNo - currentFrameNo; c; c--) {
+            let incFrameNo = currentFrameNo + 1;
+            if (incFrameNo > this._endFrame) {
+              if (this._loops === -1) {
+                // infinite loop
+              } else {
+                this._loops--;
+                if (this.playEndCallback !== null) {
+                  this.playEndCallback(this);
+                }
+                if (this._loops === 0) this._isPlaying = false;
+              }
+              incFrameNo = this._startFrame;
             }
-            if (this._loops === 0) this._isPlaying = false;
-          }
-        }
-        // speed -
-        if (this._currentFrame < this._startFrame) {
-          this._currentFrame = this._endFrame - ((this._startFrame - this._currentFrame - 1) % (this._endFrame - this._startFrame + 1));
-          if (this._loops === -1) {
-            // infinite loop
-          } else {
-            this._loops--;
-            if (this.playEndCallback !== null) {
-              this.playEndCallback(this);
-            }
-            if (this._loops === 0) this._isPlaying = false;
-          }
-        }
-        this.SetFrameAnimation(this._currentFrame, this._currentFrame - prevFrame);
-        if (this._isPlaying) {
-          if (this.HaveUserData(this._currentFrame)) {
-            if (this.onUserDataCallback !== null) {
-              this.onUserDataCallback(this.GetUserData(this._currentFrame));
+            currentFrameNo = incFrameNo;
+            // Check User Data
+            if (this._isPlaying) {
+              if (this.HaveUserData(currentFrameNo)) {
+                if (this.onUserDataCallback !== null) {
+                  this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                }
+              }
             }
           }
         }
+        if (this.playDirection <= -1) {
+          // speed -
+          for (let c = currentFrameNo - nextFrameNo; c; c--) {
+            let decFrameNo = currentFrameNo - 1;
+            if (decFrameNo < this._startFrame) {
+              if (this._loops === -1) {
+                // infinite loop
+              } else {
+                this._loops--;
+                if (this.playEndCallback !== null) {
+                  this.playEndCallback(this);
+                }
+                if (this._loops === 0) this._isPlaying = false;
+              }
+              decFrameNo = this._endFrame;
+            }
+            currentFrameNo = decFrameNo;
+            // Check User Data
+            if (this._isPlaying) {
+              if (this.HaveUserData(currentFrameNo)) {
+                if (this.onUserDataCallback !== null) {
+                  this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                }
+              }
+            }
+          }
+        }
+        this._currentFrame = currentFrameNo + nextFrameDecimal;
+        this.SetFrameAnimation(Math.floor(this._currentFrame), step);
       }
     } else {
-      this.SetFrameAnimation(this._currentFrame);
+      this.SetFrameAnimation(Math.floor(this._currentFrame));
     }
   }
 
@@ -300,15 +322,15 @@ export class SS6Player extends PIXI.Container {
   public Play(): void {
     this._isPlaying = true;
     this.isPausing = false;
-    this._currentFrame = this._startFrame;
-    this.pastTime = Date.now();
+    this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
 
     this.resetLiveFrame();
 
-    this.SetFrameAnimation(this._currentFrame);
-    if (this.HaveUserData(this._currentFrame)) {
+    const currentFrameNo = Math.floor(this._currentFrame);
+    this.SetFrameAnimation(currentFrameNo);
+    if (this.HaveUserData(currentFrameNo)) {
       if (this.onUserDataCallback !== null) {
-        this.onUserDataCallback(this.GetUserData(this._currentFrame));
+        this.onUserDataCallback(this.GetUserData(currentFrameNo));
       }
     }
   }
@@ -842,7 +864,6 @@ export class SS6Player extends PIXI.Container {
       let mesh: any = this.prevMesh[i];
       const part: ss.ssfb.PartData = this.fbObj.animePacks(this.parts).parts(i);
       const partType = part.type();
-      const partName = part.name();
       let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
       let overWritekeyParam: SS6PlayerInstanceKeyParam = this.substituteKeyParam[i];
 
@@ -851,7 +872,7 @@ export class SS6Player extends PIXI.Container {
         case ss.ssfb.SsPartType.Instance:
           if (mesh == null) {
             mesh = this.MakeCellPlayer(part.refname());
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Normal:
@@ -859,14 +880,14 @@ export class SS6Player extends PIXI.Container {
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         case ss.ssfb.SsPartType.Nulltype:
@@ -874,7 +895,7 @@ export class SS6Player extends PIXI.Container {
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
             mesh = new PIXI.Container();
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
         default:
@@ -882,7 +903,7 @@ export class SS6Player extends PIXI.Container {
             // 小西 - デストロイ処理
             if (mesh != null) mesh.destroy();
             mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = partName;
+            mesh.name = part.name();
           }
           break;
       }
@@ -1011,6 +1032,10 @@ export class SS6Player extends PIXI.Container {
             }
           }
 
+          if (this.playDirection <= -1) {
+            reverse = !reverse;
+          }
+
           if (reverse) {
             // リバースの時
             _time = refEndframe - temp_frame;
@@ -1071,7 +1096,6 @@ export class SS6Player extends PIXI.Container {
             verts[0] = vec2[0];
             verts[1] = vec2[1];
           }
-          mesh.drawMode = PIXI.DRAW_MODES.TRIANGLES;
 
           const px = verts[0];
           const py = verts[1];
@@ -1491,7 +1515,7 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices);
+    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
     return mesh;
   }
 
@@ -1525,7 +1549,7 @@ export class SS6Player extends PIXI.Container {
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices);
+      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
       return mesh;
     }
 
