@@ -73,9 +73,8 @@ export class Player {
   }
 
   public loadBytes(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
-    const sspkgLoader = new SspkgLoader();
     const self = this;
-    sspkgLoader.load(bytes, imageBinaryMap, (projectData, textureMap) => {
+    const sspkgLoader = new SspkgLoader(bytes, imageBinaryMap, (projectData, textureMap) => {
       self.setupForLoadComplete(projectData, textureMap);
     });
   }

@@ -8,11 +8,18 @@ export class SS6Project {
   public fbObj: ss.ssfb.ProjectData;
   public resources: Partial<Record<string, PIXI.LoaderResource>>;
   public status: string;
-  private onComplete: () => void; // ()
-  private onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
-  private onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
-  private onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  protected onComplete: () => void; // ()
+  protected onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  protected onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  protected onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
 
+  private onSspkgLoaderComplete: (ssfbProjectData: ss.ssfb.ProjectData, textureMap: { [key: string]: PIXI.Texture; }) => void;
+  private textureMap: { [key: string]: PIXI.Texture; };
+  private imageBinaryMap: { [key: string]: Uint8Array; };
+
+  public constructor(bytes: Uint8Array,
+                     imageBinaryMap: { [key: string]: Uint8Array; },
+                     onComplete: (ssfbProjectData: ss.ssfb.ProjectData, textureMap: { [key: string]: PIXI.Texture; }) => void);
   /**
    * SS6Project (used for several SS6Player(s))
    * @constructor
@@ -26,22 +33,47 @@ export class SS6Project {
    */
   public constructor(ssfbPath: string,
                      onComplete: () => void,
-                     timeout: number = 0,
-                     retry: number = 0,
-                     onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
-                     onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null,
-                     onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = null) {
-    this.ssfbPath = ssfbPath;
-    const index = ssfbPath.lastIndexOf('/');
-    this.rootPath = ssfbPath.substring(0, index) + '/';
+                     timeout: number,
+                     retry: number,
+                     onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void,
+                     onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void,
+                     onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void);
+  public constructor(arg1?: any,
+                    arg2?: any,
+                    arg3?: any,
+                    arg4?: any,
+                    arg5?: any,
+                    arg6?: any,
+                    arg7?: any) {
+    if (typeof arg1 === 'string') {  // get ssfb data via http protocol
+      let ssfbPath: string = arg1;
+      let onComplete: () => void = arg2;
+      let timeout: number = (arg3 !== undefined) ? arg3 : 0;
+      let retry: number = (arg4 !== undefined) ? arg4 : 0;
+      let onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg5 !== undefined) ? arg5 : null;
+      let onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg6 !== undefined) ? arg6 : null;
+      let onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg7 !== undefined) ? arg7 : null;
 
-    this.status = 'not ready'; // status
+      // ssfb path
+      this.ssfbPath = ssfbPath;
+      const index = ssfbPath.lastIndexOf('/');
+      this.rootPath = ssfbPath.substring(0, index) + '/';
 
-    this.onComplete = onComplete;
-    this.onError = onError;
-    this.onTimeout = onTimeout;
-    this.onRetry = onRetry;
-    this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
+      this.status = 'not ready'; // status
+
+      this.onComplete = onComplete;
+      this.onError = onError;
+      this.onTimeout = onTimeout;
+      this.onRetry = onRetry;
+
+      this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
+    } else if (typeof arg1 === 'object' && arg1.constructor === Uint8Array) { // get ssfb data from argument
+      let ssfbByte: Uint8Array = arg1;
+      this.imageBinaryMap = arg2;
+      this.onSspkgLoaderComplete = (arg3 !== undefined) ? arg3 : null;
+
+      this.load(ssfbByte);
+    }
   }
 
   /**
@@ -114,6 +146,47 @@ export class SS6Project {
       self.status = 'ready';
       if (self.onComplete !== null) {
         self.onComplete();
+      }
+    });
+  }
+
+  private load(bytes: Uint8Array) {
+    const buffer = new flatbuffers.ByteBuffer(bytes);
+    this.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
+    // this.setupTexureMap();
+
+    this.textureMap = {};
+    const loader = new PIXI.Loader();
+    for (let imageName in this.imageBinaryMap) {
+      const binary = this.imageBinaryMap[imageName];
+
+      // const base64 = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, binary));
+
+      var b = '';
+      var len = binary.byteLength;
+      for (var i = 0; i < len; i++) {
+        b += String.fromCharCode(binary[i]);
+      }
+      const base64 = "data:image/png;base64," + window.btoa(b);
+      // const blob = new Blob(binary, "image/png");
+      // const url = window.URL.createObjectURL(blob);
+      loader.add(imageName, base64);
+      // let texture = PIXI.Texture.fromBuffer(binary, 100, 100);
+    }
+
+    const self = this;
+    loader.load((loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) => {
+      // SS6Project is ready.
+      self.resources = resources;
+      self.status = 'ready';
+
+      for (let imageName in resources) {
+        const resource = resources[imageName];
+        self.textureMap[imageName] = resource.texture;
+      }
+
+      if (self.onSspkgLoaderComplete !== null) {
+        self.onSspkgLoaderComplete(this.fbObj, this.textureMap);
       }
     });
   }
