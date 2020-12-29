@@ -1047,7 +1047,7 @@ export class SS6Player extends PIXI.Container {
           // インスタンスパラメータを設定
           // インスタンス用SSPlayerに再生フレームを設定する
           mesh.SetFrame(Math.floor(_time));
-          mesh.Pause();
+          // mesh.Pause();
           this.addChild(mesh);
           break;
         }
