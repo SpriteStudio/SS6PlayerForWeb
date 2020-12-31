@@ -1,5 +1,3 @@
-// import {Texture} from 'pixi.js';
-import {ss} from 'ssfblib';
 import {MainContainer} from './Control/MainContainer';
 import {AnimationContainer} from './AnimationContainer';
 import {SS6Project} from 'ss6player-pixi';
@@ -9,7 +7,7 @@ import {SsfbDataUtil} from './SsfbDataUtil';
 const PREVIEW_POSITION_MARGIN: number = 30;
 
 export class Player {
-  public projectData: ss.ssfb.ProjectData;
+  public projectData: SS6Project;
 
   public onComplete: () => void;
 
@@ -21,7 +19,7 @@ export class Player {
     return this.animePackMap;
   }
 
-  public pixiApplication = null;
+  public pixiApplication: PIXI.Application = null;
 
   public canvasWidth: number = null;
   public canvasHeight: number = null;
@@ -74,8 +72,8 @@ export class Player {
 
   public loadBytes(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
     const self = this;
-    const sspkgLoader = new SspkgLoader(bytes, imageBinaryMap, (projectData, textureMap) => {
-      self.setupForLoadComplete(projectData, textureMap);
+    const sspkgLoader = new SspkgLoader(bytes, imageBinaryMap, () => {
+      self.setupForLoadComplete(sspkgLoader);
     });
   }
 
@@ -91,10 +89,14 @@ export class Player {
   }
 
   private setupForLoadComplete(ss6Project: SS6Project) {
-    this.projectData = ss6Project.fbObj;
-    // this.textureMap = textureMap;
+    this.projectData = ss6Project;
+    this.textureMap = {};
+    for (let imageName in ss6Project.resources) {
+      const resource = ss6Project.resources[imageName];
+      this.textureMap[imageName] = resource.texture;
+    }
 
-    this.animePackMap = SsfbDataUtil.createAnimePackMap(projectData);
+    this.animePackMap = SsfbDataUtil.createAnimePackMap(this.projectData);
     console.log('setupForLoadComplete', this.animePackMap);
 
     if (this.onComplete !== null) {
@@ -111,7 +113,7 @@ export class Player {
     let isSetupTextureContainer = false;
     if (this.textureContainer == null) {
       isSetupTextureContainer = true;
-      this.textureContainer = new AnimationContainer(this);
+      this.textureContainer = new AnimationContainer(this.projectData);
     }
 
     // animePackMap から animation の情報を取得
@@ -125,7 +127,7 @@ export class Player {
     this.currentAnimePack = animePack;
 
     // textureContainer にて Animation を再生
-    this.textureContainer.setup();
+    this.textureContainer.Setup(animePackName, animeName);
 
     // ラベルデータの取得
     const labelDataLength = animation.labelDataLength();
@@ -154,19 +156,19 @@ export class Player {
   }
 
   public play() {
-    this.textureContainer.play();
+    this.textureContainer.Play();
   }
 
   public pause() {
-    this.textureContainer.pause();
+    this.textureContainer.Pause();
   }
 
   public stop() {
-    this.textureContainer.stop();
+    this.textureContainer.Stop();
   }
 
   public resume() {
-    this.textureContainer.resume();
+    this.textureContainer.Resume();
   }
 
   public movePosition(movementX: number, movementY: number) {
@@ -191,7 +193,7 @@ export class Player {
   }
 
   public setFrame(frameNumber) {
-    this.textureContainer.setFrame(frameNumber);
+    this.textureContainer.SetFrame(frameNumber);
   }
 
   public nextFrame() {
@@ -232,11 +234,12 @@ export class Player {
   }
 
   public setAnimationSpeed(value) {
+    this.textureContainer.SetAnimationSpeed()
     this.textureContainer.setAnimationSpeed(value);
   }
 
-  public switchLoop(isInfinity) {
-    this.textureContainer.switchLoop(isInfinity);
+  public switchLoop(isInfinity: boolean) {
+    this.textureContainer.loop = (isInfinity) ? -1 : 0;
   }
 
   /**
