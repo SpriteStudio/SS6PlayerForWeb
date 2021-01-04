@@ -1,8 +1,8 @@
-import {MainContainer} from './Control/MainContainer';
-import {AnimationContainer} from './AnimationContainer';
-import {SS6Project} from 'ss6player-pixi';
-import {SspkgLoader} from './Input/SspkgLoader';
-import {SsfbDataUtil} from './SsfbDataUtil';
+import { MainContainer } from './Control/MainContainer';
+import { AnimationContainer } from './AnimationContainer';
+import { SS6Project } from 'ss6player-pixi';
+import { SspkgLoader } from './Input/SspkgLoader';
+import { SsfbDataUtil } from './SsfbDataUtil';
 
 const PREVIEW_POSITION_MARGIN: number = 30;
 
@@ -53,7 +53,7 @@ export class Player {
   public constructor(canvasWrapperElement: any) {
     this.canvasWidth = canvasWrapperElement.clientWidth;
     this.canvasHeight = canvasWrapperElement.clientHeight;
-    const pixiApplication = new PIXI.Application({width: this.canvasWidth, height: this.canvasHeight, transparent: true});
+    const pixiApplication = new PIXI.Application({ width: this.canvasWidth, height: this.canvasHeight, transparent: true });
 
     const canvasElement = pixiApplication.view;
     canvasWrapperElement.appendChild(canvasElement);
@@ -198,11 +198,11 @@ export class Player {
 
   public nextFrame() {
     // console.log('nextFrame');
-    this.textureContainer.nextFrame();
+    this.textureContainer.NextFrame();
   }
 
   public prevFrame() {
-    this.textureContainer.prevFrame();
+    this.textureContainer.PrevFrame();
   }
 
   public get startFrame(): number {
@@ -233,9 +233,8 @@ export class Player {
     return this.textureContainer.isPausing;
   }
 
-  public setAnimationSpeed(value) {
-    this.textureContainer.SetAnimationSpeed()
-    this.textureContainer.setAnimationSpeed(value);
+  public setAnimationSpeed(value: number) {
+    this.textureContainer.SetAnimationSpeed(value);
   }
 
   public switchLoop(isInfinity: boolean) {
@@ -307,5 +306,3 @@ export class Player {
     return this.textureContainer.getCurrentAnimationFrameDataMap();
   }
 }
-
-

@@ -1,4 +1,4 @@
-import {SS6Project} from 'ss6player-pixi';
+import { SS6Project } from 'ss6player-pixi';
 
 export class SsfbDataUtil {
 
@@ -25,7 +25,7 @@ export class SsfbDataUtil {
       animePackMap[animePackName] = {
         animePack: animePack,
         animationMap: animationMap,
-        parts_count: partsCount,
+        parts_count: partsCount
       };
     }
 

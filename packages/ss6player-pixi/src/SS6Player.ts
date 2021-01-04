@@ -367,6 +367,23 @@ export class SS6Player extends PIXI.Container {
     this._currentFrame = frame;
   }
 
+  public NextFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    const endFrame = this.endFrame;
+    if (currentFrame == endFrame) {
+      return;
+    }
+    this.SetFrame(currentFrame + 1);
+  }
+
+  public PrevFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    if (currentFrame === 0) {
+      return;
+    }
+    this.SetFrame(currentFrame - 1);
+  }
+
   /**
    * アニメーションの透明度を設定する
    */
