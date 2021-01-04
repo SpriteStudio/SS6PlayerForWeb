@@ -370,7 +370,7 @@ export class SS6Player extends PIXI.Container {
   public NextFrame() {
     const currentFrame = Math.floor(this._currentFrame);
     const endFrame = this.endFrame;
-    if (currentFrame == endFrame) {
+    if (currentFrame === endFrame) {
       return;
     }
     this.SetFrame(currentFrame + 1);
