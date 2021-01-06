@@ -36,7 +36,7 @@ export class SS6Player extends PIXI.Container {
 
   private alphaBlendType: number[] = [];
   private _isPlaying: boolean;
-  private isPausing: boolean;
+  private _isPausing: boolean;
   private _startFrame: number;
   private _endFrame: number;
   private _currentFrame: number;
@@ -78,6 +78,10 @@ export class SS6Player extends PIXI.Container {
 
   public get isPlaying(): boolean {
     return this._isPlaying;
+  }
+
+  public get isPausing(): boolean {
+    return this._isPausing;
   }
 
   public get animePackName(): string {
@@ -166,7 +170,7 @@ export class SS6Player extends PIXI.Container {
     this.alphaBlendType = this.GetPartsBlendMode();
 
     this._isPlaying = false;
-    this.isPausing = true;
+    this._isPausing = true;
     this._startFrame = this.curAnimation.startFrames();
     this._endFrame = this.curAnimation.endFrames();
     this._currentFrame = this.curAnimation.startFrames();
@@ -196,7 +200,7 @@ export class SS6Player extends PIXI.Container {
    */
   private Update(delta: number): void {
     const elapsedTime = PIXI.Ticker.shared.elapsedMS;
-    const toNextFrame = this._isPlaying && !this.isPausing;
+    const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
       if (this.nextFrameTime >= this.updateInterval) {
@@ -321,7 +325,7 @@ export class SS6Player extends PIXI.Container {
    */
   public Play(): void {
     this._isPlaying = true;
-    this.isPausing = false;
+    this._isPausing = false;
     this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
 
     this.resetLiveFrame();
@@ -338,14 +342,14 @@ export class SS6Player extends PIXI.Container {
    * アニメーション再生を一時停止する
    */
   public Pause(): void {
-    this.isPausing = true;
+    this._isPausing = true;
   }
 
   /**
    * アニメーション再生を再開する
    */
   public Resume(): void {
-    this.isPausing = false;
+    this._isPausing = false;
   }
 
   /**
@@ -361,6 +365,23 @@ export class SS6Player extends PIXI.Container {
    */
   public SetFrame(frame: number): void {
     this._currentFrame = frame;
+  }
+
+  public NextFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    const endFrame = this.endFrame;
+    if (currentFrame === endFrame) {
+      return;
+    }
+    this.SetFrame(currentFrame + 1);
+  }
+
+  public PrevFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    if (currentFrame === 0) {
+      return;
+    }
+    this.SetFrame(currentFrame - 1);
   }
 
   /**
