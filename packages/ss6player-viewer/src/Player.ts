@@ -113,7 +113,7 @@ export class Player {
     let isSetupTextureContainer = false;
     if (this.textureContainer == null) {
       isSetupTextureContainer = true;
-      this.textureContainer = new AnimationContainer(this.projectData);
+      this.textureContainer = new AnimationContainer(this);
     }
 
     // animePackMap から animation の情報を取得
