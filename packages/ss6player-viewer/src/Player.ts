@@ -89,12 +89,13 @@ export class Player {
     const self = this;
     let sspkgLoader = new SspkgLoader();
     sspkgLoader.load(url, (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => {
-      if (error !== null)
+      if (error !== null) {
         return;
+      }
       let ss6Project = new SS6Project(ssfbFileData, imageBinaryMap, () => {
         self.setupForLoadComplete(ss6Project);
       });
-    })
+    });
   }
 
   private setupForLoadComplete(ss6Project: SS6Project) {

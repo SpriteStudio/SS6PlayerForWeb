@@ -1,7 +1,7 @@
-import JSZip from "jszip/dist/jszip"; // for avoding rollup error (https://github.com/Stuk/jszip/issues/673)
+import JSZip from 'jszip/dist/jszip'; // for avoding rollup error (https://github.com/Stuk/jszip/issues/673)
 
 export class SspkgLoader {
-  load(url: string, onFinishCallback: (ssfbFileData: Uint8Array, imageBinaryMap: { [key:string]: Uint8Array; }, error: any) => void) {
+  load(url: string, onFinishCallback: (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => void) {
     const self = this;
 
     fetch(url)
@@ -32,7 +32,7 @@ export class SspkgLoader {
             ssfbFilePath = fileName;
           } else if (fileExtension === 'png') {
             const imageName = fileName.split('.').slice(0, -1).join('.');
-            zipFile.file(fileName).async("uint8array").then((uint8Array) => {
+            zipFile.file(fileName).async('uint8array').then((uint8Array) => {
               imageBinaryMap[imageName] = uint8Array;
             });
           }
@@ -40,7 +40,7 @@ export class SspkgLoader {
 
         // self.spriteStudioWebPlayer.setImageBinaryMap(imageBinaryMap);
 
-        zipFile.file(ssfbFilePath).async("uint8array").then((uint8Array: Uint8Array) => {
+        zipFile.file(ssfbFilePath).async('uint8array').then((uint8Array: Uint8Array) => {
           onFinishCallback(uint8Array, imageBinaryMap, null);
         });
       }, function error(e) {
