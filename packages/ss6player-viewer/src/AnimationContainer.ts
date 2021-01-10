@@ -60,7 +60,7 @@ export class AnimationContainer extends SS6Player {
       const data = this.GetUserData(frameIndex);
       console.log('userData.data', data);
 
-      const frameUserDataMap = {};
+      let frameUserDataMap = {};
       const dataLength = data.length;
       for (let dataIndex = 0; dataIndex < dataLength; dataIndex++) {
         const dataArray = data[dataIndex];
@@ -124,9 +124,10 @@ export class AnimationContainer extends SS6Player {
 
   public SetFrame(frame: number) {
     super.SetFrame(frame);
+
+    this.SetFrameAnimation(frame);
     if (this.onUpdateCallback !== null) {
       this.onUpdateCallback(this);
     }
   }
-
 }
