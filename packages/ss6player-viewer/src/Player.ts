@@ -70,21 +70,31 @@ export class Player {
     return this.textureContainer;
   }
 
-  public loadBytes(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
-    const self = this;
-    const sspkgLoader = new SspkgLoader(bytes, imageBinaryMap, () => {
-      self.setupForLoadComplete(sspkgLoader);
-    });
-  }
-
   /**
-   * Webから ssfbPath をダウンロードする
-   * @param {string} url - ssfb file path
+   * Download ssfb file and dependencies image files, and load.
+   * @param {string} url
    */
   public loadSsfb(url: string) {
     const self = this;
     let ss6Project = new SS6Project(url, () => {
       self.setupForLoadComplete(ss6Project);
+    });
+  }
+
+  /**
+   * Download sspkg file, decompress sspkg and load.
+   * @param {string} url
+   */
+  public loadSspkg(url: string) {
+    const self = this;
+    let sspkgLoader = new SspkgLoader();
+    sspkgLoader.load(url, (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => {
+      if (error !== null) {
+        return;
+      }
+      let ss6Project = new SS6Project(ssfbFileData, imageBinaryMap, () => {
+        self.setupForLoadComplete(ss6Project);
+      });
     });
   }
 

@@ -5,7 +5,7 @@
 ## ライセンス
 ss6player-viewer のライセンスは [LISENCE](../../LICENSE) となります。
 
-ss6player-viewer は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi](../ss6player-pixi) をバンドルしています。
+ss6player-viewer は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi](../ss6player-pixi) と [JSZip](https://stuk.github.io/jszip/) をバンドルしています。
 ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
 
 ## アニメーションデータの作成方法

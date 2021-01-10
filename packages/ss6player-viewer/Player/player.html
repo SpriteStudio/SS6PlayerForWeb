@@ -48,12 +48,9 @@
       const sspkgUrl = getQueryParameterValue('sspkgUrl');
       console.log('sspkgUrl', sspkgUrl);
 
-      if(sspkgUrl != null){
-        // sspkg の読み込み
-        const sspkgLoader = new SpriteStudioWebPlayerSspkgLoader();
-        sspkgLoader.load(this.ssWebPlayer, sspkgUrl);
-
-      }else {
+      if (sspkgUrl != null) {
+        this.ssWebPlayer.loadSspkg(sspkgUrl);
+      } else {
         // ssfb の読み込み
         const ssfbUrl = getQueryParameterValue('ssfbUrl');
         console.log('ssfbUrl', ssfbUrl);
