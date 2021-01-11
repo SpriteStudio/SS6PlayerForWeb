@@ -18,11 +18,13 @@ Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法
 
 ### API リファレンス
 
-...
+ss6player-viewer の API リファレンスは[こちら](https://spritestudio.github.io/SS6PlayerForWeb/ss6player_viewer_api/index.html)です。
 
 ### サンプル
 
-...
+[Player](./Player/) ディレクトリの [player.html](./Player/player.html) を参考にしてください。
+
+[デモ](#デモ) ページを閲覧するか、あるいは[ローカル環境で動作確認](#ローカル環境での動作確認)ができます。
 
 # For Plugin Developer
 
