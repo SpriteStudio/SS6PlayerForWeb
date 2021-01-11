@@ -251,6 +251,10 @@ export class Player {
     this.textureContainer.loop = (isInfinity) ? -1 : 0;
   }
 
+  public setAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1) {
+    this.textureContainer.SetAnimationSection(_startframe, _endframe, _loops);
+  }
+
   /**
    * デフォルトのポジションを設定する
    */
