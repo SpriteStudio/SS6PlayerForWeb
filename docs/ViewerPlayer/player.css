@@ -1,0 +1,298 @@
+
+.player {
+    display: flex;
+    height: 520px;
+}
+
+.player .animation-select-area {
+    width: 200px;
+    background-color: rgb(53,53,53);
+    color: #fff;
+    font-size: 14px;
+    padding: 5px;
+
+    overflow: scroll;
+}
+.player .animation-select-area .label-area {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.player .animation-select-area label {
+    cursor: pointer;
+}
+
+.player .animation-select-area .animation-pack .extend-icon {
+    margin-left: 3px;
+    margin-right: 3px;
+    transform: rotateZ(90deg);
+    transition-duration: 0.25s;
+    display: inline-block;
+    font-size: 0.8em;
+    color: #fff6;
+}
+
+.player .animation-select-area .animation-pack.extend .extend-icon{
+    transform: rotateZ(140deg) scaleX(1.5);
+    color: #fff;
+}
+.player .animation-select-area .animation-pack > .label-area .icon {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+
+.player .animation-select-area .animation-pack .animation-area {
+    max-height: 0px;
+    opacity: 0;
+    pointer-events: none;
+
+    transition-duration: 0.25s;
+}
+.player .animation-select-area .animation-pack.extend .animation-area {
+    max-height: 100vh;
+    opacity: 1;
+    pointer-events: all;
+}
+.player .animation-select-area .animation-pack > .label-area:hover {
+    font-weight: bold;
+}
+
+.player .animation-select-area .animation-pack .animation-area .animation {
+    padding-left: 20px;
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+}
+.player .animation-select-area .animation-pack .animation-area .animation.selected {
+    background-color: rgb(42,48,102);
+    border-color: rgb(37,215,253);
+
+}
+.player .animation-select-area .animation-pack .animation-area .animation > .label-area:hover {
+    font-weight: bold;
+}
+.player .animation-select-area .animation-pack .animation-area .animation > .label-area .icon {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+
+
+
+.player .preview {
+    position: relative;
+    width: 500px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    box-sizing: border-box;
+
+    overflow: hidden;
+    outline: none;
+}
+.player .preview .head-bar-area {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: #0003;
+    color: #fcfcfc;
+    font-size: 0.6em;
+
+    padding-left: 10px;
+    padding-right: 5px;
+    border-bottom-left-radius: 10px;
+    transition-duration: 0.25s;
+    transition-delay: 1s;
+    transform: translateY(-100%);
+}
+
+.player .preview:hover .head-bar-area {
+    transition-delay: 0s;
+    transform: translateY(0%);
+}
+
+.player .preview .head-bar-area label {
+    margin-left: 5px;
+}
+
+.player .preview canvas {
+    width: 100%;
+    height: calc(100% - 20px);
+    
+    
+}
+
+.player .preview .play-switch-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    z-index: 5;
+
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+
+    transition-duration: 0.25s;
+    transition-delay: 1.5s;
+    transform: scale(0.4) translateY(35px);
+}
+
+.player .preview:hover .play-switch-area {
+    transition-delay: 0s;
+    transform: scale(1) translateY(0%);
+}
+
+.player .preview .play-switch-area .button-area {
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 50%;
+    background: linear-gradient(#fcfcfc 0%, #dceded 100%);
+    border-color: #aaa6;    
+    cursor: pointer;
+}
+
+.player .preview .play-switch-area .button-area .play-switch-sign {
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    border-color: transparent transparent transparent #333;
+    transition: 100ms all ease;
+    border-style: solid;
+    border-width: 10px 0 10px 20px;
+}
+
+.player .preview .play-switch-area .button-area.paused .play-switch-sign {
+    border-style: double;
+    border-width: 0px 0 0px 20px;
+}
+
+.player .preview .play-switch-area .button-area:hover .play-switch-sign {
+    border-color: transparent transparent transparent #666;
+  
+}  
+
+
+.player .preview .zoom-area {
+    position: absolute;
+    bottom: 30px;
+    right: 0px;
+    transition-duration: 0.25s;
+    transition-delay: 1.5s;
+    transform: translateX(100%);
+    padding-right: 5px;
+}
+
+.player .preview:hover .zoom-area {
+    transition-delay: 0s;
+    transform: translateX(0%);
+}
+.player .zoom-area .zoom-control {
+    display: block;
+    cursor: pointer;
+    transform: scale(1);
+    transition-duration: 0.25s;
+}
+.player .zoom-area .zoom-control:hover {
+    transform: scale(1.5);
+}
+
+.player .preview .play-control-area {
+    position: absolute;
+    bottom: 0px;
+    left :0px;
+    width: 100%;
+    height: 20px;
+    background-color: #0003;
+    color: #eee;
+
+    transition-duration: 0.25s;
+    transition-delay: 1s;
+    /* transform: translateY(100%); */
+
+}
+.player .preview:hover .play-control-area {
+    transition-delay: 0s;
+    /* transform: translateY(0%); */
+}
+
+.player .preview .play-control-area .contents {
+    margin-left: 55px;
+    margin-right: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.player .preview .play-control-area .contents .seek-bar {
+    width: calc(100% - 60px);
+}
+
+
+
+
+.player .preview .play-control-area .contents .frame-area {
+    font-size: 0.6em;
+    width: 50px;
+    text-align: center;
+}
+
+
+.player .frame-information-area {
+    width: 400px;
+    background-color: rgb(53,53,53);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px;
+
+    overflow: scroll;
+
+}
+
+.player .frame-information-area table {
+    border-spacing: 0;
+    font-size: 0.8em;
+    width: 100%;
+}
+.player .frame-information-area table th {
+    border-top-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    padding-left:  5px;
+    padding-right: 5px;
+    font-size: 0.9em;
+    color: #ccc;
+    background-color: #666;
+}
+.player .frame-information-area table th:last-child {
+    border-right-style: solid;
+}
+
+.player .frame-information-area table td {
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    padding-left:  5px;
+    padding-right: 5px;
+
+
+} 
+.player .frame-information-area table td:last-child {
+    border-right-style: solid;
+}
+
+.player .frame-information-area table td.frame-index {
+    cursor: pointer;
+}
+.player .frame-information-area table td.frame-index:hover {
+    background-color: #666;
+
+}

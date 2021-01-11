@@ -2,6 +2,14 @@
 
 [SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを Web 上で再生するプラグインです。
 
+## ライブラリ
+
+リリース最新版のライブラリソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/ViewerPlayer/ss6player-viewer.umd.js) になります。
+
+## デモ
+
+リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/ViewerPlayer/index.html) になります。
+
 ## ライセンス
 ss6player-viewer のライセンスは [LISENCE](../../LICENSE) となります。
 

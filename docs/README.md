@@ -4,3 +4,5 @@
 - [SS6Player for RPG Maker MZ Plugin](./mz/ss6player-rpgmakermz.js)
 - [SS6Player for RPG Maker MZ Plugin(minified)](./mz/ss6player-rpgmakermz.min.js)
 - [SS6Player for RPG Maker MZ Plugin Sample Page](./mz/SampleProject/index.html)
+- [SS6Player for viewer API Reference](./ss6player_pixi_viewer/index.html)
+- [SS6Player for viewer Sample Page](./ViewerPlayer/index.html)
