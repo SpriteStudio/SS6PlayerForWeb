@@ -1,0 +1,64 @@
+<html>
+    <head>
+
+        <style>
+            iframe {
+                width: 90%;
+                height: 100%;
+                border-style: solid;
+                border-width: 1px;
+                border-radius: 10px;
+                margin: 10px;                
+            }
+            .iframe-url {
+                font-size: 0.5em;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+        <div>
+            <button id="read-ssfb-file-button">ssfb読み込み</button>
+            <button id="read-sspkg-file-button">sspkg(zip)読み込み</button>
+            <span class="iframe-url">
+                - 設定されていません -
+            </span>
+
+        </div>
+        <script>
+            window.onload = function(){
+
+
+                const readSsfbFileButtonElement = document.querySelector('#read-ssfb-file-button');
+                readSsfbFileButtonElement.addEventListener('click', (event) => {
+                    const ssfbFileUrl = "./MeshBone/Knight.ssbp.ssfb";
+                    const iframeElement = document.querySelector('iframe');
+                    iframeElement.src = "./player.html?ssfbUrl=" + ssfbFileUrl;
+                });
+                const readSspkgFileButtonElement = document.querySelector('#read-sspkg-file-button');
+                readSspkgFileButtonElement.addEventListener('click', (event) => {
+                    const sspkgFileUrl = './MeshBone/Knight.sspkg';
+                    const iframeElement = document.querySelector('iframe');
+                    iframeElement.src = "./player.html?sspkgUrl=" + sspkgFileUrl;
+                });
+
+                const iframeElement = document.querySelector('iframe');
+                iframeElement.onload = function(event){
+                    console.log(event);
+                    const iframeElement = event.currentTarget;
+                    const iframeUrl = iframeElement.src;
+                    const iframeUrlElement = document.querySelector('.iframe-url');
+                    iframeUrlElement.textContent = iframeUrl;
+                };
+
+            };
+
+
+        </script>
+
+        <iframe src="about:blank" />
+
+
+    </body>
+</html>
