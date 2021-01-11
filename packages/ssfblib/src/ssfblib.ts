@@ -1128,7 +1128,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):EffectNode {
  * @returns EffectNode
  */
 static getRootAsEffectNode(bb:flatbuffers.ByteBuffer, obj?:EffectNode):EffectNode {
-  return (obj || new EffectNode).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param EffectNode= obj
+ * @returns EffectNode
+ */
+static getSizePrefixedRootAsEffectNode(bb:flatbuffers.ByteBuffer, obj?:EffectNode):EffectNode {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -1383,7 +1393,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):EffectFile {
  * @returns EffectFile
  */
 static getRootAsEffectFile(bb:flatbuffers.ByteBuffer, obj?:EffectFile):EffectFile {
-  return (obj || new EffectFile).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param EffectFile= obj
+ * @returns EffectFile
+ */
+static getSizePrefixedRootAsEffectFile(bb:flatbuffers.ByteBuffer, obj?:EffectFile):EffectFile {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -1452,7 +1472,7 @@ numNodeList():number {
  */
 effectNode(index: number, obj?:ss.ssfb.EffectNode):ss.ssfb.EffectNode|null {
   var offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? (obj || new ss.ssfb.EffectNode).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.EffectNode()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -1603,7 +1623,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):CellMap {
  * @returns CellMap
  */
 static getRootAsCellMap(bb:flatbuffers.ByteBuffer, obj?:CellMap):CellMap {
-  return (obj || new CellMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param CellMap= obj
+ * @returns CellMap
+ */
+static getSizePrefixedRootAsCellMap(bb:flatbuffers.ByteBuffer, obj?:CellMap):CellMap {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -1744,7 +1774,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):Cell {
  * @returns Cell
  */
 static getRootAsCell(bb:flatbuffers.ByteBuffer, obj?:Cell):Cell {
-  return (obj || new Cell).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param Cell= obj
+ * @returns Cell
+ */
+static getSizePrefixedRootAsCell(bb:flatbuffers.ByteBuffer, obj?:Cell):Cell {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -1764,7 +1804,7 @@ name(optionalEncoding?:any):string|Uint8Array|null {
  */
 cellMap(obj?:ss.ssfb.CellMap):ss.ssfb.CellMap|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ss.ssfb.CellMap).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.CellMap()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
 /**
@@ -2019,7 +2059,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):meshDataUV {
  * @returns meshDataUV
  */
 static getRootAsmeshDataUV(bb:flatbuffers.ByteBuffer, obj?:meshDataUV):meshDataUV {
-  return (obj || new meshDataUV).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param meshDataUV= obj
+ * @returns meshDataUV
+ */
+static getSizePrefixedRootAsmeshDataUV(bb:flatbuffers.ByteBuffer, obj?:meshDataUV):meshDataUV {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2124,7 +2174,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):meshDataIndices {
  * @returns meshDataIndices
  */
 static getRootAsmeshDataIndices(bb:flatbuffers.ByteBuffer, obj?:meshDataIndices):meshDataIndices {
-  return (obj || new meshDataIndices).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param meshDataIndices= obj
+ * @returns meshDataIndices
+ */
+static getSizePrefixedRootAsmeshDataIndices(bb:flatbuffers.ByteBuffer, obj?:meshDataIndices):meshDataIndices {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2229,7 +2289,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):partState {
  * @returns partState
  */
 static getRootAspartState(bb:flatbuffers.ByteBuffer, obj?:partState):partState {
-  return (obj || new partState).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param partState= obj
+ * @returns partState
+ */
+static getSizePrefixedRootAspartState(bb:flatbuffers.ByteBuffer, obj?:partState):partState {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2385,7 +2455,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):frameDataIndex {
  * @returns frameDataIndex
  */
 static getRootAsframeDataIndex(bb:flatbuffers.ByteBuffer, obj?:frameDataIndex):frameDataIndex {
-  return (obj || new frameDataIndex).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param frameDataIndex= obj
+ * @returns frameDataIndex
+ */
+static getSizePrefixedRootAsframeDataIndex(bb:flatbuffers.ByteBuffer, obj?:frameDataIndex):frameDataIndex {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2395,7 +2475,7 @@ static getRootAsframeDataIndex(bb:flatbuffers.ByteBuffer, obj?:frameDataIndex):f
  */
 states(index: number, obj?:ss.ssfb.partState):ss.ssfb.partState|null {
   var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? (obj || new ss.ssfb.partState).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.partState()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -2636,7 +2716,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):userDataString {
  * @returns userDataString
  */
 static getRootAsuserDataString(bb:flatbuffers.ByteBuffer, obj?:userDataString):userDataString {
-  return (obj || new userDataString).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param userDataString= obj
+ * @returns userDataString
+ */
+static getSizePrefixedRootAsuserDataString(bb:flatbuffers.ByteBuffer, obj?:userDataString):userDataString {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2723,7 +2813,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):userDataItem {
  * @returns userDataItem
  */
 static getRootAsuserDataItem(bb:flatbuffers.ByteBuffer, obj?:userDataItem):userDataItem {
-  return (obj || new userDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param userDataItem= obj
+ * @returns userDataItem
+ */
+static getSizePrefixedRootAsuserDataItem(bb:flatbuffers.ByteBuffer, obj?:userDataItem):userDataItem {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2910,7 +3010,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):userDataPerFrame {
  * @returns userDataPerFrame
  */
 static getRootAsuserDataPerFrame(bb:flatbuffers.ByteBuffer, obj?:userDataPerFrame):userDataPerFrame {
-  return (obj || new userDataPerFrame).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param userDataPerFrame= obj
+ * @returns userDataPerFrame
+ */
+static getSizePrefixedRootAsuserDataPerFrame(bb:flatbuffers.ByteBuffer, obj?:userDataPerFrame):userDataPerFrame {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -2928,7 +3038,7 @@ frameIndex():number {
  */
 data(index: number, obj?:ss.ssfb.userDataItem):ss.ssfb.userDataItem|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ss.ssfb.userDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.userDataItem()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3025,7 +3135,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):labelDataItem {
  * @returns labelDataItem
  */
 static getRootAslabelDataItem(bb:flatbuffers.ByteBuffer, obj?:labelDataItem):labelDataItem {
-  return (obj || new labelDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param labelDataItem= obj
+ * @returns labelDataItem
+ */
+static getSizePrefixedRootAslabelDataItem(bb:flatbuffers.ByteBuffer, obj?:labelDataItem):labelDataItem {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -3112,7 +3232,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):AnimationData {
  * @returns AnimationData
  */
 static getRootAsAnimationData(bb:flatbuffers.ByteBuffer, obj?:AnimationData):AnimationData {
-  return (obj || new AnimationData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param AnimationData= obj
+ * @returns AnimationData
+ */
+static getSizePrefixedRootAsAnimationData(bb:flatbuffers.ByteBuffer, obj?:AnimationData):AnimationData {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -3133,7 +3263,7 @@ name(optionalEncoding?:any):string|Uint8Array|null {
  */
 defaultData(index: number, obj?:ss.ssfb.AnimationInitialData):ss.ssfb.AnimationInitialData|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ss.ssfb.AnimationInitialData).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.AnimationInitialData()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3151,7 +3281,7 @@ defaultDataLength():number {
  */
 frameData(index: number, obj?:ss.ssfb.frameDataIndex):ss.ssfb.frameDataIndex|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new ss.ssfb.frameDataIndex).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.frameDataIndex()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3169,7 +3299,7 @@ frameDataLength():number {
  */
 userData(index: number, obj?:ss.ssfb.userDataPerFrame):ss.ssfb.userDataPerFrame|null {
   var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? (obj || new ss.ssfb.userDataPerFrame).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.userDataPerFrame()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3187,7 +3317,7 @@ userDataLength():number {
  */
 labelData(index: number, obj?:ss.ssfb.labelDataItem):ss.ssfb.labelDataItem|null {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new ss.ssfb.labelDataItem).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.labelDataItem()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3205,7 +3335,7 @@ labelDataLength():number {
  */
 meshsDataUV(index: number, obj?:ss.ssfb.meshDataUV):ss.ssfb.meshDataUV|null {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new ss.ssfb.meshDataUV).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.meshDataUV()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3223,7 +3353,7 @@ meshsDataUVLength():number {
  */
 meshsDataIndices(index: number, obj?:ss.ssfb.meshDataIndices):ss.ssfb.meshDataIndices|null {
   var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? (obj || new ss.ssfb.meshDataIndices).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.meshDataIndices()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -3623,7 +3753,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):AnimationInitialData {
  * @returns AnimationInitialData
  */
 static getRootAsAnimationInitialData(bb:flatbuffers.ByteBuffer, obj?:AnimationInitialData):AnimationInitialData {
-  return (obj || new AnimationInitialData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param AnimationInitialData= obj
+ * @returns AnimationInitialData
+ */
+static getSizePrefixedRootAsAnimationInitialData(bb:flatbuffers.ByteBuffer, obj?:AnimationInitialData):AnimationInitialData {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -4319,7 +4459,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):PartData {
  * @returns PartData
  */
 static getRootAsPartData(bb:flatbuffers.ByteBuffer, obj?:PartData):PartData {
-  return (obj || new PartData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param PartData= obj
+ * @returns PartData
+ */
+static getSizePrefixedRootAsPartData(bb:flatbuffers.ByteBuffer, obj?:PartData):PartData {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -4551,7 +4701,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):AnimePackData {
  * @returns AnimePackData
  */
 static getRootAsAnimePackData(bb:flatbuffers.ByteBuffer, obj?:AnimePackData):AnimePackData {
-  return (obj || new AnimePackData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param AnimePackData= obj
+ * @returns AnimePackData
+ */
+static getSizePrefixedRootAsAnimePackData(bb:flatbuffers.ByteBuffer, obj?:AnimePackData):AnimePackData {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -4572,7 +4732,7 @@ name(optionalEncoding?:any):string|Uint8Array|null {
  */
 parts(index: number, obj?:ss.ssfb.PartData):ss.ssfb.PartData|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? (obj || new ss.ssfb.PartData).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.PartData()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -4590,7 +4750,7 @@ partsLength():number {
  */
 animations(index: number, obj?:ss.ssfb.AnimationData):ss.ssfb.AnimationData|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new ss.ssfb.AnimationData).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.AnimationData()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -4717,7 +4877,17 @@ __init(i:number, bb:flatbuffers.ByteBuffer):ProjectData {
  * @returns ProjectData
  */
 static getRootAsProjectData(bb:flatbuffers.ByteBuffer, obj?:ProjectData):ProjectData {
-  return (obj || new ProjectData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ProjectData= obj
+ * @returns ProjectData
+ */
+static getSizePrefixedRootAsProjectData(bb:flatbuffers.ByteBuffer, obj?:ProjectData):ProjectData {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -4770,7 +4940,7 @@ imageBaseDir(optionalEncoding?:any):string|Uint8Array|null {
  */
 cells(index: number, obj?:ss.ssfb.Cell):ss.ssfb.Cell|null {
   var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? (obj || new ss.ssfb.Cell).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.Cell()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -4788,7 +4958,7 @@ cellsLength():number {
  */
 animePacks(index: number, obj?:ss.ssfb.AnimePackData):ss.ssfb.AnimePackData|null {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new ss.ssfb.AnimePackData).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.AnimePackData()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -4806,7 +4976,7 @@ animePacksLength():number {
  */
 effectFileList(index: number, obj?:ss.ssfb.EffectFile):ss.ssfb.EffectFile|null {
   var offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? (obj || new ss.ssfb.EffectFile).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new ss.ssfb.EffectFile()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
@@ -5006,6 +5176,14 @@ static endProjectData(builder:flatbuffers.Builder):flatbuffers.Offset {
  */
 static finishProjectDataBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
   builder.finish(offset, 'SSFB');
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset offset
+ */
+static finishSizePrefixedProjectDataBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
+  builder.finish(offset, 'SSFB', true);
 };
 
 static createProjectData(builder:flatbuffers.Builder, dataId:number, version:number, flags:number, imageBaseDirOffset:flatbuffers.Offset, cellsOffset:flatbuffers.Offset, animePacksOffset:flatbuffers.Offset, effectFileListOffset:flatbuffers.Offset, numCells:number, numAnimePacks:number, numEffectFileList:number):flatbuffers.Offset {
