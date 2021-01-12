@@ -11,8 +11,8 @@ export class SS6Player extends PIXI.Container {
   private animation: number[] = [];
   private curAnimePackName: string = null;
   private curAnimeName: string = null;
-  private curAnimation: ss.ssfb.AnimationData = null;
-  private curAnimePackData: ss.ssfb.AnimePackData = null;
+  protected curAnimation: ss.ssfb.AnimationData = null;
+  protected curAnimePackData: ss.ssfb.AnimePackData = null;
   private parts: number = -1;
   private parentIndex: number[] = [];
   private prio2index: any[] = [];
@@ -36,17 +36,17 @@ export class SS6Player extends PIXI.Container {
 
   private alphaBlendType: number[] = [];
   private _isPlaying: boolean;
-  private isPausing: boolean;
+  private _isPausing: boolean;
   private _startFrame: number;
   private _endFrame: number;
   private _currentFrame: number;
   private nextFrameTime: number;
   private _loops: number;
-  private skipEnabled: boolean;
+  protected skipEnabled: boolean;
   private updateInterval: number;
   private playDirection: number;
-  private onUserDataCallback: (data: any) => void;
-  private playEndCallback: (player: SS6Player) => void;
+  protected onUserDataCallback: (data: any) => void;
+  protected playEndCallback: (player: SS6Player) => void;
 
   public get startFrame(): number {
     return this._startFrame;
@@ -78,6 +78,10 @@ export class SS6Player extends PIXI.Container {
 
   public get isPlaying(): boolean {
     return this._isPlaying;
+  }
+
+  public get isPausing(): boolean {
+    return this._isPausing;
   }
 
   public get animePackName(): string {
@@ -166,7 +170,7 @@ export class SS6Player extends PIXI.Container {
     this.alphaBlendType = this.GetPartsBlendMode();
 
     this._isPlaying = false;
-    this.isPausing = true;
+    this._isPausing = true;
     this._startFrame = this.curAnimation.startFrames();
     this._endFrame = this.curAnimation.endFrames();
     this._currentFrame = this.curAnimation.startFrames();
@@ -194,9 +198,9 @@ export class SS6Player extends PIXI.Container {
    * Update is called PIXI.ticker
    * @param {number} delta - expected 1
    */
-  private Update(delta: number): void {
+  protected Update(delta: number): void {
     const elapsedTime = PIXI.Ticker.shared.elapsedMS;
-    const toNextFrame = this._isPlaying && !this.isPausing;
+    const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
       if (this.nextFrameTime >= this.updateInterval) {
@@ -321,7 +325,7 @@ export class SS6Player extends PIXI.Container {
    */
   public Play(): void {
     this._isPlaying = true;
-    this.isPausing = false;
+    this._isPausing = false;
     this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
 
     this.resetLiveFrame();
@@ -338,14 +342,14 @@ export class SS6Player extends PIXI.Container {
    * アニメーション再生を一時停止する
    */
   public Pause(): void {
-    this.isPausing = true;
+    this._isPausing = true;
   }
 
   /**
    * アニメーション再生を再開する
    */
   public Resume(): void {
-    this.isPausing = false;
+    this._isPausing = false;
   }
 
   /**
@@ -361,6 +365,23 @@ export class SS6Player extends PIXI.Container {
    */
   public SetFrame(frame: number): void {
     this._currentFrame = frame;
+  }
+
+  public NextFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    const endFrame = this.endFrame;
+    if (currentFrame === endFrame) {
+      return;
+    }
+    this.SetFrame(currentFrame + 1);
+  }
+
+  public PrevFrame() {
+    const currentFrame = Math.floor(this._currentFrame);
+    if (currentFrame === 0) {
+      return;
+    }
+    this.SetFrame(currentFrame - 1);
   }
 
   /**
@@ -449,9 +470,9 @@ export class SS6Player extends PIXI.Container {
    * @param {number} frameNumber - フレーム番号
    * @return {array} - ユーザーデータ
    */
-  private GetUserData(frameNumber: number): any[] {
+  protected GetUserData(frameNumber: number): any[] {
     // HaveUserDataでデータのキャッシュするので、ここで確認しておく
-    if (this.HaveUserData(this._currentFrame) === false) {
+    if (this.HaveUserData(frameNumber) === false) {
       return;
     }
     const framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
@@ -847,7 +868,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} frameNumber - フレーム番号
    * @param {number} ds - delta step
    */
-  private SetFrameAnimation(frameNumber: number, ds: number = 0.0): void {
+  protected SetFrameAnimation(frameNumber: number, ds: number = 0.0): void {
     const fd = this.GetFrameData(frameNumber);
     this.removeChildren();
 
@@ -1047,7 +1068,7 @@ export class SS6Player extends PIXI.Container {
           // インスタンスパラメータを設定
           // インスタンス用SSPlayerに再生フレームを設定する
           mesh.SetFrame(Math.floor(_time));
-          mesh.Pause();
+          // mesh.Pause();
           this.addChild(mesh);
           break;
         }

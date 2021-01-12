@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.4.0
+ * @version 0.4.1
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -148,7 +148,7 @@
 
   /**
    * -----------------------------------------------------------
-   * SS6Player For pixi.js v1.4.0
+   * SS6Player For pixi.js v1.4.1
    *
    * Copyright(C) Web Technology Corp.
    * https://www.webtech.co.jp/
@@ -172,36 +172,36 @@
    * @const
    * @namespace
    */
-  var flatbuffers = {};
+  var flatbuffers$1 = {};
 
   /**
    * @type {number}
    * @const
    */
-  flatbuffers.SIZEOF_SHORT = 2;
+  flatbuffers$1.SIZEOF_SHORT = 2;
 
   /**
    * @type {number}
    * @const
    */
-  flatbuffers.SIZEOF_INT = 4;
+  flatbuffers$1.SIZEOF_INT = 4;
 
   /**
    * @type {number}
    * @const
    */
-  flatbuffers.FILE_IDENTIFIER_LENGTH = 4;
+  flatbuffers$1.FILE_IDENTIFIER_LENGTH = 4;
 
   /**
    * @type {number}
    * @const
    */
-  flatbuffers.SIZE_PREFIX_LENGTH = 4;
+  flatbuffers$1.SIZE_PREFIX_LENGTH = 4;
 
   /**
    * @enum {number}
    */
-  flatbuffers.Encoding = {
+  flatbuffers$1.Encoding = {
     UTF8_BYTES: 1,
     UTF16_STRING: 2
   };
@@ -210,25 +210,25 @@
    * @type {Int32Array}
    * @const
    */
-  flatbuffers.int32 = new Int32Array(2);
+  flatbuffers$1.int32 = new Int32Array(2);
 
   /**
    * @type {Float32Array}
    * @const
    */
-  flatbuffers.float32 = new Float32Array(flatbuffers.int32.buffer);
+  flatbuffers$1.float32 = new Float32Array(flatbuffers$1.int32.buffer);
 
   /**
    * @type {Float64Array}
    * @const
    */
-  flatbuffers.float64 = new Float64Array(flatbuffers.int32.buffer);
+  flatbuffers$1.float64 = new Float64Array(flatbuffers$1.int32.buffer);
 
   /**
    * @type {boolean}
    * @const
    */
-  flatbuffers.isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
+  flatbuffers$1.isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
 
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -237,7 +237,7 @@
    * @param {number} low
    * @param {number} high
    */
-  flatbuffers.Long = function(low, high) {
+  flatbuffers$1.Long = function(low, high) {
     /**
      * @type {number}
      * @const
@@ -256,15 +256,15 @@
    * @param {number} high
    * @returns {!flatbuffers.Long}
    */
-  flatbuffers.Long.create = function(low, high) {
+  flatbuffers$1.Long.create = function(low, high) {
     // Special-case zero to avoid GC overhead for default values
-    return low == 0 && high == 0 ? flatbuffers.Long.ZERO : new flatbuffers.Long(low, high);
+    return low == 0 && high == 0 ? flatbuffers$1.Long.ZERO : new flatbuffers$1.Long(low, high);
   };
 
   /**
    * @returns {number}
    */
-  flatbuffers.Long.prototype.toFloat64 = function() {
+  flatbuffers$1.Long.prototype.toFloat64 = function() {
     return (this.low >>> 0) + this.high * 0x100000000;
   };
 
@@ -272,7 +272,7 @@
    * @param {flatbuffers.Long} other
    * @returns {boolean}
    */
-  flatbuffers.Long.prototype.equals = function(other) {
+  flatbuffers$1.Long.prototype.equals = function(other) {
     return this.low == other.low && this.high == other.high;
   };
 
@@ -280,7 +280,7 @@
    * @type {!flatbuffers.Long}
    * @const
    */
-  flatbuffers.Long.ZERO = new flatbuffers.Long(0, 0);
+  flatbuffers$1.Long.ZERO = new flatbuffers$1.Long(0, 0);
 
   /// @endcond
   ////////////////////////////////////////////////////////////////////////////////
@@ -290,7 +290,7 @@
    * @constructor
    * @param {number=} opt_initial_size
    */
-  flatbuffers.Builder = function(opt_initial_size) {
+  flatbuffers$1.Builder = function(opt_initial_size) {
     if (!opt_initial_size) {
       var initial_size = 1024;
     } else {
@@ -301,7 +301,7 @@
      * @type {flatbuffers.ByteBuffer}
      * @private
      */
-    this.bb = flatbuffers.ByteBuffer.allocate(initial_size);
+    this.bb = flatbuffers$1.ByteBuffer.allocate(initial_size);
 
     /**
      * Remaining space in the ByteBuffer.
@@ -376,7 +376,7 @@
     this.force_defaults = false;
   };
 
-  flatbuffers.Builder.prototype.clear = function() {
+  flatbuffers$1.Builder.prototype.clear = function() {
     this.bb.clear();
     this.space = this.bb.capacity();
     this.minalign = 1;
@@ -396,7 +396,7 @@
    *
    * @param {boolean} forceDefaults true always serializes default values
    */
-  flatbuffers.Builder.prototype.forceDefaults = function(forceDefaults) {
+  flatbuffers$1.Builder.prototype.forceDefaults = function(forceDefaults) {
     this.force_defaults = forceDefaults;
   };
 
@@ -407,7 +407,7 @@
    *
    * @returns {flatbuffers.ByteBuffer}
    */
-  flatbuffers.Builder.prototype.dataBuffer = function() {
+  flatbuffers$1.Builder.prototype.dataBuffer = function() {
     return this.bb;
   };
 
@@ -417,7 +417,7 @@
    *
    * @returns {!Uint8Array}
    */
-  flatbuffers.Builder.prototype.asUint8Array = function() {
+  flatbuffers$1.Builder.prototype.asUint8Array = function() {
     return this.bb.bytes().subarray(this.bb.position(), this.bb.position() + this.offset());
   };
 
@@ -431,7 +431,7 @@
    * @param {number} size This is the of the new element to write
    * @param {number} additional_bytes The padding size
    */
-  flatbuffers.Builder.prototype.prep = function(size, additional_bytes) {
+  flatbuffers$1.Builder.prototype.prep = function(size, additional_bytes) {
     // Track the biggest thing we've ever aligned to.
     if (size > this.minalign) {
       this.minalign = size;
@@ -444,7 +444,7 @@
     // Reallocate the buffer if needed.
     while (this.space < align_size + size + additional_bytes) {
       var old_buf_size = this.bb.capacity();
-      this.bb = flatbuffers.Builder.growByteBuffer(this.bb);
+      this.bb = flatbuffers$1.Builder.growByteBuffer(this.bb);
       this.space += this.bb.capacity() - old_buf_size;
     }
 
@@ -454,7 +454,7 @@
   /**
    * @param {number} byte_size
    */
-  flatbuffers.Builder.prototype.pad = function(byte_size) {
+  flatbuffers$1.Builder.prototype.pad = function(byte_size) {
     for (var i = 0; i < byte_size; i++) {
       this.bb.writeInt8(--this.space, 0);
     }
@@ -463,42 +463,42 @@
   /**
    * @param {number} value
    */
-  flatbuffers.Builder.prototype.writeInt8 = function(value) {
+  flatbuffers$1.Builder.prototype.writeInt8 = function(value) {
     this.bb.writeInt8(this.space -= 1, value);
   };
 
   /**
    * @param {number} value
    */
-  flatbuffers.Builder.prototype.writeInt16 = function(value) {
+  flatbuffers$1.Builder.prototype.writeInt16 = function(value) {
     this.bb.writeInt16(this.space -= 2, value);
   };
 
   /**
    * @param {number} value
    */
-  flatbuffers.Builder.prototype.writeInt32 = function(value) {
+  flatbuffers$1.Builder.prototype.writeInt32 = function(value) {
     this.bb.writeInt32(this.space -= 4, value);
   };
 
   /**
    * @param {flatbuffers.Long} value
    */
-  flatbuffers.Builder.prototype.writeInt64 = function(value) {
+  flatbuffers$1.Builder.prototype.writeInt64 = function(value) {
     this.bb.writeInt64(this.space -= 8, value);
   };
 
   /**
    * @param {number} value
    */
-  flatbuffers.Builder.prototype.writeFloat32 = function(value) {
+  flatbuffers$1.Builder.prototype.writeFloat32 = function(value) {
     this.bb.writeFloat32(this.space -= 4, value);
   };
 
   /**
    * @param {number} value
    */
-  flatbuffers.Builder.prototype.writeFloat64 = function(value) {
+  flatbuffers$1.Builder.prototype.writeFloat64 = function(value) {
     this.bb.writeFloat64(this.space -= 8, value);
   };
   /// @endcond
@@ -507,7 +507,7 @@
    * Add an `int8` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {number} value The `int8` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addInt8 = function(value) {
+  flatbuffers$1.Builder.prototype.addInt8 = function(value) {
     this.prep(1, 0);
     this.writeInt8(value);
   };
@@ -516,7 +516,7 @@
    * Add an `int16` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {number} value The `int16` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addInt16 = function(value) {
+  flatbuffers$1.Builder.prototype.addInt16 = function(value) {
     this.prep(2, 0);
     this.writeInt16(value);
   };
@@ -525,7 +525,7 @@
    * Add an `int32` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {number} value The `int32` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addInt32 = function(value) {
+  flatbuffers$1.Builder.prototype.addInt32 = function(value) {
     this.prep(4, 0);
     this.writeInt32(value);
   };
@@ -534,7 +534,7 @@
    * Add an `int64` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {flatbuffers.Long} value The `int64` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addInt64 = function(value) {
+  flatbuffers$1.Builder.prototype.addInt64 = function(value) {
     this.prep(8, 0);
     this.writeInt64(value);
   };
@@ -543,7 +543,7 @@
    * Add a `float32` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {number} value The `float32` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addFloat32 = function(value) {
+  flatbuffers$1.Builder.prototype.addFloat32 = function(value) {
     this.prep(4, 0);
     this.writeFloat32(value);
   };
@@ -552,7 +552,7 @@
    * Add a `float64` to the buffer, properly aligned, and grows the buffer (if necessary).
    * @param {number} value The `float64` to add the the buffer.
    */
-  flatbuffers.Builder.prototype.addFloat64 = function(value) {
+  flatbuffers$1.Builder.prototype.addFloat64 = function(value) {
     this.prep(8, 0);
     this.writeFloat64(value);
   };
@@ -563,7 +563,7 @@
    * @param {number} value
    * @param {number} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldInt8 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldInt8 = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addInt8(value);
       this.slot(voffset);
@@ -575,7 +575,7 @@
    * @param {number} value
    * @param {number} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldInt16 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldInt16 = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addInt16(value);
       this.slot(voffset);
@@ -587,7 +587,7 @@
    * @param {number} value
    * @param {number} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldInt32 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldInt32 = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addInt32(value);
       this.slot(voffset);
@@ -599,7 +599,7 @@
    * @param {flatbuffers.Long} value
    * @param {flatbuffers.Long} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldInt64 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldInt64 = function(voffset, value, defaultValue) {
     if (this.force_defaults || !value.equals(defaultValue)) {
       this.addInt64(value);
       this.slot(voffset);
@@ -611,7 +611,7 @@
    * @param {number} value
    * @param {number} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldFloat32 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldFloat32 = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addFloat32(value);
       this.slot(voffset);
@@ -623,7 +623,7 @@
    * @param {number} value
    * @param {number} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldFloat64 = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldFloat64 = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addFloat64(value);
       this.slot(voffset);
@@ -635,7 +635,7 @@
    * @param {flatbuffers.Offset} value
    * @param {flatbuffers.Offset} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldOffset = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldOffset = function(voffset, value, defaultValue) {
     if (this.force_defaults || value != defaultValue) {
       this.addOffset(value);
       this.slot(voffset);
@@ -649,7 +649,7 @@
    * @param {flatbuffers.Offset} value
    * @param {flatbuffers.Offset} defaultValue
    */
-  flatbuffers.Builder.prototype.addFieldStruct = function(voffset, value, defaultValue) {
+  flatbuffers$1.Builder.prototype.addFieldStruct = function(voffset, value, defaultValue) {
     if (value != defaultValue) {
       this.nested(value);
       this.slot(voffset);
@@ -663,7 +663,7 @@
    *
    * @param {flatbuffers.Offset} obj The offset of the created object
    */
-  flatbuffers.Builder.prototype.nested = function(obj) {
+  flatbuffers$1.Builder.prototype.nested = function(obj) {
     if (obj != this.offset()) {
       throw new Error('FlatBuffers: struct must be serialized inline.');
     }
@@ -673,7 +673,7 @@
    * Should not be creating any other object, string or vector
    * while an object is being constructed
    */
-  flatbuffers.Builder.prototype.notNested = function() {
+  flatbuffers$1.Builder.prototype.notNested = function() {
     if (this.isNested) {
       throw new Error('FlatBuffers: object serialization must not be nested.');
     }
@@ -684,14 +684,14 @@
    *
    * @param {number} voffset
    */
-  flatbuffers.Builder.prototype.slot = function(voffset) {
+  flatbuffers$1.Builder.prototype.slot = function(voffset) {
     this.vtable[voffset] = this.offset();
   };
 
   /**
    * @returns {flatbuffers.Offset} Offset relative to the end of the buffer.
    */
-  flatbuffers.Builder.prototype.offset = function() {
+  flatbuffers$1.Builder.prototype.offset = function() {
     return this.bb.capacity() - this.space;
   };
 
@@ -707,7 +707,7 @@
    * it a uint8Array we need to suppress the type check:
    * @suppress {checkTypes}
    */
-  flatbuffers.Builder.growByteBuffer = function(bb) {
+  flatbuffers$1.Builder.growByteBuffer = function(bb) {
     var old_buf_size = bb.capacity();
 
     // Ensure we don't grow beyond what fits in an int.
@@ -716,7 +716,7 @@
     }
 
     var new_buf_size = old_buf_size << 1;
-    var nbb = flatbuffers.ByteBuffer.allocate(new_buf_size);
+    var nbb = flatbuffers$1.ByteBuffer.allocate(new_buf_size);
     nbb.setPosition(new_buf_size - old_buf_size);
     nbb.bytes().set(bb.bytes(), new_buf_size - old_buf_size);
     return nbb;
@@ -728,9 +728,9 @@
    *
    * @param {flatbuffers.Offset} offset The offset to add.
    */
-  flatbuffers.Builder.prototype.addOffset = function(offset) {
-    this.prep(flatbuffers.SIZEOF_INT, 0); // Ensure alignment is already done.
-    this.writeInt32(this.offset() - offset + flatbuffers.SIZEOF_INT);
+  flatbuffers$1.Builder.prototype.addOffset = function(offset) {
+    this.prep(flatbuffers$1.SIZEOF_INT, 0); // Ensure alignment is already done.
+    this.writeInt32(this.offset() - offset + flatbuffers$1.SIZEOF_INT);
   };
 
   /// @cond FLATBUFFERS_INTERNAL
@@ -741,7 +741,7 @@
    *
    * @param {number} numfields
    */
-  flatbuffers.Builder.prototype.startObject = function(numfields) {
+  flatbuffers$1.Builder.prototype.startObject = function(numfields) {
     this.notNested();
     if (this.vtable == null) {
       this.vtable = [];
@@ -759,7 +759,7 @@
    *
    * @returns {flatbuffers.Offset} The offset to the object inside `dataBuffer`
    */
-  flatbuffers.Builder.prototype.endObject = function() {
+  flatbuffers$1.Builder.prototype.endObject = function() {
     if (this.vtable == null || !this.isNested) {
       throw new Error('FlatBuffers: endObject called without startObject');
     }
@@ -780,7 +780,7 @@
 
     var standard_fields = 2; // The fields below:
     this.addInt16(vtableloc - this.object_start);
-    var len = (trimmed_size + standard_fields) * flatbuffers.SIZEOF_SHORT;
+    var len = (trimmed_size + standard_fields) * flatbuffers$1.SIZEOF_SHORT;
     this.addInt16(len);
 
     // Search for an existing vtable that matches the current one.
@@ -790,7 +790,7 @@
     for (i = 0; i < this.vtables.length; i++) {
       var vt2 = this.bb.capacity() - this.vtables[i];
       if (len == this.bb.readInt16(vt2)) {
-        for (var j = flatbuffers.SIZEOF_SHORT; j < len; j += flatbuffers.SIZEOF_SHORT) {
+        for (var j = flatbuffers$1.SIZEOF_SHORT; j < len; j += flatbuffers$1.SIZEOF_SHORT) {
           if (this.bb.readInt16(vt1 + j) != this.bb.readInt16(vt2 + j)) {
             continue outer_loop;
           }
@@ -828,21 +828,21 @@
    * @param {string=} opt_file_identifier
    * @param {boolean=} opt_size_prefix
    */
-  flatbuffers.Builder.prototype.finish = function(root_table, opt_file_identifier, opt_size_prefix) {
-    var size_prefix = opt_size_prefix ? flatbuffers.SIZE_PREFIX_LENGTH : 0;
+  flatbuffers$1.Builder.prototype.finish = function(root_table, opt_file_identifier, opt_size_prefix) {
+    var size_prefix = opt_size_prefix ? flatbuffers$1.SIZE_PREFIX_LENGTH : 0;
     if (opt_file_identifier) {
       var file_identifier = opt_file_identifier;
-      this.prep(this.minalign, flatbuffers.SIZEOF_INT +
-        flatbuffers.FILE_IDENTIFIER_LENGTH + size_prefix);
-      if (file_identifier.length != flatbuffers.FILE_IDENTIFIER_LENGTH) {
+      this.prep(this.minalign, flatbuffers$1.SIZEOF_INT +
+        flatbuffers$1.FILE_IDENTIFIER_LENGTH + size_prefix);
+      if (file_identifier.length != flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
         throw new Error('FlatBuffers: file identifier must be length ' +
-          flatbuffers.FILE_IDENTIFIER_LENGTH);
+          flatbuffers$1.FILE_IDENTIFIER_LENGTH);
       }
-      for (var i = flatbuffers.FILE_IDENTIFIER_LENGTH - 1; i >= 0; i--) {
+      for (var i = flatbuffers$1.FILE_IDENTIFIER_LENGTH - 1; i >= 0; i--) {
         this.writeInt8(file_identifier.charCodeAt(i));
       }
     }
-    this.prep(this.minalign, flatbuffers.SIZEOF_INT + size_prefix);
+    this.prep(this.minalign, flatbuffers$1.SIZEOF_INT + size_prefix);
     this.addOffset(root_table);
     if (size_prefix) {
       this.addInt32(this.bb.capacity() - this.space);
@@ -856,7 +856,7 @@
    * @param {flatbuffers.Offset} root_table
    * @param {string=} opt_file_identifier
    */
-  flatbuffers.Builder.prototype.finishSizePrefixed = function (root_table, opt_file_identifier) {
+  flatbuffers$1.Builder.prototype.finishSizePrefixed = function (root_table, opt_file_identifier) {
     this.finish(root_table, opt_file_identifier, true);
   };
 
@@ -868,7 +868,7 @@
    * @param {flatbuffers.Offset} table
    * @param {number} field
    */
-  flatbuffers.Builder.prototype.requiredField = function(table, field) {
+  flatbuffers$1.Builder.prototype.requiredField = function(table, field) {
     var table_start = this.bb.capacity() - table;
     var vtable_start = table_start - this.bb.readInt32(table_start);
     var ok = this.bb.readInt16(vtable_start + field) != 0;
@@ -888,10 +888,10 @@
    * @param {number} num_elems The number of elements in the array
    * @param {number} alignment The alignment of the array
    */
-  flatbuffers.Builder.prototype.startVector = function(elem_size, num_elems, alignment) {
+  flatbuffers$1.Builder.prototype.startVector = function(elem_size, num_elems, alignment) {
     this.notNested();
     this.vector_num_elems = num_elems;
-    this.prep(flatbuffers.SIZEOF_INT, elem_size * num_elems);
+    this.prep(flatbuffers$1.SIZEOF_INT, elem_size * num_elems);
     this.prep(alignment, elem_size * num_elems); // Just in case alignment > int.
   };
 
@@ -902,7 +902,7 @@
    * @returns {flatbuffers.Offset} The offset at which the newly created array
    * starts.
    */
-  flatbuffers.Builder.prototype.endVector = function() {
+  flatbuffers$1.Builder.prototype.endVector = function() {
     this.writeInt32(this.vector_num_elems);
     return this.offset();
   };
@@ -915,7 +915,7 @@
    * @param {string|Uint8Array} s The string to encode
    * @return {flatbuffers.Offset} The offset in the buffer where the encoded string starts
    */
-  flatbuffers.Builder.prototype.createString = function(s) {
+  flatbuffers$1.Builder.prototype.createString = function(s) {
     if (s instanceof Uint8Array) {
       var utf8 = s;
     } else {
@@ -971,8 +971,8 @@
    * @param {number} high
    * @returns {!flatbuffers.Long}
    */
-  flatbuffers.Builder.prototype.createLong = function(low, high) {
-    return flatbuffers.Long.create(low, high);
+  flatbuffers$1.Builder.prototype.createLong = function(low, high) {
+    return flatbuffers$1.Long.create(low, high);
   };
   ////////////////////////////////////////////////////////////////////////////////
   /// @cond FLATBUFFERS_INTERNAL
@@ -982,7 +982,7 @@
    * @constructor
    * @param {Uint8Array} bytes
    */
-  flatbuffers.ByteBuffer = function(bytes) {
+  flatbuffers$1.ByteBuffer = function(bytes) {
     /**
      * @type {Uint8Array}
      * @private
@@ -1002,11 +1002,11 @@
    * @param {number} byte_size
    * @returns {!flatbuffers.ByteBuffer}
    */
-  flatbuffers.ByteBuffer.allocate = function(byte_size) {
-    return new flatbuffers.ByteBuffer(new Uint8Array(byte_size));
+  flatbuffers$1.ByteBuffer.allocate = function(byte_size) {
+    return new flatbuffers$1.ByteBuffer(new Uint8Array(byte_size));
   };
 
-  flatbuffers.ByteBuffer.prototype.clear = function() {
+  flatbuffers$1.ByteBuffer.prototype.clear = function() {
     this.position_ = 0;
   };
 
@@ -1015,7 +1015,7 @@
    *
    * @returns {Uint8Array}
    */
-  flatbuffers.ByteBuffer.prototype.bytes = function() {
+  flatbuffers$1.ByteBuffer.prototype.bytes = function() {
     return this.bytes_;
   };
 
@@ -1024,7 +1024,7 @@
    *
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.position = function() {
+  flatbuffers$1.ByteBuffer.prototype.position = function() {
     return this.position_;
   };
 
@@ -1033,7 +1033,7 @@
    *
    * @param {number} position
    */
-  flatbuffers.ByteBuffer.prototype.setPosition = function(position) {
+  flatbuffers$1.ByteBuffer.prototype.setPosition = function(position) {
     this.position_ = position;
   };
 
@@ -1042,7 +1042,7 @@
    *
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.capacity = function() {
+  flatbuffers$1.ByteBuffer.prototype.capacity = function() {
     return this.bytes_.length;
   };
 
@@ -1050,7 +1050,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readInt8 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readInt8 = function(offset) {
     return this.readUint8(offset) << 24 >> 24;
   };
 
@@ -1058,7 +1058,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readUint8 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readUint8 = function(offset) {
     return this.bytes_[offset];
   };
 
@@ -1066,7 +1066,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readInt16 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readInt16 = function(offset) {
     return this.readUint16(offset) << 16 >> 16;
   };
 
@@ -1074,7 +1074,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readUint16 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readUint16 = function(offset) {
     return this.bytes_[offset] | this.bytes_[offset + 1] << 8;
   };
 
@@ -1082,7 +1082,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readInt32 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readInt32 = function(offset) {
     return this.bytes_[offset] | this.bytes_[offset + 1] << 8 | this.bytes_[offset + 2] << 16 | this.bytes_[offset + 3] << 24;
   };
 
@@ -1090,7 +1090,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readUint32 = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.readUint32 = function(offset) {
     return this.readInt32(offset) >>> 0;
   };
 
@@ -1098,42 +1098,42 @@
    * @param {number} offset
    * @returns {!flatbuffers.Long}
    */
-  flatbuffers.ByteBuffer.prototype.readInt64 = function(offset) {
-    return new flatbuffers.Long(this.readInt32(offset), this.readInt32(offset + 4));
+  flatbuffers$1.ByteBuffer.prototype.readInt64 = function(offset) {
+    return new flatbuffers$1.Long(this.readInt32(offset), this.readInt32(offset + 4));
   };
 
   /**
    * @param {number} offset
    * @returns {!flatbuffers.Long}
    */
-  flatbuffers.ByteBuffer.prototype.readUint64 = function(offset) {
-    return new flatbuffers.Long(this.readUint32(offset), this.readUint32(offset + 4));
+  flatbuffers$1.ByteBuffer.prototype.readUint64 = function(offset) {
+    return new flatbuffers$1.Long(this.readUint32(offset), this.readUint32(offset + 4));
   };
 
   /**
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readFloat32 = function(offset) {
-    flatbuffers.int32[0] = this.readInt32(offset);
-    return flatbuffers.float32[0];
+  flatbuffers$1.ByteBuffer.prototype.readFloat32 = function(offset) {
+    flatbuffers$1.int32[0] = this.readInt32(offset);
+    return flatbuffers$1.float32[0];
   };
 
   /**
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.readFloat64 = function(offset) {
-    flatbuffers.int32[flatbuffers.isLittleEndian ? 0 : 1] = this.readInt32(offset);
-    flatbuffers.int32[flatbuffers.isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
-    return flatbuffers.float64[0];
+  flatbuffers$1.ByteBuffer.prototype.readFloat64 = function(offset) {
+    flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 0 : 1] = this.readInt32(offset);
+    flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
+    return flatbuffers$1.float64[0];
   };
 
   /**
    * @param {number} offset
    * @param {number|boolean} value
    */
-  flatbuffers.ByteBuffer.prototype.writeInt8 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeInt8 = function(offset, value) {
     this.bytes_[offset] = /** @type {number} */(value);
   };
 
@@ -1141,7 +1141,7 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeUint8 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeUint8 = function(offset, value) {
     this.bytes_[offset] = value;
   };
 
@@ -1149,7 +1149,7 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeInt16 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeInt16 = function(offset, value) {
     this.bytes_[offset] = value;
     this.bytes_[offset + 1] = value >> 8;
   };
@@ -1158,7 +1158,7 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeUint16 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeUint16 = function(offset, value) {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
   };
@@ -1167,7 +1167,7 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeInt32 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeInt32 = function(offset, value) {
     this.bytes_[offset] = value;
     this.bytes_[offset + 1] = value >> 8;
     this.bytes_[offset + 2] = value >> 16;
@@ -1178,7 +1178,7 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeUint32 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeUint32 = function(offset, value) {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
       this.bytes_[offset + 2] = value >> 16;
@@ -1189,7 +1189,7 @@
    * @param {number} offset
    * @param {flatbuffers.Long} value
    */
-  flatbuffers.ByteBuffer.prototype.writeInt64 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeInt64 = function(offset, value) {
     this.writeInt32(offset, value.low);
     this.writeInt32(offset + 4, value.high);
   };
@@ -1198,7 +1198,7 @@
    * @param {number} offset
    * @param {flatbuffers.Long} value
    */
-  flatbuffers.ByteBuffer.prototype.writeUint64 = function(offset, value) {
+  flatbuffers$1.ByteBuffer.prototype.writeUint64 = function(offset, value) {
       this.writeUint32(offset, value.low);
       this.writeUint32(offset + 4, value.high);
   };
@@ -1207,19 +1207,19 @@
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeFloat32 = function(offset, value) {
-    flatbuffers.float32[0] = value;
-    this.writeInt32(offset, flatbuffers.int32[0]);
+  flatbuffers$1.ByteBuffer.prototype.writeFloat32 = function(offset, value) {
+    flatbuffers$1.float32[0] = value;
+    this.writeInt32(offset, flatbuffers$1.int32[0]);
   };
 
   /**
    * @param {number} offset
    * @param {number} value
    */
-  flatbuffers.ByteBuffer.prototype.writeFloat64 = function(offset, value) {
-    flatbuffers.float64[0] = value;
-    this.writeInt32(offset, flatbuffers.int32[flatbuffers.isLittleEndian ? 0 : 1]);
-    this.writeInt32(offset + 4, flatbuffers.int32[flatbuffers.isLittleEndian ? 1 : 0]);
+  flatbuffers$1.ByteBuffer.prototype.writeFloat64 = function(offset, value) {
+    flatbuffers$1.float64[0] = value;
+    this.writeInt32(offset, flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 0 : 1]);
+    this.writeInt32(offset + 4, flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 1 : 0]);
   };
 
   /**
@@ -1228,16 +1228,16 @@
    * start of a the root vtable).
    * @returns {string}
    */
-  flatbuffers.ByteBuffer.prototype.getBufferIdentifier = function() {
-    if (this.bytes_.length < this.position_ + flatbuffers.SIZEOF_INT +
-        flatbuffers.FILE_IDENTIFIER_LENGTH) {
+  flatbuffers$1.ByteBuffer.prototype.getBufferIdentifier = function() {
+    if (this.bytes_.length < this.position_ + flatbuffers$1.SIZEOF_INT +
+        flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
       throw new Error(
           'FlatBuffers: ByteBuffer is too short to contain an identifier.');
     }
     var result = "";
-    for (var i = 0; i < flatbuffers.FILE_IDENTIFIER_LENGTH; i++) {
+    for (var i = 0; i < flatbuffers$1.FILE_IDENTIFIER_LENGTH; i++) {
       result += String.fromCharCode(
-          this.readInt8(this.position_ + flatbuffers.SIZEOF_INT + i));
+          this.readInt8(this.position_ + flatbuffers$1.SIZEOF_INT + i));
     }
     return result;
   };
@@ -1250,7 +1250,7 @@
    * @param {number} vtable_offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.__offset = function(bb_pos, vtable_offset) {
+  flatbuffers$1.ByteBuffer.prototype.__offset = function(bb_pos, vtable_offset) {
     var vtable = bb_pos - this.readInt32(bb_pos);
     return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
   };
@@ -1262,7 +1262,7 @@
    * @param {number} offset
    * @returns {flatbuffers.Table}
    */
-  flatbuffers.ByteBuffer.prototype.__union = function(t, offset) {
+  flatbuffers$1.ByteBuffer.prototype.__union = function(t, offset) {
     t.bb_pos = offset + this.readInt32(offset);
     t.bb = this;
     return t;
@@ -1281,16 +1281,16 @@
    * @param {flatbuffers.Encoding=} opt_encoding Defaults to UTF16_STRING
    * @returns {string|!Uint8Array}
    */
-  flatbuffers.ByteBuffer.prototype.__string = function(offset, opt_encoding) {
+  flatbuffers$1.ByteBuffer.prototype.__string = function(offset, opt_encoding) {
     offset += this.readInt32(offset);
 
     var length = this.readInt32(offset);
     var result = '';
     var i = 0;
 
-    offset += flatbuffers.SIZEOF_INT;
+    offset += flatbuffers$1.SIZEOF_INT;
 
-    if (opt_encoding === flatbuffers.Encoding.UTF8_BYTES) {
+    if (opt_encoding === flatbuffers$1.Encoding.UTF8_BYTES) {
       return this.bytes_.subarray(offset, offset + length);
     }
 
@@ -1344,7 +1344,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.__indirect = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.__indirect = function(offset) {
     return offset + this.readInt32(offset);
   };
 
@@ -1354,8 +1354,8 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.__vector = function(offset) {
-    return offset + this.readInt32(offset) + flatbuffers.SIZEOF_INT; // data starts after the length
+  flatbuffers$1.ByteBuffer.prototype.__vector = function(offset) {
+    return offset + this.readInt32(offset) + flatbuffers$1.SIZEOF_INT; // data starts after the length
   };
 
   /**
@@ -1364,7 +1364,7 @@
    * @param {number} offset
    * @returns {number}
    */
-  flatbuffers.ByteBuffer.prototype.__vector_len = function(offset) {
+  flatbuffers$1.ByteBuffer.prototype.__vector_len = function(offset) {
     return this.readInt32(offset + this.readInt32(offset));
   };
 
@@ -1372,13 +1372,13 @@
    * @param {string} ident
    * @returns {boolean}
    */
-  flatbuffers.ByteBuffer.prototype.__has_identifier = function(ident) {
-    if (ident.length != flatbuffers.FILE_IDENTIFIER_LENGTH) {
+  flatbuffers$1.ByteBuffer.prototype.__has_identifier = function(ident) {
+    if (ident.length != flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
       throw new Error('FlatBuffers: file identifier must be length ' +
-                      flatbuffers.FILE_IDENTIFIER_LENGTH);
+                      flatbuffers$1.FILE_IDENTIFIER_LENGTH);
     }
-    for (var i = 0; i < flatbuffers.FILE_IDENTIFIER_LENGTH; i++) {
-      if (ident.charCodeAt(i) != this.readInt8(this.position_ + flatbuffers.SIZEOF_INT + i)) {
+    for (var i = 0; i < flatbuffers$1.FILE_IDENTIFIER_LENGTH; i++) {
+      if (ident.charCodeAt(i) != this.readInt8(this.position_ + flatbuffers$1.SIZEOF_INT + i)) {
         return false;
       }
     }
@@ -1392,8 +1392,8 @@
    * @param {number} high
    * @returns {!flatbuffers.Long}
    */
-  flatbuffers.ByteBuffer.prototype.createLong = function(low, high) {
-    return flatbuffers.Long.create(low, high);
+  flatbuffers$1.ByteBuffer.prototype.createLong = function(low, high) {
+    return flatbuffers$1.Long.create(low, high);
   };
 
   /// @endcond
@@ -1401,7 +1401,7 @@
 
   /**
    * -----------------------------------------------------------
-   * ssfblib v1.0.0
+   * ssfblib v1.0.1
    *
    * Copyright(C) Web Technology Corp.
    * https://www.webtech.co.jp/
@@ -1414,9 +1414,7 @@
    */
   var ss;
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var SsPartType;
           (function (SsPartType) {
               SsPartType[SsPartType["Invalid"] = -1] = "Invalid";
               SsPartType[SsPartType["Nulltype"] = 0] = "Nulltype";
@@ -1431,16 +1429,14 @@
               SsPartType[SsPartType["Mask"] = 9] = "Mask";
               SsPartType[SsPartType["Joint"] = 10] = "Joint";
               SsPartType[SsPartType["Bonepoint"] = 11] = "Bonepoint";
-          })(SsPartType = ssfb.SsPartType || (ssfb.SsPartType = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.SsPartType || (ssfb.SsPartType = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @enum {number}
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var PART_FLAG;
           (function (PART_FLAG) {
               PART_FLAG[PART_FLAG["INVISIBLE"] = 1] = "INVISIBLE";
               PART_FLAG[PART_FLAG["FLIP_H"] = 2] = "FLIP_H";
@@ -1474,44 +1470,38 @@
               PART_FLAG[PART_FLAG["PRIORITY"] = 536870912] = "PRIORITY";
               PART_FLAG[PART_FLAG["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
               PART_FLAG[PART_FLAG["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-          })(PART_FLAG = ssfb.PART_FLAG || (ssfb.PART_FLAG = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.PART_FLAG || (ssfb.PART_FLAG = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @enum {number}
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var PART_FLAG2;
           (function (PART_FLAG2) {
               PART_FLAG2[PART_FLAG2["MESHDATA"] = 1] = "MESHDATA";
-          })(PART_FLAG2 = ssfb.PART_FLAG2 || (ssfb.PART_FLAG2 = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.PART_FLAG2 || (ssfb.PART_FLAG2 = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @enum {number}
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var VERTEX_FLAG;
           (function (VERTEX_FLAG) {
               VERTEX_FLAG[VERTEX_FLAG["LT"] = 1] = "LT";
               VERTEX_FLAG[VERTEX_FLAG["RT"] = 2] = "RT";
               VERTEX_FLAG[VERTEX_FLAG["LB"] = 4] = "LB";
               VERTEX_FLAG[VERTEX_FLAG["RB"] = 8] = "RB";
               VERTEX_FLAG[VERTEX_FLAG["ONE"] = 16] = "ONE";
-          })(VERTEX_FLAG = ssfb.VERTEX_FLAG || (ssfb.VERTEX_FLAG = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.VERTEX_FLAG || (ssfb.VERTEX_FLAG = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @enum {number}
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var EffectNodeBehavior;
           (function (EffectNodeBehavior) {
               EffectNodeBehavior[EffectNodeBehavior["NONE"] = 0] = "NONE";
               EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementBasic"] = 1] = "EffectParticleElementBasic";
@@ -1531,30 +1521,27 @@
               EffectNodeBehavior[EffectNodeBehavior["EffectParticlePointGravity"] = 15] = "EffectParticlePointGravity";
               EffectNodeBehavior[EffectNodeBehavior["EffectParticleTurnToDirectionEnabled"] = 16] = "EffectParticleTurnToDirectionEnabled";
               EffectNodeBehavior[EffectNodeBehavior["EffectParticleInfiniteEmitEnabled"] = 17] = "EffectParticleInfiniteEmitEnabled";
-          })(EffectNodeBehavior = ssfb.EffectNodeBehavior || (ssfb.EffectNodeBehavior = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.EffectNodeBehavior || (ssfb.EffectNodeBehavior = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @enum {number}
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
-          var userDataValue;
           (function (userDataValue) {
               userDataValue[userDataValue["NONE"] = 0] = "NONE";
               userDataValue[userDataValue["userDataInteger"] = 1] = "userDataInteger";
               userDataValue[userDataValue["userDataRect"] = 2] = "userDataRect";
               userDataValue[userDataValue["userDataPoint"] = 3] = "userDataPoint";
               userDataValue[userDataValue["userDataString"] = 4] = "userDataString";
-          })(userDataValue = ssfb.userDataValue || (ssfb.userDataValue = {}));
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+          })(ssfb.userDataValue || (ssfb.userDataValue = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleInfiniteEmitEnabled = /** @class */ (function () {
               function EffectParticleInfiniteEmitEnabled() {
@@ -1590,13 +1577,12 @@
               return EffectParticleInfiniteEmitEnabled;
           }());
           ssfb.EffectParticleInfiniteEmitEnabled = EffectParticleInfiniteEmitEnabled;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleTurnToDirectionEnabled = /** @class */ (function () {
               function EffectParticleTurnToDirectionEnabled() {
@@ -1632,13 +1618,12 @@
               return EffectParticleTurnToDirectionEnabled;
           }());
           ssfb.EffectParticleTurnToDirectionEnabled = EffectParticleTurnToDirectionEnabled;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticlePointGravity = /** @class */ (function () {
               function EffectParticlePointGravity() {
@@ -1690,13 +1675,12 @@
               return EffectParticlePointGravity;
           }());
           ssfb.EffectParticlePointGravity = EffectParticlePointGravity;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementTransSize = /** @class */ (function () {
               function EffectParticleElementTransSize() {
@@ -1772,13 +1756,12 @@
               return EffectParticleElementTransSize;
           }());
           ssfb.EffectParticleElementTransSize = EffectParticleElementTransSize;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementSize = /** @class */ (function () {
               function EffectParticleElementSize() {
@@ -1854,13 +1837,12 @@
               return EffectParticleElementSize;
           }());
           ssfb.EffectParticleElementSize = EffectParticleElementSize;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementAlphaFade = /** @class */ (function () {
               function EffectParticleElementAlphaFade() {
@@ -1904,13 +1886,12 @@
               return EffectParticleElementAlphaFade;
           }());
           ssfb.EffectParticleElementAlphaFade = EffectParticleElementAlphaFade;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementTransColor = /** @class */ (function () {
               function EffectParticleElementTransColor() {
@@ -1954,13 +1935,12 @@
               return EffectParticleElementTransColor;
           }());
           ssfb.EffectParticleElementTransColor = EffectParticleElementTransColor;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementInitColor = /** @class */ (function () {
               function EffectParticleElementInitColor() {
@@ -2004,13 +1984,12 @@
               return EffectParticleElementInitColor;
           }());
           ssfb.EffectParticleElementInitColor = EffectParticleElementInitColor;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementTangentialAcceleration = /** @class */ (function () {
               function EffectParticleElementTangentialAcceleration() {
@@ -2054,13 +2033,12 @@
               return EffectParticleElementTangentialAcceleration;
           }());
           ssfb.EffectParticleElementTangentialAcceleration = EffectParticleElementTangentialAcceleration;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementTransSpeed = /** @class */ (function () {
               function EffectParticleElementTransSpeed() {
@@ -2104,13 +2082,12 @@
               return EffectParticleElementTransSpeed;
           }());
           ssfb.EffectParticleElementTransSpeed = EffectParticleElementTransSpeed;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementRotationTrans = /** @class */ (function () {
               function EffectParticleElementRotationTrans() {
@@ -2154,13 +2131,12 @@
               return EffectParticleElementRotationTrans;
           }());
           ssfb.EffectParticleElementRotationTrans = EffectParticleElementRotationTrans;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementRotation = /** @class */ (function () {
               function EffectParticleElementRotation() {
@@ -2220,13 +2196,12 @@
               return EffectParticleElementRotation;
           }());
           ssfb.EffectParticleElementRotation = EffectParticleElementRotation;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementPosition = /** @class */ (function () {
               function EffectParticleElementPosition() {
@@ -2286,13 +2261,12 @@
               return EffectParticleElementPosition;
           }());
           ssfb.EffectParticleElementPosition = EffectParticleElementPosition;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementGravity = /** @class */ (function () {
               function EffectParticleElementGravity() {
@@ -2336,13 +2310,12 @@
               return EffectParticleElementGravity;
           }());
           ssfb.EffectParticleElementGravity = EffectParticleElementGravity;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementDelay = /** @class */ (function () {
               function EffectParticleElementDelay() {
@@ -2378,13 +2351,12 @@
               return EffectParticleElementDelay;
           }());
           ssfb.EffectParticleElementDelay = EffectParticleElementDelay;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementRndSeedChange = /** @class */ (function () {
               function EffectParticleElementRndSeedChange() {
@@ -2420,13 +2392,12 @@
               return EffectParticleElementRndSeedChange;
           }());
           ssfb.EffectParticleElementRndSeedChange = EffectParticleElementRndSeedChange;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectParticleElementBasic = /** @class */ (function () {
               function EffectParticleElementBasic() {
@@ -2550,13 +2521,12 @@
               return EffectParticleElementBasic;
           }());
           ssfb.EffectParticleElementBasic = EffectParticleElementBasic;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectNode = /** @class */ (function () {
               function EffectNode() {
@@ -2579,7 +2549,16 @@
                * @returns EffectNode
                */
               EffectNode.getRootAsEffectNode = function (bb, obj) {
-                  return (obj || new EffectNode).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param EffectNode= obj
+               * @returns EffectNode
+               */
+              EffectNode.getSizePrefixedRootAsEffectNode = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -2784,13 +2763,12 @@
               return EffectNode;
           }());
           ssfb.EffectNode = EffectNode;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var EffectFile = /** @class */ (function () {
               function EffectFile() {
@@ -2813,7 +2791,16 @@
                * @returns EffectFile
                */
               EffectFile.getRootAsEffectFile = function (bb, obj) {
-                  return (obj || new EffectFile).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param EffectFile= obj
+               * @returns EffectFile
+               */
+              EffectFile.getSizePrefixedRootAsEffectFile = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               EffectFile.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -2868,7 +2855,7 @@
                */
               EffectFile.prototype.effectNode = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 18);
-                  return offset ? (obj || new ss.ssfb.EffectNode).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.EffectNode()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -2981,13 +2968,12 @@
               return EffectFile;
           }());
           ssfb.EffectFile = EffectFile;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var CellMap = /** @class */ (function () {
               function CellMap() {
@@ -3010,7 +2996,16 @@
                * @returns CellMap
                */
               CellMap.getRootAsCellMap = function (bb, obj) {
-                  return (obj || new CellMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param CellMap= obj
+               * @returns CellMap
+               */
+              CellMap.getSizePrefixedRootAsCellMap = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               CellMap.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -3102,13 +3097,12 @@
               return CellMap;
           }());
           ssfb.CellMap = CellMap;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var Cell = /** @class */ (function () {
               function Cell() {
@@ -3131,7 +3125,16 @@
                * @returns Cell
                */
               Cell.getRootAsCell = function (bb, obj) {
-                  return (obj || new Cell).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param Cell= obj
+               * @returns Cell
+               */
+              Cell.getSizePrefixedRootAsCell = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               Cell.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -3143,7 +3146,7 @@
                */
               Cell.prototype.cellMap = function (obj) {
                   var offset = this.bb.__offset(this.bb_pos, 6);
-                  return offset ? (obj || new ss.ssfb.CellMap).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.CellMap()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
               };
               /**
                * @returns number
@@ -3347,13 +3350,12 @@
               return Cell;
           }());
           ssfb.Cell = Cell;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var meshDataUV = /** @class */ (function () {
               function meshDataUV() {
@@ -3376,7 +3378,16 @@
                * @returns meshDataUV
                */
               meshDataUV.getRootAsmeshDataUV = function (bb, obj) {
-                  return (obj || new meshDataUV).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param meshDataUV= obj
+               * @returns meshDataUV
+               */
+              meshDataUV.getSizePrefixedRootAsmeshDataUV = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @param number index
@@ -3448,13 +3459,12 @@
               return meshDataUV;
           }());
           ssfb.meshDataUV = meshDataUV;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var meshDataIndices = /** @class */ (function () {
               function meshDataIndices() {
@@ -3477,7 +3487,16 @@
                * @returns meshDataIndices
                */
               meshDataIndices.getRootAsmeshDataIndices = function (bb, obj) {
-                  return (obj || new meshDataIndices).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param meshDataIndices= obj
+               * @returns meshDataIndices
+               */
+              meshDataIndices.getSizePrefixedRootAsmeshDataIndices = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @param number index
@@ -3549,13 +3568,12 @@
               return meshDataIndices;
           }());
           ssfb.meshDataIndices = meshDataIndices;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var partState = /** @class */ (function () {
               function partState() {
@@ -3578,7 +3596,16 @@
                * @returns partState
                */
               partState.getRootAspartState = function (bb, obj) {
-                  return (obj || new partState).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param partState= obj
+               * @returns partState
+               */
+              partState.getSizePrefixedRootAspartState = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -3695,13 +3722,12 @@
               return partState;
           }());
           ssfb.partState = partState;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var frameDataIndex = /** @class */ (function () {
               function frameDataIndex() {
@@ -3724,7 +3750,16 @@
                * @returns frameDataIndex
                */
               frameDataIndex.getRootAsframeDataIndex = function (bb, obj) {
-                  return (obj || new frameDataIndex).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param frameDataIndex= obj
+               * @returns frameDataIndex
+               */
+              frameDataIndex.getSizePrefixedRootAsframeDataIndex = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @param number index
@@ -3733,7 +3768,7 @@
                */
               frameDataIndex.prototype.states = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
-                  return offset ? (obj || new ss.ssfb.partState).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.partState()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -3790,13 +3825,12 @@
               return frameDataIndex;
           }());
           ssfb.frameDataIndex = frameDataIndex;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataInteger = /** @class */ (function () {
               function userDataInteger() {
@@ -3832,13 +3866,12 @@
               return userDataInteger;
           }());
           ssfb.userDataInteger = userDataInteger;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataRect = /** @class */ (function () {
               function userDataRect() {
@@ -3898,13 +3931,12 @@
               return userDataRect;
           }());
           ssfb.userDataRect = userDataRect;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataPoint = /** @class */ (function () {
               function userDataPoint() {
@@ -3948,13 +3980,12 @@
               return userDataPoint;
           }());
           ssfb.userDataPoint = userDataPoint;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataString = /** @class */ (function () {
               function userDataString() {
@@ -3977,7 +4008,16 @@
                * @returns userDataString
                */
               userDataString.getRootAsuserDataString = function (bb, obj) {
-                  return (obj || new userDataString).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param userDataString= obj
+               * @returns userDataString
+               */
+              userDataString.getSizePrefixedRootAsuserDataString = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -4027,13 +4067,12 @@
               return userDataString;
           }());
           ssfb.userDataString = userDataString;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataItem = /** @class */ (function () {
               function userDataItem() {
@@ -4056,7 +4095,16 @@
                * @returns userDataItem
                */
               userDataItem.getRootAsuserDataItem = function (bb, obj) {
-                  return (obj || new userDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param userDataItem= obj
+               * @returns userDataItem
+               */
+              userDataItem.getSizePrefixedRootAsuserDataItem = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -4201,13 +4249,12 @@
               return userDataItem;
           }());
           ssfb.userDataItem = userDataItem;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var userDataPerFrame = /** @class */ (function () {
               function userDataPerFrame() {
@@ -4230,7 +4277,16 @@
                * @returns userDataPerFrame
                */
               userDataPerFrame.getRootAsuserDataPerFrame = function (bb, obj) {
-                  return (obj || new userDataPerFrame).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param userDataPerFrame= obj
+               * @returns userDataPerFrame
+               */
+              userDataPerFrame.getSizePrefixedRootAsuserDataPerFrame = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -4246,7 +4302,7 @@
                */
               userDataPerFrame.prototype.data = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 6);
-                  return offset ? (obj || new ss.ssfb.userDataItem).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.userDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4311,13 +4367,12 @@
               return userDataPerFrame;
           }());
           ssfb.userDataPerFrame = userDataPerFrame;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var labelDataItem = /** @class */ (function () {
               function labelDataItem() {
@@ -4340,7 +4395,16 @@
                * @returns labelDataItem
                */
               labelDataItem.getRootAslabelDataItem = function (bb, obj) {
-                  return (obj || new labelDataItem).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param labelDataItem= obj
+               * @returns labelDataItem
+               */
+              labelDataItem.getSizePrefixedRootAslabelDataItem = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               labelDataItem.prototype.label = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -4390,13 +4454,12 @@
               return labelDataItem;
           }());
           ssfb.labelDataItem = labelDataItem;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var AnimationData = /** @class */ (function () {
               function AnimationData() {
@@ -4419,7 +4482,16 @@
                * @returns AnimationData
                */
               AnimationData.getRootAsAnimationData = function (bb, obj) {
-                  return (obj || new AnimationData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param AnimationData= obj
+               * @returns AnimationData
+               */
+              AnimationData.getSizePrefixedRootAsAnimationData = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               AnimationData.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -4432,7 +4504,7 @@
                */
               AnimationData.prototype.defaultData = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 6);
-                  return offset ? (obj || new ss.ssfb.AnimationInitialData).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.AnimationInitialData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4448,7 +4520,7 @@
                */
               AnimationData.prototype.frameData = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 8);
-                  return offset ? (obj || new ss.ssfb.frameDataIndex).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.frameDataIndex()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4464,7 +4536,7 @@
                */
               AnimationData.prototype.userData = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 10);
-                  return offset ? (obj || new ss.ssfb.userDataPerFrame).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.userDataPerFrame()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4480,7 +4552,7 @@
                */
               AnimationData.prototype.labelData = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 12);
-                  return offset ? (obj || new ss.ssfb.labelDataItem).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.labelDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4496,7 +4568,7 @@
                */
               AnimationData.prototype.meshsDataUV = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 14);
-                  return offset ? (obj || new ss.ssfb.meshDataUV).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.meshDataUV()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4512,7 +4584,7 @@
                */
               AnimationData.prototype.meshsDataIndices = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 16);
-                  return offset ? (obj || new ss.ssfb.meshDataIndices).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.meshDataIndices()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -4847,13 +4919,12 @@
               return AnimationData;
           }());
           ssfb.AnimationData = AnimationData;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var AnimationInitialData = /** @class */ (function () {
               function AnimationInitialData() {
@@ -4876,7 +4947,16 @@
                * @returns AnimationInitialData
                */
               AnimationInitialData.getRootAsAnimationInitialData = function (bb, obj) {
-                  return (obj || new AnimationInitialData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param AnimationInitialData= obj
+               * @returns AnimationInitialData
+               */
+              AnimationInitialData.getSizePrefixedRootAsAnimationInitialData = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @returns number
@@ -5469,13 +5549,12 @@
               return AnimationInitialData;
           }());
           ssfb.AnimationInitialData = AnimationInitialData;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var PartData = /** @class */ (function () {
               function PartData() {
@@ -5498,7 +5577,16 @@
                * @returns PartData
                */
               PartData.getRootAsPartData = function (bb, obj) {
-                  return (obj || new PartData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param PartData= obj
+               * @returns PartData
+               */
+              PartData.getSizePrefixedRootAsPartData = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               PartData.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -5659,13 +5747,12 @@
               return PartData;
           }());
           ssfb.PartData = PartData;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var AnimePackData = /** @class */ (function () {
               function AnimePackData() {
@@ -5688,7 +5775,16 @@
                * @returns AnimePackData
                */
               AnimePackData.getRootAsAnimePackData = function (bb, obj) {
-                  return (obj || new AnimePackData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param AnimePackData= obj
+               * @returns AnimePackData
+               */
+              AnimePackData.getSizePrefixedRootAsAnimePackData = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               AnimePackData.prototype.name = function (optionalEncoding) {
                   var offset = this.bb.__offset(this.bb_pos, 4);
@@ -5701,7 +5797,7 @@
                */
               AnimePackData.prototype.parts = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 6);
-                  return offset ? (obj || new ss.ssfb.PartData).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.PartData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -5717,7 +5813,7 @@
                */
               AnimePackData.prototype.animations = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 8);
-                  return offset ? (obj || new ss.ssfb.AnimationData).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.AnimationData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -5809,13 +5905,12 @@
               return AnimePackData;
           }());
           ssfb.AnimePackData = AnimePackData;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
   /**
    * @constructor
    */
   (function (ss) {
-      var ssfb;
       (function (ssfb) {
           var ProjectData = /** @class */ (function () {
               function ProjectData() {
@@ -5838,7 +5933,16 @@
                * @returns ProjectData
                */
               ProjectData.getRootAsProjectData = function (bb, obj) {
-                  return (obj || new ProjectData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+                  return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+              };
+              /**
+               * @param flatbuffers.ByteBuffer bb
+               * @param ProjectData= obj
+               * @returns ProjectData
+               */
+              ProjectData.getSizePrefixedRootAsProjectData = function (bb, obj) {
+                  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+                  return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
               };
               /**
                * @param flatbuffers.ByteBuffer bb
@@ -5879,7 +5983,7 @@
                */
               ProjectData.prototype.cells = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 12);
-                  return offset ? (obj || new ss.ssfb.Cell).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.Cell()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -5895,7 +5999,7 @@
                */
               ProjectData.prototype.animePacks = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 14);
-                  return offset ? (obj || new ss.ssfb.AnimePackData).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.AnimePackData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -5911,7 +6015,7 @@
                */
               ProjectData.prototype.effectFileList = function (index, obj) {
                   var offset = this.bb.__offset(this.bb_pos, 16);
-                  return offset ? (obj || new ss.ssfb.EffectFile).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+                  return offset ? (obj || new ss.ssfb.EffectFile()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
               };
               /**
                * @returns number
@@ -6089,6 +6193,13 @@
               ProjectData.finishProjectDataBuffer = function (builder, offset) {
                   builder.finish(offset, 'SSFB');
               };
+              /**
+               * @param flatbuffers.Builder builder
+               * @param flatbuffers.Offset offset
+               */
+              ProjectData.finishSizePrefixedProjectDataBuffer = function (builder, offset) {
+                  builder.finish(offset, 'SSFB', true);
+              };
               ProjectData.createProjectData = function (builder, dataId, version, flags, imageBaseDirOffset, cellsOffset, animePacksOffset, effectFileListOffset, numCells, numAnimePacks, numEffectFileList) {
                   ProjectData.startProjectData(builder);
                   ProjectData.addDataId(builder, dataId);
@@ -6106,37 +6217,37 @@
               return ProjectData;
           }());
           ssfb.ProjectData = ProjectData;
-      })(ssfb = ss.ssfb || (ss.ssfb = {}));
+      })(ss.ssfb || (ss.ssfb = {}));
   })(ss || (ss = {}));
 
   // import * as PIXI from 'pixi.js';
   var SS6Project = /** @class */ (function () {
-      /**
-       * SS6Project (used for several SS6Player(s))
-       * @constructor
-       * @param {string} ssfbPath - FlatBuffers file path
-       * @param onComplete - callback on complete
-       * @param timeout
-       * @param retry
-       * @param onError - callback on error
-       * @param onTimeout - callback on timeout
-       * @param onRetry - callback on retry
-       */
-      function SS6Project(ssfbPath, onComplete, timeout, retry, onError, onTimeout, onRetry) {
-          if (timeout === void 0) { timeout = 0; }
-          if (retry === void 0) { retry = 0; }
-          if (onError === void 0) { onError = null; }
-          if (onTimeout === void 0) { onTimeout = null; }
-          if (onRetry === void 0) { onRetry = null; }
-          this.ssfbPath = ssfbPath;
-          var index = ssfbPath.lastIndexOf('/');
-          this.rootPath = ssfbPath.substring(0, index) + '/';
-          this.status = 'not ready'; // status
-          this.onComplete = onComplete;
-          this.onError = onError;
-          this.onTimeout = onTimeout;
-          this.onRetry = onRetry;
-          this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
+      function SS6Project(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+          if (typeof arg1 === 'string') { // get ssfb data via http protocol
+              var ssfbPath = arg1;
+              var onComplete = arg2;
+              var timeout = (arg3 !== undefined) ? arg3 : 0;
+              var retry = (arg4 !== undefined) ? arg4 : 0;
+              var onError = (arg5 !== undefined) ? arg5 : null;
+              var onTimeout = (arg6 !== undefined) ? arg6 : null;
+              var onRetry = (arg7 !== undefined) ? arg7 : null;
+              // ssfb path
+              this.ssfbPath = ssfbPath;
+              var index = ssfbPath.lastIndexOf('/');
+              this.rootPath = ssfbPath.substring(0, index) + '/';
+              this.status = 'not ready'; // status
+              this.onComplete = onComplete;
+              this.onError = onError;
+              this.onTimeout = onTimeout;
+              this.onRetry = onRetry;
+              this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
+          }
+          else if (typeof arg1 === 'object' && arg1.constructor === Uint8Array) { // get ssfb data from argument
+              var ssfbByte = arg1;
+              var imageBinaryMap = arg2;
+              this.onComplete = (arg3 !== undefined) ? arg3 : null;
+              this.load(ssfbByte, imageBinaryMap);
+          }
       }
       /**
        * Load json and parse (then, load textures)
@@ -6162,7 +6273,7 @@
               }
               var arrayBuffer = this.response;
               var bytes = new Uint8Array(arrayBuffer);
-              var buf = new flatbuffers.ByteBuffer(bytes);
+              var buf = new flatbuffers$1.ByteBuffer(bytes);
               self.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buf);
               self.LoadCellResources();
           };
@@ -6206,6 +6317,34 @@
           for (var i = 0; i < self.fbObj.cellsLength(); i++) {
               _loop_1(i);
           }
+          loader.load(function (loader, resources) {
+              // SS6Project is ready.
+              self.resources = resources;
+              self.status = 'ready';
+              if (self.onComplete !== null) {
+                  self.onComplete();
+              }
+          });
+      };
+      SS6Project.prototype.load = function (bytes, imageBinaryMap) {
+          var buffer = new flatbuffers$1.ByteBuffer(bytes);
+          this.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
+          var loader = new PIXI.Loader();
+          for (var imageName in imageBinaryMap) {
+              var binary = imageBinaryMap[imageName];
+              // const base64 = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, binary));
+              var b = '';
+              var len = binary.byteLength;
+              for (var i = 0; i < len; i++) {
+                  b += String.fromCharCode(binary[i]);
+              }
+              var base64 = 'data:image/png;base64,' + window.btoa(b);
+              // const blob = new Blob(binary, "image/png");
+              // const url = window.URL.createObjectURL(blob);
+              loader.add(imageName, base64);
+              // let texture = PIXI.Texture.fromBuffer(binary, 100, 100);
+          }
+          var self = this;
           loader.load(function (loader, resources) {
               // SS6Project is ready.
               self.resources = resources;
@@ -6366,6 +6505,13 @@
           enumerable: false,
           configurable: true
       });
+      Object.defineProperty(SS6Player.prototype, "isPausing", {
+          get: function () {
+              return this._isPausing;
+          },
+          enumerable: false,
+          configurable: true
+      });
       Object.defineProperty(SS6Player.prototype, "animePackName", {
           get: function () {
               return this.curAnimePackName;
@@ -6431,7 +6577,7 @@
           // 各アニメーションステータスを初期化
           this.alphaBlendType = this.GetPartsBlendMode();
           this._isPlaying = false;
-          this.isPausing = true;
+          this._isPausing = true;
           this._startFrame = this.curAnimation.startFrames();
           this._endFrame = this.curAnimation.endFrames();
           this._currentFrame = this.curAnimation.startFrames();
@@ -6459,7 +6605,7 @@
        */
       SS6Player.prototype.Update = function (delta) {
           var elapsedTime = PIXI.Ticker.shared.elapsedMS;
-          var toNextFrame = this._isPlaying && !this.isPausing;
+          var toNextFrame = this._isPlaying && !this._isPausing;
           if (toNextFrame && this.updateInterval !== 0) {
               this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
               if (this.nextFrameTime >= this.updateInterval) {
@@ -6588,7 +6734,7 @@
        */
       SS6Player.prototype.Play = function () {
           this._isPlaying = true;
-          this.isPausing = false;
+          this._isPausing = false;
           this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
           this.resetLiveFrame();
           var currentFrameNo = Math.floor(this._currentFrame);
@@ -6603,13 +6749,13 @@
        * アニメーション再生を一時停止する
        */
       SS6Player.prototype.Pause = function () {
-          this.isPausing = true;
+          this._isPausing = true;
       };
       /**
        * アニメーション再生を再開する
        */
       SS6Player.prototype.Resume = function () {
-          this.isPausing = false;
+          this._isPausing = false;
       };
       /**
        * アニメーションを停止する
@@ -6623,6 +6769,21 @@
        */
       SS6Player.prototype.SetFrame = function (frame) {
           this._currentFrame = frame;
+      };
+      SS6Player.prototype.NextFrame = function () {
+          var currentFrame = Math.floor(this._currentFrame);
+          var endFrame = this.endFrame;
+          if (currentFrame === endFrame) {
+              return;
+          }
+          this.SetFrame(currentFrame + 1);
+      };
+      SS6Player.prototype.PrevFrame = function () {
+          var currentFrame = Math.floor(this._currentFrame);
+          if (currentFrame === 0) {
+              return;
+          }
+          this.SetFrame(currentFrame - 1);
       };
       /**
        * アニメーションの透明度を設定する
@@ -6706,7 +6867,7 @@
        */
       SS6Player.prototype.GetUserData = function (frameNumber) {
           // HaveUserDataでデータのキャッシュするので、ここで確認しておく
-          if (this.HaveUserData(this._currentFrame) === false) {
+          if (this.HaveUserData(frameNumber) === false) {
               return;
           }
           var framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
@@ -7297,7 +7458,7 @@
                       // インスタンスパラメータを設定
                       // インスタンス用SSPlayerに再生フレームを設定する
                       mesh.SetFrame(Math.floor(_time));
-                      mesh.Pause();
+                      // mesh.Pause();
                       this.addChild(mesh);
                       break;
                   }

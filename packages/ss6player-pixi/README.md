@@ -30,7 +30,7 @@ ss6player-pixi の API リファレンスは[こちら](https://spritestudio.git
 
 ### サンプル
 
-[Player](./Player/) ディレクトリの [index.html](./Player/) と [sample.js](./Player/sample.js) を参考にしてください。
+[Player](./Player/) ディレクトリの [index.html](./Player/index.html) と [sample.js](./Player/sample.js) を参考にしてください。
 
 [デモ](#デモ) ページを閲覧するか、あるいは[ローカル環境で動作確認](#ローカル環境での動作確認)ができます。
 
