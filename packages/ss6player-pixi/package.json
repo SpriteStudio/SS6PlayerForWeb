@@ -1,6 +1,6 @@
 {
   "name": "ss6player-pixi",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -44,7 +44,7 @@
   "dependencies": {
     "flatbuffers": "^1.12.0",
     "pixi.js": "^5.3.7",
-    "ssfblib": "^1.0.0"
+    "ssfblib": "^1.0.1"
   },
   "devDependencies": {
     "@types/flatbuffers": "^1.10.0",
@@ -65,5 +65,8 @@
     "tslint-config-standard": "^9.0.0",
     "typedoc": "^0.20.14",
     "typescript": "^4.1.3"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.1"
   }
 }

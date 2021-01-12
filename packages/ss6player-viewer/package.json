@@ -43,8 +43,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.4.0",
-    "ssfblib": "1.0.0",
+    "ss6player-pixi": "^1.4.1",
+    "ssfblib": "1.0.1",
     "pixi.js": "^5.3.7",
     "jszip": "^3.5.0"
   },
@@ -68,5 +68,8 @@
     "tslint-config-standard": "^9.0.0",
     "typedoc": "^0.20.14",
     "typescript": "^4.1.3"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.1"
   }
 }

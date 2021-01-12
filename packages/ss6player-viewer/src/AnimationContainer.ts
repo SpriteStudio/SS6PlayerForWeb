@@ -107,7 +107,7 @@ export class AnimationContainer extends SS6Player {
 
   public Stop() {
     super.Stop();
-     if (this.onPlayStateChangeCallback !== null) {
+    if (this.onPlayStateChangeCallback !== null) {
       this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
     }
   }
