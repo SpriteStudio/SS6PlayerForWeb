@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_objects.js v1.1.0
+// rmmz_objects.js v1.1.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -10099,7 +10099,7 @@ Game_Interpreter.prototype.command119 = function(params) {
         const command = this._list[i];
         if (command.code === 118 && command.parameters[0] === labelName) {
             this.jumpTo(i);
-            return;
+            break;
         }
     }
     return true;
