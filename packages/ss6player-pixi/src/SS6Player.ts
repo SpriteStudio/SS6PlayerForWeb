@@ -329,7 +329,7 @@ export class SS6Player extends PIXI.Container {
     this._isPausing = false;
 
     let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
-    if (frameNo && typeof frameNo == 'number') {
+    if (frameNo && typeof frameNo === 'number') {
       currentFrame = frameNo;
     }
     this._currentFrame = currentFrame;
