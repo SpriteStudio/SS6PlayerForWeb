@@ -43,7 +43,6 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "fsevents": "^2.3.1",
     "pixi.js": "^5.3.7",
     "ss6player-pixi": "^1.4.1"
   },
