@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For sspkg v1.0.0
+ * SS6Player For sspkg v1.1.0
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -136,7 +136,7 @@ var ss6PlayerViewer = (function (exports) {
 
     /**
      * -----------------------------------------------------------
-     * SS6Player For pixi.js v1.4.1
+     * SS6Player For pixi.js v1.5.0
      *
      * Copyright(C) Web Technology Corp.
      * https://www.webtech.co.jp/
@@ -6717,13 +6717,14 @@ var ss6PlayerViewer = (function (exports) {
             // 再生方向にあわせて開始フレーム設定（順方向ならstartFrame,逆方法ならendFrame）
             this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
         };
-        /**
-         * アニメーション再生を開始する
-         */
-        SS6Player.prototype.Play = function () {
+        SS6Player.prototype.Play = function (frameNo) {
             this._isPlaying = true;
             this._isPausing = false;
-            this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+            var currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+            if (frameNo && typeof frameNo === 'number') {
+                currentFrame = frameNo;
+            }
+            this._currentFrame = currentFrame;
             this.resetLiveFrame();
             var currentFrameNo = Math.floor(this._currentFrame);
             this.SetFrameAnimation(currentFrameNo);
@@ -8039,14 +8040,14 @@ var ss6PlayerViewer = (function (exports) {
                     var partsArrayIndex = dataArray[0]; // パーツと紐づく
                     var parts = this.curAnimePackData.parts(partsArrayIndex);
                     var partsName = parts.name();
-                    var intValue = dataArray[2];
-                    var rectXValue = dataArray[3];
-                    var rectYValue = dataArray[4];
-                    var rectWidthValue = dataArray[5];
-                    var rectHeightValue = dataArray[6];
-                    var posXValue = dataArray[7];
-                    var posYValue = dataArray[8];
-                    var stringLengthValue = dataArray[9];
+                    dataArray[2];
+                    dataArray[3];
+                    dataArray[4];
+                    dataArray[5];
+                    dataArray[6];
+                    dataArray[7];
+                    dataArray[8];
+                    dataArray[9];
                     var stringValue = dataArray[10];
                     console.log('userData.data.dataArray.stringValue', partsName, stringValue);
                     frameUserDataMap[partsName] = {
@@ -11590,7 +11591,7 @@ var ss6PlayerViewer = (function (exports) {
     var utils = require('./utils');
     var sig = require('./signature');
     var ZipEntry = require('./zipEntry');
-    var utf8 = require('./utf8');
+    require('./utf8');
     var support = require('./support');
     //  class ZipEntries {{{
     /**
@@ -19598,7 +19599,7 @@ var ss6PlayerViewer = (function (exports) {
             var labelDataLength = animation.labelDataLength();
             console.log('labelDataLength', labelDataLength);
             for (var i = 0; i < labelDataLength; i++) {
-                var labelData = animation.labelData(i);
+                animation.labelData(i);
             }
             if (isSetupTextureContainer) {
                 this.mainContainer.addChild(this.textureContainer);
