@@ -6729,13 +6729,14 @@
           // 再生方向にあわせて開始フレーム設定（順方向ならstartFrame,逆方法ならendFrame）
           this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
       };
-      /**
-       * アニメーション再生を開始する
-       */
-      SS6Player.prototype.Play = function () {
+      SS6Player.prototype.Play = function (frameNo) {
           this._isPlaying = true;
           this._isPausing = false;
-          this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+          var currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+          if (frameNo && typeof frameNo === 'number') {
+              currentFrame = frameNo;
+          }
+          this._currentFrame = currentFrame;
           this.resetLiveFrame();
           var currentFrameNo = Math.floor(this._currentFrame);
           this.SetFrameAnimation(currentFrameNo);
@@ -8088,8 +8089,8 @@
     this.setWaitMode(SS6PROJECT_LOAD_WAIT_MODE);
     SS6ProjectManager.getInstance().prepare(ssfbId);
     let project = new SS6Project(ssfbPath, () => {
-      SS6ProjectManager.getInstance().set(ssfbId, project);
-    },
+        SS6ProjectManager.getInstance().set(ssfbId, project);
+      },
       180 * 1000, 3,
       (ssfbPath, timeout, retry, httpObj) => {
         this.setWaitMode('');
@@ -8177,23 +8178,16 @@
   Sprite_Picture.prototype.destroy = function(options) {
     if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
       this.mzkpSS6Player.Stop();
+      this.picture().mzkpSS6PlayerPrevFrameNo = this.mzkpSS6Player.frameNo;
       this.removeChild(this.mzkpSS6Player);
       this.mzkpSS6Player = null;
     }
     _Sprite_Picture_destroy.call(this, options);
   };
 
+
   const _Scene_Base_terminate = Scene_Base.prototype.terminate;
   Scene_Base.prototype.terminate = function() {
-
-    // delete all SS6Play instance of Picture at terminating the Scene
-    $gameScreen._pictures.forEach((picture, index, pictures) => {
-      if(picture && picture.mzkpSS6Player) {
-        picture.mzkpSS6Player.Stop();
-
-        picture.mzkpSS6Player = null;
-      }
-    });
 
     // delete all sv actor SS6Play instance at terminating the Scene
     $gameActors._data.forEach((actor, index, actors) => {
@@ -8230,15 +8224,13 @@
       const playerChanged = picture && picture.mzkpSS6PlayerChanged;
 
       if (this.mzkpSS6Player !== player || playerChanged) {
-
-        if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
-          // stop and remove previous ss6player instance
-          this.mzkpSS6Player.Stop();
-          this.removeChild(this.mzkpSS6Player);
-          this.mzkpSS6Player = null;
-        }
-
         if(player !== null) {
+          if (player.loop === 0 ) {
+            // don't play when player loop number equals 0
+            this.mzkpSS6Player = null;
+            return;
+          }
+
           const prependCallback = g_pictureSS6PlayerPrependCallback;
           const appendCallback = g_pictureSS6PlayerAppendCallback;
           const spritePicture = this;
@@ -8258,7 +8250,7 @@
           });
           this.mzkpSS6Player = player;
           this.addChild(this.mzkpSS6Player);
-          this.mzkpSS6Player.Play();
+          this.mzkpSS6Player.Play(picture.mzkpSS6PlayerPrevFrameNo);
           picture.mzkpSS6PlayerChanged = false;
           g_pictureSS6PlayerPrependCallback = null;
           g_pictureSS6PlayerAppendCallback = null;
