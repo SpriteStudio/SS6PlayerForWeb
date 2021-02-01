@@ -323,10 +323,16 @@ export class SS6Player extends PIXI.Container {
   /**
    * アニメーション再生を開始する
    */
-  public Play(): void {
+  public Play();
+  public Play(frameNo?: number): void {
     this._isPlaying = true;
     this._isPausing = false;
-    this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+
+    let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+    if (frameNo && typeof frameNo === 'number') {
+      currentFrame = frameNo;
+    }
+    this._currentFrame = currentFrame;
 
     this.resetLiveFrame();
 
@@ -338,6 +344,7 @@ export class SS6Player extends PIXI.Container {
       }
     }
   }
+
   /**
    * アニメーション再生を一時停止する
    */
