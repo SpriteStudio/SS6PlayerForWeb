@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.4.1
+ * SS6Player For pixi.js v1.5.0
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -6587,13 +6587,14 @@
           // 再生方向にあわせて開始フレーム設定（順方向ならstartFrame,逆方法ならendFrame）
           this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
       };
-      /**
-       * アニメーション再生を開始する
-       */
-      SS6Player.prototype.Play = function () {
+      SS6Player.prototype.Play = function (frameNo) {
           this._isPlaying = true;
           this._isPausing = false;
-          this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+          var currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+          if (frameNo && typeof frameNo === 'number') {
+              currentFrame = frameNo;
+          }
+          this._currentFrame = currentFrame;
           this.resetLiveFrame();
           var currentFrameNo = Math.floor(this._currentFrame);
           this.SetFrameAnimation(currentFrameNo);

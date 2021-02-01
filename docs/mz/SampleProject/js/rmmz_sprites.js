@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_sprites.js v1.1.0
+// rmmz_sprites.js v1.1.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -3332,7 +3332,7 @@ Spriteset_Base.prototype.removeAnimation = function(sprite) {
 };
 
 Spriteset_Base.prototype.removeAllAnimations = function() {
-    for (const sprite of this._animationSprites) {
+    for (const sprite of this._animationSprites.clone()) {
         this.removeAnimation(sprite);
     }
 };
@@ -3544,7 +3544,7 @@ Spriteset_Map.prototype.removeBalloon = function(sprite) {
 };
 
 Spriteset_Map.prototype.removeAllBalloons = function() {
-    for (const sprite of this._balloonSprites) {
+    for (const sprite of this._balloonSprites.clone()) {
         this.removeBalloon(sprite);
     }
 };

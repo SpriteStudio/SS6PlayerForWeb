@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.4.1
+ * @version 0.5.0
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -148,7 +148,7 @@
 
   /**
    * -----------------------------------------------------------
-   * SS6Player For pixi.js v1.4.1
+   * SS6Player For pixi.js v1.5.0
    *
    * Copyright(C) Web Technology Corp.
    * https://www.webtech.co.jp/
