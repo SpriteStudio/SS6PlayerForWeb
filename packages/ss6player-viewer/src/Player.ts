@@ -248,7 +248,7 @@ export class Player {
   }
 
   public switchLoop(isInfinity: boolean) {
-    this.textureContainer.loop = (isInfinity) ? -1 : 0;
+    this.textureContainer.loop = (isInfinity) ? -1 : 1;
   }
 
   public setAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1) {
