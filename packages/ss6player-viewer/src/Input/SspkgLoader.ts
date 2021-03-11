@@ -33,7 +33,7 @@ export class SspkgLoader {
           if (fileExtension === 'ssfb') {
             if (ssfbFilePath !== null) {
               // 既に ssfb が存在していた場合、エラー
-              onFinishCallback(null, null, new Error("already exist ssfb file"));
+              onFinishCallback(null, null, new Error('already exist ssfb file'));
               return;
             }
             ssfbFilePath = fileName;
@@ -58,11 +58,11 @@ export class SspkgLoader {
 
     httpObj.ontimeout = function () {
       // timeout
-      onFinishCallback(null, null, new Error("timeout"));
+      onFinishCallback(null, null, new Error('timeout'));
     };
     httpObj.onerror = function () {
       // error
-      onFinishCallback(null, null, new Error("error"));
+      onFinishCallback(null, null, new Error('error'));
     };
     httpObj.send(null);
   }
