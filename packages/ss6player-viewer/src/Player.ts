@@ -66,7 +66,7 @@ export class Player {
   }
 
   public getTextureContainer() {
-    console.log('SpriteStudioWebPlayer.createPlayer');
+    // console.log('SpriteStudioWebPlayer.createPlayer');
     return this.textureContainer;
   }
 
@@ -107,7 +107,7 @@ export class Player {
     }
 
     this.animePackMap = SsfbDataUtil.createAnimePackMap(this.projectData);
-    console.log('setupForLoadComplete', this.animePackMap);
+    // console.log('setupForLoadComplete', this.animePackMap);
 
     if (this.onComplete !== null) {
       this.onComplete();
@@ -141,7 +141,7 @@ export class Player {
 
     // ラベルデータの取得
     const labelDataLength = animation.labelDataLength();
-    console.log('labelDataLength', labelDataLength);
+    // console.log('labelDataLength', labelDataLength);
     for (let i = 0; i < labelDataLength; i++) {
       const labelData = animation.labelData(i);
     }
