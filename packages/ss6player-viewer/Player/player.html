@@ -77,6 +77,7 @@
 
       const ssWebPlayer = this.ssWebPlayer;
       ssWebPlayer.loadAnimation(ssaeName, animationName);
+      ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
       ssWebPlayer.play();
 
       const selectedAnimations = playerElement.querySelectorAll('.animation.selected');
@@ -253,6 +254,7 @@
       playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
       playSwitchButtonElement.addEventListener('click', (event) => {
         const ssWebPlayer = this.ssWebPlayer;
+        ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
 
         if (ssWebPlayer.isPausing) {
           ssWebPlayer.resume();

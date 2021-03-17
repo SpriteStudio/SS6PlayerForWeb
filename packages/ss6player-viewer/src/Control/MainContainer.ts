@@ -73,7 +73,7 @@ export class MainContainer extends PIXI.Container {
   }
 
   public switchGridDisplay() {
-    console.log('switchGridDisplay');
+    // console.log('switchGridDisplay');
     const rootLineGraphics = this.rootLineGraphics;
     const gridGraphics = this.gridGraphics;
     if (rootLineGraphics == null || gridGraphics == null) {

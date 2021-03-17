@@ -27,7 +27,8 @@ export class SspkgLoader {
           if (fileExtension === 'ssfb') {
             if (ssfbFilePath !== null) {
               // 既に ssfb が存在していた場合、エラー
-
+              onFinishCallback(null, null, new Error('already exist ssfb file'));
+              return;
             }
             ssfbFilePath = fileName;
           } else if (fileExtension === 'png') {
