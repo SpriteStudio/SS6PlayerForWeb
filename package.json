@@ -28,7 +28,7 @@
     "deploy:pixi": "npx ncp packages/ss6player-pixi/dist/ss6player-pixi.umd.js ./docs/Player/ss6player-pixi.umd.js",
     "deploy:mz": "lerna run deploy --scope=ss6player-rpgmakermz && npx ncp packages/ss6player-rpgmakermz/dist/ss6player-rpgmakermz.js ./docs/mz/ss6player-rpgmakermz.js && npx ncp packages/ss6player-rpgmakermz/dist/ss6player-rpgmakermz.min.js ./docs/mz/ss6player-rpgmakermz.min.js",
     "deploy:mzapp": "npx rimraf ./docs/mz/SampleProject && npx ncp packages/ss6player-rpgmakermz/SampleProject ./docs/mz/SampleProject",
-    "deploy:viewer": "npx ncp packages/ss6player-viewer/dist/ss6player-viewer.umd.js ./docs/ViewerPlayer/ss6player-viewer.umd.js",
+    "deploy:viewer": "npx ncp packages/ss6player-viewer/dist/ss6player-viewer.umd.js ./docs/ViewerPlayer/ss6player-viewer.umd.js && npx ncp packages/ss6player-viewer/dist/ss6player-viewer.min.js ./docs/ViewerPlayer/ss6player-viewer.min.js",
     "view": "lerna run view --scope=ss6player-pixi",
     "mzview": "lerna run view --scope=ss6player-rpgmakermz"
   },
