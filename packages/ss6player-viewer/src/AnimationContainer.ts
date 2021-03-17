@@ -45,7 +45,7 @@ export class AnimationContainer extends SS6Player {
     let frameDataMap = {};
     // ユーザーデータ
     const userDataLength = currentAnimation.userDataLength();
-    console.log('userDataLength', userDataLength);
+    // console.log('userDataLength', userDataLength);
     for (let i = 0; i < userDataLength; i++) {
       const userData = currentAnimation.userData(i);
       const frameIndex = userData.frameIndex();
@@ -56,9 +56,9 @@ export class AnimationContainer extends SS6Player {
         frameData = {};
       }
 
-      console.log('userData', frameIndex);
+      // console.log('userData', frameIndex);
       const data = this.GetUserData(frameIndex);
-      console.log('userData.data', data);
+      // console.log('userData.data', data);
 
       let frameUserDataMap = {};
       const dataLength = data.length;
@@ -80,7 +80,7 @@ export class AnimationContainer extends SS6Player {
         const stringLengthValue = dataArray[9];
         const stringValue = dataArray[10];
 
-        console.log('userData.data.dataArray.stringValue', partsName, stringValue);
+        // console.log('userData.data.dataArray.stringValue', partsName, stringValue);
         frameUserDataMap[partsName] = {
           string: stringValue
         };

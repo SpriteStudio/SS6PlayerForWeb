@@ -16,6 +16,7 @@ export default {
   input: `src/${libraryName}.ts`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, plugins: [ terser() ] },
     { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
@@ -41,7 +42,7 @@ export default {
     sourceMaps(),
     license({
       banner: `-----------------------------------------------------------
- SS6Player For sspkg v<%= pkg.version %>
+ SS6Player For Viewer v<%= pkg.version %>
 
  Copyright(C) <%= pkg.author.name %>
  <%= pkg.author.url %>
