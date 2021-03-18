@@ -43,7 +43,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "pixi.js": "^5.2.5",
+    "pixi.js": "^5.3.8",
     "ss6player-pixi": "^1.5.0"
   },
   "devDependencies": {

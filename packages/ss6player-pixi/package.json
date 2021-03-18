@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "flatbuffers": "^1.12.0",
-    "pixi.js": "^5.2.5",
+    "pixi.js": "^5.3.8",
     "ssfblib": "^1.0.1"
   },
   "devDependencies": {
