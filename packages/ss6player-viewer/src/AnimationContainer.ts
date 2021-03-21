@@ -97,6 +97,8 @@ export class AnimationContainer extends SS6Player {
   }
 
   public Play() {
+    this.loop = (this.ssWebPlayer.infinityFlag) ? -1 : 1; // Change loop status at before playing an animation.
+
     super.Play();
     if (this.onPlayStateChangeCallback !== null) {
       this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
