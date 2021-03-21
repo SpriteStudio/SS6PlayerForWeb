@@ -118,7 +118,7 @@ export class AnimationContainer extends SS6Player {
   }
 
   protected Update(delta: number) {
-    super.Update(delta);
+    this.UPdateInternal(delta);
     // 毎回実行されるコールバック
     if (this.isPlaying && !this.isPausing) {
       if (this.onUpdateCallback !== null) {
