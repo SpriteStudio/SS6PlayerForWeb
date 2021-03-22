@@ -194,11 +194,15 @@ export class SS6Player extends PIXI.Container {
     this.defaultFrameMap = [];
   }
 
+  protected Update(delta: number): void {
+    this.UPdateInternal(delta);
+  }
+
   /**
    * Update is called PIXI.ticker
    * @param {number} delta - expected 1
    */
-  protected Update(delta: number): void {
+  protected UPdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
     const elapsedTime = PIXI.Ticker.shared.elapsedMS;
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
@@ -220,14 +224,21 @@ export class SS6Player extends PIXI.Container {
             if (incFrameNo > this._endFrame) {
               if (this._loops === -1) {
                 // infinite loop
+                incFrameNo = this._startFrame;
               } else {
                 this._loops--;
                 if (this.playEndCallback !== null) {
                   this.playEndCallback(this);
                 }
-                if (this._loops === 0) this._isPlaying = false;
+                if (this._loops === 0) {
+                  this._isPlaying = false;
+                  // stop playing the animation
+                  incFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._endFrame;
+                } else {
+                  // continue to play the animation
+                  incFrameNo = this._startFrame;
+                }
               }
-              incFrameNo = this._startFrame;
             }
             currentFrameNo = incFrameNo;
             // Check User Data
@@ -247,14 +258,19 @@ export class SS6Player extends PIXI.Container {
             if (decFrameNo < this._startFrame) {
               if (this._loops === -1) {
                 // infinite loop
+                decFrameNo = this._endFrame;
               } else {
                 this._loops--;
                 if (this.playEndCallback !== null) {
                   this.playEndCallback(this);
                 }
-                if (this._loops === 0) this._isPlaying = false;
+                if (this._loops === 0) {
+                  this._isPlaying = false;
+                  decFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._startFrame;
+                } else {
+                  decFrameNo = this._endFrame;
+                }
               }
-              decFrameNo = this._endFrame;
             }
             currentFrameNo = decFrameNo;
             // Check User Data

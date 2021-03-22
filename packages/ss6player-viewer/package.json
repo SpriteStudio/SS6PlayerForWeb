@@ -45,7 +45,7 @@
   "dependencies": {
     "ss6player-pixi": "^1.5.0",
     "ssfblib": "1.0.1",
-    "pixi.js": "^5.2.5",
+    "pixi.js": "^5.3.8",
     "jszip": "^3.6.0"
   },
   "devDependencies": {
