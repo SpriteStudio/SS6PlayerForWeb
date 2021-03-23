@@ -13,7 +13,7 @@ export class SspkgLoader {
         }
       })
       .then(JSZip.loadAsync)
-      .then(function (zipFile: JSZip) {
+      .then(async function (zipFile: JSZip) {
         console.log(zipFile);
 
         let ssfbFilePath = null;
@@ -33,17 +33,14 @@ export class SspkgLoader {
             ssfbFilePath = fileName;
           } else if (fileExtension === 'png') {
             const imageName = fileName.split('.').slice(0, -1).join('.');
-            zipFile.file(fileName).async('uint8array').then((uint8Array) => {
-              imageBinaryMap[imageName] = uint8Array;
-            });
+            imageBinaryMap[imageName] = await zipFile.file(fileName).async('uint8array');
           }
         }
 
         // self.spriteStudioWebPlayer.setImageBinaryMap(imageBinaryMap);
 
-        zipFile.file(ssfbFilePath).async('uint8array').then((uint8Array: Uint8Array) => {
-          onFinishCallback(uint8Array, imageBinaryMap, null);
-        });
+        let ssfbBinary = await zipFile.file(ssfbFilePath).async('uint8array');
+        onFinishCallback(ssfbBinary, imageBinaryMap, null);
       }, function error(e) {
         console.log(e);
         onFinishCallback(null, null, e);

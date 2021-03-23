@@ -233,7 +233,7 @@ export class SS6Player extends PIXI.Container {
                 if (this._loops === 0) {
                   this._isPlaying = false;
                   // stop playing the animation
-                  incFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._endFrame;
+                  incFrameNo = (rewindAfterReachingEndFrame) ? this._startFrame : this._endFrame;
                 } else {
                   // continue to play the animation
                   incFrameNo = this._startFrame;
