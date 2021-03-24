@@ -195,14 +195,14 @@ export class SS6Player extends PIXI.Container {
   }
 
   protected Update(delta: number): void {
-    this.UPdateInternal(delta);
+    this.UpdateInternal(delta);
   }
 
   /**
    * Update is called PIXI.ticker
    * @param {number} delta - expected 1
    */
-  protected UPdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
+  protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
     const elapsedTime = PIXI.Ticker.shared.elapsedMS;
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {

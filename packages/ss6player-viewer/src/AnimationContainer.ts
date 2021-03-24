@@ -120,7 +120,7 @@ export class AnimationContainer extends SS6Player {
   }
 
   protected Update(delta: number) {
-    this.UPdateInternal(delta);
+    this.UpdateInternal(delta, false);
     // 毎回実行されるコールバック
     if (this.isPlaying && !this.isPausing) {
       if (this.onUpdateCallback !== null) {
