@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.5.0
+ * SS6Player For pixi.js v1.5.1
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -6459,16 +6459,21 @@
           this.colorMatrixFilterCache = [];
           this.defaultFrameMap = [];
       };
+      SS6Player.prototype.Update = function (delta) {
+          this.UpdateInternal(delta);
+      };
       /**
        * Update is called PIXI.ticker
        * @param {number} delta - expected 1
        */
-      SS6Player.prototype.Update = function (delta) {
+      SS6Player.prototype.UpdateInternal = function (delta, rewindAfterReachingEndFrame) {
+          if (rewindAfterReachingEndFrame === void 0) { rewindAfterReachingEndFrame = true; }
           var elapsedTime = PIXI.Ticker.shared.elapsedMS;
           var toNextFrame = this._isPlaying && !this._isPausing;
           if (toNextFrame && this.updateInterval !== 0) {
               this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
               if (this.nextFrameTime >= this.updateInterval) {
+                  var playEndFlag = false;
                   // 処理落ち対応
                   var step = this.nextFrameTime / this.updateInterval;
                   this.nextFrameTime -= this.updateInterval * step;
@@ -6482,16 +6487,24 @@
                       for (var c = nextFrameNo - currentFrameNo; c; c--) {
                           var incFrameNo = currentFrameNo + 1;
                           if (incFrameNo > this._endFrame) {
-                              if (this._loops === -1) ;
+                              if (this._loops === -1) {
+                                  // infinite loop
+                                  incFrameNo = this._startFrame;
+                              }
                               else {
                                   this._loops--;
-                                  if (this.playEndCallback !== null) {
-                                      this.playEndCallback(this);
-                                  }
-                                  if (this._loops === 0)
+                                  playEndFlag = true;
+                                  if (this._loops === 0) {
                                       this._isPlaying = false;
+                                      // stop playing the animation
+                                      incFrameNo = (rewindAfterReachingEndFrame) ? this._startFrame : this._endFrame;
+                                      break;
+                                  }
+                                  else {
+                                      // continue to play the animation
+                                      incFrameNo = this._startFrame;
+                                  }
                               }
-                              incFrameNo = this._startFrame;
                           }
                           currentFrameNo = incFrameNo;
                           // Check User Data
@@ -6509,16 +6522,22 @@
                       for (var c = currentFrameNo - nextFrameNo; c; c--) {
                           var decFrameNo = currentFrameNo - 1;
                           if (decFrameNo < this._startFrame) {
-                              if (this._loops === -1) ;
+                              if (this._loops === -1) {
+                                  // infinite loop
+                                  decFrameNo = this._endFrame;
+                              }
                               else {
                                   this._loops--;
-                                  if (this.playEndCallback !== null) {
-                                      this.playEndCallback(this);
-                                  }
-                                  if (this._loops === 0)
+                                  playEndFlag = true;
+                                  if (this._loops === 0) {
                                       this._isPlaying = false;
+                                      decFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._startFrame;
+                                      break;
+                                  }
+                                  else {
+                                      decFrameNo = this._endFrame;
+                                  }
                               }
-                              decFrameNo = this._endFrame;
                           }
                           currentFrameNo = decFrameNo;
                           // Check User Data
@@ -6532,6 +6551,11 @@
                       }
                   }
                   this._currentFrame = currentFrameNo + nextFrameDecimal;
+                  if (playEndFlag) {
+                      if (this.playEndCallback !== null) {
+                          this.playEndCallback(this);
+                      }
+                  }
                   this.SetFrameAnimation(Math.floor(this._currentFrame), step);
               }
           }
