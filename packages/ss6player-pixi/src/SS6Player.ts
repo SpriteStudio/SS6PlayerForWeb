@@ -194,16 +194,22 @@ export class SS6Player extends PIXI.Container {
     this.defaultFrameMap = [];
   }
 
+  protected Update(delta: number): void {
+    this.UpdateInternal(delta);
+  }
+
   /**
    * Update is called PIXI.ticker
    * @param {number} delta - expected 1
    */
-  protected Update(delta: number): void {
+  protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
     const elapsedTime = PIXI.Ticker.shared.elapsedMS;
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
       if (this.nextFrameTime >= this.updateInterval) {
+        let playEndFlag = false;
+
         // 処理落ち対応
         const step = this.nextFrameTime / this.updateInterval;
         this.nextFrameTime -= this.updateInterval * step;
@@ -220,14 +226,20 @@ export class SS6Player extends PIXI.Container {
             if (incFrameNo > this._endFrame) {
               if (this._loops === -1) {
                 // infinite loop
+                incFrameNo = this._startFrame;
               } else {
                 this._loops--;
-                if (this.playEndCallback !== null) {
-                  this.playEndCallback(this);
+                playEndFlag = true;
+                if (this._loops === 0) {
+                  this._isPlaying = false;
+                  // stop playing the animation
+                  incFrameNo = (rewindAfterReachingEndFrame) ? this._startFrame : this._endFrame;
+                  break;
+                } else {
+                  // continue to play the animation
+                  incFrameNo = this._startFrame;
                 }
-                if (this._loops === 0) this._isPlaying = false;
               }
-              incFrameNo = this._startFrame;
             }
             currentFrameNo = incFrameNo;
             // Check User Data
@@ -247,14 +259,18 @@ export class SS6Player extends PIXI.Container {
             if (decFrameNo < this._startFrame) {
               if (this._loops === -1) {
                 // infinite loop
+                decFrameNo = this._endFrame;
               } else {
                 this._loops--;
-                if (this.playEndCallback !== null) {
-                  this.playEndCallback(this);
+                playEndFlag = true;
+                if (this._loops === 0) {
+                  this._isPlaying = false;
+                  decFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._startFrame;
+                  break;
+                } else {
+                  decFrameNo = this._endFrame;
                 }
-                if (this._loops === 0) this._isPlaying = false;
               }
-              decFrameNo = this._endFrame;
             }
             currentFrameNo = decFrameNo;
             // Check User Data
@@ -268,6 +284,12 @@ export class SS6Player extends PIXI.Container {
           }
         }
         this._currentFrame = currentFrameNo + nextFrameDecimal;
+
+        if (playEndFlag) {
+          if (this.playEndCallback !== null) {
+            this.playEndCallback(this);
+          }
+        }
         this.SetFrameAnimation(Math.floor(this._currentFrame), step);
       }
     } else {

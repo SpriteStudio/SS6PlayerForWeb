@@ -15,6 +15,8 @@ export class Player {
 
   private animePackMap: { [key: string]: any; } = null;
 
+  public infinityFlag: boolean = true;
+
   public getAnimePackMap() {
     return this.animePackMap;
   }
@@ -248,7 +250,8 @@ export class Player {
   }
 
   public switchLoop(isInfinity: boolean) {
-    this.textureContainer.loop = (isInfinity) ? -1 : 1;
+    this.textureContainer.loop = (isInfinity) ? -1 : 1; // Changing loop status at being playing an animation.
+    this.infinityFlag = isInfinity;
   }
 
   public setAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1) {

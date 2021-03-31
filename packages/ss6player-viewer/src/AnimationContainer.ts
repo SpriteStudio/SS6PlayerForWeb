@@ -7,14 +7,6 @@ import { Player } from './Player';
 export class AnimationContainer extends SS6Player {
   private readonly ssWebPlayer: Player;
 
-  private get _playEndCallback() {
-    return this.ssWebPlayer.playEndCallback;
-  }
-
-  private get _onUserDataCallback() {
-    return this.ssWebPlayer.onUserDataCallback;
-  }
-
   private get onUpdateCallback() {
     return this.ssWebPlayer.onUpdateCallback;
   }
@@ -31,6 +23,19 @@ export class AnimationContainer extends SS6Player {
 
   public Setup(animePackName: string, animeName: string) {
     super.Setup(animePackName, animeName);
+
+    let self: AnimationContainer = this;
+    this.playEndCallback = (player: SS6Player) => {
+      if (self.ssWebPlayer && self.ssWebPlayer.playEndCallback) {
+        self.ssWebPlayer.playEndCallback(self);
+      }
+    };
+
+    this.onUserDataCallback = (data: any) => {
+      if (self.ssWebPlayer && self.ssWebPlayer.onUpdateCallback) {
+        self.ssWebPlayer.onUpdateCallback(self);
+      }
+    };
 
     // アニメーションの FrameDataMap を準備する
     this.setupCurrentAnimationFrameDataMap();
@@ -92,6 +97,8 @@ export class AnimationContainer extends SS6Player {
   }
 
   public Play() {
+    this.loop = (this.ssWebPlayer.infinityFlag) ? -1 : 1; // Change loop status at before playing an animation.
+
     super.Play();
     if (this.onPlayStateChangeCallback !== null) {
       this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
@@ -113,7 +120,7 @@ export class AnimationContainer extends SS6Player {
   }
 
   protected Update(delta: number) {
-    super.Update(delta);
+    this.UpdateInternal(delta, false);
     // 毎回実行されるコールバック
     if (this.isPlaying && !this.isPausing) {
       if (this.onUpdateCallback !== null) {
