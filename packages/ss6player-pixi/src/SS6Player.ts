@@ -208,6 +208,8 @@ export class SS6Player extends PIXI.Container {
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
       if (this.nextFrameTime >= this.updateInterval) {
+        let playEndFlag = false;
+
         // 処理落ち対応
         const step = this.nextFrameTime / this.updateInterval;
         this.nextFrameTime -= this.updateInterval * step;
@@ -227,9 +229,7 @@ export class SS6Player extends PIXI.Container {
                 incFrameNo = this._startFrame;
               } else {
                 this._loops--;
-                if (this.playEndCallback !== null) {
-                  this.playEndCallback(this);
-                }
+                playEndFlag = true;
                 if (this._loops === 0) {
                   this._isPlaying = false;
                   // stop playing the animation
@@ -262,9 +262,7 @@ export class SS6Player extends PIXI.Container {
                 decFrameNo = this._endFrame;
               } else {
                 this._loops--;
-                if (this.playEndCallback !== null) {
-                  this.playEndCallback(this);
-                }
+                playEndFlag = true;
                 if (this._loops === 0) {
                   this._isPlaying = false;
                   decFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._startFrame;
@@ -286,6 +284,12 @@ export class SS6Player extends PIXI.Container {
           }
         }
         this._currentFrame = currentFrameNo + nextFrameDecimal;
+
+        if (playEndFlag) {
+          if (this.playEndCallback !== null) {
+            this.playEndCallback(this);
+          }
+        }
         this.SetFrameAnimation(Math.floor(this._currentFrame), step);
       }
     } else {

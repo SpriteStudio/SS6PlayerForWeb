@@ -450,12 +450,12 @@
       // update時のイベントを設定
       ssWebPlayer.onUpdateCallback = (player) => {
         // console.log('playerController.onUpdate');
-        frameNumberElement.innerText = player.currentCachedFrameNumber;
-        seekBarElement.value = player.currentCachedFrameNumber;
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
 
       };
       ssWebPlayer.onPlayStateChangeCallback = (isPlaying, isPausing) => {
-        console.log('onPlayStateChangeCallback');
+        // console.log('onPlayStateChangeCallback');
         if (isPlaying) {
           seekBarElement.min = ssWebPlayer.startFrame;
           seekBarElement.max = ssWebPlayer.endFrame;
@@ -469,6 +469,11 @@
         refreshPlaySwitch();
 
       };
+      ssWebPlayer.playEndCallback = (player) => {
+        // console.log("playEndCallback player.frameNo: " + player.frameNo);
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
+      }
 
       return ssWebPlayer;
     }
