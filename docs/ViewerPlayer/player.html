@@ -77,6 +77,8 @@
 
       const ssWebPlayer = this.ssWebPlayer;
       ssWebPlayer.loadAnimation(ssaeName, animationName);
+      ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
+      ssWebPlayer.setAnimationSpeed(playerElement.querySelector('.animation-speed').value);
       ssWebPlayer.play();
 
       const selectedAnimations = playerElement.querySelectorAll('.animation.selected');
@@ -253,6 +255,8 @@
       playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
       playSwitchButtonElement.addEventListener('click', (event) => {
         const ssWebPlayer = this.ssWebPlayer;
+        ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
+        ssWebPlayer.setAnimationSpeed(playerElement.querySelector('.animation-speed').value);
 
         if (ssWebPlayer.isPausing) {
           ssWebPlayer.resume();
@@ -446,12 +450,12 @@
       // update時のイベントを設定
       ssWebPlayer.onUpdateCallback = (player) => {
         // console.log('playerController.onUpdate');
-        frameNumberElement.innerText = player.currentCachedFrameNumber;
-        seekBarElement.value = player.currentCachedFrameNumber;
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
 
       };
       ssWebPlayer.onPlayStateChangeCallback = (isPlaying, isPausing) => {
-        console.log('onPlayStateChangeCallback');
+        // console.log('onPlayStateChangeCallback');
         if (isPlaying) {
           seekBarElement.min = ssWebPlayer.startFrame;
           seekBarElement.max = ssWebPlayer.endFrame;
@@ -465,6 +469,11 @@
         refreshPlaySwitch();
 
       };
+      ssWebPlayer.playEndCallback = (player) => {
+        // console.log("playEndCallback player.frameNo: " + player.frameNo);
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
+      }
 
       return ssWebPlayer;
     }
