@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.1.1
+ * SS6Player For Viewer v1.1.2
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -39,6 +39,44 @@ var ss6PlayerViewer = (function (exports) {
         extendStatics$1(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    function __awaiter(thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
     }
 
     var ZOOM_ARRAY = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
@@ -138,7 +176,7 @@ var ss6PlayerViewer = (function (exports) {
 
     /**
      * -----------------------------------------------------------
-     * SS6Player For pixi.js v1.5.0
+     * SS6Player For pixi.js v1.5.1
      *
      * Copyright(C) Web Technology Corp.
      * https://www.webtech.co.jp/
@@ -6591,16 +6629,21 @@ var ss6PlayerViewer = (function (exports) {
             this.colorMatrixFilterCache = [];
             this.defaultFrameMap = [];
         };
+        SS6Player.prototype.Update = function (delta) {
+            this.UpdateInternal(delta);
+        };
         /**
          * Update is called PIXI.ticker
          * @param {number} delta - expected 1
          */
-        SS6Player.prototype.Update = function (delta) {
+        SS6Player.prototype.UpdateInternal = function (delta, rewindAfterReachingEndFrame) {
+            if (rewindAfterReachingEndFrame === void 0) { rewindAfterReachingEndFrame = true; }
             var elapsedTime = PIXI.Ticker.shared.elapsedMS;
             var toNextFrame = this._isPlaying && !this._isPausing;
             if (toNextFrame && this.updateInterval !== 0) {
                 this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
                 if (this.nextFrameTime >= this.updateInterval) {
+                    var playEndFlag = false;
                     // 処理落ち対応
                     var step = this.nextFrameTime / this.updateInterval;
                     this.nextFrameTime -= this.updateInterval * step;
@@ -6614,16 +6657,24 @@ var ss6PlayerViewer = (function (exports) {
                         for (var c = nextFrameNo - currentFrameNo; c; c--) {
                             var incFrameNo = currentFrameNo + 1;
                             if (incFrameNo > this._endFrame) {
-                                if (this._loops === -1) ;
+                                if (this._loops === -1) {
+                                    // infinite loop
+                                    incFrameNo = this._startFrame;
+                                }
                                 else {
                                     this._loops--;
-                                    if (this.playEndCallback !== null) {
-                                        this.playEndCallback(this);
-                                    }
-                                    if (this._loops === 0)
+                                    playEndFlag = true;
+                                    if (this._loops === 0) {
                                         this._isPlaying = false;
+                                        // stop playing the animation
+                                        incFrameNo = (rewindAfterReachingEndFrame) ? this._startFrame : this._endFrame;
+                                        break;
+                                    }
+                                    else {
+                                        // continue to play the animation
+                                        incFrameNo = this._startFrame;
+                                    }
                                 }
-                                incFrameNo = this._startFrame;
                             }
                             currentFrameNo = incFrameNo;
                             // Check User Data
@@ -6641,16 +6692,22 @@ var ss6PlayerViewer = (function (exports) {
                         for (var c = currentFrameNo - nextFrameNo; c; c--) {
                             var decFrameNo = currentFrameNo - 1;
                             if (decFrameNo < this._startFrame) {
-                                if (this._loops === -1) ;
+                                if (this._loops === -1) {
+                                    // infinite loop
+                                    decFrameNo = this._endFrame;
+                                }
                                 else {
                                     this._loops--;
-                                    if (this.playEndCallback !== null) {
-                                        this.playEndCallback(this);
-                                    }
-                                    if (this._loops === 0)
+                                    playEndFlag = true;
+                                    if (this._loops === 0) {
                                         this._isPlaying = false;
+                                        decFrameNo = (rewindAfterReachingEndFrame) ? this._endFrame : this._startFrame;
+                                        break;
+                                    }
+                                    else {
+                                        decFrameNo = this._endFrame;
+                                    }
                                 }
-                                decFrameNo = this._endFrame;
                             }
                             currentFrameNo = decFrameNo;
                             // Check User Data
@@ -6664,6 +6721,11 @@ var ss6PlayerViewer = (function (exports) {
                         }
                     }
                     this._currentFrame = currentFrameNo + nextFrameDecimal;
+                    if (playEndFlag) {
+                        if (this.playEndCallback !== null) {
+                            this.playEndCallback(this);
+                        }
+                    }
                     this.SetFrameAnimation(Math.floor(this._currentFrame), step);
                 }
             }
@@ -7983,20 +8045,6 @@ var ss6PlayerViewer = (function (exports) {
             _this.skipEnabled = false;
             return _this;
         }
-        Object.defineProperty(AnimationContainer.prototype, "_playEndCallback", {
-            get: function () {
-                return this.ssWebPlayer.playEndCallback;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(AnimationContainer.prototype, "_onUserDataCallback", {
-            get: function () {
-                return this.ssWebPlayer.onUserDataCallback;
-            },
-            enumerable: false,
-            configurable: true
-        });
         Object.defineProperty(AnimationContainer.prototype, "onUpdateCallback", {
             get: function () {
                 return this.ssWebPlayer.onUpdateCallback;
@@ -8013,6 +8061,17 @@ var ss6PlayerViewer = (function (exports) {
         });
         AnimationContainer.prototype.Setup = function (animePackName, animeName) {
             _super.prototype.Setup.call(this, animePackName, animeName);
+            var self = this;
+            this.playEndCallback = function (player) {
+                if (self.ssWebPlayer && self.ssWebPlayer.playEndCallback) {
+                    self.ssWebPlayer.playEndCallback(self);
+                }
+            };
+            this.onUserDataCallback = function (data) {
+                if (self.ssWebPlayer && self.ssWebPlayer.onUpdateCallback) {
+                    self.ssWebPlayer.onUpdateCallback(self);
+                }
+            };
             // アニメーションの FrameDataMap を準備する
             this.setupCurrentAnimationFrameDataMap();
         };
@@ -8064,6 +8123,7 @@ var ss6PlayerViewer = (function (exports) {
             this.currentAnimationFrameDataMap = frameDataMap;
         };
         AnimationContainer.prototype.Play = function () {
+            this.loop = (this.ssWebPlayer.infinityFlag) ? -1 : 1; // Change loop status at before playing an animation.
             _super.prototype.Play.call(this);
             if (this.onPlayStateChangeCallback !== null) {
                 this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
@@ -8082,7 +8142,7 @@ var ss6PlayerViewer = (function (exports) {
             }
         };
         AnimationContainer.prototype.Update = function (delta) {
-            _super.prototype.Update.call(this, delta);
+            this.UpdateInternal(delta, false);
             // 毎回実行されるコールバック
             if (this.isPlaying && !this.isPausing) {
                 if (this.onUpdateCallback !== null) {
@@ -8158,36 +8218,52 @@ var ss6PlayerViewer = (function (exports) {
             })
                 .then(jszip.loadAsync)
                 .then(function (zipFile) {
-                console.log(zipFile);
-                var ssfbFilePath = null;
-                var imageBinaryMap = {};
-                var _loop_1 = function (fileName) {
-                    var file = zipFile.files[fileName];
-                    var fileExtension = fileName.split('.').pop();
-                    console.log(fileName, file, fileExtension);
-                    if (fileExtension === 'ssfb') {
-                        if (ssfbFilePath !== null) {
-                            // 既に ssfb が存在していた場合、エラー
-                            onFinishCallback(null, null, new Error('already exist ssfb file'));
-                            return { value: void 0 };
+                return __awaiter(this, void 0, void 0, function () {
+                    var ssfbFilePath, imageBinaryMap, _a, _b, _i, fileName, file, fileExtension, imageName, _c, _d, ssfbBinary;
+                    return __generator(this, function (_e) {
+                        switch (_e.label) {
+                            case 0:
+                                console.log(zipFile);
+                                ssfbFilePath = null;
+                                imageBinaryMap = {};
+                                _a = [];
+                                for (_b in zipFile.files)
+                                    _a.push(_b);
+                                _i = 0;
+                                _e.label = 1;
+                            case 1:
+                                if (!(_i < _a.length)) return [3 /*break*/, 5];
+                                fileName = _a[_i];
+                                file = zipFile.files[fileName];
+                                fileExtension = fileName.split('.').pop();
+                                console.log(fileName, file, fileExtension);
+                                if (!(fileExtension === 'ssfb')) return [3 /*break*/, 2];
+                                if (ssfbFilePath !== null) {
+                                    // 既に ssfb が存在していた場合、エラー
+                                    onFinishCallback(null, null, new Error('already exist ssfb file'));
+                                    return [2 /*return*/];
+                                }
+                                ssfbFilePath = fileName;
+                                return [3 /*break*/, 4];
+                            case 2:
+                                if (!(fileExtension === 'png')) return [3 /*break*/, 4];
+                                imageName = fileName.split('.').slice(0, -1).join('.');
+                                _c = imageBinaryMap;
+                                _d = imageName;
+                                return [4 /*yield*/, zipFile.file(fileName).async('uint8array')];
+                            case 3:
+                                _c[_d] = _e.sent();
+                                _e.label = 4;
+                            case 4:
+                                _i++;
+                                return [3 /*break*/, 1];
+                            case 5: return [4 /*yield*/, zipFile.file(ssfbFilePath).async('uint8array')];
+                            case 6:
+                                ssfbBinary = _e.sent();
+                                onFinishCallback(ssfbBinary, imageBinaryMap, null);
+                                return [2 /*return*/];
                         }
-                        ssfbFilePath = fileName;
-                    }
-                    else if (fileExtension === 'png') {
-                        var imageName_1 = fileName.split('.').slice(0, -1).join('.');
-                        zipFile.file(fileName).async('uint8array').then(function (uint8Array) {
-                            imageBinaryMap[imageName_1] = uint8Array;
-                        });
-                    }
-                };
-                for (var fileName in zipFile.files) {
-                    var state_1 = _loop_1(fileName);
-                    if (typeof state_1 === "object")
-                        return state_1.value;
-                }
-                // self.spriteStudioWebPlayer.setImageBinaryMap(imageBinaryMap);
-                zipFile.file(ssfbFilePath).async('uint8array').then(function (uint8Array) {
-                    onFinishCallback(uint8Array, imageBinaryMap, null);
+                    });
                 });
             }, function error(e) {
                 console.log(e);
@@ -8235,6 +8311,7 @@ var ss6PlayerViewer = (function (exports) {
         function Player(canvasWrapperElement) {
             this.textureMap = null;
             this.animePackMap = null;
+            this.infinityFlag = true;
             this.pixiApplication = null;
             this.canvasWidth = null;
             this.canvasHeight = null;
@@ -8441,7 +8518,8 @@ var ss6PlayerViewer = (function (exports) {
             this.textureContainer.SetAnimationSpeed(value);
         };
         Player.prototype.switchLoop = function (isInfinity) {
-            this.textureContainer.loop = (isInfinity) ? -1 : 1;
+            this.textureContainer.loop = (isInfinity) ? -1 : 1; // Changing loop status at being playing an animation.
+            this.infinityFlag = isInfinity;
         };
         Player.prototype.setAnimationSection = function (_startframe, _endframe, _loops) {
             if (_startframe === void 0) { _startframe = -1; }
