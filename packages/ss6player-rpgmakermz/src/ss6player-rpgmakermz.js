@@ -160,8 +160,8 @@ Sprite_Picture.prototype.updateBitmap = function() {
     const playerChanged = picture && picture.mzkpSS6PlayerChanged;
 
     if (this.mzkpSS6Player !== player || playerChanged) {
-      if(player !== null) {
-        if (player.loop === 0 ) {
+      if (player !== null) {
+        if (player.loop === 0) {
           // don't play when player loop number equals 0
           this.mzkpSS6Player = null;
           return;
@@ -195,6 +195,11 @@ Sprite_Picture.prototype.updateBitmap = function() {
       }
     }
   } else {
+    if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
+      // erase SS6Player instance when `ピクチャの消去`
+      this.mzkpSS6Player.Stop();
+      this.removeChild(this.mzkpSS6Player);
+    }
     this.mzkpSS6Player = null;
   }
 };
@@ -278,7 +283,7 @@ DataManager.isDatabaseLoaded = function() {
     }
     return true;
   } else {
-    return _DataManager_isDatabaseLoaded();
+    return _DataManager_isDatabaseLoaded.call(this);
   }
 }
 
