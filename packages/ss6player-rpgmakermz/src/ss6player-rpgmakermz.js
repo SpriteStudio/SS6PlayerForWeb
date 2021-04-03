@@ -278,7 +278,7 @@ DataManager.isDatabaseLoaded = function() {
     }
     return true;
   } else {
-    return _DataManager_isDatabaseLoaded();
+    return _DataManager_isDatabaseLoaded.call(this);
   }
 }
 
