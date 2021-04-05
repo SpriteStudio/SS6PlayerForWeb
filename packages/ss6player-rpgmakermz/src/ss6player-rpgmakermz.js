@@ -273,7 +273,7 @@ SceneManager.updateScene = function() {
 let loaded_EnemyNoteTags = false;
 const _DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
-  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+  if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
     if (!_DataManager_isDatabaseLoaded.call(this)) {
       return false;
     }
@@ -648,7 +648,7 @@ Sprite_Enemy.prototype.updateFrame = function() {
   }
 };
 
-const _Sprite_Enemy__updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
+const _Sprite_Enemy_updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
 Sprite_Enemy.prototype.updateStateSprite = function() {
   if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
     if (this.bitmap) {
@@ -669,6 +669,6 @@ Sprite_Enemy.prototype.updateStateSprite = function() {
     }
   } else {
     // unavailable replaceSVEnemySpriteFlag
-    _Sprite_Enemy__updateStateSprite.call(this);
+    _Sprite_Enemy_updateStateSprite.call(this);
   }
 }
