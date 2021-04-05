@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.5.1
+ * @version 0.5.2
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -8250,8 +8250,8 @@
       const playerChanged = picture && picture.mzkpSS6PlayerChanged;
 
       if (this.mzkpSS6Player !== player || playerChanged) {
-        if(player !== null) {
-          if (player.loop === 0 ) {
+        if (player !== null) {
+          if (player.loop === 0) {
             // don't play when player loop number equals 0
             this.mzkpSS6Player = null;
             return;
@@ -8285,6 +8285,11 @@
         }
       }
     } else {
+      if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
+        // erase SS6Player instance when `ピクチャの消去`
+        this.mzkpSS6Player.Stop();
+        this.removeChild(this.mzkpSS6Player);
+      }
       this.mzkpSS6Player = null;
     }
   };
@@ -8358,7 +8363,7 @@
   let loaded_EnemyNoteTags = false;
   const _DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
   DataManager.isDatabaseLoaded = function() {
-    if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+    if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
       if (!_DataManager_isDatabaseLoaded.call(this)) {
         return false;
       }
@@ -8368,7 +8373,7 @@
       }
       return true;
     } else {
-      return _DataManager_isDatabaseLoaded();
+      return _DataManager_isDatabaseLoaded.call(this);
     }
   };
 
@@ -8731,7 +8736,7 @@
     }
   };
 
-  const _Sprite_Enemy__updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
+  const _Sprite_Enemy_updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
   Sprite_Enemy.prototype.updateStateSprite = function() {
     if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
       if (this.bitmap) {
@@ -8752,7 +8757,7 @@
       }
     } else {
       // unavailable replaceSVEnemySpriteFlag
-      _Sprite_Enemy__updateStateSprite.call(this);
+      _Sprite_Enemy_updateStateSprite.call(this);
     }
   };
 
