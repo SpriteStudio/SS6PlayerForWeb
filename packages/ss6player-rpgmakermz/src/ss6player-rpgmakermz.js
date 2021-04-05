@@ -160,8 +160,8 @@ Sprite_Picture.prototype.updateBitmap = function() {
     const playerChanged = picture && picture.mzkpSS6PlayerChanged;
 
     if (this.mzkpSS6Player !== player || playerChanged) {
-      if(player !== null) {
-        if (player.loop === 0 ) {
+      if (player !== null) {
+        if (player.loop === 0) {
           // don't play when player loop number equals 0
           this.mzkpSS6Player = null;
           return;
@@ -195,6 +195,11 @@ Sprite_Picture.prototype.updateBitmap = function() {
       }
     }
   } else {
+    if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
+      // erase SS6Player instance when `ピクチャの消去`
+      this.mzkpSS6Player.Stop();
+      this.removeChild(this.mzkpSS6Player);
+    }
     this.mzkpSS6Player = null;
   }
 };
@@ -268,7 +273,7 @@ SceneManager.updateScene = function() {
 let loaded_EnemyNoteTags = false;
 const _DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
-  if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
+  if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
     if (!_DataManager_isDatabaseLoaded.call(this)) {
       return false;
     }
@@ -278,7 +283,7 @@ DataManager.isDatabaseLoaded = function() {
     }
     return true;
   } else {
-    return _DataManager_isDatabaseLoaded();
+    return _DataManager_isDatabaseLoaded.call(this);
   }
 }
 
@@ -643,7 +648,7 @@ Sprite_Enemy.prototype.updateFrame = function() {
   }
 };
 
-const _Sprite_Enemy__updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
+const _Sprite_Enemy_updateStateSprite = Sprite_Enemy.prototype.updateStateSprite;
 Sprite_Enemy.prototype.updateStateSprite = function() {
   if (PluginParameters.getInstance().replaceSVEnemySpriteFlag) {
     if (this.bitmap) {
@@ -664,6 +669,6 @@ Sprite_Enemy.prototype.updateStateSprite = function() {
     }
   } else {
     // unavailable replaceSVEnemySpriteFlag
-    _Sprite_Enemy__updateStateSprite.call(this);
+    _Sprite_Enemy_updateStateSprite.call(this);
   }
 }
