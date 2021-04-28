@@ -94,6 +94,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * SS6Player (extends PIXI.Container)
+   *
    * @constructor
    * @param {SS6Project} ss6project - SS6Project that contains animations.
    * @param {string} animePackName - The name of animePack(SSAE).
@@ -117,6 +118,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * Setup
+   *
    * @param {string} animePackName - The name of animePack(SSAE).
    * @param {string} animeName - The name of animation.
    */
@@ -200,6 +202,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * Update is called PIXI.ticker
+   *
    * @param {number} delta - expected 1
    */
   protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
@@ -299,6 +302,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーションの速度を設定する (deprecated この関数は削除される可能性があります)
+   *
    * @param {number} fps - アニメーション速度(frame per sec.)
    * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
    */
@@ -310,6 +314,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーションの速度を設定する
+   *
    * @param {number} fpsRate - アニメーション速度(設定値に対する乗率)負数設定で逆再生
    * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
    */
@@ -322,6 +327,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーション再生設定
+   *
    * @param {number} _startframe - 開始フレーム番号（マイナス設定でデフォルト値を変更しない）
    * @param {number} _endframe - 終了フレーム番号（マイナス設定でデフォルト値を変更しない）
    * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
@@ -369,6 +375,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーション再生を一時停止する
+   *
    */
   public Pause(): void {
     this._isPausing = true;
@@ -376,6 +383,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーション再生を再開する
+   *
    */
   public Resume(): void {
     this._isPausing = false;
@@ -383,6 +391,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーションを停止する
+   *
    * @constructor
    */
   public Stop(): void {
@@ -391,6 +400,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーション再生を位置（フレーム）を設定する
+   *
    */
   public SetFrame(frame: number): void {
     this._currentFrame = frame;
@@ -415,6 +425,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * アニメーションの透明度を設定する
+   *
    */
   public SetAlpha(alpha: number): void {
     this.parentAlpha = alpha;
@@ -422,6 +433,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * エラー処理
+   *
    * @param {any} _error - エラー
    */
   public ThrowError(_error: string): void {
@@ -430,6 +442,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * ユーザーデータコールバックの設定
+   *
    * @param fn
    * @constructor
    *
@@ -454,7 +467,8 @@ export class SS6Player extends PIXI.Container {
   }
 
   /**
-   * 再生終了時に呼び出されるコールバックを設定します.
+   * 再生終了時に呼び出されるコールバックを設定します
+   *
    * @param fn
    * @constructor
    *
@@ -468,6 +482,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * ユーザーデータの存在チェック
+   *
    * @param {number} frameNumber - フレーム番号
    * @return {boolean} - 存在するかどうか
    */
@@ -552,6 +567,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * パーツの描画モードを取得する
+   *
    * @return {array} - 全パーツの描画モード
    */
   private GetPartsBlendMode(): any[] {
@@ -814,6 +830,7 @@ export class SS6Player extends PIXI.Container {
 
   /**
    * デフォルトデータを取得する
+   *
    * @param {number} id - パーツ（レイヤー）ID
    * @return {array} - データ
    */

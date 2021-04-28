@@ -11,9 +11,9 @@ export class Player {
 
   public onComplete: () => void;
 
-  public textureMap: { [key: string]: PIXI.Texture; } = null;
+  public textureMap: { [key: string]: PIXI.Texture } = null;
 
-  private animePackMap: { [key: string]: any; } = null;
+  private animePackMap: { [key: string]: any } = null;
 
   public infinityFlag: boolean = true;
 
@@ -90,7 +90,7 @@ export class Player {
   public loadSspkg(url: string) {
     const self = this;
     let sspkgLoader = new SspkgLoader();
-    sspkgLoader.load(url, (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => {
+    sspkgLoader.load(url, (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array }, error: any) => {
       if (error !== null) {
         return;
       }
