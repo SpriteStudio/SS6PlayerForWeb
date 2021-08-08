@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import { MainContainer } from './Control/MainContainer';
 import { AnimationContainer } from './AnimationContainer';
 import { SS6Project } from 'ss6player-pixi';

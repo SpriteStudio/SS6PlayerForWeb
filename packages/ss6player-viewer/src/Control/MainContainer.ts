@@ -1,3 +1,5 @@
+import * as PIXI from 'pixi.js';
+
 const ZOOM_ARRAY: number[] = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
 
 /**
@@ -29,8 +31,7 @@ export class MainContainer extends PIXI.Container {
   }
 
   public setPosition(positionX: number, positionY: number) {
-    this.position = new PIXI.Point(positionX, positionY);
-
+    this.position.set(positionX, positionY);
   }
 
   public movePosition(movementX: number, movementY: number) {
@@ -46,7 +47,7 @@ export class MainContainer extends PIXI.Container {
       scaleRatio = this.defaultScaleRatio * (zoomPercent * 0.01);
     }
     this.zoomPercent = zoomPercent;
-    this.scale = new PIXI.Point(scaleRatio, scaleRatio);
+    this.scale.set(scaleRatio, scaleRatio);
   }
 
   public zoomIn() {
