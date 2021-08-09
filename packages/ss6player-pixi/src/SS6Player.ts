@@ -1,4 +1,11 @@
-// import * as PIXI from 'pixi.js';
+import { LoaderResource } from '@pixi/loaders';
+import { Container } from '@pixi/display';
+import { SimpleMesh } from '@pixi/mesh-extras';
+import { Ticker } from '@pixi/ticker';
+import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
+import { Filter } from '@pixi/core';
+import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
+
 import { ProjectData, AnimationData, AnimePackData, userDataInteger,
   userDataRect, userDataPoint, userDataString,
   PART_FLAG, PART_FLAG2, PartData, SsPartType,
@@ -6,11 +13,11 @@ import { ProjectData, AnimationData, AnimePackData, userDataInteger,
 import { SS6Project } from './SS6Project';
 import { SS6PlayerInstanceKeyParam } from './SS6PlayerInstanceKeyParam';
 
-export class SS6Player extends PIXI.Container {
+export class SS6Player extends Container {
   // Properties
   private readonly ss6project: SS6Project;
   private readonly fbObj: ProjectData;
-  private readonly resources: Partial<Record<string, PIXI.LoaderResource>>;
+  private readonly resources: Partial<Record<string, LoaderResource>>;
   private animation: number[] = [];
   private curAnimePackName: string = null;
   private curAnimeName: string = null;
@@ -31,7 +38,7 @@ export class SS6Player extends PIXI.Container {
   //
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
-  private prevMesh: (SS6Player | PIXI.SimpleMesh)[] = [];
+  private prevMesh: (SS6Player | SimpleMesh)[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -115,7 +122,7 @@ export class SS6Player extends PIXI.Container {
     }
 
     // Ticker
-    PIXI.Ticker.shared.add(this.Update, this);
+    Ticker.shared.add(this.Update, this);
   }
 
   /**
@@ -206,7 +213,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} delta - expected 1
    */
   protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
-    const elapsedTime = PIXI.Ticker.shared.elapsedMS;
+    const elapsedTime = Ticker.shared.elapsedMS;
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
@@ -578,7 +585,7 @@ export class SS6Player extends PIXI.Container {
     return this._float32[0];
   }
 
-  private defaultColorFilter: PIXI.Filter = new PIXI.filters.ColorMatrixFilter();
+  private defaultColorFilter: Filter = new ColorMatrixFilter();
 
   /**
    * １フレーム分のデータを取得する（未設定項目はデフォルト）
@@ -767,11 +774,11 @@ export class SS6Player extends PIXI.Container {
    * @param {number} argb32 - パーツカラー（単色）
    * @return {PIXI.filters.ColorMatrixFilter} - カラーマトリクス
    */
-  private GetColorMatrixFilter(blendType: number, rate: number, argb32: number): PIXI.Filter {
+  private GetColorMatrixFilter(blendType: number, rate: number, argb32: number): Filter {
     const key: string = blendType.toString() + '_' + rate.toString() + '_' + argb32.toString();
     if (this.colorMatrixFilterCache[key]) return this.colorMatrixFilterCache[key];
 
-    const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+    const colorMatrix = new ColorMatrixFilter();
     const ca = ((argb32 & 0xff000000) >>> 24) / 255;
     const cr = ((argb32 & 0x00ff0000) >>> 16) / 255;
     const cg = ((argb32 & 0x0000ff00) >>> 8) / 255;
@@ -947,7 +954,7 @@ export class SS6Player extends PIXI.Container {
         case SsPartType.Joint:
           if (this.prevCellID[i] !== cellID) {
             if (mesh != null) mesh.destroy();
-            mesh = new PIXI.Container();
+            mesh = new Container();
             mesh.name = part.name();
           }
           break;
@@ -1234,20 +1241,20 @@ export class SS6Player extends PIXI.Container {
           }
 
           const blendMode = this.alphaBlendType[i];
-          if (blendMode === 0) mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
+          if (blendMode === 0) mesh.blendMode = BLEND_MODES.NORMAL;
           if (blendMode === 1) {
-            mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
+            mesh.blendMode = BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === 2) mesh.blendMode = PIXI.BLEND_MODES.ADD;
-          if (blendMode === 3) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
-          if (blendMode === 4) mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
+          if (blendMode === 2) mesh.blendMode = BLEND_MODES.ADD;
+          if (blendMode === 3) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+          if (blendMode === 4) mesh.blendMode = BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
           if (blendMode === 5) {
-            mesh.blendMode = PIXI.BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
+            mesh.blendMode = BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === 6) mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
-          if (blendMode === 7) mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
+          if (blendMode === 6) mesh.blendMode = BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
+          if (blendMode === 7) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
           if (partType !== SsPartType.Mask) this.addChild(mesh);
           break;
@@ -1301,7 +1308,7 @@ export class SS6Player extends PIXI.Container {
 
         let partData = packData.parts(index);
         if (partData.name() === partName) {
-          let mesh = this.prevMesh[index];
+          let mesh:any = this.prevMesh[index];
           if (mesh === null || mesh instanceof SS6Player) {
             mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
             mesh.name = partData.name();
@@ -1557,7 +1564,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} id - セルID
    * @return {PIXI.SimpleMesh} - メッシュ
    */
-  private MakeCellMesh(id: number): PIXI.SimpleMesh {
+  private MakeCellMesh(id: number): SimpleMesh {
     const cell = this.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
@@ -1568,7 +1575,7 @@ export class SS6Player extends PIXI.Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
+    const mesh = new SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
     return mesh;
   }
 
@@ -1578,7 +1585,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} cellID - セルID
    * @return {PIXI.SimpleMesh} - メッシュ
    */
-  private MakeMeshCellMesh(partID: number, cellID: number): PIXI.SimpleMesh {
+  private MakeMeshCellMesh(partID: number, cellID: number): SimpleMesh {
     const meshsDataUV = this.curAnimation.meshsDataUV(partID);
     const uvLength = meshsDataUV.uvLength();
 
@@ -1602,7 +1609,7 @@ export class SS6Player extends PIXI.Container {
 
       const verts = new Float32Array(num * 2); // Zは必要ない？
 
-      const mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
+      const mesh = new SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
       return mesh;
     }
 

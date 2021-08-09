@@ -1,4 +1,5 @@
 // import * as PIXI from 'pixi.js';
+import { LoaderResource, Loader } from '@pixi/loaders';
 import { ByteBuffer } from 'flatbuffers';
 import { ProjectData } from 'ssfblib';
 
@@ -6,7 +7,7 @@ export class SS6Project {
   public ssfbPath: string;
   public rootPath: string;
   public fbObj: ProjectData;
-  public resources: Partial<Record<string, PIXI.LoaderResource>>;
+  public resources: Partial<Record<string, LoaderResource>>;
   public status: string;
   protected onComplete: () => void; // ()
   protected onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
@@ -134,7 +135,7 @@ export class SS6Project {
   private LoadCellResources() {
     const self = this;
     // Load textures for all cell at once.
-    let loader = new PIXI.Loader();
+    let loader = new Loader();
     let ids: any = [];
 
     for (let i = 0; i < self.fbObj.cellsLength(); i++) {
@@ -145,7 +146,7 @@ export class SS6Project {
         loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
       }
     }
-    loader.load(function (loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) {
+    loader.load(function (loader: Loader, resources: Partial<Record<string, LoaderResource>>) {
       // SS6Project is ready.
       self.resources = resources;
       self.status = 'ready';
@@ -159,7 +160,7 @@ export class SS6Project {
     const buffer = new ByteBuffer(bytes);
     this.fbObj = ProjectData.getRootAsProjectData(buffer);
 
-    const loader = new PIXI.Loader();
+    const loader = new Loader();
     for (let imageName in imageBinaryMap) {
       const binary = imageBinaryMap[imageName];
 
@@ -178,7 +179,7 @@ export class SS6Project {
     }
 
     const self = this;
-    loader.load((loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) => {
+    loader.load((loader: Loader, resources: Partial<Record<string, LoaderResource>>) => {
       // SS6Project is ready.
       self.resources = resources;
       self.status = 'ready';

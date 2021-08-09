@@ -1,9 +1,11 @@
+import { Container } from '@pixi/display';
+import { Graphics } from '@pixi/graphics';
 const ZOOM_ARRAY: number[] = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
 
 /**
  *
  */
-export class MainContainer extends PIXI.Container {
+export class MainContainer extends Container {
   private rootLineGraphics = null;
   private gridGraphics = null;
   private defaultScaleRatio = null;
@@ -13,8 +15,8 @@ export class MainContainer extends PIXI.Container {
   public constructor() {
     super();
 
-    const rootLineGraphics = new PIXI.Graphics();
-    const gridGraphics = new PIXI.Graphics();
+    const rootLineGraphics = new Graphics();
+    const gridGraphics = new Graphics();
 
     // コンテナに追加する
     this.addChild(rootLineGraphics);
@@ -29,7 +31,7 @@ export class MainContainer extends PIXI.Container {
   }
 
   public setPosition(positionX: number, positionY: number) {
-    this.position = new PIXI.Point(positionX, positionY);
+    this.position.set(positionX, positionY);
 
   }
 
@@ -46,7 +48,7 @@ export class MainContainer extends PIXI.Container {
       scaleRatio = this.defaultScaleRatio * (zoomPercent * 0.01);
     }
     this.zoomPercent = zoomPercent;
-    this.scale = new PIXI.Point(scaleRatio, scaleRatio);
+    this.scale.set(scaleRatio, scaleRatio);
   }
 
   public zoomIn() {
