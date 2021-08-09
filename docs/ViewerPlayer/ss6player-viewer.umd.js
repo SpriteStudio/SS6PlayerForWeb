@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.1.2
+ * SS6Player For Viewer v1.2.1
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -176,6077 +176,2427 @@ var ss6PlayerViewer = (function (exports) {
 
     /**
      * -----------------------------------------------------------
-     * SS6Player For pixi.js v1.5.1
+     * SS6Player For pixi.js v1.6.1
      *
      * Copyright(C) Web Technology Corp.
      * https://www.webtech.co.jp/
      * -----------------------------------------------------------
      */
 
-    /// @file
-    /// @addtogroup flatbuffers_javascript_api
-    /// @{
-    /// @cond FLATBUFFERS_INTERNAL
-
-    /**
-     * @fileoverview
-     *
-     * Need to suppress 'global this' error so the Node.js export line doesn't cause
-     * closure compile to error out.
-     * @suppress {globalThis}
-     */
-
-    /**
-     * @const
-     * @namespace
-     */
-    var flatbuffers$1 = {};
-
-    /**
-     * @type {number}
-     * @const
-     */
-    flatbuffers$1.SIZEOF_SHORT = 2;
-
-    /**
-     * @type {number}
-     * @const
-     */
-    flatbuffers$1.SIZEOF_INT = 4;
-
-    /**
-     * @type {number}
-     * @const
-     */
-    flatbuffers$1.FILE_IDENTIFIER_LENGTH = 4;
-
-    /**
-     * @type {number}
-     * @const
-     */
-    flatbuffers$1.SIZE_PREFIX_LENGTH = 4;
-
-    /**
-     * @enum {number}
-     */
-    flatbuffers$1.Encoding = {
-      UTF8_BYTES: 1,
-      UTF16_STRING: 2
-    };
-
-    /**
-     * @type {Int32Array}
-     * @const
-     */
-    flatbuffers$1.int32 = new Int32Array(2);
-
-    /**
-     * @type {Float32Array}
-     * @const
-     */
-    flatbuffers$1.float32 = new Float32Array(flatbuffers$1.int32.buffer);
-
-    /**
-     * @type {Float64Array}
-     * @const
-     */
-    flatbuffers$1.float64 = new Float64Array(flatbuffers$1.int32.buffer);
-
-    /**
-     * @type {boolean}
-     * @const
-     */
-    flatbuffers$1.isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * @constructor
-     * @param {number} low
-     * @param {number} high
-     */
-    flatbuffers$1.Long = function(low, high) {
-      /**
-       * @type {number}
-       * @const
-       */
-      this.low = low | 0;
-
-      /**
-       * @type {number}
-       * @const
-       */
-      this.high = high | 0;
-    };
-
-    /**
-     * @param {number} low
-     * @param {number} high
-     * @returns {!flatbuffers.Long}
-     */
-    flatbuffers$1.Long.create = function(low, high) {
-      // Special-case zero to avoid GC overhead for default values
-      return low == 0 && high == 0 ? flatbuffers$1.Long.ZERO : new flatbuffers$1.Long(low, high);
-    };
-
-    /**
-     * @returns {number}
-     */
-    flatbuffers$1.Long.prototype.toFloat64 = function() {
-      return (this.low >>> 0) + this.high * 0x100000000;
-    };
-
-    /**
-     * @param {flatbuffers.Long} other
-     * @returns {boolean}
-     */
-    flatbuffers$1.Long.prototype.equals = function(other) {
-      return this.low == other.low && this.high == other.high;
-    };
-
-    /**
-     * @type {!flatbuffers.Long}
-     * @const
-     */
-    flatbuffers$1.Long.ZERO = new flatbuffers$1.Long(0, 0);
-
-    /// @endcond
-    ////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Create a FlatBufferBuilder.
-     *
-     * @constructor
-     * @param {number=} opt_initial_size
-     */
-    flatbuffers$1.Builder = function(opt_initial_size) {
-      if (!opt_initial_size) {
-        var initial_size = 1024;
-      } else {
-        var initial_size = opt_initial_size;
-      }
-
-      /**
-       * @type {flatbuffers.ByteBuffer}
-       * @private
-       */
-      this.bb = flatbuffers$1.ByteBuffer.allocate(initial_size);
-
-      /**
-       * Remaining space in the ByteBuffer.
-       *
-       * @type {number}
-       * @private
-       */
-      this.space = initial_size;
-
-      /**
-       * Minimum alignment encountered so far.
-       *
-       * @type {number}
-       * @private
-       */
-      this.minalign = 1;
-
-      /**
-       * The vtable for the current table.
-       *
-       * @type {Array.<number>}
-       * @private
-       */
-      this.vtable = null;
-
-      /**
-       * The amount of fields we're actually using.
-       *
-       * @type {number}
-       * @private
-       */
-      this.vtable_in_use = 0;
-
-      /**
-       * Whether we are currently serializing a table.
-       *
-       * @type {boolean}
-       * @private
-       */
-      this.isNested = false;
-
-      /**
-       * Starting offset of the current struct/table.
-       *
-       * @type {number}
-       * @private
-       */
-      this.object_start = 0;
-
-      /**
-       * List of offsets of all vtables.
-       *
-       * @type {Array.<number>}
-       * @private
-       */
-      this.vtables = [];
-
-      /**
-       * For the current vector being built.
-       *
-       * @type {number}
-       * @private
-       */
-      this.vector_num_elems = 0;
-
-      /**
-       * False omits default values from the serialized data
-       *
-       * @type {boolean}
-       * @private
-       */
-      this.force_defaults = false;
-    };
-
-    flatbuffers$1.Builder.prototype.clear = function() {
-      this.bb.clear();
-      this.space = this.bb.capacity();
-      this.minalign = 1;
-      this.vtable = null;
-      this.vtable_in_use = 0;
-      this.isNested = false;
-      this.object_start = 0;
-      this.vtables = [];
-      this.vector_num_elems = 0;
-      this.force_defaults = false;
-    };
-
-    /**
-     * In order to save space, fields that are set to their default value
-     * don't get serialized into the buffer. Forcing defaults provides a
-     * way to manually disable this optimization.
-     *
-     * @param {boolean} forceDefaults true always serializes default values
-     */
-    flatbuffers$1.Builder.prototype.forceDefaults = function(forceDefaults) {
-      this.force_defaults = forceDefaults;
-    };
-
-    /**
-     * Get the ByteBuffer representing the FlatBuffer. Only call this after you've
-     * called finish(). The actual data starts at the ByteBuffer's current position,
-     * not necessarily at 0.
-     *
-     * @returns {flatbuffers.ByteBuffer}
-     */
-    flatbuffers$1.Builder.prototype.dataBuffer = function() {
-      return this.bb;
-    };
-
-    /**
-     * Get the bytes representing the FlatBuffer. Only call this after you've
-     * called finish().
-     *
-     * @returns {!Uint8Array}
-     */
-    flatbuffers$1.Builder.prototype.asUint8Array = function() {
-      return this.bb.bytes().subarray(this.bb.position(), this.bb.position() + this.offset());
-    };
-
-    /// @cond FLATBUFFERS_INTERNAL
-    /**
-     * Prepare to write an element of `size` after `additional_bytes` have been
-     * written, e.g. if you write a string, you need to align such the int length
-     * field is aligned to 4 bytes, and the string data follows it directly. If all
-     * you need to do is alignment, `additional_bytes` will be 0.
-     *
-     * @param {number} size This is the of the new element to write
-     * @param {number} additional_bytes The padding size
-     */
-    flatbuffers$1.Builder.prototype.prep = function(size, additional_bytes) {
-      // Track the biggest thing we've ever aligned to.
-      if (size > this.minalign) {
-        this.minalign = size;
-      }
-
-      // Find the amount of alignment needed such that `size` is properly
-      // aligned after `additional_bytes`
-      var align_size = ((~(this.bb.capacity() - this.space + additional_bytes)) + 1) & (size - 1);
-
-      // Reallocate the buffer if needed.
-      while (this.space < align_size + size + additional_bytes) {
-        var old_buf_size = this.bb.capacity();
-        this.bb = flatbuffers$1.Builder.growByteBuffer(this.bb);
-        this.space += this.bb.capacity() - old_buf_size;
-      }
-
-      this.pad(align_size);
-    };
-
-    /**
-     * @param {number} byte_size
-     */
-    flatbuffers$1.Builder.prototype.pad = function(byte_size) {
-      for (var i = 0; i < byte_size; i++) {
-        this.bb.writeInt8(--this.space, 0);
-      }
-    };
-
-    /**
-     * @param {number} value
-     */
-    flatbuffers$1.Builder.prototype.writeInt8 = function(value) {
-      this.bb.writeInt8(this.space -= 1, value);
-    };
-
-    /**
-     * @param {number} value
-     */
-    flatbuffers$1.Builder.prototype.writeInt16 = function(value) {
-      this.bb.writeInt16(this.space -= 2, value);
-    };
-
-    /**
-     * @param {number} value
-     */
-    flatbuffers$1.Builder.prototype.writeInt32 = function(value) {
-      this.bb.writeInt32(this.space -= 4, value);
-    };
-
-    /**
-     * @param {flatbuffers.Long} value
-     */
-    flatbuffers$1.Builder.prototype.writeInt64 = function(value) {
-      this.bb.writeInt64(this.space -= 8, value);
-    };
-
-    /**
-     * @param {number} value
-     */
-    flatbuffers$1.Builder.prototype.writeFloat32 = function(value) {
-      this.bb.writeFloat32(this.space -= 4, value);
-    };
-
-    /**
-     * @param {number} value
-     */
-    flatbuffers$1.Builder.prototype.writeFloat64 = function(value) {
-      this.bb.writeFloat64(this.space -= 8, value);
-    };
-    /// @endcond
-
-    /**
-     * Add an `int8` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {number} value The `int8` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addInt8 = function(value) {
-      this.prep(1, 0);
-      this.writeInt8(value);
-    };
-
-    /**
-     * Add an `int16` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {number} value The `int16` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addInt16 = function(value) {
-      this.prep(2, 0);
-      this.writeInt16(value);
-    };
-
-    /**
-     * Add an `int32` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {number} value The `int32` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addInt32 = function(value) {
-      this.prep(4, 0);
-      this.writeInt32(value);
-    };
-
-    /**
-     * Add an `int64` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {flatbuffers.Long} value The `int64` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addInt64 = function(value) {
-      this.prep(8, 0);
-      this.writeInt64(value);
-    };
-
-    /**
-     * Add a `float32` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {number} value The `float32` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addFloat32 = function(value) {
-      this.prep(4, 0);
-      this.writeFloat32(value);
-    };
-
-    /**
-     * Add a `float64` to the buffer, properly aligned, and grows the buffer (if necessary).
-     * @param {number} value The `float64` to add the the buffer.
-     */
-    flatbuffers$1.Builder.prototype.addFloat64 = function(value) {
-      this.prep(8, 0);
-      this.writeFloat64(value);
-    };
-
-    /// @cond FLATBUFFERS_INTERNAL
-    /**
-     * @param {number} voffset
-     * @param {number} value
-     * @param {number} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldInt8 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addInt8(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {number} value
-     * @param {number} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldInt16 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addInt16(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {number} value
-     * @param {number} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldInt32 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addInt32(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {flatbuffers.Long} value
-     * @param {flatbuffers.Long} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldInt64 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || !value.equals(defaultValue)) {
-        this.addInt64(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {number} value
-     * @param {number} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldFloat32 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addFloat32(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {number} value
-     * @param {number} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldFloat64 = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addFloat64(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * @param {number} voffset
-     * @param {flatbuffers.Offset} value
-     * @param {flatbuffers.Offset} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldOffset = function(voffset, value, defaultValue) {
-      if (this.force_defaults || value != defaultValue) {
-        this.addOffset(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * Structs are stored inline, so nothing additional is being added. `d` is always 0.
-     *
-     * @param {number} voffset
-     * @param {flatbuffers.Offset} value
-     * @param {flatbuffers.Offset} defaultValue
-     */
-    flatbuffers$1.Builder.prototype.addFieldStruct = function(voffset, value, defaultValue) {
-      if (value != defaultValue) {
-        this.nested(value);
-        this.slot(voffset);
-      }
-    };
-
-    /**
-     * Structures are always stored inline, they need to be created right
-     * where they're used.  You'll get this assertion failure if you
-     * created it elsewhere.
-     *
-     * @param {flatbuffers.Offset} obj The offset of the created object
-     */
-    flatbuffers$1.Builder.prototype.nested = function(obj) {
-      if (obj != this.offset()) {
-        throw new Error('FlatBuffers: struct must be serialized inline.');
-      }
-    };
-
-    /**
-     * Should not be creating any other object, string or vector
-     * while an object is being constructed
-     */
-    flatbuffers$1.Builder.prototype.notNested = function() {
-      if (this.isNested) {
-        throw new Error('FlatBuffers: object serialization must not be nested.');
-      }
-    };
-
-    /**
-     * Set the current vtable at `voffset` to the current location in the buffer.
-     *
-     * @param {number} voffset
-     */
-    flatbuffers$1.Builder.prototype.slot = function(voffset) {
-      this.vtable[voffset] = this.offset();
-    };
-
-    /**
-     * @returns {flatbuffers.Offset} Offset relative to the end of the buffer.
-     */
-    flatbuffers$1.Builder.prototype.offset = function() {
-      return this.bb.capacity() - this.space;
-    };
-
-    /**
-     * Doubles the size of the backing ByteBuffer and copies the old data towards
-     * the end of the new buffer (since we build the buffer backwards).
-     *
-     * @param {flatbuffers.ByteBuffer} bb The current buffer with the existing data
-     * @returns {!flatbuffers.ByteBuffer} A new byte buffer with the old data copied
-     * to it. The data is located at the end of the buffer.
-     *
-     * uint8Array.set() formally takes {Array<number>|ArrayBufferView}, so to pass
-     * it a uint8Array we need to suppress the type check:
-     * @suppress {checkTypes}
-     */
-    flatbuffers$1.Builder.growByteBuffer = function(bb) {
-      var old_buf_size = bb.capacity();
-
-      // Ensure we don't grow beyond what fits in an int.
-      if (old_buf_size & 0xC0000000) {
-        throw new Error('FlatBuffers: cannot grow buffer beyond 2 gigabytes.');
-      }
-
-      var new_buf_size = old_buf_size << 1;
-      var nbb = flatbuffers$1.ByteBuffer.allocate(new_buf_size);
-      nbb.setPosition(new_buf_size - old_buf_size);
-      nbb.bytes().set(bb.bytes(), new_buf_size - old_buf_size);
-      return nbb;
-    };
-    /// @endcond
-
-    /**
-     * Adds on offset, relative to where it will be written.
-     *
-     * @param {flatbuffers.Offset} offset The offset to add.
-     */
-    flatbuffers$1.Builder.prototype.addOffset = function(offset) {
-      this.prep(flatbuffers$1.SIZEOF_INT, 0); // Ensure alignment is already done.
-      this.writeInt32(this.offset() - offset + flatbuffers$1.SIZEOF_INT);
-    };
-
-    /// @cond FLATBUFFERS_INTERNAL
-    /**
-     * Start encoding a new object in the buffer.  Users will not usually need to
-     * call this directly. The FlatBuffers compiler will generate helper methods
-     * that call this method internally.
-     *
-     * @param {number} numfields
-     */
-    flatbuffers$1.Builder.prototype.startObject = function(numfields) {
-      this.notNested();
-      if (this.vtable == null) {
-        this.vtable = [];
-      }
-      this.vtable_in_use = numfields;
-      for (var i = 0; i < numfields; i++) {
-        this.vtable[i] = 0; // This will push additional elements as needed
-      }
-      this.isNested = true;
-      this.object_start = this.offset();
-    };
-
-    /**
-     * Finish off writing the object that is under construction.
-     *
-     * @returns {flatbuffers.Offset} The offset to the object inside `dataBuffer`
-     */
-    flatbuffers$1.Builder.prototype.endObject = function() {
-      if (this.vtable == null || !this.isNested) {
-        throw new Error('FlatBuffers: endObject called without startObject');
-      }
-
-      this.addInt32(0);
-      var vtableloc = this.offset();
-
-      // Trim trailing zeroes.
-      var i = this.vtable_in_use - 1;
-      for (; i >= 0 && this.vtable[i] == 0; i--) {}
-      var trimmed_size = i + 1;
-
-      // Write out the current vtable.
-      for (; i >= 0; i--) {
-        // Offset relative to the start of the table.
-        this.addInt16(this.vtable[i] != 0 ? vtableloc - this.vtable[i] : 0);
-      }
-
-      var standard_fields = 2; // The fields below:
-      this.addInt16(vtableloc - this.object_start);
-      var len = (trimmed_size + standard_fields) * flatbuffers$1.SIZEOF_SHORT;
-      this.addInt16(len);
-
-      // Search for an existing vtable that matches the current one.
-      var existing_vtable = 0;
-      var vt1 = this.space;
-    outer_loop:
-      for (i = 0; i < this.vtables.length; i++) {
-        var vt2 = this.bb.capacity() - this.vtables[i];
-        if (len == this.bb.readInt16(vt2)) {
-          for (var j = flatbuffers$1.SIZEOF_SHORT; j < len; j += flatbuffers$1.SIZEOF_SHORT) {
-            if (this.bb.readInt16(vt1 + j) != this.bb.readInt16(vt2 + j)) {
-              continue outer_loop;
+    const SIZEOF_INT = 4;
+    const FILE_IDENTIFIER_LENGTH = 4;
+
+    const int32$1 = new Int32Array(2);
+    const float32 = new Float32Array(int32$1.buffer);
+    const float64 = new Float64Array(int32$1.buffer);
+    const isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
+
+    class Long {
+        constructor(low, high) {
+            this.low = low | 0;
+            this.high = high | 0;
+        }
+        static create(low, high) {
+            // Special-case zero to avoid GC overhead for default values
+            return low == 0 && high == 0 ? Long.ZERO : new Long(low, high);
+        }
+        toFloat64() {
+            return (this.low >>> 0) + this.high * 0x100000000;
+        }
+        equals(other) {
+            return this.low == other.low && this.high == other.high;
+        }
+    }
+    Long.ZERO = new Long(0, 0);
+
+    var Encoding$1;
+    (function (Encoding) {
+        Encoding[Encoding["UTF8_BYTES"] = 1] = "UTF8_BYTES";
+        Encoding[Encoding["UTF16_STRING"] = 2] = "UTF16_STRING";
+    })(Encoding$1 || (Encoding$1 = {}));
+
+    class ByteBuffer {
+        /**
+         * Create a new ByteBuffer with a given array of bytes (`Uint8Array`)
+         */
+        constructor(bytes_) {
+            this.bytes_ = bytes_;
+            this.position_ = 0;
+        }
+        /**
+         * Create and allocate a new ByteBuffer with a given size.
+         */
+        static allocate(byte_size) {
+            return new ByteBuffer(new Uint8Array(byte_size));
+        }
+        clear() {
+            this.position_ = 0;
+        }
+        /**
+         * Get the underlying `Uint8Array`.
+         */
+        bytes() {
+            return this.bytes_;
+        }
+        /**
+         * Get the buffer's position.
+         */
+        position() {
+            return this.position_;
+        }
+        /**
+         * Set the buffer's position.
+         */
+        setPosition(position) {
+            this.position_ = position;
+        }
+        /**
+         * Get the buffer's capacity.
+         */
+        capacity() {
+            return this.bytes_.length;
+        }
+        readInt8(offset) {
+            return this.readUint8(offset) << 24 >> 24;
+        }
+        readUint8(offset) {
+            return this.bytes_[offset];
+        }
+        readInt16(offset) {
+            return this.readUint16(offset) << 16 >> 16;
+        }
+        readUint16(offset) {
+            return this.bytes_[offset] | this.bytes_[offset + 1] << 8;
+        }
+        readInt32(offset) {
+            return this.bytes_[offset] | this.bytes_[offset + 1] << 8 | this.bytes_[offset + 2] << 16 | this.bytes_[offset + 3] << 24;
+        }
+        readUint32(offset) {
+            return this.readInt32(offset) >>> 0;
+        }
+        readInt64(offset) {
+            return new Long(this.readInt32(offset), this.readInt32(offset + 4));
+        }
+        readUint64(offset) {
+            return new Long(this.readUint32(offset), this.readUint32(offset + 4));
+        }
+        readFloat32(offset) {
+            int32$1[0] = this.readInt32(offset);
+            return float32[0];
+        }
+        readFloat64(offset) {
+            int32$1[isLittleEndian ? 0 : 1] = this.readInt32(offset);
+            int32$1[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
+            return float64[0];
+        }
+        writeInt8(offset, value) {
+            this.bytes_[offset] = value;
+        }
+        writeUint8(offset, value) {
+            this.bytes_[offset] = value;
+        }
+        writeInt16(offset, value) {
+            this.bytes_[offset] = value;
+            this.bytes_[offset + 1] = value >> 8;
+        }
+        writeUint16(offset, value) {
+            this.bytes_[offset] = value;
+            this.bytes_[offset + 1] = value >> 8;
+        }
+        writeInt32(offset, value) {
+            this.bytes_[offset] = value;
+            this.bytes_[offset + 1] = value >> 8;
+            this.bytes_[offset + 2] = value >> 16;
+            this.bytes_[offset + 3] = value >> 24;
+        }
+        writeUint32(offset, value) {
+            this.bytes_[offset] = value;
+            this.bytes_[offset + 1] = value >> 8;
+            this.bytes_[offset + 2] = value >> 16;
+            this.bytes_[offset + 3] = value >> 24;
+        }
+        writeInt64(offset, value) {
+            this.writeInt32(offset, value.low);
+            this.writeInt32(offset + 4, value.high);
+        }
+        writeUint64(offset, value) {
+            this.writeUint32(offset, value.low);
+            this.writeUint32(offset + 4, value.high);
+        }
+        writeFloat32(offset, value) {
+            float32[0] = value;
+            this.writeInt32(offset, int32$1[0]);
+        }
+        writeFloat64(offset, value) {
+            float64[0] = value;
+            this.writeInt32(offset, int32$1[isLittleEndian ? 0 : 1]);
+            this.writeInt32(offset + 4, int32$1[isLittleEndian ? 1 : 0]);
+        }
+        /**
+         * Return the file identifier.   Behavior is undefined for FlatBuffers whose
+         * schema does not include a file_identifier (likely points at padding or the
+         * start of a the root vtable).
+         */
+        getBufferIdentifier() {
+            if (this.bytes_.length < this.position_ + SIZEOF_INT +
+                FILE_IDENTIFIER_LENGTH) {
+                throw new Error('FlatBuffers: ByteBuffer is too short to contain an identifier.');
             }
-          }
-          existing_vtable = this.vtables[i];
-          break;
-        }
-      }
-
-      if (existing_vtable) {
-        // Found a match:
-        // Remove the current vtable.
-        this.space = this.bb.capacity() - vtableloc;
-
-        // Point table to existing vtable.
-        this.bb.writeInt32(this.space, existing_vtable - vtableloc);
-      } else {
-        // No match:
-        // Add the location of the current vtable to the list of vtables.
-        this.vtables.push(this.offset());
-
-        // Point table to current vtable.
-        this.bb.writeInt32(this.bb.capacity() - vtableloc, this.offset() - vtableloc);
-      }
-
-      this.isNested = false;
-      return vtableloc;
-    };
-    /// @endcond
-
-    /**
-     * Finalize a buffer, poiting to the given `root_table`.
-     *
-     * @param {flatbuffers.Offset} root_table
-     * @param {string=} opt_file_identifier
-     * @param {boolean=} opt_size_prefix
-     */
-    flatbuffers$1.Builder.prototype.finish = function(root_table, opt_file_identifier, opt_size_prefix) {
-      var size_prefix = opt_size_prefix ? flatbuffers$1.SIZE_PREFIX_LENGTH : 0;
-      if (opt_file_identifier) {
-        var file_identifier = opt_file_identifier;
-        this.prep(this.minalign, flatbuffers$1.SIZEOF_INT +
-          flatbuffers$1.FILE_IDENTIFIER_LENGTH + size_prefix);
-        if (file_identifier.length != flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
-          throw new Error('FlatBuffers: file identifier must be length ' +
-            flatbuffers$1.FILE_IDENTIFIER_LENGTH);
-        }
-        for (var i = flatbuffers$1.FILE_IDENTIFIER_LENGTH - 1; i >= 0; i--) {
-          this.writeInt8(file_identifier.charCodeAt(i));
-        }
-      }
-      this.prep(this.minalign, flatbuffers$1.SIZEOF_INT + size_prefix);
-      this.addOffset(root_table);
-      if (size_prefix) {
-        this.addInt32(this.bb.capacity() - this.space);
-      }
-      this.bb.setPosition(this.space);
-    };
-
-    /**
-     * Finalize a size prefixed buffer, pointing to the given `root_table`.
-     *
-     * @param {flatbuffers.Offset} root_table
-     * @param {string=} opt_file_identifier
-     */
-    flatbuffers$1.Builder.prototype.finishSizePrefixed = function (root_table, opt_file_identifier) {
-      this.finish(root_table, opt_file_identifier, true);
-    };
-
-    /// @cond FLATBUFFERS_INTERNAL
-    /**
-     * This checks a required field has been set in a given table that has
-     * just been constructed.
-     *
-     * @param {flatbuffers.Offset} table
-     * @param {number} field
-     */
-    flatbuffers$1.Builder.prototype.requiredField = function(table, field) {
-      var table_start = this.bb.capacity() - table;
-      var vtable_start = table_start - this.bb.readInt32(table_start);
-      var ok = this.bb.readInt16(vtable_start + field) != 0;
-
-      // If this fails, the caller will show what field needs to be set.
-      if (!ok) {
-        throw new Error('FlatBuffers: field ' + field + ' must be set');
-      }
-    };
-
-    /**
-     * Start a new array/vector of objects.  Users usually will not call
-     * this directly. The FlatBuffers compiler will create a start/end
-     * method for vector types in generated code.
-     *
-     * @param {number} elem_size The size of each element in the array
-     * @param {number} num_elems The number of elements in the array
-     * @param {number} alignment The alignment of the array
-     */
-    flatbuffers$1.Builder.prototype.startVector = function(elem_size, num_elems, alignment) {
-      this.notNested();
-      this.vector_num_elems = num_elems;
-      this.prep(flatbuffers$1.SIZEOF_INT, elem_size * num_elems);
-      this.prep(alignment, elem_size * num_elems); // Just in case alignment > int.
-    };
-
-    /**
-     * Finish off the creation of an array and all its elements. The array must be
-     * created with `startVector`.
-     *
-     * @returns {flatbuffers.Offset} The offset at which the newly created array
-     * starts.
-     */
-    flatbuffers$1.Builder.prototype.endVector = function() {
-      this.writeInt32(this.vector_num_elems);
-      return this.offset();
-    };
-    /// @endcond
-
-    /**
-     * Encode the string `s` in the buffer using UTF-8. If a Uint8Array is passed
-     * instead of a string, it is assumed to contain valid UTF-8 encoded data.
-     *
-     * @param {string|Uint8Array} s The string to encode
-     * @return {flatbuffers.Offset} The offset in the buffer where the encoded string starts
-     */
-    flatbuffers$1.Builder.prototype.createString = function(s) {
-      if (s instanceof Uint8Array) {
-        var utf8 = s;
-      } else {
-        var utf8 = [];
-        var i = 0;
-
-        while (i < s.length) {
-          var codePoint;
-
-          // Decode UTF-16
-          var a = s.charCodeAt(i++);
-          if (a < 0xD800 || a >= 0xDC00) {
-            codePoint = a;
-          } else {
-            var b = s.charCodeAt(i++);
-            codePoint = (a << 10) + b + (0x10000 - (0xD800 << 10) - 0xDC00);
-          }
-
-          // Encode UTF-8
-          if (codePoint < 0x80) {
-            utf8.push(codePoint);
-          } else {
-            if (codePoint < 0x800) {
-              utf8.push(((codePoint >> 6) & 0x1F) | 0xC0);
-            } else {
-              if (codePoint < 0x10000) {
-                utf8.push(((codePoint >> 12) & 0x0F) | 0xE0);
-              } else {
-                utf8.push(
-                  ((codePoint >> 18) & 0x07) | 0xF0,
-                  ((codePoint >> 12) & 0x3F) | 0x80);
-              }
-              utf8.push(((codePoint >> 6) & 0x3F) | 0x80);
+            let result = "";
+            for (let i = 0; i < FILE_IDENTIFIER_LENGTH; i++) {
+                result += String.fromCharCode(this.readInt8(this.position_ + SIZEOF_INT + i));
             }
-            utf8.push((codePoint & 0x3F) | 0x80);
-          }
+            return result;
         }
-      }
-
-      this.addInt8(0);
-      this.startVector(1, utf8.length, 1);
-      this.bb.setPosition(this.space -= utf8.length);
-      for (var i = 0, offset = this.space, bytes = this.bb.bytes(); i < utf8.length; i++) {
-        bytes[offset++] = utf8[i];
-      }
-      return this.endVector();
-    };
-
-    /**
-     * A helper function to avoid generated code depending on this file directly.
-     *
-     * @param {number} low
-     * @param {number} high
-     * @returns {!flatbuffers.Long}
-     */
-    flatbuffers$1.Builder.prototype.createLong = function(low, high) {
-      return flatbuffers$1.Long.create(low, high);
-    };
-    ////////////////////////////////////////////////////////////////////////////////
-    /// @cond FLATBUFFERS_INTERNAL
-    /**
-     * Create a new ByteBuffer with a given array of bytes (`Uint8Array`).
-     *
-     * @constructor
-     * @param {Uint8Array} bytes
-     */
-    flatbuffers$1.ByteBuffer = function(bytes) {
-      /**
-       * @type {Uint8Array}
-       * @private
-       */
-      this.bytes_ = bytes;
-
-      /**
-       * @type {number}
-       * @private
-       */
-      this.position_ = 0;
-    };
-
-    /**
-     * Create and allocate a new ByteBuffer with a given size.
-     *
-     * @param {number} byte_size
-     * @returns {!flatbuffers.ByteBuffer}
-     */
-    flatbuffers$1.ByteBuffer.allocate = function(byte_size) {
-      return new flatbuffers$1.ByteBuffer(new Uint8Array(byte_size));
-    };
-
-    flatbuffers$1.ByteBuffer.prototype.clear = function() {
-      this.position_ = 0;
-    };
-
-    /**
-     * Get the underlying `Uint8Array`.
-     *
-     * @returns {Uint8Array}
-     */
-    flatbuffers$1.ByteBuffer.prototype.bytes = function() {
-      return this.bytes_;
-    };
-
-    /**
-     * Get the buffer's position.
-     *
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.position = function() {
-      return this.position_;
-    };
-
-    /**
-     * Set the buffer's position.
-     *
-     * @param {number} position
-     */
-    flatbuffers$1.ByteBuffer.prototype.setPosition = function(position) {
-      this.position_ = position;
-    };
-
-    /**
-     * Get the buffer's capacity.
-     *
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.capacity = function() {
-      return this.bytes_.length;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readInt8 = function(offset) {
-      return this.readUint8(offset) << 24 >> 24;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readUint8 = function(offset) {
-      return this.bytes_[offset];
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readInt16 = function(offset) {
-      return this.readUint16(offset) << 16 >> 16;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readUint16 = function(offset) {
-      return this.bytes_[offset] | this.bytes_[offset + 1] << 8;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readInt32 = function(offset) {
-      return this.bytes_[offset] | this.bytes_[offset + 1] << 8 | this.bytes_[offset + 2] << 16 | this.bytes_[offset + 3] << 24;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readUint32 = function(offset) {
-      return this.readInt32(offset) >>> 0;
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {!flatbuffers.Long}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readInt64 = function(offset) {
-      return new flatbuffers$1.Long(this.readInt32(offset), this.readInt32(offset + 4));
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {!flatbuffers.Long}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readUint64 = function(offset) {
-      return new flatbuffers$1.Long(this.readUint32(offset), this.readUint32(offset + 4));
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readFloat32 = function(offset) {
-      flatbuffers$1.int32[0] = this.readInt32(offset);
-      return flatbuffers$1.float32[0];
-    };
-
-    /**
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.readFloat64 = function(offset) {
-      flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 0 : 1] = this.readInt32(offset);
-      flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
-      return flatbuffers$1.float64[0];
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number|boolean} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeInt8 = function(offset, value) {
-      this.bytes_[offset] = /** @type {number} */(value);
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeUint8 = function(offset, value) {
-      this.bytes_[offset] = value;
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeInt16 = function(offset, value) {
-      this.bytes_[offset] = value;
-      this.bytes_[offset + 1] = value >> 8;
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeUint16 = function(offset, value) {
-        this.bytes_[offset] = value;
-        this.bytes_[offset + 1] = value >> 8;
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeInt32 = function(offset, value) {
-      this.bytes_[offset] = value;
-      this.bytes_[offset + 1] = value >> 8;
-      this.bytes_[offset + 2] = value >> 16;
-      this.bytes_[offset + 3] = value >> 24;
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeUint32 = function(offset, value) {
-        this.bytes_[offset] = value;
-        this.bytes_[offset + 1] = value >> 8;
-        this.bytes_[offset + 2] = value >> 16;
-        this.bytes_[offset + 3] = value >> 24;
-    };
-
-    /**
-     * @param {number} offset
-     * @param {flatbuffers.Long} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeInt64 = function(offset, value) {
-      this.writeInt32(offset, value.low);
-      this.writeInt32(offset + 4, value.high);
-    };
-
-    /**
-     * @param {number} offset
-     * @param {flatbuffers.Long} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeUint64 = function(offset, value) {
-        this.writeUint32(offset, value.low);
-        this.writeUint32(offset + 4, value.high);
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeFloat32 = function(offset, value) {
-      flatbuffers$1.float32[0] = value;
-      this.writeInt32(offset, flatbuffers$1.int32[0]);
-    };
-
-    /**
-     * @param {number} offset
-     * @param {number} value
-     */
-    flatbuffers$1.ByteBuffer.prototype.writeFloat64 = function(offset, value) {
-      flatbuffers$1.float64[0] = value;
-      this.writeInt32(offset, flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 0 : 1]);
-      this.writeInt32(offset + 4, flatbuffers$1.int32[flatbuffers$1.isLittleEndian ? 1 : 0]);
-    };
-
-    /**
-     * Return the file identifier.   Behavior is undefined for FlatBuffers whose
-     * schema does not include a file_identifier (likely points at padding or the
-     * start of a the root vtable).
-     * @returns {string}
-     */
-    flatbuffers$1.ByteBuffer.prototype.getBufferIdentifier = function() {
-      if (this.bytes_.length < this.position_ + flatbuffers$1.SIZEOF_INT +
-          flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
-        throw new Error(
-            'FlatBuffers: ByteBuffer is too short to contain an identifier.');
-      }
-      var result = "";
-      for (var i = 0; i < flatbuffers$1.FILE_IDENTIFIER_LENGTH; i++) {
-        result += String.fromCharCode(
-            this.readInt8(this.position_ + flatbuffers$1.SIZEOF_INT + i));
-      }
-      return result;
-    };
-
-    /**
-     * Look up a field in the vtable, return an offset into the object, or 0 if the
-     * field is not present.
-     *
-     * @param {number} bb_pos
-     * @param {number} vtable_offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__offset = function(bb_pos, vtable_offset) {
-      var vtable = bb_pos - this.readInt32(bb_pos);
-      return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
-    };
-
-    /**
-     * Initialize any Table-derived type to point to the union at the given offset.
-     *
-     * @param {flatbuffers.Table} t
-     * @param {number} offset
-     * @returns {flatbuffers.Table}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__union = function(t, offset) {
-      t.bb_pos = offset + this.readInt32(offset);
-      t.bb = this;
-      return t;
-    };
-
-    /**
-     * Create a JavaScript string from UTF-8 data stored inside the FlatBuffer.
-     * This allocates a new string and converts to wide chars upon each access.
-     *
-     * To avoid the conversion to UTF-16, pass flatbuffers.Encoding.UTF8_BYTES as
-     * the "optionalEncoding" argument. This is useful for avoiding conversion to
-     * and from UTF-16 when the data will just be packaged back up in another
-     * FlatBuffer later on.
-     *
-     * @param {number} offset
-     * @param {flatbuffers.Encoding=} opt_encoding Defaults to UTF16_STRING
-     * @returns {string|!Uint8Array}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__string = function(offset, opt_encoding) {
-      offset += this.readInt32(offset);
-
-      var length = this.readInt32(offset);
-      var result = '';
-      var i = 0;
-
-      offset += flatbuffers$1.SIZEOF_INT;
-
-      if (opt_encoding === flatbuffers$1.Encoding.UTF8_BYTES) {
-        return this.bytes_.subarray(offset, offset + length);
-      }
-
-      while (i < length) {
-        var codePoint;
-
-        // Decode UTF-8
-        var a = this.readUint8(offset + i++);
-        if (a < 0xC0) {
-          codePoint = a;
-        } else {
-          var b = this.readUint8(offset + i++);
-          if (a < 0xE0) {
-            codePoint =
-              ((a & 0x1F) << 6) |
-              (b & 0x3F);
-          } else {
-            var c = this.readUint8(offset + i++);
-            if (a < 0xF0) {
-              codePoint =
-                ((a & 0x0F) << 12) |
-                ((b & 0x3F) << 6) |
-                (c & 0x3F);
-            } else {
-              var d = this.readUint8(offset + i++);
-              codePoint =
-                ((a & 0x07) << 18) |
-                ((b & 0x3F) << 12) |
-                ((c & 0x3F) << 6) |
-                (d & 0x3F);
+        /**
+         * Look up a field in the vtable, return an offset into the object, or 0 if the
+         * field is not present.
+         */
+        __offset(bb_pos, vtable_offset) {
+            const vtable = bb_pos - this.readInt32(bb_pos);
+            return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
+        }
+        /**
+         * Initialize any Table-derived type to point to the union at the given offset.
+         */
+        __union(t, offset) {
+            t.bb_pos = offset + this.readInt32(offset);
+            t.bb = this;
+            return t;
+        }
+        /**
+         * Create a JavaScript string from UTF-8 data stored inside the FlatBuffer.
+         * This allocates a new string and converts to wide chars upon each access.
+         *
+         * To avoid the conversion to UTF-16, pass Encoding.UTF8_BYTES as
+         * the "optionalEncoding" argument. This is useful for avoiding conversion to
+         * and from UTF-16 when the data will just be packaged back up in another
+         * FlatBuffer later on.
+         *
+         * @param offset
+         * @param opt_encoding Defaults to UTF16_STRING
+         */
+        __string(offset, opt_encoding) {
+            offset += this.readInt32(offset);
+            const length = this.readInt32(offset);
+            let result = '';
+            let i = 0;
+            offset += SIZEOF_INT;
+            if (opt_encoding === Encoding$1.UTF8_BYTES) {
+                return this.bytes_.subarray(offset, offset + length);
             }
-          }
+            while (i < length) {
+                let codePoint;
+                // Decode UTF-8
+                const a = this.readUint8(offset + i++);
+                if (a < 0xC0) {
+                    codePoint = a;
+                }
+                else {
+                    const b = this.readUint8(offset + i++);
+                    if (a < 0xE0) {
+                        codePoint =
+                            ((a & 0x1F) << 6) |
+                                (b & 0x3F);
+                    }
+                    else {
+                        const c = this.readUint8(offset + i++);
+                        if (a < 0xF0) {
+                            codePoint =
+                                ((a & 0x0F) << 12) |
+                                    ((b & 0x3F) << 6) |
+                                    (c & 0x3F);
+                        }
+                        else {
+                            const d = this.readUint8(offset + i++);
+                            codePoint =
+                                ((a & 0x07) << 18) |
+                                    ((b & 0x3F) << 12) |
+                                    ((c & 0x3F) << 6) |
+                                    (d & 0x3F);
+                        }
+                    }
+                }
+                // Encode UTF-16
+                if (codePoint < 0x10000) {
+                    result += String.fromCharCode(codePoint);
+                }
+                else {
+                    codePoint -= 0x10000;
+                    result += String.fromCharCode((codePoint >> 10) + 0xD800, (codePoint & ((1 << 10) - 1)) + 0xDC00);
+                }
+            }
+            return result;
         }
-
-        // Encode UTF-16
-        if (codePoint < 0x10000) {
-          result += String.fromCharCode(codePoint);
-        } else {
-          codePoint -= 0x10000;
-          result += String.fromCharCode(
-            (codePoint >> 10) + 0xD800,
-            (codePoint & ((1 << 10) - 1)) + 0xDC00);
+        /**
+         * Handle unions that can contain string as its member, if a Table-derived type then initialize it,
+         * if a string then return a new one
+         *
+         * WARNING: strings are immutable in JS so we can't change the string that the user gave us, this
+         * makes the behaviour of __union_with_string different compared to __union
+         */
+        __union_with_string(o, offset) {
+            if (typeof o === 'string') {
+                return this.__string(offset);
+            }
+            return this.__union(o, offset);
         }
-      }
-
-      return result;
-    };
-
-    /**
-     * Retrieve the relative offset stored at "offset"
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__indirect = function(offset) {
-      return offset + this.readInt32(offset);
-    };
-
-    /**
-     * Get the start of data of a vector whose offset is stored at "offset" in this object.
-     *
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__vector = function(offset) {
-      return offset + this.readInt32(offset) + flatbuffers$1.SIZEOF_INT; // data starts after the length
-    };
-
-    /**
-     * Get the length of a vector whose offset is stored at "offset" in this object.
-     *
-     * @param {number} offset
-     * @returns {number}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__vector_len = function(offset) {
-      return this.readInt32(offset + this.readInt32(offset));
-    };
-
-    /**
-     * @param {string} ident
-     * @returns {boolean}
-     */
-    flatbuffers$1.ByteBuffer.prototype.__has_identifier = function(ident) {
-      if (ident.length != flatbuffers$1.FILE_IDENTIFIER_LENGTH) {
-        throw new Error('FlatBuffers: file identifier must be length ' +
-                        flatbuffers$1.FILE_IDENTIFIER_LENGTH);
-      }
-      for (var i = 0; i < flatbuffers$1.FILE_IDENTIFIER_LENGTH; i++) {
-        if (ident.charCodeAt(i) != this.readInt8(this.position_ + flatbuffers$1.SIZEOF_INT + i)) {
-          return false;
+        /**
+         * Retrieve the relative offset stored at "offset"
+         */
+        __indirect(offset) {
+            return offset + this.readInt32(offset);
         }
-      }
-      return true;
-    };
-
-    /**
-     * A helper function to avoid generated code depending on this file directly.
-     *
-     * @param {number} low
-     * @param {number} high
-     * @returns {!flatbuffers.Long}
-     */
-    flatbuffers$1.ByteBuffer.prototype.createLong = function(low, high) {
-      return flatbuffers$1.Long.create(low, high);
-    };
-
-    /// @endcond
-    /// @}
+        /**
+         * Get the start of data of a vector whose offset is stored at "offset" in this object.
+         */
+        __vector(offset) {
+            return offset + this.readInt32(offset) + SIZEOF_INT; // data starts after the length
+        }
+        /**
+         * Get the length of a vector whose offset is stored at "offset" in this object.
+         */
+        __vector_len(offset) {
+            return this.readInt32(offset + this.readInt32(offset));
+        }
+        __has_identifier(ident) {
+            if (ident.length != FILE_IDENTIFIER_LENGTH) {
+                throw new Error('FlatBuffers: file identifier must be length ' +
+                    FILE_IDENTIFIER_LENGTH);
+            }
+            for (let i = 0; i < FILE_IDENTIFIER_LENGTH; i++) {
+                if (ident.charCodeAt(i) != this.readInt8(this.position() + SIZEOF_INT + i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        /**
+         * A helper function to avoid generated code depending on this file directly.
+         */
+        createLong(low, high) {
+            return Long.create(low, high);
+        }
+        /**
+         * A helper function for generating list for obj api
+         */
+        createScalarList(listAccessor, listLength) {
+            const ret = [];
+            for (let i = 0; i < listLength; ++i) {
+                if (listAccessor(i) !== null) {
+                    ret.push(listAccessor(i));
+                }
+            }
+            return ret;
+        }
+        /**
+         * A helper function for generating list for obj api
+         * @param listAccessor function that accepts an index and return data at that index
+         * @param listLength listLength
+         * @param res result list
+         */
+        createObjList(listAccessor, listLength) {
+            const ret = [];
+            for (let i = 0; i < listLength; ++i) {
+                const val = listAccessor(i);
+                if (val !== null) {
+                    ret.push(val.unpack());
+                }
+            }
+            return ret;
+        }
+    }
 
     /**
      * -----------------------------------------------------------
-     * ssfblib v1.0.1
+     * ssfblib v1.1.0
      *
      * Copyright(C) Web Technology Corp.
      * https://www.webtech.co.jp/
      * -----------------------------------------------------------
      */
+
+    const SIZE_PREFIX_LENGTH = 4;
+
+    const int32 = new Int32Array(2);
+    new Float32Array(int32.buffer);
+    new Float64Array(int32.buffer);
+    new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
+
+    var Encoding;
+    (function (Encoding) {
+        Encoding[Encoding["UTF8_BYTES"] = 1] = "UTF8_BYTES";
+        Encoding[Encoding["UTF16_STRING"] = 2] = "UTF16_STRING";
+    })(Encoding || (Encoding = {}));
 
     // automatically generated by the FlatBuffers compiler, do not modify
-    /**
-     * @enum {number}
-     */
-    var ss;
-    (function (ss) {
-        (function (ssfb) {
-            (function (SsPartType) {
-                SsPartType[SsPartType["Invalid"] = -1] = "Invalid";
-                SsPartType[SsPartType["Nulltype"] = 0] = "Nulltype";
-                SsPartType[SsPartType["Normal"] = 1] = "Normal";
-                SsPartType[SsPartType["Text"] = 2] = "Text";
-                SsPartType[SsPartType["Instance"] = 3] = "Instance";
-                SsPartType[SsPartType["Armature"] = 4] = "Armature";
-                SsPartType[SsPartType["Effect"] = 5] = "Effect";
-                SsPartType[SsPartType["Mesh"] = 6] = "Mesh";
-                SsPartType[SsPartType["Movenode"] = 7] = "Movenode";
-                SsPartType[SsPartType["Constraint"] = 8] = "Constraint";
-                SsPartType[SsPartType["Mask"] = 9] = "Mask";
-                SsPartType[SsPartType["Joint"] = 10] = "Joint";
-                SsPartType[SsPartType["Bonepoint"] = 11] = "Bonepoint";
-            })(ssfb.SsPartType || (ssfb.SsPartType = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @enum {number}
-     */
-    (function (ss) {
-        (function (ssfb) {
-            (function (PART_FLAG) {
-                PART_FLAG[PART_FLAG["INVISIBLE"] = 1] = "INVISIBLE";
-                PART_FLAG[PART_FLAG["FLIP_H"] = 2] = "FLIP_H";
-                PART_FLAG[PART_FLAG["FLIP_V"] = 4] = "FLIP_V";
-                PART_FLAG[PART_FLAG["CELL_INDEX"] = 8] = "CELL_INDEX";
-                PART_FLAG[PART_FLAG["POSITION_X"] = 16] = "POSITION_X";
-                PART_FLAG[PART_FLAG["POSITION_Y"] = 32] = "POSITION_Y";
-                PART_FLAG[PART_FLAG["POSITION_Z"] = 64] = "POSITION_Z";
-                PART_FLAG[PART_FLAG["PIVOT_X"] = 128] = "PIVOT_X";
-                PART_FLAG[PART_FLAG["PIVOT_Y"] = 256] = "PIVOT_Y";
-                PART_FLAG[PART_FLAG["ROTATIONX"] = 512] = "ROTATIONX";
-                PART_FLAG[PART_FLAG["ROTATIONY"] = 1024] = "ROTATIONY";
-                PART_FLAG[PART_FLAG["ROTATIONZ"] = 2048] = "ROTATIONZ";
-                PART_FLAG[PART_FLAG["SCALE_X"] = 4096] = "SCALE_X";
-                PART_FLAG[PART_FLAG["SCALE_Y"] = 8192] = "SCALE_Y";
-                PART_FLAG[PART_FLAG["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-                PART_FLAG[PART_FLAG["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-                PART_FLAG[PART_FLAG["OPACITY"] = 65536] = "OPACITY";
-                PART_FLAG[PART_FLAG["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-                PART_FLAG[PART_FLAG["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-                PART_FLAG[PART_FLAG["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-                PART_FLAG[PART_FLAG["SIZE_X"] = 1048576] = "SIZE_X";
-                PART_FLAG[PART_FLAG["SIZE_Y"] = 2097152] = "SIZE_Y";
-                PART_FLAG[PART_FLAG["U_MOVE"] = 4194304] = "U_MOVE";
-                PART_FLAG[PART_FLAG["V_MOVE"] = 8388608] = "V_MOVE";
-                PART_FLAG[PART_FLAG["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-                PART_FLAG[PART_FLAG["U_SCALE"] = 33554432] = "U_SCALE";
-                PART_FLAG[PART_FLAG["V_SCALE"] = 67108864] = "V_SCALE";
-                PART_FLAG[PART_FLAG["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-                PART_FLAG[PART_FLAG["MASK"] = 268435456] = "MASK";
-                PART_FLAG[PART_FLAG["PRIORITY"] = 536870912] = "PRIORITY";
-                PART_FLAG[PART_FLAG["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-                PART_FLAG[PART_FLAG["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-            })(ssfb.PART_FLAG || (ssfb.PART_FLAG = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @enum {number}
-     */
-    (function (ss) {
-        (function (ssfb) {
-            (function (PART_FLAG2) {
-                PART_FLAG2[PART_FLAG2["MESHDATA"] = 1] = "MESHDATA";
-            })(ssfb.PART_FLAG2 || (ssfb.PART_FLAG2 = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @enum {number}
-     */
-    (function (ss) {
-        (function (ssfb) {
-            (function (VERTEX_FLAG) {
-                VERTEX_FLAG[VERTEX_FLAG["LT"] = 1] = "LT";
-                VERTEX_FLAG[VERTEX_FLAG["RT"] = 2] = "RT";
-                VERTEX_FLAG[VERTEX_FLAG["LB"] = 4] = "LB";
-                VERTEX_FLAG[VERTEX_FLAG["RB"] = 8] = "RB";
-                VERTEX_FLAG[VERTEX_FLAG["ONE"] = 16] = "ONE";
-            })(ssfb.VERTEX_FLAG || (ssfb.VERTEX_FLAG = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @enum {number}
-     */
-    (function (ss) {
-        (function (ssfb) {
-            (function (EffectNodeBehavior) {
-                EffectNodeBehavior[EffectNodeBehavior["NONE"] = 0] = "NONE";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementBasic"] = 1] = "EffectParticleElementBasic";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRndSeedChange"] = 2] = "EffectParticleElementRndSeedChange";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementDelay"] = 3] = "EffectParticleElementDelay";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementGravity"] = 4] = "EffectParticleElementGravity";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementPosition"] = 5] = "EffectParticleElementPosition";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRotation"] = 6] = "EffectParticleElementRotation";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRotationTrans"] = 7] = "EffectParticleElementRotationTrans";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransSpeed"] = 8] = "EffectParticleElementTransSpeed";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTangentialAcceleration"] = 9] = "EffectParticleElementTangentialAcceleration";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementInitColor"] = 10] = "EffectParticleElementInitColor";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransColor"] = 11] = "EffectParticleElementTransColor";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementAlphaFade"] = 12] = "EffectParticleElementAlphaFade";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementSize"] = 13] = "EffectParticleElementSize";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransSize"] = 14] = "EffectParticleElementTransSize";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticlePointGravity"] = 15] = "EffectParticlePointGravity";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleTurnToDirectionEnabled"] = 16] = "EffectParticleTurnToDirectionEnabled";
-                EffectNodeBehavior[EffectNodeBehavior["EffectParticleInfiniteEmitEnabled"] = 17] = "EffectParticleInfiniteEmitEnabled";
-            })(ssfb.EffectNodeBehavior || (ssfb.EffectNodeBehavior = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @enum {number}
-     */
-    (function (ss) {
-        (function (ssfb) {
-            (function (userDataValue) {
-                userDataValue[userDataValue["NONE"] = 0] = "NONE";
-                userDataValue[userDataValue["userDataInteger"] = 1] = "userDataInteger";
-                userDataValue[userDataValue["userDataRect"] = 2] = "userDataRect";
-                userDataValue[userDataValue["userDataPoint"] = 3] = "userDataPoint";
-                userDataValue[userDataValue["userDataString"] = 4] = "userDataString";
-            })(ssfb.userDataValue || (ssfb.userDataValue = {}));
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleInfiniteEmitEnabled = /** @class */ (function () {
-                function EffectParticleInfiniteEmitEnabled() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleInfiniteEmitEnabled
-                 */
-                EffectParticleInfiniteEmitEnabled.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleInfiniteEmitEnabled.prototype.flag = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number flag
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleInfiniteEmitEnabled.createEffectParticleInfiniteEmitEnabled = function (builder, flag) {
-                    builder.prep(4, 4);
-                    builder.writeInt32(flag);
-                    return builder.offset();
-                };
-                return EffectParticleInfiniteEmitEnabled;
-            }());
-            ssfb.EffectParticleInfiniteEmitEnabled = EffectParticleInfiniteEmitEnabled;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleTurnToDirectionEnabled = /** @class */ (function () {
-                function EffectParticleTurnToDirectionEnabled() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleTurnToDirectionEnabled
-                 */
-                EffectParticleTurnToDirectionEnabled.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleTurnToDirectionEnabled.prototype.Rotation = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number Rotation
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleTurnToDirectionEnabled.createEffectParticleTurnToDirectionEnabled = function (builder, Rotation) {
-                    builder.prep(4, 4);
-                    builder.writeFloat32(Rotation);
-                    return builder.offset();
-                };
-                return EffectParticleTurnToDirectionEnabled;
-            }());
-            ssfb.EffectParticleTurnToDirectionEnabled = EffectParticleTurnToDirectionEnabled;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticlePointGravity = /** @class */ (function () {
-                function EffectParticlePointGravity() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticlePointGravity
-                 */
-                EffectParticlePointGravity.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticlePointGravity.prototype.PositionX = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticlePointGravity.prototype.PositionY = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticlePointGravity.prototype.Power = function () {
-                    return this.bb.readFloat32(this.bb_pos + 8);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number Position_x
-                 * @param number Position_y
-                 * @param number Power
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticlePointGravity.createEffectParticlePointGravity = function (builder, Position_x, Position_y, Power) {
-                    builder.prep(4, 12);
-                    builder.writeFloat32(Power);
-                    builder.writeFloat32(Position_y);
-                    builder.writeFloat32(Position_x);
-                    return builder.offset();
-                };
-                return EffectParticlePointGravity;
-            }());
-            ssfb.EffectParticlePointGravity = EffectParticlePointGravity;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementTransSize = /** @class */ (function () {
-                function EffectParticleElementTransSize() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementTransSize
-                 */
-                EffectParticleElementTransSize.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.SizeXMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.SizeXMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.SizeYMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.SizeYMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 12);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.ScaleFactorMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 16);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSize.prototype.ScaleFactorMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 20);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number SizeXMinValue
-                 * @param number SizeXMaxValue
-                 * @param number SizeYMinValue
-                 * @param number SizeYMaxValue
-                 * @param number ScaleFactorMinValue
-                 * @param number ScaleFactorMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementTransSize.createEffectParticleElementTransSize = function (builder, SizeXMinValue, SizeXMaxValue, SizeYMinValue, SizeYMaxValue, ScaleFactorMinValue, ScaleFactorMaxValue) {
-                    builder.prep(4, 24);
-                    builder.writeFloat32(ScaleFactorMaxValue);
-                    builder.writeFloat32(ScaleFactorMinValue);
-                    builder.writeFloat32(SizeYMaxValue);
-                    builder.writeFloat32(SizeYMinValue);
-                    builder.writeFloat32(SizeXMaxValue);
-                    builder.writeFloat32(SizeXMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementTransSize;
-            }());
-            ssfb.EffectParticleElementTransSize = EffectParticleElementTransSize;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementSize = /** @class */ (function () {
-                function EffectParticleElementSize() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementSize
-                 */
-                EffectParticleElementSize.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.SizeXMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.SizeXMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.SizeYMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.SizeYMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 12);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.ScaleFactorMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 16);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementSize.prototype.ScaleFactorMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 20);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number SizeXMinValue
-                 * @param number SizeXMaxValue
-                 * @param number SizeYMinValue
-                 * @param number SizeYMaxValue
-                 * @param number ScaleFactorMinValue
-                 * @param number ScaleFactorMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementSize.createEffectParticleElementSize = function (builder, SizeXMinValue, SizeXMaxValue, SizeYMinValue, SizeYMaxValue, ScaleFactorMinValue, ScaleFactorMaxValue) {
-                    builder.prep(4, 24);
-                    builder.writeFloat32(ScaleFactorMaxValue);
-                    builder.writeFloat32(ScaleFactorMinValue);
-                    builder.writeFloat32(SizeYMaxValue);
-                    builder.writeFloat32(SizeYMinValue);
-                    builder.writeFloat32(SizeXMaxValue);
-                    builder.writeFloat32(SizeXMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementSize;
-            }());
-            ssfb.EffectParticleElementSize = EffectParticleElementSize;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementAlphaFade = /** @class */ (function () {
-                function EffectParticleElementAlphaFade() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementAlphaFade
-                 */
-                EffectParticleElementAlphaFade.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementAlphaFade.prototype.disprangeMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementAlphaFade.prototype.disprangeMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number disprangeMinValue
-                 * @param number disprangeMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementAlphaFade.createEffectParticleElementAlphaFade = function (builder, disprangeMinValue, disprangeMaxValue) {
-                    builder.prep(4, 8);
-                    builder.writeFloat32(disprangeMaxValue);
-                    builder.writeFloat32(disprangeMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementAlphaFade;
-            }());
-            ssfb.EffectParticleElementAlphaFade = EffectParticleElementAlphaFade;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementTransColor = /** @class */ (function () {
-                function EffectParticleElementTransColor() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementTransColor
-                 */
-                EffectParticleElementTransColor.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransColor.prototype.ColorMinValue = function () {
-                    return this.bb.readUint32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransColor.prototype.ColorMaxValue = function () {
-                    return this.bb.readUint32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number ColorMinValue
-                 * @param number ColorMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementTransColor.createEffectParticleElementTransColor = function (builder, ColorMinValue, ColorMaxValue) {
-                    builder.prep(4, 8);
-                    builder.writeInt32(ColorMaxValue);
-                    builder.writeInt32(ColorMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementTransColor;
-            }());
-            ssfb.EffectParticleElementTransColor = EffectParticleElementTransColor;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementInitColor = /** @class */ (function () {
-                function EffectParticleElementInitColor() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementInitColor
-                 */
-                EffectParticleElementInitColor.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementInitColor.prototype.ColorMinValue = function () {
-                    return this.bb.readUint32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementInitColor.prototype.ColorMaxValue = function () {
-                    return this.bb.readUint32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number ColorMinValue
-                 * @param number ColorMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementInitColor.createEffectParticleElementInitColor = function (builder, ColorMinValue, ColorMaxValue) {
-                    builder.prep(4, 8);
-                    builder.writeInt32(ColorMaxValue);
-                    builder.writeInt32(ColorMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementInitColor;
-            }());
-            ssfb.EffectParticleElementInitColor = EffectParticleElementInitColor;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementTangentialAcceleration = /** @class */ (function () {
-                function EffectParticleElementTangentialAcceleration() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementTangentialAcceleration
-                 */
-                EffectParticleElementTangentialAcceleration.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTangentialAcceleration.prototype.AccelerationMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTangentialAcceleration.prototype.AccelerationMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number AccelerationMinValue
-                 * @param number AccelerationMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementTangentialAcceleration.createEffectParticleElementTangentialAcceleration = function (builder, AccelerationMinValue, AccelerationMaxValue) {
-                    builder.prep(4, 8);
-                    builder.writeFloat32(AccelerationMaxValue);
-                    builder.writeFloat32(AccelerationMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementTangentialAcceleration;
-            }());
-            ssfb.EffectParticleElementTangentialAcceleration = EffectParticleElementTangentialAcceleration;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementTransSpeed = /** @class */ (function () {
-                function EffectParticleElementTransSpeed() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementTransSpeed
-                 */
-                EffectParticleElementTransSpeed.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSpeed.prototype.SpeedMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementTransSpeed.prototype.SpeedMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number SpeedMinValue
-                 * @param number SpeedMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementTransSpeed.createEffectParticleElementTransSpeed = function (builder, SpeedMinValue, SpeedMaxValue) {
-                    builder.prep(4, 8);
-                    builder.writeFloat32(SpeedMaxValue);
-                    builder.writeFloat32(SpeedMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementTransSpeed;
-            }());
-            ssfb.EffectParticleElementTransSpeed = EffectParticleElementTransSpeed;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementRotationTrans = /** @class */ (function () {
-                function EffectParticleElementRotationTrans() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementRotationTrans
-                 */
-                EffectParticleElementRotationTrans.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotationTrans.prototype.RotationFactor = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotationTrans.prototype.EndLifeTimePer = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number RotationFactor
-                 * @param number EndLifeTimePer
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementRotationTrans.createEffectParticleElementRotationTrans = function (builder, RotationFactor, EndLifeTimePer) {
-                    builder.prep(4, 8);
-                    builder.writeFloat32(EndLifeTimePer);
-                    builder.writeFloat32(RotationFactor);
-                    return builder.offset();
-                };
-                return EffectParticleElementRotationTrans;
-            }());
-            ssfb.EffectParticleElementRotationTrans = EffectParticleElementRotationTrans;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementRotation = /** @class */ (function () {
-                function EffectParticleElementRotation() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementRotation
-                 */
-                EffectParticleElementRotation.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotation.prototype.RotationMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotation.prototype.RotationMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotation.prototype.RotationAddMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRotation.prototype.RotationAddMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 12);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number RotationMinValue
-                 * @param number RotationMaxValue
-                 * @param number RotationAddMinValue
-                 * @param number RotationAddMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementRotation.createEffectParticleElementRotation = function (builder, RotationMinValue, RotationMaxValue, RotationAddMinValue, RotationAddMaxValue) {
-                    builder.prep(4, 16);
-                    builder.writeFloat32(RotationAddMaxValue);
-                    builder.writeFloat32(RotationAddMinValue);
-                    builder.writeFloat32(RotationMaxValue);
-                    builder.writeFloat32(RotationMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementRotation;
-            }());
-            ssfb.EffectParticleElementRotation = EffectParticleElementRotation;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementPosition = /** @class */ (function () {
-                function EffectParticleElementPosition() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementPosition
-                 */
-                EffectParticleElementPosition.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementPosition.prototype.OffsetXMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementPosition.prototype.OffsetXMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementPosition.prototype.OffsetYMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementPosition.prototype.OffsetYMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 12);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number OffsetXMinValue
-                 * @param number OffsetXMaxValue
-                 * @param number OffsetYMinValue
-                 * @param number OffsetYMaxValue
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementPosition.createEffectParticleElementPosition = function (builder, OffsetXMinValue, OffsetXMaxValue, OffsetYMinValue, OffsetYMaxValue) {
-                    builder.prep(4, 16);
-                    builder.writeFloat32(OffsetYMaxValue);
-                    builder.writeFloat32(OffsetYMinValue);
-                    builder.writeFloat32(OffsetXMaxValue);
-                    builder.writeFloat32(OffsetXMinValue);
-                    return builder.offset();
-                };
-                return EffectParticleElementPosition;
-            }());
-            ssfb.EffectParticleElementPosition = EffectParticleElementPosition;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementGravity = /** @class */ (function () {
-                function EffectParticleElementGravity() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementGravity
-                 */
-                EffectParticleElementGravity.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementGravity.prototype.GravityX = function () {
-                    return this.bb.readFloat32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementGravity.prototype.GravityY = function () {
-                    return this.bb.readFloat32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number Gravity_x
-                 * @param number Gravity_y
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementGravity.createEffectParticleElementGravity = function (builder, Gravity_x, Gravity_y) {
-                    builder.prep(4, 8);
-                    builder.writeFloat32(Gravity_y);
-                    builder.writeFloat32(Gravity_x);
-                    return builder.offset();
-                };
-                return EffectParticleElementGravity;
-            }());
-            ssfb.EffectParticleElementGravity = EffectParticleElementGravity;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementDelay = /** @class */ (function () {
-                function EffectParticleElementDelay() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementDelay
-                 */
-                EffectParticleElementDelay.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementDelay.prototype.DelayTime = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number DelayTime
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementDelay.createEffectParticleElementDelay = function (builder, DelayTime) {
-                    builder.prep(4, 4);
-                    builder.writeInt32(DelayTime);
-                    return builder.offset();
-                };
-                return EffectParticleElementDelay;
-            }());
-            ssfb.EffectParticleElementDelay = EffectParticleElementDelay;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementRndSeedChange = /** @class */ (function () {
-                function EffectParticleElementRndSeedChange() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementRndSeedChange
-                 */
-                EffectParticleElementRndSeedChange.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementRndSeedChange.prototype.Seed = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number Seed
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementRndSeedChange.createEffectParticleElementRndSeedChange = function (builder, Seed) {
-                    builder.prep(4, 4);
-                    builder.writeInt32(Seed);
-                    return builder.offset();
-                };
-                return EffectParticleElementRndSeedChange;
-            }());
-            ssfb.EffectParticleElementRndSeedChange = EffectParticleElementRndSeedChange;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectParticleElementBasic = /** @class */ (function () {
-                function EffectParticleElementBasic() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectParticleElementBasic
-                 */
-                EffectParticleElementBasic.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.SsEffectFunctionType = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.priority = function () {
-                    return this.bb.readInt32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.maximumParticle = function () {
-                    return this.bb.readInt32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.attimeCreate = function () {
-                    return this.bb.readInt32(this.bb_pos + 12);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.interval = function () {
-                    return this.bb.readInt32(this.bb_pos + 16);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.lifetime = function () {
-                    return this.bb.readInt32(this.bb_pos + 20);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.speedMinValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 24);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.speedMaxValue = function () {
-                    return this.bb.readFloat32(this.bb_pos + 28);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.lifespanMinValue = function () {
-                    return this.bb.readInt32(this.bb_pos + 32);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.lifespanMaxValue = function () {
-                    return this.bb.readInt32(this.bb_pos + 36);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.angle = function () {
-                    return this.bb.readFloat32(this.bb_pos + 40);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectParticleElementBasic.prototype.angleVariance = function () {
-                    return this.bb.readFloat32(this.bb_pos + 44);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number SsEffectFunctionType
-                 * @param number priority
-                 * @param number maximumParticle
-                 * @param number attimeCreate
-                 * @param number interval
-                 * @param number lifetime
-                 * @param number speedMinValue
-                 * @param number speedMaxValue
-                 * @param number lifespanMinValue
-                 * @param number lifespanMaxValue
-                 * @param number angle
-                 * @param number angleVariance
-                 * @returns flatbuffers.Offset
-                 */
-                EffectParticleElementBasic.createEffectParticleElementBasic = function (builder, SsEffectFunctionType, priority, maximumParticle, attimeCreate, interval, lifetime, speedMinValue, speedMaxValue, lifespanMinValue, lifespanMaxValue, angle, angleVariance) {
-                    builder.prep(4, 48);
-                    builder.writeFloat32(angleVariance);
-                    builder.writeFloat32(angle);
-                    builder.writeInt32(lifespanMaxValue);
-                    builder.writeInt32(lifespanMinValue);
-                    builder.writeFloat32(speedMaxValue);
-                    builder.writeFloat32(speedMinValue);
-                    builder.writeInt32(lifetime);
-                    builder.writeInt32(interval);
-                    builder.writeInt32(attimeCreate);
-                    builder.writeInt32(maximumParticle);
-                    builder.writeInt32(priority);
-                    builder.writeInt32(SsEffectFunctionType);
-                    return builder.offset();
-                };
-                return EffectParticleElementBasic;
-            }());
-            ssfb.EffectParticleElementBasic = EffectParticleElementBasic;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectNode = /** @class */ (function () {
-                function EffectNode() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectNode
-                 */
-                EffectNode.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param EffectNode= obj
-                 * @returns EffectNode
-                 */
-                EffectNode.getRootAsEffectNode = function (bb, obj) {
-                    return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param EffectNode= obj
-                 * @returns EffectNode
-                 */
-                EffectNode.getSizePrefixedRootAsEffectNode = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.arrayIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.parentIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.type = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.cellIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.blendType = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.numBehavior = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @returns ss.ssfb.EffectNodeBehavior
-                 */
-                EffectNode.prototype.BehaviorType = function (index) {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? /**  */ (this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index)) : /**  */ (0);
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.BehaviorTypeLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns Uint8Array
-                 */
-                EffectNode.prototype.BehaviorTypeArray = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-                };
-                /**
-                 * @param number index
-                 * @param flatbuffers.Table= obj
-                 * @returns ?flatbuffers.Table
-                 */
-                EffectNode.prototype.Behavior = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectNode.prototype.BehaviorLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                EffectNode.startEffectNode = function (builder) {
-                    builder.startObject(8);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number arrayIndex
-                 */
-                EffectNode.addArrayIndex = function (builder, arrayIndex) {
-                    builder.addFieldInt16(0, arrayIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number parentIndex
-                 */
-                EffectNode.addParentIndex = function (builder, parentIndex) {
-                    builder.addFieldInt16(1, parentIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number type
-                 */
-                EffectNode.addType = function (builder, type) {
-                    builder.addFieldInt16(2, type, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number cellIndex
-                 */
-                EffectNode.addCellIndex = function (builder, cellIndex) {
-                    builder.addFieldInt16(3, cellIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number blendType
-                 */
-                EffectNode.addBlendType = function (builder, blendType) {
-                    builder.addFieldInt16(4, blendType, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numBehavior
-                 */
-                EffectNode.addNumBehavior = function (builder, numBehavior) {
-                    builder.addFieldInt16(5, numBehavior, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset BehaviorTypeOffset
-                 */
-                EffectNode.addBehaviorType = function (builder, BehaviorTypeOffset) {
-                    builder.addFieldOffset(6, BehaviorTypeOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<ss.ssfb.EffectNodeBehavior> data
-                 * @returns flatbuffers.Offset
-                 */
-                EffectNode.createBehaviorTypeVector = function (builder, data) {
-                    builder.startVector(1, data.length, 1);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addInt8(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                EffectNode.startBehaviorTypeVector = function (builder, numElems) {
-                    builder.startVector(1, numElems, 1);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset BehaviorOffset
-                 */
-                EffectNode.addBehavior = function (builder, BehaviorOffset) {
-                    builder.addFieldOffset(7, BehaviorOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                EffectNode.createBehaviorVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                EffectNode.startBehaviorVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                EffectNode.endEffectNode = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                EffectNode.createEffectNode = function (builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, BehaviorTypeOffset, BehaviorOffset) {
-                    EffectNode.startEffectNode(builder);
-                    EffectNode.addArrayIndex(builder, arrayIndex);
-                    EffectNode.addParentIndex(builder, parentIndex);
-                    EffectNode.addType(builder, type);
-                    EffectNode.addCellIndex(builder, cellIndex);
-                    EffectNode.addBlendType(builder, blendType);
-                    EffectNode.addNumBehavior(builder, numBehavior);
-                    EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
-                    EffectNode.addBehavior(builder, BehaviorOffset);
-                    return EffectNode.endEffectNode(builder);
-                };
-                return EffectNode;
-            }());
-            ssfb.EffectNode = EffectNode;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var EffectFile = /** @class */ (function () {
-                function EffectFile() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns EffectFile
-                 */
-                EffectFile.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param EffectFile= obj
-                 * @returns EffectFile
-                 */
-                EffectFile.getRootAsEffectFile = function (bb, obj) {
-                    return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param EffectFile= obj
-                 * @returns EffectFile
-                 */
-                EffectFile.getSizePrefixedRootAsEffectFile = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                EffectFile.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.fps = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.isLockRandSeed = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.lockRandSeed = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.layoutScaleX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.layoutScaleY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.numNodeList = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.EffectNode= obj
-                 * @returns ss.ssfb.EffectNode
-                 */
-                EffectFile.prototype.effectNode = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? (obj || new ss.ssfb.EffectNode()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                EffectFile.prototype.effectNodeLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                EffectFile.startEffectFile = function (builder) {
-                    builder.startObject(8);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                EffectFile.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number fps
-                 */
-                EffectFile.addFps = function (builder, fps) {
-                    builder.addFieldInt16(1, fps, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number isLockRandSeed
-                 */
-                EffectFile.addIsLockRandSeed = function (builder, isLockRandSeed) {
-                    builder.addFieldInt16(2, isLockRandSeed, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number lockRandSeed
-                 */
-                EffectFile.addLockRandSeed = function (builder, lockRandSeed) {
-                    builder.addFieldInt16(3, lockRandSeed, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number layoutScaleX
-                 */
-                EffectFile.addLayoutScaleX = function (builder, layoutScaleX) {
-                    builder.addFieldInt16(4, layoutScaleX, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number layoutScaleY
-                 */
-                EffectFile.addLayoutScaleY = function (builder, layoutScaleY) {
-                    builder.addFieldInt16(5, layoutScaleY, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numNodeList
-                 */
-                EffectFile.addNumNodeList = function (builder, numNodeList) {
-                    builder.addFieldInt16(6, numNodeList, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset effectNodeOffset
-                 */
-                EffectFile.addEffectNode = function (builder, effectNodeOffset) {
-                    builder.addFieldOffset(7, effectNodeOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                EffectFile.createEffectNodeVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                EffectFile.startEffectNodeVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                EffectFile.endEffectFile = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                EffectFile.createEffectFile = function (builder, nameOffset, fps, isLockRandSeed, lockRandSeed, layoutScaleX, layoutScaleY, numNodeList, effectNodeOffset) {
-                    EffectFile.startEffectFile(builder);
-                    EffectFile.addName(builder, nameOffset);
-                    EffectFile.addFps(builder, fps);
-                    EffectFile.addIsLockRandSeed(builder, isLockRandSeed);
-                    EffectFile.addLockRandSeed(builder, lockRandSeed);
-                    EffectFile.addLayoutScaleX(builder, layoutScaleX);
-                    EffectFile.addLayoutScaleY(builder, layoutScaleY);
-                    EffectFile.addNumNodeList(builder, numNodeList);
-                    EffectFile.addEffectNode(builder, effectNodeOffset);
-                    return EffectFile.endEffectFile(builder);
-                };
-                return EffectFile;
-            }());
-            ssfb.EffectFile = EffectFile;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var CellMap = /** @class */ (function () {
-                function CellMap() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns CellMap
-                 */
-                CellMap.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param CellMap= obj
-                 * @returns CellMap
-                 */
-                CellMap.getRootAsCellMap = function (bb, obj) {
-                    return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param CellMap= obj
-                 * @returns CellMap
-                 */
-                CellMap.getSizePrefixedRootAsCellMap = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                CellMap.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                CellMap.prototype.imagePath = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                CellMap.prototype.index = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                CellMap.prototype.wrapmode = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                CellMap.prototype.filtermode = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                CellMap.startCellMap = function (builder) {
-                    builder.startObject(5);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                CellMap.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset imagePathOffset
-                 */
-                CellMap.addImagePath = function (builder, imagePathOffset) {
-                    builder.addFieldOffset(1, imagePathOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number index
-                 */
-                CellMap.addIndex = function (builder, index) {
-                    builder.addFieldInt16(2, index, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number wrapmode
-                 */
-                CellMap.addWrapmode = function (builder, wrapmode) {
-                    builder.addFieldInt16(3, wrapmode, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number filtermode
-                 */
-                CellMap.addFiltermode = function (builder, filtermode) {
-                    builder.addFieldInt16(4, filtermode, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                CellMap.endCellMap = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                CellMap.createCellMap = function (builder, nameOffset, imagePathOffset, index, wrapmode, filtermode) {
-                    CellMap.startCellMap(builder);
-                    CellMap.addName(builder, nameOffset);
-                    CellMap.addImagePath(builder, imagePathOffset);
-                    CellMap.addIndex(builder, index);
-                    CellMap.addWrapmode(builder, wrapmode);
-                    CellMap.addFiltermode(builder, filtermode);
-                    return CellMap.endCellMap(builder);
-                };
-                return CellMap;
-            }());
-            ssfb.CellMap = CellMap;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var Cell = /** @class */ (function () {
-                function Cell() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns Cell
-                 */
-                Cell.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param Cell= obj
-                 * @returns Cell
-                 */
-                Cell.getRootAsCell = function (bb, obj) {
-                    return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param Cell= obj
-                 * @returns Cell
-                 */
-                Cell.getSizePrefixedRootAsCell = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                Cell.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @param ss.ssfb.CellMap= obj
-                 * @returns ss.ssfb.CellMap|null
-                 */
-                Cell.prototype.cellMap = function (obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? (obj || new ss.ssfb.CellMap()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.indexInCellMap = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.x = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.y = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.width = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.height = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.pivotX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.pivotY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 20);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.u1 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 22);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.v1 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 24);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.u2 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 26);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                Cell.prototype.v2 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 28);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                Cell.startCell = function (builder) {
-                    builder.startObject(13);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                Cell.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset cellMapOffset
-                 */
-                Cell.addCellMap = function (builder, cellMapOffset) {
-                    builder.addFieldOffset(1, cellMapOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number indexInCellMap
-                 */
-                Cell.addIndexInCellMap = function (builder, indexInCellMap) {
-                    builder.addFieldInt16(2, indexInCellMap, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number x
-                 */
-                Cell.addX = function (builder, x) {
-                    builder.addFieldInt16(3, x, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number y
-                 */
-                Cell.addY = function (builder, y) {
-                    builder.addFieldInt16(4, y, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number width
-                 */
-                Cell.addWidth = function (builder, width) {
-                    builder.addFieldInt16(5, width, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number height
-                 */
-                Cell.addHeight = function (builder, height) {
-                    builder.addFieldInt16(6, height, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number pivotX
-                 */
-                Cell.addPivotX = function (builder, pivotX) {
-                    builder.addFieldFloat32(7, pivotX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number pivotY
-                 */
-                Cell.addPivotY = function (builder, pivotY) {
-                    builder.addFieldFloat32(8, pivotY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number u1
-                 */
-                Cell.addU1 = function (builder, u1) {
-                    builder.addFieldFloat32(9, u1, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number v1
-                 */
-                Cell.addV1 = function (builder, v1) {
-                    builder.addFieldFloat32(10, v1, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number u2
-                 */
-                Cell.addU2 = function (builder, u2) {
-                    builder.addFieldFloat32(11, u2, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number v2
-                 */
-                Cell.addV2 = function (builder, v2) {
-                    builder.addFieldFloat32(12, v2, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                Cell.endCell = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                Cell.createCell = function (builder, nameOffset, cellMapOffset, indexInCellMap, x, y, width, height, pivotX, pivotY, u1, v1, u2, v2) {
-                    Cell.startCell(builder);
-                    Cell.addName(builder, nameOffset);
-                    Cell.addCellMap(builder, cellMapOffset);
-                    Cell.addIndexInCellMap(builder, indexInCellMap);
-                    Cell.addX(builder, x);
-                    Cell.addY(builder, y);
-                    Cell.addWidth(builder, width);
-                    Cell.addHeight(builder, height);
-                    Cell.addPivotX(builder, pivotX);
-                    Cell.addPivotY(builder, pivotY);
-                    Cell.addU1(builder, u1);
-                    Cell.addV1(builder, v1);
-                    Cell.addU2(builder, u2);
-                    Cell.addV2(builder, v2);
-                    return Cell.endCell(builder);
-                };
-                return Cell;
-            }());
-            ssfb.Cell = Cell;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var meshDataUV = /** @class */ (function () {
-                function meshDataUV() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns meshDataUV
-                 */
-                meshDataUV.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param meshDataUV= obj
-                 * @returns meshDataUV
-                 */
-                meshDataUV.getRootAsmeshDataUV = function (bb, obj) {
-                    return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param meshDataUV= obj
-                 * @returns meshDataUV
-                 */
-                meshDataUV.getSizePrefixedRootAsmeshDataUV = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param number index
-                 * @returns number
-                 */
-                meshDataUV.prototype.uv = function (index) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                meshDataUV.prototype.uvLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns Float32Array
-                 */
-                meshDataUV.prototype.uvArray = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                meshDataUV.startmeshDataUV = function (builder) {
-                    builder.startObject(1);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset uvOffset
-                 */
-                meshDataUV.addUv = function (builder, uvOffset) {
-                    builder.addFieldOffset(0, uvOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<number> data
-                 * @returns flatbuffers.Offset
-                 */
-                meshDataUV.createUvVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addFloat32(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                meshDataUV.startUvVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                meshDataUV.endmeshDataUV = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                meshDataUV.createmeshDataUV = function (builder, uvOffset) {
-                    meshDataUV.startmeshDataUV(builder);
-                    meshDataUV.addUv(builder, uvOffset);
-                    return meshDataUV.endmeshDataUV(builder);
-                };
-                return meshDataUV;
-            }());
-            ssfb.meshDataUV = meshDataUV;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var meshDataIndices = /** @class */ (function () {
-                function meshDataIndices() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns meshDataIndices
-                 */
-                meshDataIndices.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param meshDataIndices= obj
-                 * @returns meshDataIndices
-                 */
-                meshDataIndices.getRootAsmeshDataIndices = function (bb, obj) {
-                    return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param meshDataIndices= obj
-                 * @returns meshDataIndices
-                 */
-                meshDataIndices.getSizePrefixedRootAsmeshDataIndices = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param number index
-                 * @returns number
-                 */
-                meshDataIndices.prototype.indices = function (index) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                meshDataIndices.prototype.indicesLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns Float32Array
-                 */
-                meshDataIndices.prototype.indicesArray = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                meshDataIndices.startmeshDataIndices = function (builder) {
-                    builder.startObject(1);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset indicesOffset
-                 */
-                meshDataIndices.addIndices = function (builder, indicesOffset) {
-                    builder.addFieldOffset(0, indicesOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<number> data
-                 * @returns flatbuffers.Offset
-                 */
-                meshDataIndices.createIndicesVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addFloat32(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                meshDataIndices.startIndicesVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                meshDataIndices.endmeshDataIndices = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                meshDataIndices.createmeshDataIndices = function (builder, indicesOffset) {
-                    meshDataIndices.startmeshDataIndices(builder);
-                    meshDataIndices.addIndices(builder, indicesOffset);
-                    return meshDataIndices.endmeshDataIndices(builder);
-                };
-                return meshDataIndices;
-            }());
-            ssfb.meshDataIndices = meshDataIndices;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var partState = /** @class */ (function () {
-                function partState() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns partState
-                 */
-                partState.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param partState= obj
-                 * @returns partState
-                 */
-                partState.getRootAspartState = function (bb, obj) {
-                    return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param partState= obj
-                 * @returns partState
-                 */
-                partState.getSizePrefixedRootAspartState = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                partState.prototype.index = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                partState.prototype.flag1 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                partState.prototype.flag2 = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @returns number
-                 */
-                partState.prototype.data = function (index) {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                partState.prototype.dataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns Uint32Array
-                 */
-                partState.prototype.dataArray = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                partState.startpartState = function (builder) {
-                    builder.startObject(4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number index
-                 */
-                partState.addIndex = function (builder, index) {
-                    builder.addFieldInt16(0, index, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number flag1
-                 */
-                partState.addFlag1 = function (builder, flag1) {
-                    builder.addFieldInt32(1, flag1, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number flag2
-                 */
-                partState.addFlag2 = function (builder, flag2) {
-                    builder.addFieldInt32(2, flag2, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset dataOffset
-                 */
-                partState.addData = function (builder, dataOffset) {
-                    builder.addFieldOffset(3, dataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<number> data
-                 * @returns flatbuffers.Offset
-                 */
-                partState.createDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addInt32(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                partState.startDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                partState.endpartState = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                partState.createpartState = function (builder, index, flag1, flag2, dataOffset) {
-                    partState.startpartState(builder);
-                    partState.addIndex(builder, index);
-                    partState.addFlag1(builder, flag1);
-                    partState.addFlag2(builder, flag2);
-                    partState.addData(builder, dataOffset);
-                    return partState.endpartState(builder);
-                };
-                return partState;
-            }());
-            ssfb.partState = partState;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var frameDataIndex = /** @class */ (function () {
-                function frameDataIndex() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns frameDataIndex
-                 */
-                frameDataIndex.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param frameDataIndex= obj
-                 * @returns frameDataIndex
-                 */
-                frameDataIndex.getRootAsframeDataIndex = function (bb, obj) {
-                    return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param frameDataIndex= obj
-                 * @returns frameDataIndex
-                 */
-                frameDataIndex.getSizePrefixedRootAsframeDataIndex = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.partState= obj
-                 * @returns ss.ssfb.partState
-                 */
-                frameDataIndex.prototype.states = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? (obj || new ss.ssfb.partState()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                frameDataIndex.prototype.statesLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                frameDataIndex.startframeDataIndex = function (builder) {
-                    builder.startObject(1);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset statesOffset
-                 */
-                frameDataIndex.addStates = function (builder, statesOffset) {
-                    builder.addFieldOffset(0, statesOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                frameDataIndex.createStatesVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                frameDataIndex.startStatesVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                frameDataIndex.endframeDataIndex = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                frameDataIndex.createframeDataIndex = function (builder, statesOffset) {
-                    frameDataIndex.startframeDataIndex(builder);
-                    frameDataIndex.addStates(builder, statesOffset);
-                    return frameDataIndex.endframeDataIndex(builder);
-                };
-                return frameDataIndex;
-            }());
-            ssfb.frameDataIndex = frameDataIndex;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataInteger = /** @class */ (function () {
-                function userDataInteger() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataInteger
-                 */
-                userDataInteger.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataInteger.prototype.integer = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number integer
-                 * @returns flatbuffers.Offset
-                 */
-                userDataInteger.createuserDataInteger = function (builder, integer) {
-                    builder.prep(4, 4);
-                    builder.writeInt32(integer);
-                    return builder.offset();
-                };
-                return userDataInteger;
-            }());
-            ssfb.userDataInteger = userDataInteger;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataRect = /** @class */ (function () {
-                function userDataRect() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataRect
-                 */
-                userDataRect.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataRect.prototype.x = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataRect.prototype.y = function () {
-                    return this.bb.readInt32(this.bb_pos + 4);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataRect.prototype.w = function () {
-                    return this.bb.readInt32(this.bb_pos + 8);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataRect.prototype.h = function () {
-                    return this.bb.readInt32(this.bb_pos + 12);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number x
-                 * @param number y
-                 * @param number w
-                 * @param number h
-                 * @returns flatbuffers.Offset
-                 */
-                userDataRect.createuserDataRect = function (builder, x, y, w, h) {
-                    builder.prep(4, 16);
-                    builder.writeInt32(h);
-                    builder.writeInt32(w);
-                    builder.writeInt32(y);
-                    builder.writeInt32(x);
-                    return builder.offset();
-                };
-                return userDataRect;
-            }());
-            ssfb.userDataRect = userDataRect;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataPoint = /** @class */ (function () {
-                function userDataPoint() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataPoint
-                 */
-                userDataPoint.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataPoint.prototype.x = function () {
-                    return this.bb.readInt32(this.bb_pos);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataPoint.prototype.y = function () {
-                    return this.bb.readInt32(this.bb_pos + 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number x
-                 * @param number y
-                 * @returns flatbuffers.Offset
-                 */
-                userDataPoint.createuserDataPoint = function (builder, x, y) {
-                    builder.prep(4, 8);
-                    builder.writeInt32(y);
-                    builder.writeInt32(x);
-                    return builder.offset();
-                };
-                return userDataPoint;
-            }());
-            ssfb.userDataPoint = userDataPoint;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataString = /** @class */ (function () {
-                function userDataString() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataString
-                 */
-                userDataString.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataString= obj
-                 * @returns userDataString
-                 */
-                userDataString.getRootAsuserDataString = function (bb, obj) {
-                    return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataString= obj
-                 * @returns userDataString
-                 */
-                userDataString.getSizePrefixedRootAsuserDataString = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataString.prototype.length = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                userDataString.prototype.data = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                userDataString.startuserDataString = function (builder) {
-                    builder.startObject(2);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number length
-                 */
-                userDataString.addLength = function (builder, length) {
-                    builder.addFieldInt32(0, length, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset dataOffset
-                 */
-                userDataString.addData = function (builder, dataOffset) {
-                    builder.addFieldOffset(1, dataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                userDataString.enduserDataString = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                userDataString.createuserDataString = function (builder, length, dataOffset) {
-                    userDataString.startuserDataString(builder);
-                    userDataString.addLength(builder, length);
-                    userDataString.addData(builder, dataOffset);
-                    return userDataString.enduserDataString(builder);
-                };
-                return userDataString;
-            }());
-            ssfb.userDataString = userDataString;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataItem = /** @class */ (function () {
-                function userDataItem() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataItem
-                 */
-                userDataItem.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataItem= obj
-                 * @returns userDataItem
-                 */
-                userDataItem.getRootAsuserDataItem = function (bb, obj) {
-                    return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataItem= obj
-                 * @returns userDataItem
-                 */
-                userDataItem.getSizePrefixedRootAsuserDataItem = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataItem.prototype.flags = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataItem.prototype.arrayIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @returns ss.ssfb.userDataValue
-                 */
-                userDataItem.prototype.dataType = function (index) {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? /**  */ (this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index)) : /**  */ (0);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataItem.prototype.dataTypeLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns Uint8Array
-                 */
-                userDataItem.prototype.dataTypeArray = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-                };
-                /**
-                 * @param number index
-                 * @param flatbuffers.Table= obj
-                 * @returns ?flatbuffers.Table
-                 */
-                userDataItem.prototype.data = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataItem.prototype.dataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                userDataItem.startuserDataItem = function (builder) {
-                    builder.startObject(4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number flags
-                 */
-                userDataItem.addFlags = function (builder, flags) {
-                    builder.addFieldInt16(0, flags, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number arrayIndex
-                 */
-                userDataItem.addArrayIndex = function (builder, arrayIndex) {
-                    builder.addFieldInt16(1, arrayIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset dataTypeOffset
-                 */
-                userDataItem.addDataType = function (builder, dataTypeOffset) {
-                    builder.addFieldOffset(2, dataTypeOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<ss.ssfb.userDataValue> data
-                 * @returns flatbuffers.Offset
-                 */
-                userDataItem.createDataTypeVector = function (builder, data) {
-                    builder.startVector(1, data.length, 1);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addInt8(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                userDataItem.startDataTypeVector = function (builder, numElems) {
-                    builder.startVector(1, numElems, 1);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset dataOffset
-                 */
-                userDataItem.addData = function (builder, dataOffset) {
-                    builder.addFieldOffset(3, dataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                userDataItem.createDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                userDataItem.startDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                userDataItem.enduserDataItem = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                userDataItem.createuserDataItem = function (builder, flags, arrayIndex, dataTypeOffset, dataOffset) {
-                    userDataItem.startuserDataItem(builder);
-                    userDataItem.addFlags(builder, flags);
-                    userDataItem.addArrayIndex(builder, arrayIndex);
-                    userDataItem.addDataType(builder, dataTypeOffset);
-                    userDataItem.addData(builder, dataOffset);
-                    return userDataItem.enduserDataItem(builder);
-                };
-                return userDataItem;
-            }());
-            ssfb.userDataItem = userDataItem;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var userDataPerFrame = /** @class */ (function () {
-                function userDataPerFrame() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns userDataPerFrame
-                 */
-                userDataPerFrame.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataPerFrame= obj
-                 * @returns userDataPerFrame
-                 */
-                userDataPerFrame.getRootAsuserDataPerFrame = function (bb, obj) {
-                    return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param userDataPerFrame= obj
-                 * @returns userDataPerFrame
-                 */
-                userDataPerFrame.getSizePrefixedRootAsuserDataPerFrame = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                userDataPerFrame.prototype.frameIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.userDataItem= obj
-                 * @returns ss.ssfb.userDataItem
-                 */
-                userDataPerFrame.prototype.data = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? (obj || new ss.ssfb.userDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                userDataPerFrame.prototype.dataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                userDataPerFrame.startuserDataPerFrame = function (builder) {
-                    builder.startObject(2);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number frameIndex
-                 */
-                userDataPerFrame.addFrameIndex = function (builder, frameIndex) {
-                    builder.addFieldInt16(0, frameIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset dataOffset
-                 */
-                userDataPerFrame.addData = function (builder, dataOffset) {
-                    builder.addFieldOffset(1, dataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                userDataPerFrame.createDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                userDataPerFrame.startDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                userDataPerFrame.enduserDataPerFrame = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                userDataPerFrame.createuserDataPerFrame = function (builder, frameIndex, dataOffset) {
-                    userDataPerFrame.startuserDataPerFrame(builder);
-                    userDataPerFrame.addFrameIndex(builder, frameIndex);
-                    userDataPerFrame.addData(builder, dataOffset);
-                    return userDataPerFrame.enduserDataPerFrame(builder);
-                };
-                return userDataPerFrame;
-            }());
-            ssfb.userDataPerFrame = userDataPerFrame;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var labelDataItem = /** @class */ (function () {
-                function labelDataItem() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns labelDataItem
-                 */
-                labelDataItem.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param labelDataItem= obj
-                 * @returns labelDataItem
-                 */
-                labelDataItem.getRootAslabelDataItem = function (bb, obj) {
-                    return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param labelDataItem= obj
-                 * @returns labelDataItem
-                 */
-                labelDataItem.getSizePrefixedRootAslabelDataItem = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                labelDataItem.prototype.label = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                labelDataItem.prototype.frameIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                labelDataItem.startlabelDataItem = function (builder) {
-                    builder.startObject(2);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset labelOffset
-                 */
-                labelDataItem.addLabel = function (builder, labelOffset) {
-                    builder.addFieldOffset(0, labelOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number frameIndex
-                 */
-                labelDataItem.addFrameIndex = function (builder, frameIndex) {
-                    builder.addFieldInt16(1, frameIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                labelDataItem.endlabelDataItem = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                labelDataItem.createlabelDataItem = function (builder, labelOffset, frameIndex) {
-                    labelDataItem.startlabelDataItem(builder);
-                    labelDataItem.addLabel(builder, labelOffset);
-                    labelDataItem.addFrameIndex(builder, frameIndex);
-                    return labelDataItem.endlabelDataItem(builder);
-                };
-                return labelDataItem;
-            }());
-            ssfb.labelDataItem = labelDataItem;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var AnimationData = /** @class */ (function () {
-                function AnimationData() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns AnimationData
-                 */
-                AnimationData.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimationData= obj
-                 * @returns AnimationData
-                 */
-                AnimationData.getRootAsAnimationData = function (bb, obj) {
-                    return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimationData= obj
-                 * @returns AnimationData
-                 */
-                AnimationData.getSizePrefixedRootAsAnimationData = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                AnimationData.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.AnimationInitialData= obj
-                 * @returns ss.ssfb.AnimationInitialData
-                 */
-                AnimationData.prototype.defaultData = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? (obj || new ss.ssfb.AnimationInitialData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.defaultDataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.frameDataIndex= obj
-                 * @returns ss.ssfb.frameDataIndex
-                 */
-                AnimationData.prototype.frameData = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? (obj || new ss.ssfb.frameDataIndex()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.frameDataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.userDataPerFrame= obj
-                 * @returns ss.ssfb.userDataPerFrame
-                 */
-                AnimationData.prototype.userData = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? (obj || new ss.ssfb.userDataPerFrame()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.userDataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.labelDataItem= obj
-                 * @returns ss.ssfb.labelDataItem
-                 */
-                AnimationData.prototype.labelData = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? (obj || new ss.ssfb.labelDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.labelDataLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.meshDataUV= obj
-                 * @returns ss.ssfb.meshDataUV
-                 */
-                AnimationData.prototype.meshsDataUV = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? (obj || new ss.ssfb.meshDataUV()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.meshsDataUVLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.meshDataIndices= obj
-                 * @returns ss.ssfb.meshDataIndices
-                 */
-                AnimationData.prototype.meshsDataIndices = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? (obj || new ss.ssfb.meshDataIndices()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.meshsDataIndicesLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.startFrames = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.endFrames = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 20);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.totalFrames = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 22);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.fps = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 24);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.labelNum = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 26);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.canvasSizeW = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 28);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.canvasSizeH = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 30);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.canvasPvotX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 32);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationData.prototype.canvasPvotY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 34);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                AnimationData.startAnimationData = function (builder) {
-                    builder.startObject(16);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                AnimationData.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset defaultDataOffset
-                 */
-                AnimationData.addDefaultData = function (builder, defaultDataOffset) {
-                    builder.addFieldOffset(1, defaultDataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createDefaultDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startDefaultDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset frameDataOffset
-                 */
-                AnimationData.addFrameData = function (builder, frameDataOffset) {
-                    builder.addFieldOffset(2, frameDataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createFrameDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startFrameDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset userDataOffset
-                 */
-                AnimationData.addUserData = function (builder, userDataOffset) {
-                    builder.addFieldOffset(3, userDataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createUserDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startUserDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset labelDataOffset
-                 */
-                AnimationData.addLabelData = function (builder, labelDataOffset) {
-                    builder.addFieldOffset(4, labelDataOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createLabelDataVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startLabelDataVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset meshsDataUVOffset
-                 */
-                AnimationData.addMeshsDataUV = function (builder, meshsDataUVOffset) {
-                    builder.addFieldOffset(5, meshsDataUVOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createMeshsDataUVVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startMeshsDataUVVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset meshsDataIndicesOffset
-                 */
-                AnimationData.addMeshsDataIndices = function (builder, meshsDataIndicesOffset) {
-                    builder.addFieldOffset(6, meshsDataIndicesOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.createMeshsDataIndicesVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimationData.startMeshsDataIndicesVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number startFrames
-                 */
-                AnimationData.addStartFrames = function (builder, startFrames) {
-                    builder.addFieldInt16(7, startFrames, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number endFrames
-                 */
-                AnimationData.addEndFrames = function (builder, endFrames) {
-                    builder.addFieldInt16(8, endFrames, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number totalFrames
-                 */
-                AnimationData.addTotalFrames = function (builder, totalFrames) {
-                    builder.addFieldInt16(9, totalFrames, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number fps
-                 */
-                AnimationData.addFps = function (builder, fps) {
-                    builder.addFieldInt16(10, fps, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number labelNum
-                 */
-                AnimationData.addLabelNum = function (builder, labelNum) {
-                    builder.addFieldInt16(11, labelNum, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number canvasSizeW
-                 */
-                AnimationData.addCanvasSizeW = function (builder, canvasSizeW) {
-                    builder.addFieldInt16(12, canvasSizeW, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number canvasSizeH
-                 */
-                AnimationData.addCanvasSizeH = function (builder, canvasSizeH) {
-                    builder.addFieldInt16(13, canvasSizeH, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number canvasPvotX
-                 */
-                AnimationData.addCanvasPvotX = function (builder, canvasPvotX) {
-                    builder.addFieldFloat32(14, canvasPvotX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number canvasPvotY
-                 */
-                AnimationData.addCanvasPvotY = function (builder, canvasPvotY) {
-                    builder.addFieldFloat32(15, canvasPvotY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationData.endAnimationData = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                AnimationData.createAnimationData = function (builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUVOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
-                    AnimationData.startAnimationData(builder);
-                    AnimationData.addName(builder, nameOffset);
-                    AnimationData.addDefaultData(builder, defaultDataOffset);
-                    AnimationData.addFrameData(builder, frameDataOffset);
-                    AnimationData.addUserData(builder, userDataOffset);
-                    AnimationData.addLabelData(builder, labelDataOffset);
-                    AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
-                    AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
-                    AnimationData.addStartFrames(builder, startFrames);
-                    AnimationData.addEndFrames(builder, endFrames);
-                    AnimationData.addTotalFrames(builder, totalFrames);
-                    AnimationData.addFps(builder, fps);
-                    AnimationData.addLabelNum(builder, labelNum);
-                    AnimationData.addCanvasSizeW(builder, canvasSizeW);
-                    AnimationData.addCanvasSizeH(builder, canvasSizeH);
-                    AnimationData.addCanvasPvotX(builder, canvasPvotX);
-                    AnimationData.addCanvasPvotY(builder, canvasPvotY);
-                    return AnimationData.endAnimationData(builder);
-                };
-                return AnimationData;
-            }());
-            ssfb.AnimationData = AnimationData;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var AnimationInitialData = /** @class */ (function () {
-                function AnimationInitialData() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns AnimationInitialData
-                 */
-                AnimationInitialData.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimationInitialData= obj
-                 * @returns AnimationInitialData
-                 */
-                AnimationInitialData.getRootAsAnimationInitialData = function (bb, obj) {
-                    return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimationInitialData= obj
-                 * @returns AnimationInitialData
-                 */
-                AnimationInitialData.getSizePrefixedRootAsAnimationInitialData = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.index = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.lowflag = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.highflag = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.priority = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.cellIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.opacity = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.localopacity = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.masklimen = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.positionX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 20);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.positionY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 22);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.positionZ = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 24);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.pivotX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 26);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.pivotY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 28);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.rotationX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 30);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.rotationY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 32);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.rotationZ = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 34);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.scaleX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 36);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.scaleY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 38);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.localscaleX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 40);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.localscaleY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 42);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.sizeX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 44);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.sizeY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 46);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.uvMoveX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 48);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.uvMoveY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 50);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.uvRotation = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 52);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.uvScaleX = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 54);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.uvScaleY = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 56);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.boundingRadius = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 58);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueCurKeyframe = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 60);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueStartFrame = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 62);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueEndFrame = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 64);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueLoopNum = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 66);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueSpeed = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 68);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.instanceValueLoopflag = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 70);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.effectValueCurKeyframe = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 72);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.effectValueStartTime = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 74);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.effectValueSpeed = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 76);
-                    return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimationInitialData.prototype.effectValueLoopflag = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 78);
-                    return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                AnimationInitialData.startAnimationInitialData = function (builder) {
-                    builder.startObject(38);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number index
-                 */
-                AnimationInitialData.addIndex = function (builder, index) {
-                    builder.addFieldInt16(0, index, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number lowflag
-                 */
-                AnimationInitialData.addLowflag = function (builder, lowflag) {
-                    builder.addFieldInt32(1, lowflag, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number highflag
-                 */
-                AnimationInitialData.addHighflag = function (builder, highflag) {
-                    builder.addFieldInt32(2, highflag, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number priority
-                 */
-                AnimationInitialData.addPriority = function (builder, priority) {
-                    builder.addFieldInt16(3, priority, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number cellIndex
-                 */
-                AnimationInitialData.addCellIndex = function (builder, cellIndex) {
-                    builder.addFieldInt16(4, cellIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number opacity
-                 */
-                AnimationInitialData.addOpacity = function (builder, opacity) {
-                    builder.addFieldInt16(5, opacity, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number localopacity
-                 */
-                AnimationInitialData.addLocalopacity = function (builder, localopacity) {
-                    builder.addFieldInt16(6, localopacity, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number masklimen
-                 */
-                AnimationInitialData.addMasklimen = function (builder, masklimen) {
-                    builder.addFieldInt16(7, masklimen, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number positionX
-                 */
-                AnimationInitialData.addPositionX = function (builder, positionX) {
-                    builder.addFieldFloat32(8, positionX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number positionY
-                 */
-                AnimationInitialData.addPositionY = function (builder, positionY) {
-                    builder.addFieldFloat32(9, positionY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number positionZ
-                 */
-                AnimationInitialData.addPositionZ = function (builder, positionZ) {
-                    builder.addFieldFloat32(10, positionZ, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number pivotX
-                 */
-                AnimationInitialData.addPivotX = function (builder, pivotX) {
-                    builder.addFieldFloat32(11, pivotX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number pivotY
-                 */
-                AnimationInitialData.addPivotY = function (builder, pivotY) {
-                    builder.addFieldFloat32(12, pivotY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number rotationX
-                 */
-                AnimationInitialData.addRotationX = function (builder, rotationX) {
-                    builder.addFieldFloat32(13, rotationX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number rotationY
-                 */
-                AnimationInitialData.addRotationY = function (builder, rotationY) {
-                    builder.addFieldFloat32(14, rotationY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number rotationZ
-                 */
-                AnimationInitialData.addRotationZ = function (builder, rotationZ) {
-                    builder.addFieldFloat32(15, rotationZ, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number scaleX
-                 */
-                AnimationInitialData.addScaleX = function (builder, scaleX) {
-                    builder.addFieldFloat32(16, scaleX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number scaleY
-                 */
-                AnimationInitialData.addScaleY = function (builder, scaleY) {
-                    builder.addFieldFloat32(17, scaleY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number localscaleX
-                 */
-                AnimationInitialData.addLocalscaleX = function (builder, localscaleX) {
-                    builder.addFieldFloat32(18, localscaleX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number localscaleY
-                 */
-                AnimationInitialData.addLocalscaleY = function (builder, localscaleY) {
-                    builder.addFieldFloat32(19, localscaleY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number sizeX
-                 */
-                AnimationInitialData.addSizeX = function (builder, sizeX) {
-                    builder.addFieldFloat32(20, sizeX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number sizeY
-                 */
-                AnimationInitialData.addSizeY = function (builder, sizeY) {
-                    builder.addFieldFloat32(21, sizeY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number uvMoveX
-                 */
-                AnimationInitialData.addUvMoveX = function (builder, uvMoveX) {
-                    builder.addFieldFloat32(22, uvMoveX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number uvMoveY
-                 */
-                AnimationInitialData.addUvMoveY = function (builder, uvMoveY) {
-                    builder.addFieldFloat32(23, uvMoveY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number uvRotation
-                 */
-                AnimationInitialData.addUvRotation = function (builder, uvRotation) {
-                    builder.addFieldFloat32(24, uvRotation, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number uvScaleX
-                 */
-                AnimationInitialData.addUvScaleX = function (builder, uvScaleX) {
-                    builder.addFieldFloat32(25, uvScaleX, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number uvScaleY
-                 */
-                AnimationInitialData.addUvScaleY = function (builder, uvScaleY) {
-                    builder.addFieldFloat32(26, uvScaleY, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number boundingRadius
-                 */
-                AnimationInitialData.addBoundingRadius = function (builder, boundingRadius) {
-                    builder.addFieldFloat32(27, boundingRadius, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueCurKeyframe
-                 */
-                AnimationInitialData.addInstanceValueCurKeyframe = function (builder, instanceValueCurKeyframe) {
-                    builder.addFieldInt32(28, instanceValueCurKeyframe, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueStartFrame
-                 */
-                AnimationInitialData.addInstanceValueStartFrame = function (builder, instanceValueStartFrame) {
-                    builder.addFieldInt32(29, instanceValueStartFrame, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueEndFrame
-                 */
-                AnimationInitialData.addInstanceValueEndFrame = function (builder, instanceValueEndFrame) {
-                    builder.addFieldInt32(30, instanceValueEndFrame, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueLoopNum
-                 */
-                AnimationInitialData.addInstanceValueLoopNum = function (builder, instanceValueLoopNum) {
-                    builder.addFieldInt32(31, instanceValueLoopNum, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueSpeed
-                 */
-                AnimationInitialData.addInstanceValueSpeed = function (builder, instanceValueSpeed) {
-                    builder.addFieldFloat32(32, instanceValueSpeed, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number instanceValueLoopflag
-                 */
-                AnimationInitialData.addInstanceValueLoopflag = function (builder, instanceValueLoopflag) {
-                    builder.addFieldInt32(33, instanceValueLoopflag, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number effectValueCurKeyframe
-                 */
-                AnimationInitialData.addEffectValueCurKeyframe = function (builder, effectValueCurKeyframe) {
-                    builder.addFieldInt32(34, effectValueCurKeyframe, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number effectValueStartTime
-                 */
-                AnimationInitialData.addEffectValueStartTime = function (builder, effectValueStartTime) {
-                    builder.addFieldInt32(35, effectValueStartTime, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number effectValueSpeed
-                 */
-                AnimationInitialData.addEffectValueSpeed = function (builder, effectValueSpeed) {
-                    builder.addFieldFloat32(36, effectValueSpeed, 0.0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number effectValueLoopflag
-                 */
-                AnimationInitialData.addEffectValueLoopflag = function (builder, effectValueLoopflag) {
-                    builder.addFieldInt32(37, effectValueLoopflag, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                AnimationInitialData.endAnimationInitialData = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                AnimationInitialData.createAnimationInitialData = function (builder, index, lowflag, highflag, priority, cellIndex, opacity, localopacity, masklimen, positionX, positionY, positionZ, pivotX, pivotY, rotationX, rotationY, rotationZ, scaleX, scaleY, localscaleX, localscaleY, sizeX, sizeY, uvMoveX, uvMoveY, uvRotation, uvScaleX, uvScaleY, boundingRadius, instanceValueCurKeyframe, instanceValueStartFrame, instanceValueEndFrame, instanceValueLoopNum, instanceValueSpeed, instanceValueLoopflag, effectValueCurKeyframe, effectValueStartTime, effectValueSpeed, effectValueLoopflag) {
-                    AnimationInitialData.startAnimationInitialData(builder);
-                    AnimationInitialData.addIndex(builder, index);
-                    AnimationInitialData.addLowflag(builder, lowflag);
-                    AnimationInitialData.addHighflag(builder, highflag);
-                    AnimationInitialData.addPriority(builder, priority);
-                    AnimationInitialData.addCellIndex(builder, cellIndex);
-                    AnimationInitialData.addOpacity(builder, opacity);
-                    AnimationInitialData.addLocalopacity(builder, localopacity);
-                    AnimationInitialData.addMasklimen(builder, masklimen);
-                    AnimationInitialData.addPositionX(builder, positionX);
-                    AnimationInitialData.addPositionY(builder, positionY);
-                    AnimationInitialData.addPositionZ(builder, positionZ);
-                    AnimationInitialData.addPivotX(builder, pivotX);
-                    AnimationInitialData.addPivotY(builder, pivotY);
-                    AnimationInitialData.addRotationX(builder, rotationX);
-                    AnimationInitialData.addRotationY(builder, rotationY);
-                    AnimationInitialData.addRotationZ(builder, rotationZ);
-                    AnimationInitialData.addScaleX(builder, scaleX);
-                    AnimationInitialData.addScaleY(builder, scaleY);
-                    AnimationInitialData.addLocalscaleX(builder, localscaleX);
-                    AnimationInitialData.addLocalscaleY(builder, localscaleY);
-                    AnimationInitialData.addSizeX(builder, sizeX);
-                    AnimationInitialData.addSizeY(builder, sizeY);
-                    AnimationInitialData.addUvMoveX(builder, uvMoveX);
-                    AnimationInitialData.addUvMoveY(builder, uvMoveY);
-                    AnimationInitialData.addUvRotation(builder, uvRotation);
-                    AnimationInitialData.addUvScaleX(builder, uvScaleX);
-                    AnimationInitialData.addUvScaleY(builder, uvScaleY);
-                    AnimationInitialData.addBoundingRadius(builder, boundingRadius);
-                    AnimationInitialData.addInstanceValueCurKeyframe(builder, instanceValueCurKeyframe);
-                    AnimationInitialData.addInstanceValueStartFrame(builder, instanceValueStartFrame);
-                    AnimationInitialData.addInstanceValueEndFrame(builder, instanceValueEndFrame);
-                    AnimationInitialData.addInstanceValueLoopNum(builder, instanceValueLoopNum);
-                    AnimationInitialData.addInstanceValueSpeed(builder, instanceValueSpeed);
-                    AnimationInitialData.addInstanceValueLoopflag(builder, instanceValueLoopflag);
-                    AnimationInitialData.addEffectValueCurKeyframe(builder, effectValueCurKeyframe);
-                    AnimationInitialData.addEffectValueStartTime(builder, effectValueStartTime);
-                    AnimationInitialData.addEffectValueSpeed(builder, effectValueSpeed);
-                    AnimationInitialData.addEffectValueLoopflag(builder, effectValueLoopflag);
-                    return AnimationInitialData.endAnimationInitialData(builder);
-                };
-                return AnimationInitialData;
-            }());
-            ssfb.AnimationInitialData = AnimationInitialData;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var PartData = /** @class */ (function () {
-                function PartData() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns PartData
-                 */
-                PartData.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param PartData= obj
-                 * @returns PartData
-                 */
-                PartData.getRootAsPartData = function (bb, obj) {
-                    return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param PartData= obj
-                 * @returns PartData
-                 */
-                PartData.getSizePrefixedRootAsPartData = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                PartData.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                PartData.prototype.index = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                PartData.prototype.parentIndex = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns ss.ssfb.SsPartType
-                 */
-                PartData.prototype.type = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? /**  */ (this.bb.readInt8(this.bb_pos + offset)) : ss.ssfb.SsPartType.Nulltype;
-                };
-                /**
-                 * @returns number
-                 */
-                PartData.prototype.boundsType = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                PartData.prototype.alphaBlendType = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                PartData.prototype.refname = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                PartData.prototype.effectfilename = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                PartData.prototype.colorLabel = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 20);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                PartData.prototype.maskInfluence = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 22);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                PartData.startPartData = function (builder) {
-                    builder.startObject(10);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                PartData.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number index
-                 */
-                PartData.addIndex = function (builder, index) {
-                    builder.addFieldInt16(1, index, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number parentIndex
-                 */
-                PartData.addParentIndex = function (builder, parentIndex) {
-                    builder.addFieldInt16(2, parentIndex, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param ss.ssfb.SsPartType type
-                 */
-                PartData.addType = function (builder, type) {
-                    builder.addFieldInt8(3, type, ss.ssfb.SsPartType.Nulltype);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number boundsType
-                 */
-                PartData.addBoundsType = function (builder, boundsType) {
-                    builder.addFieldInt16(4, boundsType, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number alphaBlendType
-                 */
-                PartData.addAlphaBlendType = function (builder, alphaBlendType) {
-                    builder.addFieldInt16(5, alphaBlendType, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset refnameOffset
-                 */
-                PartData.addRefname = function (builder, refnameOffset) {
-                    builder.addFieldOffset(6, refnameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset effectfilenameOffset
-                 */
-                PartData.addEffectfilename = function (builder, effectfilenameOffset) {
-                    builder.addFieldOffset(7, effectfilenameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset colorLabelOffset
-                 */
-                PartData.addColorLabel = function (builder, colorLabelOffset) {
-                    builder.addFieldOffset(8, colorLabelOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number maskInfluence
-                 */
-                PartData.addMaskInfluence = function (builder, maskInfluence) {
-                    builder.addFieldInt16(9, maskInfluence, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                PartData.endPartData = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                PartData.createPartData = function (builder, nameOffset, index, parentIndex, type, boundsType, alphaBlendType, refnameOffset, effectfilenameOffset, colorLabelOffset, maskInfluence) {
-                    PartData.startPartData(builder);
-                    PartData.addName(builder, nameOffset);
-                    PartData.addIndex(builder, index);
-                    PartData.addParentIndex(builder, parentIndex);
-                    PartData.addType(builder, type);
-                    PartData.addBoundsType(builder, boundsType);
-                    PartData.addAlphaBlendType(builder, alphaBlendType);
-                    PartData.addRefname(builder, refnameOffset);
-                    PartData.addEffectfilename(builder, effectfilenameOffset);
-                    PartData.addColorLabel(builder, colorLabelOffset);
-                    PartData.addMaskInfluence(builder, maskInfluence);
-                    return PartData.endPartData(builder);
-                };
-                return PartData;
-            }());
-            ssfb.PartData = PartData;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var AnimePackData = /** @class */ (function () {
-                function AnimePackData() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns AnimePackData
-                 */
-                AnimePackData.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimePackData= obj
-                 * @returns AnimePackData
-                 */
-                AnimePackData.getRootAsAnimePackData = function (bb, obj) {
-                    return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param AnimePackData= obj
-                 * @returns AnimePackData
-                 */
-                AnimePackData.getSizePrefixedRootAsAnimePackData = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                AnimePackData.prototype.name = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.PartData= obj
-                 * @returns ss.ssfb.PartData
-                 */
-                AnimePackData.prototype.parts = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? (obj || new ss.ssfb.PartData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimePackData.prototype.partsLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.AnimationData= obj
-                 * @returns ss.ssfb.AnimationData
-                 */
-                AnimePackData.prototype.animations = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? (obj || new ss.ssfb.AnimationData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                AnimePackData.prototype.animationsLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                AnimePackData.startAnimePackData = function (builder) {
-                    builder.startObject(3);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset nameOffset
-                 */
-                AnimePackData.addName = function (builder, nameOffset) {
-                    builder.addFieldOffset(0, nameOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset partsOffset
-                 */
-                AnimePackData.addParts = function (builder, partsOffset) {
-                    builder.addFieldOffset(1, partsOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimePackData.createPartsVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimePackData.startPartsVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset animationsOffset
-                 */
-                AnimePackData.addAnimations = function (builder, animationsOffset) {
-                    builder.addFieldOffset(2, animationsOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                AnimePackData.createAnimationsVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                AnimePackData.startAnimationsVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                AnimePackData.endAnimePackData = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                AnimePackData.createAnimePackData = function (builder, nameOffset, partsOffset, animationsOffset) {
-                    AnimePackData.startAnimePackData(builder);
-                    AnimePackData.addName(builder, nameOffset);
-                    AnimePackData.addParts(builder, partsOffset);
-                    AnimePackData.addAnimations(builder, animationsOffset);
-                    return AnimePackData.endAnimePackData(builder);
-                };
-                return AnimePackData;
-            }());
-            ssfb.AnimePackData = AnimePackData;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
-    /**
-     * @constructor
-     */
-    (function (ss) {
-        (function (ssfb) {
-            var ProjectData = /** @class */ (function () {
-                function ProjectData() {
-                    this.bb = null;
-                    this.bb_pos = 0;
-                }
-                /**
-                 * @param number i
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns ProjectData
-                 */
-                ProjectData.prototype.__init = function (i, bb) {
-                    this.bb_pos = i;
-                    this.bb = bb;
-                    return this;
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param ProjectData= obj
-                 * @returns ProjectData
-                 */
-                ProjectData.getRootAsProjectData = function (bb, obj) {
-                    return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @param ProjectData= obj
-                 * @returns ProjectData
-                 */
-                ProjectData.getSizePrefixedRootAsProjectData = function (bb, obj) {
-                    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-                    return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-                };
-                /**
-                 * @param flatbuffers.ByteBuffer bb
-                 * @returns boolean
-                 */
-                ProjectData.bufferHasIdentifier = function (bb) {
-                    return bb.__has_identifier('SSFB');
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.dataId = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 4);
-                    return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.version = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 6);
-                    return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.flags = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 8);
-                    return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-                };
-                ProjectData.prototype.imageBaseDir = function (optionalEncoding) {
-                    var offset = this.bb.__offset(this.bb_pos, 10);
-                    return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.Cell= obj
-                 * @returns ss.ssfb.Cell
-                 */
-                ProjectData.prototype.cells = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? (obj || new ss.ssfb.Cell()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.cellsLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 12);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.AnimePackData= obj
-                 * @returns ss.ssfb.AnimePackData
-                 */
-                ProjectData.prototype.animePacks = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? (obj || new ss.ssfb.AnimePackData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.animePacksLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 14);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param number index
-                 * @param ss.ssfb.EffectFile= obj
-                 * @returns ss.ssfb.EffectFile
-                 */
-                ProjectData.prototype.effectFileList = function (index, obj) {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? (obj || new ss.ssfb.EffectFile()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.effectFileListLength = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 16);
-                    return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.numCells = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 18);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.numAnimePacks = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 20);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @returns number
-                 */
-                ProjectData.prototype.numEffectFileList = function () {
-                    var offset = this.bb.__offset(this.bb_pos, 22);
-                    return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 */
-                ProjectData.startProjectData = function (builder) {
-                    builder.startObject(10);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number dataId
-                 */
-                ProjectData.addDataId = function (builder, dataId) {
-                    builder.addFieldInt32(0, dataId, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number version
-                 */
-                ProjectData.addVersion = function (builder, version) {
-                    builder.addFieldInt32(1, version, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number flags
-                 */
-                ProjectData.addFlags = function (builder, flags) {
-                    builder.addFieldInt32(2, flags, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset imageBaseDirOffset
-                 */
-                ProjectData.addImageBaseDir = function (builder, imageBaseDirOffset) {
-                    builder.addFieldOffset(3, imageBaseDirOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset cellsOffset
-                 */
-                ProjectData.addCells = function (builder, cellsOffset) {
-                    builder.addFieldOffset(4, cellsOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                ProjectData.createCellsVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                ProjectData.startCellsVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset animePacksOffset
-                 */
-                ProjectData.addAnimePacks = function (builder, animePacksOffset) {
-                    builder.addFieldOffset(5, animePacksOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                ProjectData.createAnimePacksVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                ProjectData.startAnimePacksVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset effectFileListOffset
-                 */
-                ProjectData.addEffectFileList = function (builder, effectFileListOffset) {
-                    builder.addFieldOffset(6, effectFileListOffset, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param Array.<flatbuffers.Offset> data
-                 * @returns flatbuffers.Offset
-                 */
-                ProjectData.createEffectFileListVector = function (builder, data) {
-                    builder.startVector(4, data.length, 4);
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        builder.addOffset(data[i]);
-                    }
-                    return builder.endVector();
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numElems
-                 */
-                ProjectData.startEffectFileListVector = function (builder, numElems) {
-                    builder.startVector(4, numElems, 4);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numCells
-                 */
-                ProjectData.addNumCells = function (builder, numCells) {
-                    builder.addFieldInt16(7, numCells, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numAnimePacks
-                 */
-                ProjectData.addNumAnimePacks = function (builder, numAnimePacks) {
-                    builder.addFieldInt16(8, numAnimePacks, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param number numEffectFileList
-                 */
-                ProjectData.addNumEffectFileList = function (builder, numEffectFileList) {
-                    builder.addFieldInt16(9, numEffectFileList, 0);
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @returns flatbuffers.Offset
-                 */
-                ProjectData.endProjectData = function (builder) {
-                    var offset = builder.endObject();
-                    return offset;
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset offset
-                 */
-                ProjectData.finishProjectDataBuffer = function (builder, offset) {
-                    builder.finish(offset, 'SSFB');
-                };
-                /**
-                 * @param flatbuffers.Builder builder
-                 * @param flatbuffers.Offset offset
-                 */
-                ProjectData.finishSizePrefixedProjectDataBuffer = function (builder, offset) {
-                    builder.finish(offset, 'SSFB', true);
-                };
-                ProjectData.createProjectData = function (builder, dataId, version, flags, imageBaseDirOffset, cellsOffset, animePacksOffset, effectFileListOffset, numCells, numAnimePacks, numEffectFileList) {
-                    ProjectData.startProjectData(builder);
-                    ProjectData.addDataId(builder, dataId);
-                    ProjectData.addVersion(builder, version);
-                    ProjectData.addFlags(builder, flags);
-                    ProjectData.addImageBaseDir(builder, imageBaseDirOffset);
-                    ProjectData.addCells(builder, cellsOffset);
-                    ProjectData.addAnimePacks(builder, animePacksOffset);
-                    ProjectData.addEffectFileList(builder, effectFileListOffset);
-                    ProjectData.addNumCells(builder, numCells);
-                    ProjectData.addNumAnimePacks(builder, numAnimePacks);
-                    ProjectData.addNumEffectFileList(builder, numEffectFileList);
-                    return ProjectData.endProjectData(builder);
-                };
-                return ProjectData;
-            }());
-            ssfb.ProjectData = ProjectData;
-        })(ss.ssfb || (ss.ssfb = {}));
-    })(ss || (ss = {}));
+    var AnimationInitialData = /** @class */ (function () {
+        function AnimationInitialData() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        AnimationInitialData.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        AnimationInitialData.getRootAsAnimationInitialData = function (bb, obj) {
+            return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimationInitialData.getSizePrefixedRootAsAnimationInitialData = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new AnimationInitialData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimationInitialData.prototype.index = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.lowflag = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.highflag = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.priority = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.cellIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.opacity = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.localopacity = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.masklimen = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.positionX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 20);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.positionY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 22);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.positionZ = function () {
+            var offset = this.bb.__offset(this.bb_pos, 24);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.pivotX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 26);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.pivotY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 28);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.rotationX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 30);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.rotationY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 32);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.rotationZ = function () {
+            var offset = this.bb.__offset(this.bb_pos, 34);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.scaleX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 36);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.scaleY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 38);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.localscaleX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 40);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.localscaleY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 42);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.sizeX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 44);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.sizeY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 46);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.uvMoveX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 48);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.uvMoveY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 50);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.uvRotation = function () {
+            var offset = this.bb.__offset(this.bb_pos, 52);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.uvScaleX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 54);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.uvScaleY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 56);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.boundingRadius = function () {
+            var offset = this.bb.__offset(this.bb_pos, 58);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.instanceValueCurKeyframe = function () {
+            var offset = this.bb.__offset(this.bb_pos, 60);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.instanceValueStartFrame = function () {
+            var offset = this.bb.__offset(this.bb_pos, 62);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.instanceValueEndFrame = function () {
+            var offset = this.bb.__offset(this.bb_pos, 64);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.instanceValueLoopNum = function () {
+            var offset = this.bb.__offset(this.bb_pos, 66);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.instanceValueSpeed = function () {
+            var offset = this.bb.__offset(this.bb_pos, 68);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.instanceValueLoopflag = function () {
+            var offset = this.bb.__offset(this.bb_pos, 70);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.effectValueCurKeyframe = function () {
+            var offset = this.bb.__offset(this.bb_pos, 72);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.effectValueStartTime = function () {
+            var offset = this.bb.__offset(this.bb_pos, 74);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.prototype.effectValueSpeed = function () {
+            var offset = this.bb.__offset(this.bb_pos, 76);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationInitialData.prototype.effectValueLoopflag = function () {
+            var offset = this.bb.__offset(this.bb_pos, 78);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        AnimationInitialData.startAnimationInitialData = function (builder) {
+            builder.startObject(38);
+        };
+        AnimationInitialData.addIndex = function (builder, index) {
+            builder.addFieldInt16(0, index, 0);
+        };
+        AnimationInitialData.addLowflag = function (builder, lowflag) {
+            builder.addFieldInt32(1, lowflag, 0);
+        };
+        AnimationInitialData.addHighflag = function (builder, highflag) {
+            builder.addFieldInt32(2, highflag, 0);
+        };
+        AnimationInitialData.addPriority = function (builder, priority) {
+            builder.addFieldInt16(3, priority, 0);
+        };
+        AnimationInitialData.addCellIndex = function (builder, cellIndex) {
+            builder.addFieldInt16(4, cellIndex, 0);
+        };
+        AnimationInitialData.addOpacity = function (builder, opacity) {
+            builder.addFieldInt16(5, opacity, 0);
+        };
+        AnimationInitialData.addLocalopacity = function (builder, localopacity) {
+            builder.addFieldInt16(6, localopacity, 0);
+        };
+        AnimationInitialData.addMasklimen = function (builder, masklimen) {
+            builder.addFieldInt16(7, masklimen, 0);
+        };
+        AnimationInitialData.addPositionX = function (builder, positionX) {
+            builder.addFieldFloat32(8, positionX, 0.0);
+        };
+        AnimationInitialData.addPositionY = function (builder, positionY) {
+            builder.addFieldFloat32(9, positionY, 0.0);
+        };
+        AnimationInitialData.addPositionZ = function (builder, positionZ) {
+            builder.addFieldFloat32(10, positionZ, 0.0);
+        };
+        AnimationInitialData.addPivotX = function (builder, pivotX) {
+            builder.addFieldFloat32(11, pivotX, 0.0);
+        };
+        AnimationInitialData.addPivotY = function (builder, pivotY) {
+            builder.addFieldFloat32(12, pivotY, 0.0);
+        };
+        AnimationInitialData.addRotationX = function (builder, rotationX) {
+            builder.addFieldFloat32(13, rotationX, 0.0);
+        };
+        AnimationInitialData.addRotationY = function (builder, rotationY) {
+            builder.addFieldFloat32(14, rotationY, 0.0);
+        };
+        AnimationInitialData.addRotationZ = function (builder, rotationZ) {
+            builder.addFieldFloat32(15, rotationZ, 0.0);
+        };
+        AnimationInitialData.addScaleX = function (builder, scaleX) {
+            builder.addFieldFloat32(16, scaleX, 0.0);
+        };
+        AnimationInitialData.addScaleY = function (builder, scaleY) {
+            builder.addFieldFloat32(17, scaleY, 0.0);
+        };
+        AnimationInitialData.addLocalscaleX = function (builder, localscaleX) {
+            builder.addFieldFloat32(18, localscaleX, 0.0);
+        };
+        AnimationInitialData.addLocalscaleY = function (builder, localscaleY) {
+            builder.addFieldFloat32(19, localscaleY, 0.0);
+        };
+        AnimationInitialData.addSizeX = function (builder, sizeX) {
+            builder.addFieldFloat32(20, sizeX, 0.0);
+        };
+        AnimationInitialData.addSizeY = function (builder, sizeY) {
+            builder.addFieldFloat32(21, sizeY, 0.0);
+        };
+        AnimationInitialData.addUvMoveX = function (builder, uvMoveX) {
+            builder.addFieldFloat32(22, uvMoveX, 0.0);
+        };
+        AnimationInitialData.addUvMoveY = function (builder, uvMoveY) {
+            builder.addFieldFloat32(23, uvMoveY, 0.0);
+        };
+        AnimationInitialData.addUvRotation = function (builder, uvRotation) {
+            builder.addFieldFloat32(24, uvRotation, 0.0);
+        };
+        AnimationInitialData.addUvScaleX = function (builder, uvScaleX) {
+            builder.addFieldFloat32(25, uvScaleX, 0.0);
+        };
+        AnimationInitialData.addUvScaleY = function (builder, uvScaleY) {
+            builder.addFieldFloat32(26, uvScaleY, 0.0);
+        };
+        AnimationInitialData.addBoundingRadius = function (builder, boundingRadius) {
+            builder.addFieldFloat32(27, boundingRadius, 0.0);
+        };
+        AnimationInitialData.addInstanceValueCurKeyframe = function (builder, instanceValueCurKeyframe) {
+            builder.addFieldInt32(28, instanceValueCurKeyframe, 0);
+        };
+        AnimationInitialData.addInstanceValueStartFrame = function (builder, instanceValueStartFrame) {
+            builder.addFieldInt32(29, instanceValueStartFrame, 0);
+        };
+        AnimationInitialData.addInstanceValueEndFrame = function (builder, instanceValueEndFrame) {
+            builder.addFieldInt32(30, instanceValueEndFrame, 0);
+        };
+        AnimationInitialData.addInstanceValueLoopNum = function (builder, instanceValueLoopNum) {
+            builder.addFieldInt32(31, instanceValueLoopNum, 0);
+        };
+        AnimationInitialData.addInstanceValueSpeed = function (builder, instanceValueSpeed) {
+            builder.addFieldFloat32(32, instanceValueSpeed, 0.0);
+        };
+        AnimationInitialData.addInstanceValueLoopflag = function (builder, instanceValueLoopflag) {
+            builder.addFieldInt32(33, instanceValueLoopflag, 0);
+        };
+        AnimationInitialData.addEffectValueCurKeyframe = function (builder, effectValueCurKeyframe) {
+            builder.addFieldInt32(34, effectValueCurKeyframe, 0);
+        };
+        AnimationInitialData.addEffectValueStartTime = function (builder, effectValueStartTime) {
+            builder.addFieldInt32(35, effectValueStartTime, 0);
+        };
+        AnimationInitialData.addEffectValueSpeed = function (builder, effectValueSpeed) {
+            builder.addFieldFloat32(36, effectValueSpeed, 0.0);
+        };
+        AnimationInitialData.addEffectValueLoopflag = function (builder, effectValueLoopflag) {
+            builder.addFieldInt32(37, effectValueLoopflag, 0);
+        };
+        AnimationInitialData.endAnimationInitialData = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        AnimationInitialData.createAnimationInitialData = function (builder, index, lowflag, highflag, priority, cellIndex, opacity, localopacity, masklimen, positionX, positionY, positionZ, pivotX, pivotY, rotationX, rotationY, rotationZ, scaleX, scaleY, localscaleX, localscaleY, sizeX, sizeY, uvMoveX, uvMoveY, uvRotation, uvScaleX, uvScaleY, boundingRadius, instanceValueCurKeyframe, instanceValueStartFrame, instanceValueEndFrame, instanceValueLoopNum, instanceValueSpeed, instanceValueLoopflag, effectValueCurKeyframe, effectValueStartTime, effectValueSpeed, effectValueLoopflag) {
+            AnimationInitialData.startAnimationInitialData(builder);
+            AnimationInitialData.addIndex(builder, index);
+            AnimationInitialData.addLowflag(builder, lowflag);
+            AnimationInitialData.addHighflag(builder, highflag);
+            AnimationInitialData.addPriority(builder, priority);
+            AnimationInitialData.addCellIndex(builder, cellIndex);
+            AnimationInitialData.addOpacity(builder, opacity);
+            AnimationInitialData.addLocalopacity(builder, localopacity);
+            AnimationInitialData.addMasklimen(builder, masklimen);
+            AnimationInitialData.addPositionX(builder, positionX);
+            AnimationInitialData.addPositionY(builder, positionY);
+            AnimationInitialData.addPositionZ(builder, positionZ);
+            AnimationInitialData.addPivotX(builder, pivotX);
+            AnimationInitialData.addPivotY(builder, pivotY);
+            AnimationInitialData.addRotationX(builder, rotationX);
+            AnimationInitialData.addRotationY(builder, rotationY);
+            AnimationInitialData.addRotationZ(builder, rotationZ);
+            AnimationInitialData.addScaleX(builder, scaleX);
+            AnimationInitialData.addScaleY(builder, scaleY);
+            AnimationInitialData.addLocalscaleX(builder, localscaleX);
+            AnimationInitialData.addLocalscaleY(builder, localscaleY);
+            AnimationInitialData.addSizeX(builder, sizeX);
+            AnimationInitialData.addSizeY(builder, sizeY);
+            AnimationInitialData.addUvMoveX(builder, uvMoveX);
+            AnimationInitialData.addUvMoveY(builder, uvMoveY);
+            AnimationInitialData.addUvRotation(builder, uvRotation);
+            AnimationInitialData.addUvScaleX(builder, uvScaleX);
+            AnimationInitialData.addUvScaleY(builder, uvScaleY);
+            AnimationInitialData.addBoundingRadius(builder, boundingRadius);
+            AnimationInitialData.addInstanceValueCurKeyframe(builder, instanceValueCurKeyframe);
+            AnimationInitialData.addInstanceValueStartFrame(builder, instanceValueStartFrame);
+            AnimationInitialData.addInstanceValueEndFrame(builder, instanceValueEndFrame);
+            AnimationInitialData.addInstanceValueLoopNum(builder, instanceValueLoopNum);
+            AnimationInitialData.addInstanceValueSpeed(builder, instanceValueSpeed);
+            AnimationInitialData.addInstanceValueLoopflag(builder, instanceValueLoopflag);
+            AnimationInitialData.addEffectValueCurKeyframe(builder, effectValueCurKeyframe);
+            AnimationInitialData.addEffectValueStartTime(builder, effectValueStartTime);
+            AnimationInitialData.addEffectValueSpeed(builder, effectValueSpeed);
+            AnimationInitialData.addEffectValueLoopflag(builder, effectValueLoopflag);
+            return AnimationInitialData.endAnimationInitialData(builder);
+        };
+        return AnimationInitialData;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var partState = /** @class */ (function () {
+        function partState() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        partState.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        partState.getRootAspartState = function (bb, obj) {
+            return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        partState.getSizePrefixedRootAspartState = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new partState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        partState.prototype.index = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        partState.prototype.flag1 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+        };
+        partState.prototype.flag2 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+        };
+        partState.prototype.data = function (index) {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+        };
+        partState.prototype.dataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        partState.prototype.dataArray = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+        };
+        partState.startpartState = function (builder) {
+            builder.startObject(4);
+        };
+        partState.addIndex = function (builder, index) {
+            builder.addFieldInt16(0, index, 0);
+        };
+        partState.addFlag1 = function (builder, flag1) {
+            builder.addFieldInt32(1, flag1, 0);
+        };
+        partState.addFlag2 = function (builder, flag2) {
+            builder.addFieldInt32(2, flag2, 0);
+        };
+        partState.addData = function (builder, dataOffset) {
+            builder.addFieldOffset(3, dataOffset, 0);
+        };
+        partState.createDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addInt32(data[i]);
+            }
+            return builder.endVector();
+        };
+        partState.startDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        partState.endpartState = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        partState.createpartState = function (builder, index, flag1, flag2, dataOffset) {
+            partState.startpartState(builder);
+            partState.addIndex(builder, index);
+            partState.addFlag1(builder, flag1);
+            partState.addFlag2(builder, flag2);
+            partState.addData(builder, dataOffset);
+            return partState.endpartState(builder);
+        };
+        return partState;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var frameDataIndex = /** @class */ (function () {
+        function frameDataIndex() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        frameDataIndex.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        frameDataIndex.getRootAsframeDataIndex = function (bb, obj) {
+            return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        frameDataIndex.getSizePrefixedRootAsframeDataIndex = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new frameDataIndex()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        frameDataIndex.prototype.states = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? (obj || new partState()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        frameDataIndex.prototype.statesLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        frameDataIndex.startframeDataIndex = function (builder) {
+            builder.startObject(1);
+        };
+        frameDataIndex.addStates = function (builder, statesOffset) {
+            builder.addFieldOffset(0, statesOffset, 0);
+        };
+        frameDataIndex.createStatesVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        frameDataIndex.startStatesVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        frameDataIndex.endframeDataIndex = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        frameDataIndex.createframeDataIndex = function (builder, statesOffset) {
+            frameDataIndex.startframeDataIndex(builder);
+            frameDataIndex.addStates(builder, statesOffset);
+            return frameDataIndex.endframeDataIndex(builder);
+        };
+        return frameDataIndex;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var labelDataItem = /** @class */ (function () {
+        function labelDataItem() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        labelDataItem.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        labelDataItem.getRootAslabelDataItem = function (bb, obj) {
+            return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        labelDataItem.getSizePrefixedRootAslabelDataItem = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new labelDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        labelDataItem.prototype.label = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        labelDataItem.prototype.frameIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        labelDataItem.startlabelDataItem = function (builder) {
+            builder.startObject(2);
+        };
+        labelDataItem.addLabel = function (builder, labelOffset) {
+            builder.addFieldOffset(0, labelOffset, 0);
+        };
+        labelDataItem.addFrameIndex = function (builder, frameIndex) {
+            builder.addFieldInt16(1, frameIndex, 0);
+        };
+        labelDataItem.endlabelDataItem = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        labelDataItem.createlabelDataItem = function (builder, labelOffset, frameIndex) {
+            labelDataItem.startlabelDataItem(builder);
+            labelDataItem.addLabel(builder, labelOffset);
+            labelDataItem.addFrameIndex(builder, frameIndex);
+            return labelDataItem.endlabelDataItem(builder);
+        };
+        return labelDataItem;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var meshDataIndices = /** @class */ (function () {
+        function meshDataIndices() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        meshDataIndices.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        meshDataIndices.getRootAsmeshDataIndices = function (bb, obj) {
+            return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        meshDataIndices.getSizePrefixedRootAsmeshDataIndices = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new meshDataIndices()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        meshDataIndices.prototype.indices = function (index) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+        };
+        meshDataIndices.prototype.indicesLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        meshDataIndices.prototype.indicesArray = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+        };
+        meshDataIndices.startmeshDataIndices = function (builder) {
+            builder.startObject(1);
+        };
+        meshDataIndices.addIndices = function (builder, indicesOffset) {
+            builder.addFieldOffset(0, indicesOffset, 0);
+        };
+        meshDataIndices.createIndicesVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addFloat32(data[i]);
+            }
+            return builder.endVector();
+        };
+        meshDataIndices.startIndicesVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        meshDataIndices.endmeshDataIndices = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        meshDataIndices.createmeshDataIndices = function (builder, indicesOffset) {
+            meshDataIndices.startmeshDataIndices(builder);
+            meshDataIndices.addIndices(builder, indicesOffset);
+            return meshDataIndices.endmeshDataIndices(builder);
+        };
+        return meshDataIndices;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var meshDataUV = /** @class */ (function () {
+        function meshDataUV() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        meshDataUV.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        meshDataUV.getRootAsmeshDataUV = function (bb, obj) {
+            return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        meshDataUV.getSizePrefixedRootAsmeshDataUV = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new meshDataUV()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        meshDataUV.prototype.uv = function (index) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+        };
+        meshDataUV.prototype.uvLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        meshDataUV.prototype.uvArray = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+        };
+        meshDataUV.startmeshDataUV = function (builder) {
+            builder.startObject(1);
+        };
+        meshDataUV.addUv = function (builder, uvOffset) {
+            builder.addFieldOffset(0, uvOffset, 0);
+        };
+        meshDataUV.createUvVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addFloat32(data[i]);
+            }
+            return builder.endVector();
+        };
+        meshDataUV.startUvVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        meshDataUV.endmeshDataUV = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        meshDataUV.createmeshDataUV = function (builder, uvOffset) {
+            meshDataUV.startmeshDataUV(builder);
+            meshDataUV.addUv(builder, uvOffset);
+            return meshDataUV.endmeshDataUV(builder);
+        };
+        return meshDataUV;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataItem = /** @class */ (function () {
+        function userDataItem() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataItem.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataItem.getRootAsuserDataItem = function (bb, obj) {
+            return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataItem.getSizePrefixedRootAsuserDataItem = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new userDataItem()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataItem.prototype.flags = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        userDataItem.prototype.arrayIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        userDataItem.prototype.dataType = function (index) {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+        };
+        userDataItem.prototype.dataTypeLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        userDataItem.prototype.dataTypeArray = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+        };
+        userDataItem.prototype.data = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
+        };
+        userDataItem.prototype.dataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        userDataItem.startuserDataItem = function (builder) {
+            builder.startObject(4);
+        };
+        userDataItem.addFlags = function (builder, flags) {
+            builder.addFieldInt16(0, flags, 0);
+        };
+        userDataItem.addArrayIndex = function (builder, arrayIndex) {
+            builder.addFieldInt16(1, arrayIndex, 0);
+        };
+        userDataItem.addDataType = function (builder, dataTypeOffset) {
+            builder.addFieldOffset(2, dataTypeOffset, 0);
+        };
+        userDataItem.createDataTypeVector = function (builder, data) {
+            builder.startVector(1, data.length, 1);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addInt8(data[i]);
+            }
+            return builder.endVector();
+        };
+        userDataItem.startDataTypeVector = function (builder, numElems) {
+            builder.startVector(1, numElems, 1);
+        };
+        userDataItem.addData = function (builder, dataOffset) {
+            builder.addFieldOffset(3, dataOffset, 0);
+        };
+        userDataItem.createDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        userDataItem.startDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        userDataItem.enduserDataItem = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        userDataItem.createuserDataItem = function (builder, flags, arrayIndex, dataTypeOffset, dataOffset) {
+            userDataItem.startuserDataItem(builder);
+            userDataItem.addFlags(builder, flags);
+            userDataItem.addArrayIndex(builder, arrayIndex);
+            userDataItem.addDataType(builder, dataTypeOffset);
+            userDataItem.addData(builder, dataOffset);
+            return userDataItem.enduserDataItem(builder);
+        };
+        return userDataItem;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataPerFrame = /** @class */ (function () {
+        function userDataPerFrame() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataPerFrame.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataPerFrame.getRootAsuserDataPerFrame = function (bb, obj) {
+            return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataPerFrame.getSizePrefixedRootAsuserDataPerFrame = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new userDataPerFrame()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataPerFrame.prototype.frameIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        userDataPerFrame.prototype.data = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? (obj || new userDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        userDataPerFrame.prototype.dataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        userDataPerFrame.startuserDataPerFrame = function (builder) {
+            builder.startObject(2);
+        };
+        userDataPerFrame.addFrameIndex = function (builder, frameIndex) {
+            builder.addFieldInt16(0, frameIndex, 0);
+        };
+        userDataPerFrame.addData = function (builder, dataOffset) {
+            builder.addFieldOffset(1, dataOffset, 0);
+        };
+        userDataPerFrame.createDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        userDataPerFrame.startDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        userDataPerFrame.enduserDataPerFrame = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        userDataPerFrame.createuserDataPerFrame = function (builder, frameIndex, dataOffset) {
+            userDataPerFrame.startuserDataPerFrame(builder);
+            userDataPerFrame.addFrameIndex(builder, frameIndex);
+            userDataPerFrame.addData(builder, dataOffset);
+            return userDataPerFrame.enduserDataPerFrame(builder);
+        };
+        return userDataPerFrame;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var AnimationData = /** @class */ (function () {
+        function AnimationData() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        AnimationData.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        AnimationData.getRootAsAnimationData = function (bb, obj) {
+            return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimationData.getSizePrefixedRootAsAnimationData = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new AnimationData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimationData.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        AnimationData.prototype.defaultData = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? (obj || new AnimationInitialData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.defaultDataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.frameData = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? (obj || new frameDataIndex()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.frameDataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.userData = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? (obj || new userDataPerFrame()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.userDataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.labelData = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? (obj || new labelDataItem()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.labelDataLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.meshsDataUV = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? (obj || new meshDataUV()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.meshsDataUVLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.meshsDataIndices = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? (obj || new meshDataIndices()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimationData.prototype.meshsDataIndicesLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.startFrames = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.endFrames = function () {
+            var offset = this.bb.__offset(this.bb_pos, 20);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.totalFrames = function () {
+            var offset = this.bb.__offset(this.bb_pos, 22);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.fps = function () {
+            var offset = this.bb.__offset(this.bb_pos, 24);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.labelNum = function () {
+            var offset = this.bb.__offset(this.bb_pos, 26);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.canvasSizeW = function () {
+            var offset = this.bb.__offset(this.bb_pos, 28);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.canvasSizeH = function () {
+            var offset = this.bb.__offset(this.bb_pos, 30);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        AnimationData.prototype.canvasPvotX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 32);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationData.prototype.canvasPvotY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 34);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        AnimationData.startAnimationData = function (builder) {
+            builder.startObject(16);
+        };
+        AnimationData.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        AnimationData.addDefaultData = function (builder, defaultDataOffset) {
+            builder.addFieldOffset(1, defaultDataOffset, 0);
+        };
+        AnimationData.createDefaultDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startDefaultDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addFrameData = function (builder, frameDataOffset) {
+            builder.addFieldOffset(2, frameDataOffset, 0);
+        };
+        AnimationData.createFrameDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startFrameDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addUserData = function (builder, userDataOffset) {
+            builder.addFieldOffset(3, userDataOffset, 0);
+        };
+        AnimationData.createUserDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startUserDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addLabelData = function (builder, labelDataOffset) {
+            builder.addFieldOffset(4, labelDataOffset, 0);
+        };
+        AnimationData.createLabelDataVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startLabelDataVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addMeshsDataUV = function (builder, meshsDataUVOffset) {
+            builder.addFieldOffset(5, meshsDataUVOffset, 0);
+        };
+        AnimationData.createMeshsDataUVVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startMeshsDataUVVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addMeshsDataIndices = function (builder, meshsDataIndicesOffset) {
+            builder.addFieldOffset(6, meshsDataIndicesOffset, 0);
+        };
+        AnimationData.createMeshsDataIndicesVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimationData.startMeshsDataIndicesVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimationData.addStartFrames = function (builder, startFrames) {
+            builder.addFieldInt16(7, startFrames, 0);
+        };
+        AnimationData.addEndFrames = function (builder, endFrames) {
+            builder.addFieldInt16(8, endFrames, 0);
+        };
+        AnimationData.addTotalFrames = function (builder, totalFrames) {
+            builder.addFieldInt16(9, totalFrames, 0);
+        };
+        AnimationData.addFps = function (builder, fps) {
+            builder.addFieldInt16(10, fps, 0);
+        };
+        AnimationData.addLabelNum = function (builder, labelNum) {
+            builder.addFieldInt16(11, labelNum, 0);
+        };
+        AnimationData.addCanvasSizeW = function (builder, canvasSizeW) {
+            builder.addFieldInt16(12, canvasSizeW, 0);
+        };
+        AnimationData.addCanvasSizeH = function (builder, canvasSizeH) {
+            builder.addFieldInt16(13, canvasSizeH, 0);
+        };
+        AnimationData.addCanvasPvotX = function (builder, canvasPvotX) {
+            builder.addFieldFloat32(14, canvasPvotX, 0.0);
+        };
+        AnimationData.addCanvasPvotY = function (builder, canvasPvotY) {
+            builder.addFieldFloat32(15, canvasPvotY, 0.0);
+        };
+        AnimationData.endAnimationData = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        AnimationData.createAnimationData = function (builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUVOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
+            AnimationData.startAnimationData(builder);
+            AnimationData.addName(builder, nameOffset);
+            AnimationData.addDefaultData(builder, defaultDataOffset);
+            AnimationData.addFrameData(builder, frameDataOffset);
+            AnimationData.addUserData(builder, userDataOffset);
+            AnimationData.addLabelData(builder, labelDataOffset);
+            AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
+            AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
+            AnimationData.addStartFrames(builder, startFrames);
+            AnimationData.addEndFrames(builder, endFrames);
+            AnimationData.addTotalFrames(builder, totalFrames);
+            AnimationData.addFps(builder, fps);
+            AnimationData.addLabelNum(builder, labelNum);
+            AnimationData.addCanvasSizeW(builder, canvasSizeW);
+            AnimationData.addCanvasSizeH(builder, canvasSizeH);
+            AnimationData.addCanvasPvotX(builder, canvasPvotX);
+            AnimationData.addCanvasPvotY(builder, canvasPvotY);
+            return AnimationData.endAnimationData(builder);
+        };
+        return AnimationData;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var SsPartType;
+    (function (SsPartType) {
+        SsPartType[SsPartType["Invalid"] = -1] = "Invalid";
+        SsPartType[SsPartType["Nulltype"] = 0] = "Nulltype";
+        SsPartType[SsPartType["Normal"] = 1] = "Normal";
+        SsPartType[SsPartType["Text"] = 2] = "Text";
+        SsPartType[SsPartType["Instance"] = 3] = "Instance";
+        SsPartType[SsPartType["Armature"] = 4] = "Armature";
+        SsPartType[SsPartType["Effect"] = 5] = "Effect";
+        SsPartType[SsPartType["Mesh"] = 6] = "Mesh";
+        SsPartType[SsPartType["Movenode"] = 7] = "Movenode";
+        SsPartType[SsPartType["Constraint"] = 8] = "Constraint";
+        SsPartType[SsPartType["Mask"] = 9] = "Mask";
+        SsPartType[SsPartType["Joint"] = 10] = "Joint";
+        SsPartType[SsPartType["Bonepoint"] = 11] = "Bonepoint";
+    })(SsPartType || (SsPartType = {}));
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var PartData = /** @class */ (function () {
+        function PartData() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        PartData.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        PartData.getRootAsPartData = function (bb, obj) {
+            return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        PartData.getSizePrefixedRootAsPartData = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new PartData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        PartData.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        PartData.prototype.index = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        PartData.prototype.parentIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        PartData.prototype.type = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt8(this.bb_pos + offset) : SsPartType.Nulltype;
+        };
+        PartData.prototype.boundsType = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        PartData.prototype.alphaBlendType = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        PartData.prototype.refname = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        PartData.prototype.effectfilename = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        PartData.prototype.colorLabel = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 20);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        PartData.prototype.maskInfluence = function () {
+            var offset = this.bb.__offset(this.bb_pos, 22);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        PartData.startPartData = function (builder) {
+            builder.startObject(10);
+        };
+        PartData.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        PartData.addIndex = function (builder, index) {
+            builder.addFieldInt16(1, index, 0);
+        };
+        PartData.addParentIndex = function (builder, parentIndex) {
+            builder.addFieldInt16(2, parentIndex, 0);
+        };
+        PartData.addType = function (builder, type) {
+            builder.addFieldInt8(3, type, SsPartType.Nulltype);
+        };
+        PartData.addBoundsType = function (builder, boundsType) {
+            builder.addFieldInt16(4, boundsType, 0);
+        };
+        PartData.addAlphaBlendType = function (builder, alphaBlendType) {
+            builder.addFieldInt16(5, alphaBlendType, 0);
+        };
+        PartData.addRefname = function (builder, refnameOffset) {
+            builder.addFieldOffset(6, refnameOffset, 0);
+        };
+        PartData.addEffectfilename = function (builder, effectfilenameOffset) {
+            builder.addFieldOffset(7, effectfilenameOffset, 0);
+        };
+        PartData.addColorLabel = function (builder, colorLabelOffset) {
+            builder.addFieldOffset(8, colorLabelOffset, 0);
+        };
+        PartData.addMaskInfluence = function (builder, maskInfluence) {
+            builder.addFieldInt16(9, maskInfluence, 0);
+        };
+        PartData.endPartData = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        PartData.createPartData = function (builder, nameOffset, index, parentIndex, type, boundsType, alphaBlendType, refnameOffset, effectfilenameOffset, colorLabelOffset, maskInfluence) {
+            PartData.startPartData(builder);
+            PartData.addName(builder, nameOffset);
+            PartData.addIndex(builder, index);
+            PartData.addParentIndex(builder, parentIndex);
+            PartData.addType(builder, type);
+            PartData.addBoundsType(builder, boundsType);
+            PartData.addAlphaBlendType(builder, alphaBlendType);
+            PartData.addRefname(builder, refnameOffset);
+            PartData.addEffectfilename(builder, effectfilenameOffset);
+            PartData.addColorLabel(builder, colorLabelOffset);
+            PartData.addMaskInfluence(builder, maskInfluence);
+            return PartData.endPartData(builder);
+        };
+        return PartData;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var AnimePackData = /** @class */ (function () {
+        function AnimePackData() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        AnimePackData.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        AnimePackData.getRootAsAnimePackData = function (bb, obj) {
+            return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimePackData.getSizePrefixedRootAsAnimePackData = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new AnimePackData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        AnimePackData.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        AnimePackData.prototype.parts = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? (obj || new PartData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimePackData.prototype.partsLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimePackData.prototype.animations = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? (obj || new AnimationData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        AnimePackData.prototype.animationsLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        AnimePackData.startAnimePackData = function (builder) {
+            builder.startObject(3);
+        };
+        AnimePackData.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        AnimePackData.addParts = function (builder, partsOffset) {
+            builder.addFieldOffset(1, partsOffset, 0);
+        };
+        AnimePackData.createPartsVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimePackData.startPartsVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimePackData.addAnimations = function (builder, animationsOffset) {
+            builder.addFieldOffset(2, animationsOffset, 0);
+        };
+        AnimePackData.createAnimationsVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        AnimePackData.startAnimationsVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        AnimePackData.endAnimePackData = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        AnimePackData.createAnimePackData = function (builder, nameOffset, partsOffset, animationsOffset) {
+            AnimePackData.startAnimePackData(builder);
+            AnimePackData.addName(builder, nameOffset);
+            AnimePackData.addParts(builder, partsOffset);
+            AnimePackData.addAnimations(builder, animationsOffset);
+            return AnimePackData.endAnimePackData(builder);
+        };
+        return AnimePackData;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var CellMap = /** @class */ (function () {
+        function CellMap() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        CellMap.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        CellMap.getRootAsCellMap = function (bb, obj) {
+            return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        CellMap.getSizePrefixedRootAsCellMap = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new CellMap()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        CellMap.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        CellMap.prototype.imagePath = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        CellMap.prototype.index = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        CellMap.prototype.wrapmode = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        CellMap.prototype.filtermode = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        CellMap.startCellMap = function (builder) {
+            builder.startObject(5);
+        };
+        CellMap.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        CellMap.addImagePath = function (builder, imagePathOffset) {
+            builder.addFieldOffset(1, imagePathOffset, 0);
+        };
+        CellMap.addIndex = function (builder, index) {
+            builder.addFieldInt16(2, index, 0);
+        };
+        CellMap.addWrapmode = function (builder, wrapmode) {
+            builder.addFieldInt16(3, wrapmode, 0);
+        };
+        CellMap.addFiltermode = function (builder, filtermode) {
+            builder.addFieldInt16(4, filtermode, 0);
+        };
+        CellMap.endCellMap = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        CellMap.createCellMap = function (builder, nameOffset, imagePathOffset, index, wrapmode, filtermode) {
+            CellMap.startCellMap(builder);
+            CellMap.addName(builder, nameOffset);
+            CellMap.addImagePath(builder, imagePathOffset);
+            CellMap.addIndex(builder, index);
+            CellMap.addWrapmode(builder, wrapmode);
+            CellMap.addFiltermode(builder, filtermode);
+            return CellMap.endCellMap(builder);
+        };
+        return CellMap;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var Cell = /** @class */ (function () {
+        function Cell() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        Cell.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        Cell.getRootAsCell = function (bb, obj) {
+            return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        Cell.getSizePrefixedRootAsCell = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new Cell()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        Cell.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        Cell.prototype.cellMap = function (obj) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? (obj || new CellMap()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+        };
+        Cell.prototype.indexInCellMap = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        Cell.prototype.x = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        Cell.prototype.y = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        Cell.prototype.width = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        Cell.prototype.height = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        Cell.prototype.pivotX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.prototype.pivotY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 20);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.prototype.u1 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 22);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.prototype.v1 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 24);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.prototype.u2 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 26);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.prototype.v2 = function () {
+            var offset = this.bb.__offset(this.bb_pos, 28);
+            return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+        };
+        Cell.startCell = function (builder) {
+            builder.startObject(13);
+        };
+        Cell.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        Cell.addCellMap = function (builder, cellMapOffset) {
+            builder.addFieldOffset(1, cellMapOffset, 0);
+        };
+        Cell.addIndexInCellMap = function (builder, indexInCellMap) {
+            builder.addFieldInt16(2, indexInCellMap, 0);
+        };
+        Cell.addX = function (builder, x) {
+            builder.addFieldInt16(3, x, 0);
+        };
+        Cell.addY = function (builder, y) {
+            builder.addFieldInt16(4, y, 0);
+        };
+        Cell.addWidth = function (builder, width) {
+            builder.addFieldInt16(5, width, 0);
+        };
+        Cell.addHeight = function (builder, height) {
+            builder.addFieldInt16(6, height, 0);
+        };
+        Cell.addPivotX = function (builder, pivotX) {
+            builder.addFieldFloat32(7, pivotX, 0.0);
+        };
+        Cell.addPivotY = function (builder, pivotY) {
+            builder.addFieldFloat32(8, pivotY, 0.0);
+        };
+        Cell.addU1 = function (builder, u1) {
+            builder.addFieldFloat32(9, u1, 0.0);
+        };
+        Cell.addV1 = function (builder, v1) {
+            builder.addFieldFloat32(10, v1, 0.0);
+        };
+        Cell.addU2 = function (builder, u2) {
+            builder.addFieldFloat32(11, u2, 0.0);
+        };
+        Cell.addV2 = function (builder, v2) {
+            builder.addFieldFloat32(12, v2, 0.0);
+        };
+        Cell.endCell = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        return Cell;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var EffectNode = /** @class */ (function () {
+        function EffectNode() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        EffectNode.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        EffectNode.getRootAsEffectNode = function (bb, obj) {
+            return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        EffectNode.getSizePrefixedRootAsEffectNode = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new EffectNode()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        EffectNode.prototype.arrayIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.parentIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.type = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.cellIndex = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.blendType = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.numBehavior = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.BehaviorType = function (index) {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+        };
+        EffectNode.prototype.BehaviorTypeLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        EffectNode.prototype.BehaviorTypeArray = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+        };
+        EffectNode.prototype.Behavior = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
+        };
+        EffectNode.prototype.BehaviorLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        EffectNode.startEffectNode = function (builder) {
+            builder.startObject(8);
+        };
+        EffectNode.addArrayIndex = function (builder, arrayIndex) {
+            builder.addFieldInt16(0, arrayIndex, 0);
+        };
+        EffectNode.addParentIndex = function (builder, parentIndex) {
+            builder.addFieldInt16(1, parentIndex, 0);
+        };
+        EffectNode.addType = function (builder, type) {
+            builder.addFieldInt16(2, type, 0);
+        };
+        EffectNode.addCellIndex = function (builder, cellIndex) {
+            builder.addFieldInt16(3, cellIndex, 0);
+        };
+        EffectNode.addBlendType = function (builder, blendType) {
+            builder.addFieldInt16(4, blendType, 0);
+        };
+        EffectNode.addNumBehavior = function (builder, numBehavior) {
+            builder.addFieldInt16(5, numBehavior, 0);
+        };
+        EffectNode.addBehaviorType = function (builder, BehaviorTypeOffset) {
+            builder.addFieldOffset(6, BehaviorTypeOffset, 0);
+        };
+        EffectNode.createBehaviorTypeVector = function (builder, data) {
+            builder.startVector(1, data.length, 1);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addInt8(data[i]);
+            }
+            return builder.endVector();
+        };
+        EffectNode.startBehaviorTypeVector = function (builder, numElems) {
+            builder.startVector(1, numElems, 1);
+        };
+        EffectNode.addBehavior = function (builder, BehaviorOffset) {
+            builder.addFieldOffset(7, BehaviorOffset, 0);
+        };
+        EffectNode.createBehaviorVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        EffectNode.startBehaviorVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        EffectNode.endEffectNode = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        EffectNode.createEffectNode = function (builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, BehaviorTypeOffset, BehaviorOffset) {
+            EffectNode.startEffectNode(builder);
+            EffectNode.addArrayIndex(builder, arrayIndex);
+            EffectNode.addParentIndex(builder, parentIndex);
+            EffectNode.addType(builder, type);
+            EffectNode.addCellIndex(builder, cellIndex);
+            EffectNode.addBlendType(builder, blendType);
+            EffectNode.addNumBehavior(builder, numBehavior);
+            EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
+            EffectNode.addBehavior(builder, BehaviorOffset);
+            return EffectNode.endEffectNode(builder);
+        };
+        return EffectNode;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var EffectFile = /** @class */ (function () {
+        function EffectFile() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        EffectFile.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        EffectFile.getRootAsEffectFile = function (bb, obj) {
+            return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        EffectFile.getSizePrefixedRootAsEffectFile = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new EffectFile()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        EffectFile.prototype.name = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        EffectFile.prototype.fps = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.isLockRandSeed = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.lockRandSeed = function () {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.layoutScaleX = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.layoutScaleY = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.numNodeList = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        EffectFile.prototype.effectNode = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? (obj || new EffectNode()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        EffectFile.prototype.effectNodeLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        EffectFile.startEffectFile = function (builder) {
+            builder.startObject(8);
+        };
+        EffectFile.addName = function (builder, nameOffset) {
+            builder.addFieldOffset(0, nameOffset, 0);
+        };
+        EffectFile.addFps = function (builder, fps) {
+            builder.addFieldInt16(1, fps, 0);
+        };
+        EffectFile.addIsLockRandSeed = function (builder, isLockRandSeed) {
+            builder.addFieldInt16(2, isLockRandSeed, 0);
+        };
+        EffectFile.addLockRandSeed = function (builder, lockRandSeed) {
+            builder.addFieldInt16(3, lockRandSeed, 0);
+        };
+        EffectFile.addLayoutScaleX = function (builder, layoutScaleX) {
+            builder.addFieldInt16(4, layoutScaleX, 0);
+        };
+        EffectFile.addLayoutScaleY = function (builder, layoutScaleY) {
+            builder.addFieldInt16(5, layoutScaleY, 0);
+        };
+        EffectFile.addNumNodeList = function (builder, numNodeList) {
+            builder.addFieldInt16(6, numNodeList, 0);
+        };
+        EffectFile.addEffectNode = function (builder, effectNodeOffset) {
+            builder.addFieldOffset(7, effectNodeOffset, 0);
+        };
+        EffectFile.createEffectNodeVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        EffectFile.startEffectNodeVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        EffectFile.endEffectFile = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        EffectFile.createEffectFile = function (builder, nameOffset, fps, isLockRandSeed, lockRandSeed, layoutScaleX, layoutScaleY, numNodeList, effectNodeOffset) {
+            EffectFile.startEffectFile(builder);
+            EffectFile.addName(builder, nameOffset);
+            EffectFile.addFps(builder, fps);
+            EffectFile.addIsLockRandSeed(builder, isLockRandSeed);
+            EffectFile.addLockRandSeed(builder, lockRandSeed);
+            EffectFile.addLayoutScaleX(builder, layoutScaleX);
+            EffectFile.addLayoutScaleY(builder, layoutScaleY);
+            EffectFile.addNumNodeList(builder, numNodeList);
+            EffectFile.addEffectNode(builder, effectNodeOffset);
+            return EffectFile.endEffectFile(builder);
+        };
+        return EffectFile;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var EffectNodeBehavior;
+    (function (EffectNodeBehavior) {
+        EffectNodeBehavior[EffectNodeBehavior["NONE"] = 0] = "NONE";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementBasic"] = 1] = "EffectParticleElementBasic";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRndSeedChange"] = 2] = "EffectParticleElementRndSeedChange";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementDelay"] = 3] = "EffectParticleElementDelay";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementGravity"] = 4] = "EffectParticleElementGravity";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementPosition"] = 5] = "EffectParticleElementPosition";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRotation"] = 6] = "EffectParticleElementRotation";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementRotationTrans"] = 7] = "EffectParticleElementRotationTrans";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransSpeed"] = 8] = "EffectParticleElementTransSpeed";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTangentialAcceleration"] = 9] = "EffectParticleElementTangentialAcceleration";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementInitColor"] = 10] = "EffectParticleElementInitColor";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransColor"] = 11] = "EffectParticleElementTransColor";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementAlphaFade"] = 12] = "EffectParticleElementAlphaFade";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementSize"] = 13] = "EffectParticleElementSize";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleElementTransSize"] = 14] = "EffectParticleElementTransSize";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticlePointGravity"] = 15] = "EffectParticlePointGravity";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleTurnToDirectionEnabled"] = 16] = "EffectParticleTurnToDirectionEnabled";
+        EffectNodeBehavior[EffectNodeBehavior["EffectParticleInfiniteEmitEnabled"] = 17] = "EffectParticleInfiniteEmitEnabled";
+    })(EffectNodeBehavior || (EffectNodeBehavior = {}));
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var PART_FLAG;
+    (function (PART_FLAG) {
+        PART_FLAG[PART_FLAG["INVISIBLE"] = 1] = "INVISIBLE";
+        PART_FLAG[PART_FLAG["FLIP_H"] = 2] = "FLIP_H";
+        PART_FLAG[PART_FLAG["FLIP_V"] = 4] = "FLIP_V";
+        PART_FLAG[PART_FLAG["CELL_INDEX"] = 8] = "CELL_INDEX";
+        PART_FLAG[PART_FLAG["POSITION_X"] = 16] = "POSITION_X";
+        PART_FLAG[PART_FLAG["POSITION_Y"] = 32] = "POSITION_Y";
+        PART_FLAG[PART_FLAG["POSITION_Z"] = 64] = "POSITION_Z";
+        PART_FLAG[PART_FLAG["PIVOT_X"] = 128] = "PIVOT_X";
+        PART_FLAG[PART_FLAG["PIVOT_Y"] = 256] = "PIVOT_Y";
+        PART_FLAG[PART_FLAG["ROTATIONX"] = 512] = "ROTATIONX";
+        PART_FLAG[PART_FLAG["ROTATIONY"] = 1024] = "ROTATIONY";
+        PART_FLAG[PART_FLAG["ROTATIONZ"] = 2048] = "ROTATIONZ";
+        PART_FLAG[PART_FLAG["SCALE_X"] = 4096] = "SCALE_X";
+        PART_FLAG[PART_FLAG["SCALE_Y"] = 8192] = "SCALE_Y";
+        PART_FLAG[PART_FLAG["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+        PART_FLAG[PART_FLAG["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+        PART_FLAG[PART_FLAG["OPACITY"] = 65536] = "OPACITY";
+        PART_FLAG[PART_FLAG["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+        PART_FLAG[PART_FLAG["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+        PART_FLAG[PART_FLAG["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+        PART_FLAG[PART_FLAG["SIZE_X"] = 1048576] = "SIZE_X";
+        PART_FLAG[PART_FLAG["SIZE_Y"] = 2097152] = "SIZE_Y";
+        PART_FLAG[PART_FLAG["U_MOVE"] = 4194304] = "U_MOVE";
+        PART_FLAG[PART_FLAG["V_MOVE"] = 8388608] = "V_MOVE";
+        PART_FLAG[PART_FLAG["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+        PART_FLAG[PART_FLAG["U_SCALE"] = 33554432] = "U_SCALE";
+        PART_FLAG[PART_FLAG["V_SCALE"] = 67108864] = "V_SCALE";
+        PART_FLAG[PART_FLAG["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+        PART_FLAG[PART_FLAG["MASK"] = 268435456] = "MASK";
+        PART_FLAG[PART_FLAG["PRIORITY"] = 536870912] = "PRIORITY";
+        PART_FLAG[PART_FLAG["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+        PART_FLAG[PART_FLAG["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    })(PART_FLAG || (PART_FLAG = {}));
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var PART_FLAG2;
+    (function (PART_FLAG2) {
+        PART_FLAG2[PART_FLAG2["MESHDATA"] = 1] = "MESHDATA";
+    })(PART_FLAG2 || (PART_FLAG2 = {}));
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var ProjectData = /** @class */ (function () {
+        function ProjectData() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        ProjectData.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        ProjectData.getRootAsProjectData = function (bb, obj) {
+            return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        ProjectData.getSizePrefixedRootAsProjectData = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new ProjectData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        ProjectData.bufferHasIdentifier = function (bb) {
+            return bb.__has_identifier('SSFB');
+        };
+        ProjectData.prototype.dataId = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.version = function () {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.flags = function () {
+            var offset = this.bb.__offset(this.bb_pos, 8);
+            return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.imageBaseDir = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 10);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        ProjectData.prototype.cells = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? (obj || new Cell()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        ProjectData.prototype.cellsLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 12);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.animePacks = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? (obj || new AnimePackData()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        ProjectData.prototype.animePacksLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 14);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.effectFileList = function (index, obj) {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? (obj || new EffectFile()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+        };
+        ProjectData.prototype.effectFileListLength = function () {
+            var offset = this.bb.__offset(this.bb_pos, 16);
+            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.numCells = function () {
+            var offset = this.bb.__offset(this.bb_pos, 18);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.numAnimePacks = function () {
+            var offset = this.bb.__offset(this.bb_pos, 20);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        ProjectData.prototype.numEffectFileList = function () {
+            var offset = this.bb.__offset(this.bb_pos, 22);
+            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+        };
+        ProjectData.startProjectData = function (builder) {
+            builder.startObject(10);
+        };
+        ProjectData.addDataId = function (builder, dataId) {
+            builder.addFieldInt32(0, dataId, 0);
+        };
+        ProjectData.addVersion = function (builder, version) {
+            builder.addFieldInt32(1, version, 0);
+        };
+        ProjectData.addFlags = function (builder, flags) {
+            builder.addFieldInt32(2, flags, 0);
+        };
+        ProjectData.addImageBaseDir = function (builder, imageBaseDirOffset) {
+            builder.addFieldOffset(3, imageBaseDirOffset, 0);
+        };
+        ProjectData.addCells = function (builder, cellsOffset) {
+            builder.addFieldOffset(4, cellsOffset, 0);
+        };
+        ProjectData.createCellsVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        ProjectData.startCellsVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        ProjectData.addAnimePacks = function (builder, animePacksOffset) {
+            builder.addFieldOffset(5, animePacksOffset, 0);
+        };
+        ProjectData.createAnimePacksVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        ProjectData.startAnimePacksVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        ProjectData.addEffectFileList = function (builder, effectFileListOffset) {
+            builder.addFieldOffset(6, effectFileListOffset, 0);
+        };
+        ProjectData.createEffectFileListVector = function (builder, data) {
+            builder.startVector(4, data.length, 4);
+            for (var i = data.length - 1; i >= 0; i--) {
+                builder.addOffset(data[i]);
+            }
+            return builder.endVector();
+        };
+        ProjectData.startEffectFileListVector = function (builder, numElems) {
+            builder.startVector(4, numElems, 4);
+        };
+        ProjectData.addNumCells = function (builder, numCells) {
+            builder.addFieldInt16(7, numCells, 0);
+        };
+        ProjectData.addNumAnimePacks = function (builder, numAnimePacks) {
+            builder.addFieldInt16(8, numAnimePacks, 0);
+        };
+        ProjectData.addNumEffectFileList = function (builder, numEffectFileList) {
+            builder.addFieldInt16(9, numEffectFileList, 0);
+        };
+        ProjectData.endProjectData = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        ProjectData.finishProjectDataBuffer = function (builder, offset) {
+            builder.finish(offset, 'SSFB');
+        };
+        ProjectData.finishSizePrefixedProjectDataBuffer = function (builder, offset) {
+            builder.finish(offset, 'SSFB', true);
+        };
+        ProjectData.createProjectData = function (builder, dataId, version, flags, imageBaseDirOffset, cellsOffset, animePacksOffset, effectFileListOffset, numCells, numAnimePacks, numEffectFileList) {
+            ProjectData.startProjectData(builder);
+            ProjectData.addDataId(builder, dataId);
+            ProjectData.addVersion(builder, version);
+            ProjectData.addFlags(builder, flags);
+            ProjectData.addImageBaseDir(builder, imageBaseDirOffset);
+            ProjectData.addCells(builder, cellsOffset);
+            ProjectData.addAnimePacks(builder, animePacksOffset);
+            ProjectData.addEffectFileList(builder, effectFileListOffset);
+            ProjectData.addNumCells(builder, numCells);
+            ProjectData.addNumAnimePacks(builder, numAnimePacks);
+            ProjectData.addNumEffectFileList(builder, numEffectFileList);
+            return ProjectData.endProjectData(builder);
+        };
+        return ProjectData;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataInteger = /** @class */ (function () {
+        function userDataInteger() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataInteger.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataInteger.prototype.integer = function () {
+            return this.bb.readInt32(this.bb_pos);
+        };
+        userDataInteger.sizeOf = function () {
+            return 4;
+        };
+        userDataInteger.createuserDataInteger = function (builder, integer) {
+            builder.prep(4, 4);
+            builder.writeInt32(integer);
+            return builder.offset();
+        };
+        return userDataInteger;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataPoint = /** @class */ (function () {
+        function userDataPoint() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataPoint.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataPoint.prototype.x = function () {
+            return this.bb.readInt32(this.bb_pos);
+        };
+        userDataPoint.prototype.y = function () {
+            return this.bb.readInt32(this.bb_pos + 4);
+        };
+        userDataPoint.sizeOf = function () {
+            return 8;
+        };
+        userDataPoint.createuserDataPoint = function (builder, x, y) {
+            builder.prep(4, 8);
+            builder.writeInt32(y);
+            builder.writeInt32(x);
+            return builder.offset();
+        };
+        return userDataPoint;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataRect = /** @class */ (function () {
+        function userDataRect() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataRect.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataRect.prototype.x = function () {
+            return this.bb.readInt32(this.bb_pos);
+        };
+        userDataRect.prototype.y = function () {
+            return this.bb.readInt32(this.bb_pos + 4);
+        };
+        userDataRect.prototype.w = function () {
+            return this.bb.readInt32(this.bb_pos + 8);
+        };
+        userDataRect.prototype.h = function () {
+            return this.bb.readInt32(this.bb_pos + 12);
+        };
+        userDataRect.sizeOf = function () {
+            return 16;
+        };
+        userDataRect.createuserDataRect = function (builder, x, y, w, h) {
+            builder.prep(4, 16);
+            builder.writeInt32(h);
+            builder.writeInt32(w);
+            builder.writeInt32(y);
+            builder.writeInt32(x);
+            return builder.offset();
+        };
+        return userDataRect;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataString = /** @class */ (function () {
+        function userDataString() {
+            this.bb = null;
+            this.bb_pos = 0;
+        }
+        userDataString.prototype.__init = function (i, bb) {
+            this.bb_pos = i;
+            this.bb = bb;
+            return this;
+        };
+        userDataString.getRootAsuserDataString = function (bb, obj) {
+            return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataString.getSizePrefixedRootAsuserDataString = function (bb, obj) {
+            bb.setPosition(bb.position() + SIZE_PREFIX_LENGTH);
+            return (obj || new userDataString()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+        };
+        userDataString.prototype.length = function () {
+            var offset = this.bb.__offset(this.bb_pos, 4);
+            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+        };
+        userDataString.prototype.data = function (optionalEncoding) {
+            var offset = this.bb.__offset(this.bb_pos, 6);
+            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+        };
+        userDataString.startuserDataString = function (builder) {
+            builder.startObject(2);
+        };
+        userDataString.addLength = function (builder, length) {
+            builder.addFieldInt32(0, length, 0);
+        };
+        userDataString.addData = function (builder, dataOffset) {
+            builder.addFieldOffset(1, dataOffset, 0);
+        };
+        userDataString.enduserDataString = function (builder) {
+            var offset = builder.endObject();
+            return offset;
+        };
+        userDataString.createuserDataString = function (builder, length, dataOffset) {
+            userDataString.startuserDataString(builder);
+            userDataString.addLength(builder, length);
+            userDataString.addData(builder, dataOffset);
+            return userDataString.enduserDataString(builder);
+        };
+        return userDataString;
+    }());
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var userDataValue;
+    (function (userDataValue) {
+        userDataValue[userDataValue["NONE"] = 0] = "NONE";
+        userDataValue[userDataValue["userDataInteger"] = 1] = "userDataInteger";
+        userDataValue[userDataValue["userDataRect"] = 2] = "userDataRect";
+        userDataValue[userDataValue["userDataPoint"] = 3] = "userDataPoint";
+        userDataValue[userDataValue["userDataString"] = 4] = "userDataString";
+    })(userDataValue || (userDataValue = {}));
+
+    // automatically generated by the FlatBuffers compiler, do not modify
+    var VERTEX_FLAG;
+    (function (VERTEX_FLAG) {
+        VERTEX_FLAG[VERTEX_FLAG["LT"] = 1] = "LT";
+        VERTEX_FLAG[VERTEX_FLAG["RT"] = 2] = "RT";
+        VERTEX_FLAG[VERTEX_FLAG["LB"] = 4] = "LB";
+        VERTEX_FLAG[VERTEX_FLAG["RB"] = 8] = "RB";
+        VERTEX_FLAG[VERTEX_FLAG["ONE"] = 16] = "ONE";
+    })(VERTEX_FLAG || (VERTEX_FLAG = {}));
 
     // import * as PIXI from 'pixi.js';
     var SS6Project = /** @class */ (function () {
@@ -6301,8 +2651,8 @@ var ss6PlayerViewer = (function (exports) {
                 }
                 var arrayBuffer = this.response;
                 var bytes = new Uint8Array(arrayBuffer);
-                var buf = new flatbuffers$1.ByteBuffer(bytes);
-                self.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buf);
+                var buf = new ByteBuffer(bytes);
+                self.fbObj = ProjectData.getRootAsProjectData(buf);
                 self.LoadCellResources();
             };
             httpObj.ontimeout = function () {
@@ -6355,8 +2705,8 @@ var ss6PlayerViewer = (function (exports) {
             });
         };
         SS6Project.prototype.load = function (bytes, imageBinaryMap) {
-            var buffer = new flatbuffers$1.ByteBuffer(bytes);
-            this.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
+            var buffer = new ByteBuffer(bytes);
+            this.fbObj = ProjectData.getRootAsProjectData(buffer);
             var loader = new PIXI.Loader();
             for (var imageName in imageBinaryMap) {
                 var binary = imageBinaryMap[imageName];
@@ -6943,27 +3293,27 @@ var ss6PlayerViewer = (function (exports) {
                 var d_string = null;
                 if (bit & 1) {
                     // int
-                    d_int = framedata.data(i).data(id, new ss.ssfb.userDataInteger()).integer();
+                    d_int = framedata.data(i).data(id, new userDataInteger()).integer();
                     id++;
                 }
                 if (bit & 2) {
                     // rect
-                    d_rect_x = framedata.data(i).data(id, new ss.ssfb.userDataRect()).x();
-                    d_rect_y = framedata.data(i).data(id, new ss.ssfb.userDataRect()).y();
-                    d_rect_w = framedata.data(i).data(id, new ss.ssfb.userDataRect()).w();
-                    d_rect_h = framedata.data(i).data(id, new ss.ssfb.userDataRect()).h();
+                    d_rect_x = framedata.data(i).data(id, new userDataRect()).x();
+                    d_rect_y = framedata.data(i).data(id, new userDataRect()).y();
+                    d_rect_w = framedata.data(i).data(id, new userDataRect()).w();
+                    d_rect_h = framedata.data(i).data(id, new userDataRect()).h();
                     id++;
                 }
                 if (bit & 4) {
                     // pos
-                    d_pos_x = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).x();
-                    d_pos_y = framedata.data(i).data(id, new ss.ssfb.userDataPoint()).y();
+                    d_pos_x = framedata.data(i).data(id, new userDataPoint()).x();
+                    d_pos_y = framedata.data(i).data(id, new userDataPoint()).y();
                     id++;
                 }
                 if (bit & 8) {
                     // string
-                    d_string_length = framedata.data(i).data(id, new ss.ssfb.userDataString()).length();
-                    d_string = framedata.data(i).data(id, new ss.ssfb.userDataString()).data();
+                    d_string_length = framedata.data(i).data(id, new userDataString()).length();
+                    d_string = framedata.data(i).data(id, new userDataString()).data();
                     id++;
                 }
                 data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
@@ -7015,64 +3365,64 @@ var ss6PlayerViewer = (function (exports) {
                 fd.flag1 = f1;
                 fd.flag2 = f2;
                 var id = 0;
-                if (f1 & ss.ssfb.PART_FLAG.INVISIBLE)
+                if (f1 & PART_FLAG.INVISIBLE)
                     fd.f_hide = true;
-                if (f1 & ss.ssfb.PART_FLAG.FLIP_H)
+                if (f1 & PART_FLAG.FLIP_H)
                     fd.f_flipH = true;
-                if (f1 & ss.ssfb.PART_FLAG.FLIP_V)
+                if (f1 & PART_FLAG.FLIP_V)
                     fd.f_flipV = true;
-                if (f1 & ss.ssfb.PART_FLAG.CELL_INDEX)
+                if (f1 & PART_FLAG.CELL_INDEX)
                     fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-                if (f1 & ss.ssfb.PART_FLAG.POSITION_X)
+                if (f1 & PART_FLAG.POSITION_X)
                     fd.positionX = this.I2F(curPartState.data(id++));
-                if (f1 & ss.ssfb.PART_FLAG.POSITION_Y)
+                if (f1 & PART_FLAG.POSITION_Y)
                     fd.positionY = this.I2F(curPartState.data(id++));
-                if (f1 & ss.ssfb.PART_FLAG.POSITION_Z)
+                if (f1 & PART_FLAG.POSITION_Z)
                     id++; // 64
-                if (f1 & ss.ssfb.PART_FLAG.PIVOT_X)
+                if (f1 & PART_FLAG.PIVOT_X)
                     fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
-                if (f1 & ss.ssfb.PART_FLAG.PIVOT_Y)
+                if (f1 & PART_FLAG.PIVOT_Y)
                     fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
-                if (f1 & ss.ssfb.PART_FLAG.ROTATIONX)
+                if (f1 & PART_FLAG.ROTATIONX)
                     id++; // 512
-                if (f1 & ss.ssfb.PART_FLAG.ROTATIONY)
+                if (f1 & PART_FLAG.ROTATIONY)
                     id++; // 1024
-                if (f1 & ss.ssfb.PART_FLAG.ROTATIONZ)
+                if (f1 & PART_FLAG.ROTATIONZ)
                     fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
-                if (f1 & ss.ssfb.PART_FLAG.SCALE_X)
+                if (f1 & PART_FLAG.SCALE_X)
                     fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
-                if (f1 & ss.ssfb.PART_FLAG.SCALE_Y)
+                if (f1 & PART_FLAG.SCALE_Y)
                     fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
-                if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_X)
+                if (f1 & PART_FLAG.LOCALSCALE_X)
                     fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
-                if (f1 & ss.ssfb.PART_FLAG.LOCALSCALE_Y)
+                if (f1 & PART_FLAG.LOCALSCALE_Y)
                     fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
-                if (f1 & ss.ssfb.PART_FLAG.OPACITY)
+                if (f1 & PART_FLAG.OPACITY)
                     fd.opacity = curPartState.data(id++); // 65536
-                if (f1 & ss.ssfb.PART_FLAG.LOCALOPACITY)
+                if (f1 & PART_FLAG.LOCALOPACITY)
                     fd.localopacity = curPartState.data(id++); // 131072
-                if (f1 & ss.ssfb.PART_FLAG.SIZE_X)
+                if (f1 & PART_FLAG.SIZE_X)
                     fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
-                if (f1 & ss.ssfb.PART_FLAG.SIZE_Y)
+                if (f1 & PART_FLAG.SIZE_Y)
                     fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
-                if (f1 & ss.ssfb.PART_FLAG.U_MOVE)
+                if (f1 & PART_FLAG.U_MOVE)
                     fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
-                if (f1 & ss.ssfb.PART_FLAG.V_MOVE)
+                if (f1 & PART_FLAG.V_MOVE)
                     fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
-                if (f1 & ss.ssfb.PART_FLAG.UV_ROTATION)
+                if (f1 & PART_FLAG.UV_ROTATION)
                     fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
-                if (f1 & ss.ssfb.PART_FLAG.U_SCALE)
+                if (f1 & PART_FLAG.U_SCALE)
                     fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
-                if (f1 & ss.ssfb.PART_FLAG.V_SCALE)
+                if (f1 & PART_FLAG.V_SCALE)
                     fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
-                if (f1 & ss.ssfb.PART_FLAG.BOUNDINGRADIUS)
+                if (f1 & PART_FLAG.BOUNDINGRADIUS)
                     id++; // 134217728 boundingRadius
-                if (f1 & ss.ssfb.PART_FLAG.MASK)
+                if (f1 & PART_FLAG.MASK)
                     fd.masklimen = curPartState.data(id++); // 268435456 masklimen
-                if (f1 & ss.ssfb.PART_FLAG.PRIORITY)
+                if (f1 & PART_FLAG.PRIORITY)
                     fd.priority = curPartState.data(id++); // 536870912 priority
                 //
-                if (f1 & ss.ssfb.PART_FLAG.INSTANCE_KEYFRAME) {
+                if (f1 & PART_FLAG.INSTANCE_KEYFRAME) {
                     // 1073741824 instance keyframe
                     fd.instanceValue_curKeyframe = curPartState.data(id++);
                     fd.instanceValue_startFrame = curPartState.data(id++);
@@ -7081,14 +3431,14 @@ var ss6PlayerViewer = (function (exports) {
                     fd.instanceValue_speed = this.I2F(curPartState.data(id++));
                     fd.instanceValue_loopflag = curPartState.data(id++);
                 }
-                if (f1 & ss.ssfb.PART_FLAG.EFFECT_KEYFRAME) {
+                if (f1 & PART_FLAG.EFFECT_KEYFRAME) {
                     // 2147483648 effect keyframe
                     fd.effectValue_curKeyframe = curPartState.data(id++);
                     fd.effectValue_startTime = curPartState.data(id++);
                     fd.effectValue_speed = this.I2F(curPartState.data(id++));
                     fd.effectValue_loopflag = curPartState.data(id++);
                 }
-                if (f1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
+                if (f1 & PART_FLAG.VERTEX_TRANSFORM) {
                     // 524288 verts [4]
                     // verts
                     fd.f_mesh = true;
@@ -7110,7 +3460,7 @@ var ss6PlayerViewer = (function (exports) {
                         fd.v11 = this.I2F(curPartState.data(id++));
                     }
                 }
-                if (f1 & ss.ssfb.PART_FLAG.PARTS_COLOR) {
+                if (f1 & PART_FLAG.PARTS_COLOR) {
                     // 262144 parts color [3]
                     var f = curPartState.data(id++);
                     blendType = f & 0xff;
@@ -7163,7 +3513,7 @@ var ss6PlayerViewer = (function (exports) {
                         fd.colorMatrix = this.defaultColorFilter; // TODO
                     }
                 }
-                if (f2 & ss.ssfb.PART_FLAG2.MESHDATA) {
+                if (f2 & PART_FLAG2.MESHDATA) {
                     // mesh [1]
                     fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
                     fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
@@ -7345,14 +3695,14 @@ var ss6PlayerViewer = (function (exports) {
                 var overWritekeyParam = this.substituteKeyParam[i];
                 // 処理分岐処理
                 switch (partType) {
-                    case ss.ssfb.SsPartType.Instance:
+                    case SsPartType.Instance:
                         if (mesh == null) {
                             mesh = this.MakeCellPlayer(part.refname());
                             mesh.name = part.name();
                         }
                         break;
-                    case ss.ssfb.SsPartType.Normal:
-                    case ss.ssfb.SsPartType.Mask:
+                    case SsPartType.Normal:
+                    case SsPartType.Mask:
                         if (cellID >= 0 && this.prevCellID[i] !== cellID) {
                             if (mesh != null)
                                 mesh.destroy();
@@ -7360,7 +3710,7 @@ var ss6PlayerViewer = (function (exports) {
                             mesh.name = part.name();
                         }
                         break;
-                    case ss.ssfb.SsPartType.Mesh:
+                    case SsPartType.Mesh:
                         if (cellID >= 0 && this.prevCellID[i] !== cellID) {
                             if (mesh != null)
                                 mesh.destroy();
@@ -7368,8 +3718,8 @@ var ss6PlayerViewer = (function (exports) {
                             mesh.name = part.name();
                         }
                         break;
-                    case ss.ssfb.SsPartType.Nulltype:
-                    case ss.ssfb.SsPartType.Joint:
+                    case SsPartType.Nulltype:
+                    case SsPartType.Joint:
                         if (this.prevCellID[i] !== cellID) {
                             if (mesh != null)
                                 mesh.destroy();
@@ -7394,7 +3744,7 @@ var ss6PlayerViewer = (function (exports) {
                 this.prevMesh[i] = mesh;
                 // 描画関係処理
                 switch (partType) {
-                    case ss.ssfb.SsPartType.Instance: {
+                    case SsPartType.Instance: {
                         // インスタンスパーツのアップデート
                         var pos = new Float32Array(5);
                         pos[0] = 0; // pos x
@@ -7518,13 +3868,13 @@ var ss6PlayerViewer = (function (exports) {
                         break;
                     }
                     //  Instance以外の通常のMeshと空のContainerで処理分岐
-                    case ss.ssfb.SsPartType.Normal:
-                    case ss.ssfb.SsPartType.Mesh:
-                    case ss.ssfb.SsPartType.Joint:
-                    case ss.ssfb.SsPartType.Mask: {
+                    case SsPartType.Normal:
+                    case SsPartType.Mesh:
+                    case SsPartType.Joint:
+                    case SsPartType.Mask: {
                         var cell = this.fbObj.cells(cellID);
                         var verts = void 0;
-                        if (partType === ss.ssfb.SsPartType.Mesh) {
+                        if (partType === SsPartType.Mesh) {
                             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
                             if (data.meshIsBind === 0) {
                                 // バインドがない場合は親からのTRSを継承する
@@ -7539,7 +3889,7 @@ var ss6PlayerViewer = (function (exports) {
                             verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data), data.index, frameNumber);
                         }
                         // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
-                        if (data.flag1 & ss.ssfb.PART_FLAG.VERTEX_TRANSFORM) {
+                        if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
                             // 524288 verts [4]	//
                             // 頂点変形の中心点を算出する
                             var vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -7569,7 +3919,7 @@ var ss6PlayerViewer = (function (exports) {
                             verts[j * 2 + 1] -= py;
                         }
                         mesh.vertices = verts;
-                        if (data.flag1 & ss.ssfb.PART_FLAG.U_MOVE || data.flag1 & ss.ssfb.PART_FLAG.V_MOVE || data.flag1 & ss.ssfb.PART_FLAG.U_SCALE || data.flag1 & ss.ssfb.PART_FLAG.V_SCALE || data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
+                        if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
                             // uv X/Y移動
                             var u1 = cell.u1() + data.uv_move_X;
                             var u2 = cell.u2() + data.uv_move_X;
@@ -7591,7 +3941,7 @@ var ss6PlayerViewer = (function (exports) {
                             mesh.uvs[7] = cy + uvh;
                             mesh.uvs[8] = cx + uvw;
                             mesh.uvs[9] = cy + uvh;
-                            if (data.flag1 & ss.ssfb.PART_FLAG.UV_ROTATION) {
+                            if (data.flag1 & PART_FLAG.UV_ROTATION) {
                                 var rot = (data.uv_rotation * Math.PI) / 180;
                                 for (var idx = 0; idx < 5; idx++) {
                                     var dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
@@ -7654,11 +4004,11 @@ var ss6PlayerViewer = (function (exports) {
                             mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
                         if (blendMode === 7)
                             mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
-                        if (partType !== ss.ssfb.SsPartType.Mask)
+                        if (partType !== SsPartType.Mask)
                             this.addChild(mesh);
                         break;
                     }
-                    case ss.ssfb.SsPartType.Nulltype: {
+                    case SsPartType.Nulltype: {
                         // NULLパーツのOpacity/Transform設定
                         var opacity = this.InheritOpacity(1.0, data.index, frameNumber);
                         mesh.alpha = (opacity * data.localopacity) / 255.0;
@@ -7993,7 +4343,7 @@ var ss6PlayerViewer = (function (exports) {
         };
         /**
          * 矩形セルメッシュの頂点情報のみ取得
-         * @param {ss.ssfb.Cell} cell - セル
+         * @param {ssfblib.Cell} cell - セル
          * @param {array} data - アニメーションフレームデータ
          * @return {array} - 頂点情報配列
          */
@@ -8007,7 +4357,7 @@ var ss6PlayerViewer = (function (exports) {
         };
         /**
          * 矩形セルメッシュの頂点情報のみ取得
-         * @param {ss.ssfb.Cell} cell - セル
+         * @param {ssfblib.Cell} cell - セル
          * @param {array} data - アニメーションフレームデータ
          * @return {array} - 頂点情報配列
          */

@@ -1,11 +1,11 @@
 // import * as PIXI from 'pixi.js';
-import { flatbuffers } from 'flatbuffers';
-import { ss } from 'ssfblib';
+import { ByteBuffer } from 'flatbuffers';
+import { ProjectData } from 'ssfblib';
 
 export class SS6Project {
   public ssfbPath: string;
   public rootPath: string;
-  public fbObj: ss.ssfb.ProjectData;
+  public fbObj: ProjectData;
   public resources: Partial<Record<string, PIXI.LoaderResource>>;
   public status: string;
   protected onComplete: () => void; // ()
@@ -102,8 +102,8 @@ export class SS6Project {
       }
       const arrayBuffer = this.response;
       const bytes = new Uint8Array(arrayBuffer);
-      const buf = new flatbuffers.ByteBuffer(bytes);
-      self.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buf);
+      const buf = new ByteBuffer(bytes);
+      self.fbObj = ProjectData.getRootAsProjectData(buf);
       self.LoadCellResources();
     };
     httpObj.ontimeout = function () {
@@ -156,8 +156,8 @@ export class SS6Project {
   }
 
   private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
-    const buffer = new flatbuffers.ByteBuffer(bytes);
-    this.fbObj = ss.ssfb.ProjectData.getRootAsProjectData(buffer);
+    const buffer = new ByteBuffer(bytes);
+    this.fbObj = ProjectData.getRootAsProjectData(buffer);
 
     const loader = new PIXI.Loader();
     for (let imageName in imageBinaryMap) {
