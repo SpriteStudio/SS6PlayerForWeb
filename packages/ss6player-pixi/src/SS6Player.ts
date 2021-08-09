@@ -578,7 +578,7 @@ export class SS6Player extends PIXI.Container {
     return this._float32[0];
   }
 
-  private defaultColorFilter: PIXI.filters.ColorMatrixFilter = new PIXI.filters.ColorMatrixFilter();
+  private defaultColorFilter: PIXI.Filter = new PIXI.filters.ColorMatrixFilter();
 
   /**
    * １フレーム分のデータを取得する（未設定項目はデフォルト）
@@ -767,7 +767,7 @@ export class SS6Player extends PIXI.Container {
    * @param {number} argb32 - パーツカラー（単色）
    * @return {PIXI.filters.ColorMatrixFilter} - カラーマトリクス
    */
-  private GetColorMatrixFilter(blendType: number, rate: number, argb32: number): PIXI.filters.ColorMatrixFilter {
+  private GetColorMatrixFilter(blendType: number, rate: number, argb32: number): PIXI.Filter {
     const key: string = blendType.toString() + '_' + rate.toString() + '_' + argb32.toString();
     if (this.colorMatrixFilterCache[key]) return this.colorMatrixFilterCache[key];
 
