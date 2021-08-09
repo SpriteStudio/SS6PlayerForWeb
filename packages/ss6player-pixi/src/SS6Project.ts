@@ -1,4 +1,3 @@
-// import * as PIXI from 'pixi.js';
 import { LoaderResource, Loader } from '@pixi/loaders';
 import { ByteBuffer } from 'flatbuffers';
 import { ProjectData } from 'ssfblib';

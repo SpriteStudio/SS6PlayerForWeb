@@ -1308,7 +1308,7 @@ export class SS6Player extends Container {
 
         let partData = packData.parts(index);
         if (partData.name() === partName) {
-          let mesh:any = this.prevMesh[index];
+          let mesh: any = this.prevMesh[index];
           if (mesh === null || mesh instanceof SS6Player) {
             mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
             mesh.name = partData.name();
