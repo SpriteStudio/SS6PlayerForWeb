@@ -1,6 +1,6 @@
 # SS6Player for pixi.js
 
-[SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを [pixi.js](https://www.pixijs.com/) v5 で再生するライブラリです。
+[SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを [pixi.js](https://www.pixijs.com/) v6 で再生するライブラリです。
 
 ## ライブラリ
 
