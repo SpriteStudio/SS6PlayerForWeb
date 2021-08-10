@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.6.1
+ * @version 0.7.0
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -143,12 +143,12 @@
  *
  */
 
-(function () {
+(function (loaders, display, meshExtras, ticker, filterColorMatrix, constants) {
     'use strict';
 
     /**
      * -----------------------------------------------------------
-     * SS6Player For pixi.js v1.6.1
+     * SS6Player For pixi.js v1.7.0
      *
      * Copyright(C) Web Technology Corp.
      * https://www.webtech.co.jp/
@@ -2570,7 +2570,6 @@
         VERTEX_FLAG[VERTEX_FLAG["ONE"] = 16] = "ONE";
     })(VERTEX_FLAG || (VERTEX_FLAG = {}));
 
-    // import * as PIXI from 'pixi.js';
     var SS6Project = /** @class */ (function () {
         function SS6Project(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
             if (typeof arg1 === 'string') { // get ssfb data via http protocol
@@ -2653,7 +2652,7 @@
         SS6Project.prototype.LoadCellResources = function () {
             var self = this;
             // Load textures for all cell at once.
-            var loader = new PIXI.Loader();
+            var loader = new loaders.Loader();
             var ids = [];
             var _loop_1 = function (i) {
                 if (!ids.some(function (id) {
@@ -2679,7 +2678,7 @@
         SS6Project.prototype.load = function (bytes, imageBinaryMap) {
             var buffer = new ByteBuffer(bytes);
             this.fbObj = ProjectData.getRootAsProjectData(buffer);
-            var loader = new PIXI.Loader();
+            var loader = new loaders.Loader();
             for (var imageName in imageBinaryMap) {
                 var binary = imageBinaryMap[imageName];
                 // const base64 = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, binary));
@@ -2793,7 +2792,7 @@
             _this.alphaBlendType = [];
             _this._uint32 = new Uint32Array(1);
             _this._float32 = new Float32Array(_this._uint32.buffer);
-            _this.defaultColorFilter = new PIXI.filters.ColorMatrixFilter();
+            _this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
             _this.ss6project = ss6project;
             _this.fbObj = _this.ss6project.fbObj;
             _this.resources = _this.ss6project.resources;
@@ -2802,7 +2801,7 @@
                 _this.Setup(animePackName, animeName);
             }
             // Ticker
-            PIXI.Ticker.shared.add(_this.Update, _this);
+            ticker.Ticker.shared.add(_this.Update, _this);
             return _this;
         }
         Object.defineProperty(SS6Player.prototype, "startFrame", {
@@ -2960,7 +2959,7 @@
          */
         SS6Player.prototype.UpdateInternal = function (delta, rewindAfterReachingEndFrame) {
             if (rewindAfterReachingEndFrame === void 0) { rewindAfterReachingEndFrame = true; }
-            var elapsedTime = PIXI.Ticker.shared.elapsedMS;
+            var elapsedTime = ticker.Ticker.shared.elapsedMS;
             var toNextFrame = this._isPlaying && !this._isPausing;
             if (toNextFrame && this.updateInterval !== 0) {
                 this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
@@ -3522,7 +3521,7 @@
             var key = blendType.toString() + '_' + rate.toString() + '_' + argb32.toString();
             if (this.colorMatrixFilterCache[key])
                 return this.colorMatrixFilterCache[key];
-            var colorMatrix = new PIXI.filters.ColorMatrixFilter();
+            var colorMatrix = new filterColorMatrix.ColorMatrixFilter();
             var ca = ((argb32 & 0xff000000) >>> 24) / 255;
             var cr = ((argb32 & 0x00ff0000) >>> 16) / 255;
             var cg = ((argb32 & 0x0000ff00) >>> 8) / 255;
@@ -3695,7 +3694,7 @@
                         if (this.prevCellID[i] !== cellID) {
                             if (mesh != null)
                                 mesh.destroy();
-                            mesh = new PIXI.Container();
+                            mesh = new display.Container();
                             mesh.name = part.name();
                         }
                         break;
@@ -3957,25 +3956,25 @@
                         }
                         var blendMode = this.alphaBlendType[i];
                         if (blendMode === 0)
-                            mesh.blendMode = PIXI.BLEND_MODES.NORMAL;
+                            mesh.blendMode = constants.BLEND_MODES.NORMAL;
                         if (blendMode === 1) {
-                            mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
+                            mesh.blendMode = constants.BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
                             mesh.alpha = 1.0; // 不透明度を固定にする
                         }
                         if (blendMode === 2)
-                            mesh.blendMode = PIXI.BLEND_MODES.ADD;
+                            mesh.blendMode = constants.BLEND_MODES.ADD;
                         if (blendMode === 3)
-                            mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+                            mesh.blendMode = constants.BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
                         if (blendMode === 4)
-                            mesh.blendMode = PIXI.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
+                            mesh.blendMode = constants.BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
                         if (blendMode === 5) {
-                            mesh.blendMode = PIXI.BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
+                            mesh.blendMode = constants.BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
                             mesh.alpha = 1.0; // 不透明度を固定にする
                         }
                         if (blendMode === 6)
-                            mesh.blendMode = PIXI.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
+                            mesh.blendMode = constants.BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
                         if (blendMode === 7)
-                            mesh.blendMode = PIXI.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
+                            mesh.blendMode = constants.BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
                         if (partType !== SsPartType.Mask)
                             this.addChild(mesh);
                         break;
@@ -4269,7 +4268,7 @@
             var verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
             var uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
             var indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-            var mesh = new PIXI.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
+            var mesh = new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
             return mesh;
         };
         /**
@@ -4296,7 +4295,7 @@
                     indices[idx - 1] = meshsDataIndices.indices(idx);
                 }
                 var verts = new Float32Array(num * 2); // Zは必要ない？
-                var mesh = new PIXI.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, PIXI.DRAW_MODES.TRIANGLES);
+                var mesh = new meshExtras.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
                 return mesh;
             }
             return null;
@@ -4353,7 +4352,7 @@
             }
         };
         return SS6Player;
-    }(PIXI.Container));
+    }(display.Container));
 
     class PluginParameters {
       static instance;
@@ -5111,4 +5110,4 @@
       }
     };
 
-}());
+}(PIXI, PIXI, PIXI, PIXI, PIXI.filters, PIXI));
