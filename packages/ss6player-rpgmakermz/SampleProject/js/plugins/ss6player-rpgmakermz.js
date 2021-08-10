@@ -2570,7 +2570,6 @@
         VERTEX_FLAG[VERTEX_FLAG["ONE"] = 16] = "ONE";
     })(VERTEX_FLAG || (VERTEX_FLAG = {}));
 
-    // import * as PIXI from 'pixi.js';
     var SS6Project = /** @class */ (function () {
         function SS6Project(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
             if (typeof arg1 === 'string') { // get ssfb data via http protocol
