@@ -1,3 +1,5 @@
+import { Texture } from '@pixi/core';
+import { Application } from '@pixi/app';
 import { MainContainer } from './Control/MainContainer';
 import { AnimationContainer } from './AnimationContainer';
 import { SS6Project } from 'ss6player-pixi';
@@ -11,7 +13,7 @@ export class Player {
 
   public onComplete: () => void;
 
-  public textureMap: { [key: string]: PIXI.Texture; } = null;
+  public textureMap: { [key: string]: Texture; } = null;
 
   private animePackMap: { [key: string]: any; } = null;
 
@@ -21,7 +23,7 @@ export class Player {
     return this.animePackMap;
   }
 
-  public pixiApplication: PIXI.Application = null;
+  public pixiApplication: Application = null;
 
   public canvasWidth: number = null;
   public canvasHeight: number = null;
@@ -55,7 +57,7 @@ export class Player {
   public constructor(canvasWrapperElement: any) {
     this.canvasWidth = canvasWrapperElement.clientWidth;
     this.canvasHeight = canvasWrapperElement.clientHeight;
-    const pixiApplication = new PIXI.Application({ width: this.canvasWidth, height: this.canvasHeight, transparent: true });
+    const pixiApplication = new Application({ width: this.canvasWidth, height: this.canvasHeight, transparent: true });
 
     const canvasElement = pixiApplication.view;
     canvasWrapperElement.appendChild(canvasElement);

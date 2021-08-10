@@ -10,15 +10,27 @@ const pkg = require('./package.json');
 
 const libraryName = 'ss6player-pixi';
 
+// reference: @pixi-build-tools/globals
+const pixiGlobals = {
+  '@pixi/loaders': 'PIXI',
+  '@pixi/display': 'PIXI',
+  '@pixi/mesh-extras': 'PIXI',
+  '@pixi/ticker': 'PIXI',
+  '@pixi/filter-color-matrix': 'PIXI.filters',
+  '@pixi/core': 'PIXI',
+  '@pixi/constants': 'PIXI'
+};
+const pixiBanner = `\nthis.PIXI = this.PIXI || {};`;
+
 export default {
   input: `src/${libraryName}.ts`,
   output: [
-    { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-    { file: pkg.module, format: 'es', sourcemap: true },
+    { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true, globals: pixiGlobals, banner: pixiBanner},
+    { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals, banner: pixiBanner},
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
-    'pixi.js'
+    /@pixi\/.*/
   ],
   watch: {
     include: 'src/**',

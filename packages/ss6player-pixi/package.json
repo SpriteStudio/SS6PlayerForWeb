@@ -1,6 +1,6 @@
 {
   "name": "ss6player-pixi",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -41,12 +41,21 @@
     "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
     "clean": "rimraf dist"
   },
+  "peerDependencies": {
+    "@pixi/loaders": "^6.1.1",
+    "@pixi/display": "^6.1.1",
+    "@pixi/mesh-extras": "^6.1.1",
+    "@pixi/ticker": "^6.1.1",
+    "@pixi/filter-color-matrix": "^6.1.1",
+    "@pixi/core": "^6.1.1",
+    "@pixi/constants": "^6.1.1"
+  },
   "dependencies": {
     "flatbuffers": "^2.0.3",
-    "pixi.js": "^5.3.10",
     "ssfblib": "1.1.0"
   },
   "devDependencies": {
+    "pixi.js": "^6.1.1",
     "concurrently": "^6.2.1",
     "http-server": "^13.0.0",
     "lodash.camelcase": "^4.3.0",
