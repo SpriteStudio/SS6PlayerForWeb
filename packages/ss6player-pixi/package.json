@@ -49,7 +49,8 @@
     "@pixi/ticker": "^6.2.2",
     "@pixi/filter-color-matrix": "^6.2.2",
     "@pixi/core": "^6.2.2",
-    "@pixi/constants": "^6.2.2"
+    "@pixi/constants": "^6.2.2",
+    "@pixi/mixin-get-child-by-name": "^6.2.2"
   },
   "dependencies": {
     "ssfblib": "1.1.0"
