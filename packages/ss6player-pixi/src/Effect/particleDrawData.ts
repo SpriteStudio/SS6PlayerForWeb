@@ -1,3 +1,5 @@
+import {Point} from '@pixi/math';
+
 export class particleDrawData {
   id: number;
 	pid: number;
@@ -10,6 +12,6 @@ export class particleDrawData {
 	direc: number;
 
 	// TODO: impl
-  // SsU8Color color;
-  // SsVector2 scale;
+  color: Array<number> = new Array(3); //
+  scale: Point = new Point();
 }

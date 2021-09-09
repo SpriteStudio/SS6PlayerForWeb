@@ -1,19 +1,20 @@
 import {EffectModel} from './EffectModel';
-import {SsEffectEmitter} from './SsEffectEmitter';
+import {EffectEmitter} from './EffectEmitter';
 import {particleDrawData} from './particleDrawData';
 import {EffectNode} from './EffectNode';
 import {EffectConstants} from './EffectConstants';
+import {Point} from '@pixi/math'
 
-export class SsEffectRenderV2 {
+export class EffectRenderV2 {
   effectData: EffectModel;
 
-  emmiterList: SsEffectEmitter[];
-  updateList: SsEffectEmitter[];
+  emmiterList: EffectEmitter[];
+  updateList: EffectEmitter[];
 
   mySeed: number = 0;
 
   /* layoutPosition: SsVector3; */
-  /* layoutScale: SsVector2; */
+  layoutScale: Point = new Point();
 
   nowFrame: number;
   targetFrame: number;
@@ -21,7 +22,7 @@ export class SsEffectRenderV2 {
 
   effectTimeLength: number = 0;
 
-  Infinite: boolean;	//�����ɔ����o���邩�ǂ���
+  Infinite: boolean;
 
   /* parentState: SsPartState; */
 
@@ -40,11 +41,11 @@ export class SsEffectRenderV2 {
 
   _drawSpritecount: number;
 
-  protected particleDraw(e: SsEffectEmitter, t: number, parent: SsEffectEmitter = null, plp: particleDrawData = null) {
+  protected particleDraw(e: EffectEmitter, t: number, parent: EffectEmitter = null, plp: particleDrawData = null) {
     // TODO: impl
   }
 
-  protected initEmitter(e: SsEffectEmitter, node: EffectNode) {
+  protected initEmitter(e: EffectEmitter, node: EffectNode) {
     // TODO: impl
   }
 

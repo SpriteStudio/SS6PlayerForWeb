@@ -1,9 +1,11 @@
+import {Point} from '@pixi/math';
+
 export class particleParameter {
 
-  // SsVector2 	scale;
+  scale: Point = new Point();
 
-  // SsU8Color   startcolor; //�X�^�[�g���̃J���[
-  // SsU8Color   endcolor;   //�I�����̃J���[
+  startcolor: Array<number> = new Array(4);
+  endcolor: Array<number> = new Array(4);
 
   speed: number;
   speed2: number;
@@ -12,11 +14,11 @@ export class particleParameter {
   angleVariance: number;
 
   useGravity: boolean;
-  // SsVector2	gravity;
+  gravity: Point = new Point();
 
   useOffset: boolean;
-  // SsVector2   offset;
-  // SsVector2   offset2;
+  offset: Point = new Point();
+  offset2: Point = new Point();
 
   useRotation: boolean;
   rotation: number;
@@ -34,28 +36,28 @@ export class particleParameter {
   tangentialAccel2: number;
 
   useColor: boolean;
-  // SsU8Color   initColor;
-  // SsU8Color   initColor2;
+  initColor: Array<number> = new Array(4);
+  initColor2: Array<number> = new Array(4);
 
   useTransColor: boolean;
-  // SsU8Color   transColor;
-  // SsU8Color   transColor2;
+  transColor: Array<number> = new Array(4);
+  transColor2: Array<number> = new Array(4);
 
   useInitScale: boolean;
-  // SsVector2   scaleRange;
+  scaleRange: Point = new Point();
   scaleFactor: number;
   scaleFactor2: number;
 
   useTransScale: boolean;
-  // SsVector2   transscale;
-  // SsVector2   transscaleRange;
+  transscale: Point = new Point();
+  transscaleRange: Point = new Point();
   transscaleFactor: number;
   transscaleFactor2: number;
 
   delay: number;
 
   usePGravity: boolean;
-  // SsVector2	gravityPos;
+  gravityPos: Point = new Point();
   gravityPower: number;
 
   useAlphaFade: boolean;
