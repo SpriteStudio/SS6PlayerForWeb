@@ -74,8 +74,59 @@ export class EffectEmitter {
     return this.particleExistList[id];
   }
 
-  updateEmitter(time: number, slide: number): void {
-    // TODO: impl
+  updateEmitter(_time: number, slide: number): void {
+    const onum: number = this._offsetPattern.length;
+    const pnum: number = this._emitpattern.length;
+    slide = slide * EffectConstants.SEED_MAGIC;
+
+    for (let i = 0; i < onum; i++) {
+      let slide_num: number = (i + slide) % pnum;
+
+      let targetEP: emitPattern = this._emitpattern[slide_num];
+
+      let t = (_time - this._offsetPattern[i]);
+
+      this.particleExistList[i].exist = false;
+      this.particleExistList[i].born = false;
+
+      if (targetEP.cycle != 0) {
+        let loopnum = t / targetEP.cycle;
+        let cycle_top = loopnum * targetEP.cycle;
+
+        this.particleExistList[i].cycle = loopnum;
+
+        this.particleExistList[i].stime = cycle_top + this._offsetPattern[i];
+        this.particleExistList[i].endtime = this.particleExistList[i].stime + targetEP.life;// + _lifeExtend[slide_num];
+
+        if (this.particleExistList[i].stime <= _time && this.particleExistList[i].endtime > _time) {
+          this.particleExistList[i].exist = true;
+          this.particleExistList[i].born = true;
+        }
+
+        if (!this.emitter.Infinite) {
+          if (this.particleExistList[i].stime >= this.emitter.life) {
+            this.particleExistList[i].exist = false;
+
+            let t: number = this.emitter.life - this._offsetPattern[i];
+            let loopnum = t / targetEP.cycle;
+
+            let cycle_top: number = loopnum * targetEP.cycle;
+
+            this.particleExistList[i].stime = cycle_top + this._offsetPattern[i];
+
+            this.particleExistList[i].endtime = this.particleExistList[i].stime + targetEP.life;// + _lifeExtend[slide_num];
+            this.particleExistList[i].born = false;
+          } else {
+            this.particleExistList[i].born = true;
+          }
+        }
+
+        if (t < 0) {
+          this.particleExistList[i].exist = false;
+          this.particleExistList[i].born = false;
+        }
+      }
+    }
   }
 
   getTimeLength(): number {
@@ -169,7 +220,7 @@ export class EffectEmitter {
           let final_soul = add + addf * nowt;
           let addrf = (final_soul + add) * (nowt + 1.0) / 2.0;
           addrf -= add;
-          addrf += (mod_t * (final_soul)); //���܂�ƏI���̐ς����Z
+          addrf += (mod_t * (final_soul));
           p.rot += addrf;
         }
       } else {
