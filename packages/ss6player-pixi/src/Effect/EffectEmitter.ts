@@ -5,7 +5,7 @@ import {EffectConstants} from './EffectConstants';
 import {emitPattern} from './emitPattern';
 import {particleExistSt} from './particleExistSt';
 import {particleDrawData} from './particleDrawData';
-import {Point} from '@pixi/math'
+import {Point} from '@pixi/math';
 
 export class EffectEmitter {
   // SsCellValue		 dispCell;
@@ -51,7 +51,7 @@ export class EffectEmitter {
   }
 
   static OutQuad(t: number, totaltime: number, max: number, min: number): number {
-    if (totaltime == 0.0) return 0.0;
+    if (totaltime === 0.0) return 0.0;
 
     if (t > totaltime) t = totaltime;
     max -= min;
@@ -89,7 +89,7 @@ export class EffectEmitter {
       this.particleExistList[i].exist = false;
       this.particleExistList[i].born = false;
 
-      if (targetEP.cycle != 0) {
+      if (targetEP.cycle !== 0) {
         let loopnum = t / targetEP.cycle;
         let cycle_top = loopnum * targetEP.cycle;
 
@@ -139,7 +139,7 @@ export class EffectEmitter {
     const _t2 = _t * _t;
     const _life = p.lifetime - p.stime;
 
-    if (_life == 0) return;
+    if (_life === 0) return;
     let _lifeper = _t / _life;
 
     let pseed = this.seedList[p.id % this.seedTableLen];
@@ -147,7 +147,7 @@ export class EffectEmitter {
     this.rand.initGenrand((pseed + this.emitterSeed + p.pid + this.seedOffset));
 
     let rad = this.particle.angle + (this.rand.genrandFloat32() * (this.particle.angleVariance) - this.particle.angleVariance / 2.0);
-    //float speed = rand.genrand_float32() * particle.speed;
+    // float speed = rand.genrand_float32() * particle.speed;
     let speed = this.particle.speed + (this.particle.speed2 * this.rand.genrandFloat32());
 
     let addr = 0;
@@ -189,7 +189,8 @@ export class EffectEmitter {
       y += (0.5 * this.particle.gravity.y * (_t2));
     }
 
-    let ox, oy;
+    let ox: number;
+    let oy: number;
     ox = oy = 0;
     if (this.particle.useOffset) {
       ox = (this.particle.offset.x + (this.particle.offset2.x * this.rand.genrandFloat32()));
@@ -205,7 +206,7 @@ export class EffectEmitter {
         let lastt = _life * this.particle.endLifeTimePer;
 
         let addf = 0;
-        if (lastt == 0) {
+        if (lastt === 0) {
           let addrf = (add * this.particle.rotationFactor) * _t;
           p.rot += addrf;
         } else {
@@ -314,7 +315,7 @@ export class EffectEmitter {
       // normalize
       let nv: Point = new Point();
       const len: number = Math.sqrt((v.x * v.x) + (v.y * v.y));
-      let div = (len == 0) ? 0 : (1 / len);
+      let div = (len === 0) ? 0 : (1 / len);
       nv.x = v.x * div;
       nv.y = v.y * div;
 
@@ -323,7 +324,7 @@ export class EffectEmitter {
         let v2: Point = new Point(p.x, p.y);
 
         let len = Math.sqrt((v.x * v.x) + (v.y * v.y));
-        if (len == 0.0) {
+        if (len === 0.0) {
           len = 0.1;
           nv.x = 1;
           nv.y = 0;
@@ -356,11 +357,11 @@ export class EffectEmitter {
     }
 
     p.direc = 0.0;
-    if (this.particle.useTurnDirec && recalc == false) {
+    if (this.particle.useTurnDirec && recalc === false) {
       let dp: particleDrawData = new particleDrawData();
       dp = p;
 
-//		if ( time > 0.0f )
+      // if ( time > 0.0f )
       {
         this.updateParticle(time + 1.0, dp, true);
 
@@ -369,12 +370,12 @@ export class EffectEmitter {
 
         // normalized
         let len: number = Math.sqrt((uv0.x * uv0.x) + (uv0.y * uv0.y));
-        let div = (len == 0) ? 0 : (1 / len);
+        let div = (len === 0) ? 0 : (1 / len);
         uv0.x = uv0.x * div;
         uv0.y = uv0.y * div;
 
         len = Math.sqrt((uv1.x * uv1.x) + (uv1.y * uv1.y));
-        div = (len == 0) ? 0 : (1 / len);
+        div = (len === 0) ? 0 : (1 / len);
         uv1.x = uv1.x * div;
         uv1.y = uv1.y * div;
 

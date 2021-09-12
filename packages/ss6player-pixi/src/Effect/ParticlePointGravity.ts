@@ -11,4 +11,3 @@ export class ParticlePointGravity extends EffectElementBase {
     super.setType(EffectFunctionType.PointGravity);
   }
 }
-

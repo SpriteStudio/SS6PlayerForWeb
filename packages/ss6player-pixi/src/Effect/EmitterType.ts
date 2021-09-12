@@ -1,5 +1,4 @@
 export enum EmitterType {
   Normal,
-  Ribbon,
+  Ribbon
 }
-

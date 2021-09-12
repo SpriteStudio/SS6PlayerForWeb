@@ -3,7 +3,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {particleDrawData} from './particleDrawData';
 import {EffectNode} from './EffectNode';
 import {EffectConstants} from './EffectConstants';
-import {Point} from '@pixi/math'
+import {Point} from '@pixi/math';
 
 export class EffectRenderV2 {
   effectData: EffectModel;

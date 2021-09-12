@@ -8,4 +8,4 @@ export class	SsEffectFunctionExecuter {
 
 	static initializeEffect(SsEffectBehavior* beh, SsEffectEmitter* emmiter);
    */
-};
+}

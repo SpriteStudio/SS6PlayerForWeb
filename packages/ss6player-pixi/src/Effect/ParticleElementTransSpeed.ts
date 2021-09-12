@@ -10,4 +10,3 @@ export class ParticleElementTransSpeed extends EffectElementBase {
     super.setType(EffectFunctionType.TransSpeed);
   }
 }
-

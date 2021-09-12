@@ -12,4 +12,3 @@ export class ParticleElementTransSize extends EffectElementBase {
     super.setType(EffectFunctionType.Size);
   }
 }
-

@@ -2,7 +2,7 @@ import {Point} from '@pixi/math';
 
 export class particleDrawData {
   id: number;
-	pid: number;
+  pid: number;
 	stime: number;
   lifetime: number;
 

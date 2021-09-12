@@ -4,7 +4,7 @@ export enum EffectNodeType {
   invalid = -1,
   root,
   emmiter,
-  particle,
+  particle
 }
 
 export class EffectNode {

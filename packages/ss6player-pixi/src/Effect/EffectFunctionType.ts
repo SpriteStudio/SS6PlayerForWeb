@@ -5,7 +5,7 @@ export enum EffectFunctionType {
   Delay,
   Gravity,
   Position,
-  //TransPosition,
+  // TransPosition,
   Rotation,
   TransRotation,
   TransSpeed,
@@ -17,5 +17,5 @@ export enum EffectFunctionType {
   TransSize,
   PointGravity,
   TurnToDirectionEnabled,
-  InfiniteEmitEnabled,
+  InfiniteEmitEnabled
 }

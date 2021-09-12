@@ -6,7 +6,7 @@ export class ParticleElementAlphaFade extends EffectElementBase {
 
   constructor() {
     super();
-    super.setType( EffectFunctionType.AlphaFade);
+    super.setType(EffectFunctionType.AlphaFade);
     this.disprange[0] = 25.0;
     this.disprange[1] = 75.0;
   }
