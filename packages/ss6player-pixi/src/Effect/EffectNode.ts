@@ -19,7 +19,7 @@ export class EffectNode {
     return this.type;
   }
 
-  getMyBehavior() {
+  getMyBehavior(): EffectNodeBehavior {
     return this.behavior;
   }
 }

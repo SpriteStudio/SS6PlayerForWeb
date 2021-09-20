@@ -6,9 +6,10 @@ import {emitPattern} from './emitPattern';
 import {particleExistSt} from './particleExistSt';
 import {particleDrawData} from './particleDrawData';
 import {Point} from '@pixi/math';
+import {Cell, EffectNodeBehavior} from 'ssfblib';
 
 export class EffectEmitter {
-  // SsCellValue		 dispCell;
+  dispCell: Cell;
 
   priority: number;
 
@@ -34,8 +35,8 @@ export class EffectEmitter {
 
   _parentIndex: number = -1;
 
-  // SsCell*						refCell;    //�`��p�Z��
-  // SsEffectBehavior*           refData;	//�f�[�^�X�V�p
+  refCell: Cell;
+  refData: EffectNodeBehavior;
 
   globaltime: number = 0;
   seedTableLen: number = 0;

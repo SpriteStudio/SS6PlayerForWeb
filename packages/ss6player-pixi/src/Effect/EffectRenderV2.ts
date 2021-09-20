@@ -4,6 +4,10 @@ import {particleDrawData} from './particleDrawData';
 import {EffectNode} from './EffectNode';
 import {EffectConstants} from './EffectConstants';
 import {Point} from '@pixi/math';
+import {particleExistSt} from './particleExistSt';
+import {SsRenderBlendType} from './RenderBlendType';
+import {Cell} from 'ssfblib';
+import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
 
 export class EffectRenderV2 {
   effectData: EffectModel;
@@ -41,12 +45,113 @@ export class EffectRenderV2 {
 
   _drawSpritecount: number;
 
-  protected particleDraw(e: EffectEmitter, t: number, parent: EffectEmitter = null, plp: particleDrawData = null) {
-    // TODO: impl
+  protected particleDraw(e: EffectEmitter, time: number, parent: EffectEmitter = null, plp: particleDrawData = null) {
+    let t: number = time;
+
+    if (e == null) return;
+
+    let pnum: number = e.getParticleIDMax();
+
+    let slide: number = (parent == null) ? 0 : plp.id;
+    e.updateEmitter(time, slide);
+
+    for (let id = 0; id < pnum; id++) {
+      const drawe: particleExistSt = e.getParticleDataFromID(id);
+
+      if (!drawe.born) {
+        continue;
+      }
+
+      let targettime = t;
+      let lp: particleDrawData = new particleDrawData();
+      let pp: particleDrawData = new particleDrawData();
+      pp.x = 0;
+      pp.y = 0;
+
+      lp.id = id + drawe.cycle;
+      lp.stime = drawe.stime;
+      lp.lifetime = drawe.endtime;
+      lp.pid = 0;
+
+      if (parent !== null) {
+        lp.pid = plp.id;
+      }
+
+      // if ( lp.stime == lp.lifetime ) continue;
+
+      // if ( lp.stime <= targettime && lp.lifetime >= targettime)
+      if (drawe.exist) {
+
+        if (parent !== null) {
+          pp.id = plp.id;
+          pp.stime = plp.stime;
+          pp.lifetime = plp.lifetime;
+          pp.pid = plp.pid;
+
+          let ptime: number = lp.stime + pp.stime;
+          if (ptime > lp.lifetime) {
+            ptime = lp.lifetime;
+          }
+
+          parent.updateParticle(lp.stime + pp.stime, pp);
+          e.position.x = pp.x;
+          e.position.y = pp.y;
+        }
+
+        e.updateParticle(targettime, lp);
+
+        this.drawSprite(e.dispCell,
+          new Point(lp.x, lp.y),
+          lp.scale,
+          lp.rot,
+          lp.direc,
+          lp.color,
+          e.refData.blendType);
+      }
+    }
   }
 
   protected initEmitter(e: EffectEmitter, node: EffectNode) {
-    // TODO: impl
+    e.refData = node.getMyBehavior();
+    /*
+	e->refCell = e->refData->refCell;
+	SsCelMapLinker* link = this->curCellMapManager->getCellMapLink( e->refData->CellMapName );
+
+	if ( link )
+	{
+		SsCell * cell = link->findCell( e->refData->CellName );
+
+		getCellValue(	this->curCellMapManager ,
+			e->refData->CellMapName ,
+			e->refData->CellName ,
+			e->dispCell );
+	}else{
+		DEBUG_PRINTF( "cell not found : %s , %s\n" ,
+			e->refData->CellMapName.c_str(),
+			e->refData->CellName.c_str()
+			);
+	}
+ */
+	e.dispCell.refCell = e.refData.refCell;
+	e.dispCell.blendType = e.refData.blendType;
+
+	SsEffectFunctionExecuter.initializeEffect( e->refData , e );
+
+	e->emitterSeed = this->mySeed;
+
+	if ( e->particle.userOverrideRSeed )
+	{
+		e->emitterSeed = e->particle.overrideRSeed;
+
+	}else{
+		if ( this->effectData->isLockRandSeed )
+		{
+			e->emitterSeed = (this->effectData->lockRandSeed+1) * SEED_MAGIC;
+		}
+	}
+
+	e->emitter.life+= e->particle.delay;//�f�B���C�����Z
+
   }
 
   protected clearEmitterList() {
@@ -128,18 +233,17 @@ export class EffectRenderV2 {
     return this.m_isPlay;
   }
 
-  // TODO: impl
-  /*
   drawSprite(
-			SsCellValue*		dispCell,
-			SsVector2	_position,
-			SsVector2 _size,
+			dispCell: Cell,
+      _position: Point,
+			_size: Point,
       _rotation: number,
 			direction: number,
-			SsFColor	_color,
-			SsRenderBlendType::_enum blendType
-		);
-   */
+      _color: Array<number>,
+      blendType: SsRenderBlendType
+		) {
+      // TODO: impl
+    }
 
   setSeedOffset(offset: number) {
     if (this.effectData.isLockRandSeed) {
