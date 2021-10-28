@@ -1,10 +1,11 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import sourceMaps from 'rollup-plugin-sourcemaps';
 import camelCase from 'lodash.camelcase';
 import esbuild from 'rollup-plugin-esbuild';
 import json from '@rollup/plugin-json';
 import license from 'rollup-plugin-license';
+
+const production = !process.env.ROLLUP_WATCH;
 
 const pkg = require('./package.json');
 
@@ -39,15 +40,13 @@ export default {
     // Allow json resolution
     json(),
     // Compile TypeScript files
-    esbuild(),
+    esbuild({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
     commonjs(),
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    // Resolve source maps to the original source
-    sourceMaps(),
     license({
       banner: `-----------------------------------------------------------
  SS6Player For pixi.js v<%= pkg.version %>
