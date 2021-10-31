@@ -1,9 +1,9 @@
 import { Texture } from '@pixi/core';
 import { Application } from '@pixi/app';
-import { MainContainer } from './Control/MainContainer';
+import { MainContainer } from './MainContainer';
 import { AnimationContainer } from './AnimationContainer';
 import { SS6Project } from 'ss6player-pixi';
-import { SspkgLoader } from './Input/SspkgLoader';
+import { SspkgLoader } from './SspkgLoader';
 import { SsfbDataUtil } from './SsfbDataUtil';
 
 const PREVIEW_POSITION_MARGIN: number = 30;

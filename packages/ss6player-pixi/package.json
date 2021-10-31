@@ -35,7 +35,7 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "docs": "typedoc --out ../../docs/ss6player_pixi_api --theme minimal src",
+    "docs": "typedoc --out ../../docs/ss6player_pixi_api src/ss6player-pixi.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",

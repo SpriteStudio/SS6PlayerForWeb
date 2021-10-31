@@ -29,7 +29,7 @@
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "clean": "rimraf dist",
-    "docs": "typedoc --out ../../docs/ssfblib_api --theme minimal src"
+    "docs": "typedoc --out ../../docs/ssfblib_api src/ssfblib.ts"
   },
   "dependencies": {
     "flatbuffers": "^2.0.4"
