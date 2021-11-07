@@ -1,25 +1,43 @@
 import {SsEffectBehavior} from './EffectBehavior';
 import {EffectFuncBase} from './EffectFuncBase';
+import {FuncParticleElementBasic} from './FuncParticleElementBasic';
+import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
+import {FuncParticleElementRndSeedChange} from './FuncParticleElementRndSeedChange';
+import {FuncParticleElementDelay} from './FuncParticleElementDelay';
+import {FuncParticleElementGravity} from './FuncParticleElementGravity';
+import {FuncParticleElementPosition} from './FuncParticleElementPosition';
+import {FuncParticleElementRotation} from './FuncParticleElementRotation';
+import {FuncParticleElementRotationTrans} from './FuncParticleElementRotationTrans';
+import {FuncParticleElementTransSpeed} from './FuncParticleElementTransSpeed';
+import {FuncParticleElementTangentialAcceleration} from './FuncParticleElementTangentialAcceleration';
+import {FuncParticleElementInitColor} from './FuncParticleElementInitColor';
+import {FuncParticleElementTransColor} from './FuncParticleElementTransColor';
+import {FuncParticleElementAlphaFade} from './FuncParticleElementAlphaFade';
+import {FuncParticleElementSize} from './FuncParticleElementSize';
+import {FuncParticleElementTransSize} from './FuncParticleElementTransSize';
+import {FuncParticlePointGravity} from './FuncParticlePointGravity';
+import {FuncParticleTurnToDirectionEnabled} from './FuncParticleTurnToDirectionEnabled';
+import {FuncParticleInfiniteEmitEnabled} from './FuncParticleInfiniteEmitEnabled';
 
 export class	SsEffectFunctionExecuter {
 
-  static funcBasic: FuncParticleElementBasic;
-  static funcRndSeedChange: FuncParticleElementRndSeedChange;
-  static funcDelay: FuncParticleElementDelay;
-  static funcGravity: FuncParticleElementGravity;
-  static funcPosition: FuncParticleElementPosition;
-  static funcRotation: FuncParticleElementRotation;
-  static funcRotationTrans: FuncParticleElementRotationTrans;
-  static funcTransSpeed: FuncParticleElementTransSpeed;
-  static funcTangentialAcceleration: FuncParticleElementTangentialAcceleration;
-  static funcInitColor: FuncParticleElementInitColor;
-  static funcTransColor: FuncParticleElementTransColor;
-  static funcAlphaFade: FuncParticleElementAlphaFade;
-  static funcSize: FuncParticleElementSize;
-  static funcTransSize: FuncParticleElementTransSize;
-  static funcPointGravity: FuncParticlePointGravity;
-  static funcTurnToDirectionEnabled: FuncParticleTurnToDirectionEnabled;
-  static funcParticleInfiniteEmitEnabled: FuncParticleInfiniteEmitEnabled;
+  static funcBasic: FuncParticleElementBasic = new FuncParticleElementBasic();
+  static funcRndSeedChange: FuncParticleElementRndSeedChange = new FuncParticleElementRndSeedChange();
+  static funcDelay: FuncParticleElementDelay = new FuncParticleElementDelay();
+  static funcGravity: FuncParticleElementGravity = new FuncParticleElementGravity();
+  static funcPosition: FuncParticleElementPosition = new FuncParticleElementPosition();
+  static funcRotation: FuncParticleElementRotation = new FuncParticleElementRotation();
+  static funcRotationTrans: FuncParticleElementRotationTrans = new FuncParticleElementRotationTrans();
+  static funcTransSpeed: FuncParticleElementTransSpeed = new FuncParticleElementTransSpeed();
+  static funcTangentialAcceleration: FuncParticleElementTangentialAcceleration = new FuncParticleElementTangentialAcceleration();
+  static funcInitColor: FuncParticleElementInitColor = new FuncParticleElementInitColor();
+  static funcTransColor: FuncParticleElementTransColor = new FuncParticleElementTransColor();
+  static funcAlphaFade: FuncParticleElementAlphaFade = new FuncParticleElementAlphaFade();
+  static funcSize: FuncParticleElementSize = new FuncParticleElementSize();
+  static funcTransSize: FuncParticleElementTransSize = new FuncParticleElementTransSize();
+  static funcPointGravity: FuncParticlePointGravity = new FuncParticlePointGravity();
+  static funcTurnToDirectionEnabled: FuncParticleTurnToDirectionEnabled = new FuncParticleTurnToDirectionEnabled();
+  static funcParticleInfiniteEmitEnabled: FuncParticleInfiniteEmitEnabled = new FuncParticleInfiniteEmitEnabled();
 
   // -------------------------------------------------------------------
   // 挙動反映クラスの呼び出しテーブル
