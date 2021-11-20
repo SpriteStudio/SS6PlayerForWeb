@@ -1,10 +1,9 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import camelCase from 'lodash.camelcase';
-import esbuild from 'rollup-plugin-esbuild';
+import esbuild, { minify } from 'rollup-plugin-esbuild';
 import json from '@rollup/plugin-json';
 import license from 'rollup-plugin-license';
-import { terser } from 'rollup-plugin-terser';
 import * as path from 'path';
 import stripCode from 'rollup-plugin-strip-code';
 
@@ -31,7 +30,7 @@ export default {
   input: `src/${libraryName}.js`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals },
-    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, plugins: [ terser() ] }
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, plugins: [ minify() ] }
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
