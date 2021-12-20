@@ -18,8 +18,10 @@ import {FuncParticleElementTransSize} from './FuncParticleElementTransSize';
 import {FuncParticlePointGravity} from './FuncParticlePointGravity';
 import {FuncParticleTurnToDirectionEnabled} from './FuncParticleTurnToDirectionEnabled';
 import {FuncParticleInfiniteEmitEnabled} from './FuncParticleInfiniteEmitEnabled';
+import {EffectEmitter} from './EffectEmitter';
+import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 
-export class	SsEffectFunctionExecuter {
+export class SsEffectFunctionExecuter {
 
   static funcBasic: FuncParticleElementBasic = new FuncParticleElementBasic();
   static funcRndSeedChange: FuncParticleElementRndSeedChange = new FuncParticleElementRndSeedChange();
@@ -65,17 +67,35 @@ export class	SsEffectFunctionExecuter {
     SsEffectFunctionExecuter.funcParticleInfiniteEmitEnabled,
   ];
 
-	static initalize(beh: SsEffectBehavior , emmiter: SsEffectRenderEmitter) {
+  static initalize(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter) {
     for (let e of beh.plist) {
-      let cf: EffectFuncBase = this.callTable[e.myType];
+      let cf: EffectFuncBase = SsEffectFunctionExecuter.callTable[e.myType];
       cf.initalizeEmmiter(e, emmiter);
     }
   }
+
   /*
 	static updateEmmiter( SsEffectBehavior* beh , SsEffectRenderEmitter* emmiter);
-	static initializeParticle( SsEffectBehavior* beh , SsEffectRenderEmitter* e , SsEffectRenderParticle* particle );
-	static updateParticle( SsEffectBehavior* beh , SsEffectRenderEmitter* e , SsEffectRenderParticle* particle );
+	*/
 
-	static initializeEffect(SsEffectBehavior* beh, SsEffectEmitter* emmiter);
-   */
+	static initializeParticle(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter, particle: SsEffectRenderParticle) {
+    for (let e of beh.plist) {
+      const cf: EffectFuncBase = SsEffectFunctionExecuter.callTable[e.myType];
+      cf.initializeParticle(e, emmiter, particle);
+    }
+  }
+
+  static updateParticle(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter, particle: SsEffectRenderParticle) {
+    for (let e of beh.plist) {
+      const cf: EffectFuncBase = SsEffectFunctionExecuter.callTable[e.myType];
+      cf.updateParticle(e, emmiter, particle);
+    }
+  }
+
+  static initializeEffect(beh: SsEffectBehavior, emmiter: EffectEmitter) {
+    for (let e of beh.plist) {
+      const cf: EffectFuncBase = SsEffectFunctionExecuter.callTable[e.myType];
+      cf.initalizeEffect(e, emmiter);
+    }
+  }
 }

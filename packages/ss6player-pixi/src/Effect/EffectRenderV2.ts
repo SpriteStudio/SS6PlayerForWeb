@@ -113,45 +113,23 @@ export class EffectRenderV2 {
 
   protected initEmitter(e: EffectEmitter, node: EffectNode) {
     e.refData = node.getMyBehavior();
-    /*
-	e->refCell = e->refData->refCell;
-	SsCelMapLinker* link = this->curCellMapManager->getCellMapLink( e->refData->CellMapName );
 
-	if ( link )
-	{
-		SsCell * cell = link->findCell( e->refData->CellName );
+    e.dispCell.refCell = e.refData.refCell;
+    e.dispCell.blendType = e.refData.blendType;
 
-		getCellValue(	this->curCellMapManager ,
-			e->refData->CellMapName ,
-			e->refData->CellName ,
-			e->dispCell );
-	}else{
-		DEBUG_PRINTF( "cell not found : %s , %s\n" ,
-			e->refData->CellMapName.c_str(),
-			e->refData->CellName.c_str()
-			);
-	}
- */
-	e.dispCell.refCell = e.refData.refCell;
-	e.dispCell.blendType = e.refData.blendType;
+    SsEffectFunctionExecuter.initializeEffect(e.refData, e);
 
-	SsEffectFunctionExecuter.initializeEffect( e->refData , e );
+    e.emitterSeed = this.mySeed;
 
-	e->emitterSeed = this->mySeed;
+    if (e.particle.userOverrideRSeed) {
+      e.emitterSeed = e.particle.overrideRSeed;
+    } else {
+      if (this.effectData.isLockRandSeed) {
+        e.emitterSeed = (this.effectData.lockRandSeed + 1) * EffectConstants.SEED_MAGIC;
+      }
+    }
 
-	if ( e->particle.userOverrideRSeed )
-	{
-		e->emitterSeed = e->particle.overrideRSeed;
-
-	}else{
-		if ( this->effectData->isLockRandSeed )
-		{
-			e->emitterSeed = (this->effectData->lockRandSeed+1) * SEED_MAGIC;
-		}
-	}
-
-	e->emitter.life+= e->particle.delay;//�f�B���C�����Z
-
+    e.emitter.life += e.particle.delay;
   }
 
   protected clearEmitterList() {
