@@ -122,7 +122,12 @@ export class SS6Player extends Container {
     }
 
     // Ticker
-    Ticker.shared.add(this.Update, this);
+    this.on('added', (...args: Array<any>) => {
+      Ticker.shared.add(this.Update, this);
+    }, this);
+    this.on('removed', (...args: Array<any>) => {
+      Ticker.shared.remove(this.Update, this);
+    }, this);
   }
 
   /**
