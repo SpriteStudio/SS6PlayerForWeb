@@ -43,10 +43,10 @@
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/display": "^6.2.0",
-    "@pixi/graphics": "^6.2.0",
-    "@pixi/core": "^6.2.0",
-    "@pixi/app": "^6.2.0"
+    "@pixi/display": "^6.2.1",
+    "@pixi/graphics": "^6.2.1",
+    "@pixi/core": "^6.2.1",
+    "@pixi/app": "^6.2.1"
   },
   "dependencies": {
     "ss6player-pixi": "^1.7.0",
@@ -58,17 +58,17 @@
     "typedoc": "^0.22.10",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.61.1",
+    "rollup": "^2.62.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^4.1.0",
     "rollup-plugin-license": "^2.6.0",
     "@rollup/plugin-node-resolve": "^13.1.1",
-    "rollup-plugin-esbuild": "^4.7.2",
-    "esbuild": "^0.14.6",
+    "rollup-plugin-esbuild": "^4.8.1",
+    "esbuild": "^0.14.8",
     "rollup-plugin-strip-code": "^0.2.7",
     "@types/offscreencanvas": "^2019.6.4",
-    "pixi.js": "^6.2.0",
+    "pixi.js": "^6.2.1",
     "concurrently": "^6.5.1",
     "http-server": "^14.0.0",
     "opener": "^1.5.2",
