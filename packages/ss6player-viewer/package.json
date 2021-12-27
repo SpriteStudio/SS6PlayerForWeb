@@ -1,7 +1,7 @@
 {
   "name": "ss6player-viewer",
   "privatej": true,
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "SS6Player for viewer",
   "keywords": [
     "SpriteStudio",
@@ -49,7 +49,7 @@
     "@pixi/app": "^6.2.1"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.7.0",
+    "ss6player-pixi": "^1.7.1",
     "ssfblib": "1.1.0",
     "jszip": "^3.7.1"
   },
