@@ -1,6 +1,6 @@
 {
   "name": "ss6player-pixi",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -35,44 +35,44 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "docs": "typedoc --out ../../docs/ss6player_pixi_api --theme minimal src",
+    "docs": "typedoc --out ../../docs/ss6player_pixi_api src/ss6player-pixi.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/loaders": "^6.1.1",
-    "@pixi/display": "^6.1.1",
-    "@pixi/mesh-extras": "^6.1.1",
-    "@pixi/ticker": "^6.1.1",
-    "@pixi/filter-color-matrix": "^6.1.1",
-    "@pixi/core": "^6.1.1",
-    "@pixi/constants": "^6.1.1"
+    "@pixi/loaders": "^6.2.1",
+    "@pixi/display": "^6.2.1",
+    "@pixi/mesh-extras": "^6.2.1",
+    "@pixi/ticker": "^6.2.1",
+    "@pixi/filter-color-matrix": "^6.2.1",
+    "@pixi/core": "^6.2.1",
+    "@pixi/constants": "^6.2.1"
   },
   "dependencies": {
-    "flatbuffers": "^2.0.3",
     "ssfblib": "1.1.0"
   },
   "devDependencies": {
-    "pixi.js": "^6.1.1",
-    "concurrently": "^6.2.1",
-    "http-server": "^13.0.0",
+    "typescript": "^4.5.4",
+    "typedoc": "^0.22.10",
     "lodash.camelcase": "^4.3.0",
-    "opener": "^1.5.2",
     "rimraf": "^3.0.2",
-    "rollup": "^2.56.1",
-    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup": "^2.62.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-license": "^2.5.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-sourcemaps": "^0.6.3",
-    "rollup-plugin-typescript2": "^0.30.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "rollup-plugin-license": "^2.6.0",
+    "@rollup/plugin-node-resolve": "^13.1.1",
+    "rollup-plugin-esbuild": "^4.8.1",
+    "esbuild": "^0.14.8",
+    "@types/offscreencanvas": "^2019.6.4",
+    "pixi.js": "^6.2.1",
+    "concurrently": "^6.5.1",
+    "http-server": "^14.0.0",
+    "opener": "^1.5.2",
     "tslint": "^6.1.3",
-    "tslint-config-standard": "^9.0.0",
-    "typedoc": "^0.21.5",
-    "typescript": "^4.3.5"
+    "tslint-config-standard": "^9.0.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"

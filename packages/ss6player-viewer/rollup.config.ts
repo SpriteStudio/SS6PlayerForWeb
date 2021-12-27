@@ -1,13 +1,12 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import sourceMaps from 'rollup-plugin-sourcemaps';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import camelCase from 'lodash.camelcase';
-import typescript from 'rollup-plugin-typescript2';
-import json from 'rollup-plugin-json';
+import esbuild, { minify } from 'rollup-plugin-esbuild';
+import json from '@rollup/plugin-json';
 import license from 'rollup-plugin-license';
-import { terser } from 'rollup-plugin-terser';
-import * as path from 'path';
-import stripCode from "rollup-plugin-strip-code"
+import stripCode from 'rollup-plugin-strip-code';
+
+const production = !process.env.ROLLUP_WATCH;
 
 const pkg = require('./package.json');
 
@@ -31,7 +30,7 @@ export default {
   input: `src/${libraryName}.ts`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner: pixiBanner },
-    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner: pixiBanner, plugins: [ terser() ] },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner: pixiBanner, plugins: [ minify() ] },
     { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals, banner: pixiBanner },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
@@ -45,7 +44,7 @@ export default {
     // Allow json resolution
     json(),
     // Compile TypeScript files
-    typescript({ useTsconfigDeclarationDir: true }),
+    esbuild({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
     commonjs(),
     // Allow node_modules resolution, so you can use 'external' to control
@@ -56,8 +55,6 @@ export default {
     stripCode({
       pattern: "this.PIXI = this.PIXI || {};"
     }),
-    // Resolve source maps to the original source
-    sourceMaps(),
     license({
       banner: `-----------------------------------------------------------
  SS6Player For Viewer v<%= pkg.version %>
