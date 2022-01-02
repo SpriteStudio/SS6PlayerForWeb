@@ -1,13 +1,19 @@
 import {SsEffectRenderAtom} from './SsEffectRenderAtom';
-import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
-import {SsEffectBehavior} from './EffectBehavior';
 
 import {Point} from '@pixi/math';
-import {SsCellValue} from './SsCellValue';
-import {SsRenderType} from './SsRenderType';
-import {SsEffectRenderer} from './SsEffectRenderer';
 import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
 
+import {SsCellValue} from './SsCellValue';
+import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
+import {SsEffectBehavior} from './EffectBehavior';
+import {EffectNode} from './EffectNode';
+import {SsRenderType} from './SsRenderType';
+import {SsEffectRenderer} from './SsEffectRenderer';
+import {SsColor} from './SsColor';
+
+// --------------------------------------------------------------------------
+// パーティクルオブジェクト
+// --------------------------------------------------------------------------
 export class SsEffectRenderParticle extends SsEffectRenderAtom {
   dispCell: SsCellValue;
 
@@ -28,61 +34,71 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   _startsize: Point;
   _divsize: Point;
 
-  SsU8Color _color;
-	SsU8Color	_startcolor;
-	SsU8Color	_endcolor;
+  _color: SsColor;
+  _startcolor: SsColor;
+  _endcolor: SsColor;
 
-	speed: number;		// 現在持っている速度
+  _speed: number;		// 現在持っている速度
   firstspeed: number;
   lastspeed: number;
-	vector: Point;
+  vector: Point = new Point();
 
-	_force: Point;
-  _gravity: Point;
-  // _orggravity: Point;
+  _force: Point = new Point();
+  _gravity: Point = new Point();
+  // SsVector2   _orggravity;
 
   _radialAccel: number;
-	_tangentialAccel: number;
-	direction: number;
-	isTurnDirection: boolean;
+  _tangentialAccel: number;
+  direction: number;
+  isTurnDirection: boolean;
 
-  _execforce: Point; // 処理中の力 最終的には単位当たりの力に変換
+  _execforce: Point = new Point(); // 処理中の力 最終的には単位当たりの力に変換
 
   InitParameter() {
 
-		super.Initialize();
+    super.Initialize();
 
-    this._position = new Point(0,0);
-		this._baseEmiterPosition = new Point(0,0);
-		this._backposition = new Point(0,0);
-		this._rotation = 0;
-		this._size = new Point(1.0, 1.0);
-		this._startsize = new Point(1.0, 1.0);
-		this._divsize = new Point(0.0, 0.0);
-		this._force = new Point(0,0);
-		this._gravity = new Point(0,0);
-		this._radialAccel = 0;
-		this._tangentialAccel = 0;
-		this._color = SsU8Color(255,255,255,255) ;
+    this._position = new Point(0, 0);
+    this._baseEmiterPosition = new Point(0, 0);
+    this._backposition = new Point(0, 0);
+    this._rotation = 0;
+    this._size = new Point(1.0, 1.0);
+    this._startsize = new Point(1.0, 1.0);
+    this._divsize = new Point(0.0, 0.0);
+    this._force = new Point(0, 0);
+    this._gravity = new Point(0, 0);
+    this._radialAccel = 0;
+    this._tangentialAccel = 0;
+    this._color = new SsColor(255, 255, 255, 255);
     this._startcolor = this._color;
     this._exsitTime = 0;
-		this._execforce = new Point(0,0);
+    this._execforce = new Point(0, 0);
     this.parentEmitter = null;
     this.dispCell = null;
-	}
+  }
 
-  constructor(refdata: SsEffectNode , _p: SsEffectRenderAtom) {
+  constructor()
+  constructor(refdata: EffectNode, _p: SsEffectRenderAtom);
+  constructor(a1?: any, a2?: any) {
     super();
+    if (a1 === undefined) {
+      this.parentEmitter = null;
+    } else {
+      let refdata: EffectNode = a1;
+      let _p: SsEffectRenderAtom = a2;
+      this.data = refdata;
+      this.parent = _p;
+      this.InitParameter();
+    }
+  }
 
-    this.data = refdata;
-    this.parent = _p;
-    this.InitParameter();
-	}
+  getMyType(): SsRenderType {
+    return SsRenderType.ParticleNode;
+  }
 
-  getMyType(): SsRenderType { return SsRenderType.ParticleNode; }
-
-	// 生成フェーズ
+  // 生成フェーズ
   Initialize() {
+    // TODO: impl
     if (!this.m_isInit) {
       let n: SsEffectNode = this.data.ctop;
 
@@ -107,9 +123,11 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
     }
 
     this.m_isInit = true;
+
   }
 
   genarate(render: SsEffectRenderer): boolean {
+    // TODO: impl
     let n: SsEffectNode = this.data.ctop;
     if (this.m_isInit && !this.m_isCreateChild) {
       if (this.parentEmitter !== null) {
@@ -136,7 +154,8 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   }
 
   update(delta: number) {
-    // _rotation = 0;
+    // TODO: impl
+          // _rotation = 0;
     if (!this.isInit()) {
       return;
     }
@@ -165,12 +184,13 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
         this.position.y = this._position.y;
       }
     }
+
   }
 
   draw(render: SsEffectRenderer) {
-    super.draw(render);
-    // TODO: impl
-  }
+      // TODO: impl
+      super.draw(render);
+    }
 
   count() {
     if (this.parentEmitter !== null) {
@@ -218,6 +238,6 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   }
 
   updateForce(delta: number) {
-
+    // TODO: impl
   }
 }

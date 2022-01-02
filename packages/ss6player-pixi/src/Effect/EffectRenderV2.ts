@@ -123,6 +123,7 @@ export class EffectRenderV2 {
 
     if (e.particle.userOverrideRSeed) {
       e.emitterSeed = e.particle.overrideRSeed;
+
     } else {
       if (this.effectData.isLockRandSeed) {
         e.emitterSeed = (this.effectData.lockRandSeed + 1) * EffectConstants.SEED_MAGIC;
