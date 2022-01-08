@@ -3493,9 +3493,6 @@
           if (partData.name() === partName) {
             let mesh = this.prevMesh[index];
             if (mesh === null || mesh instanceof SS6Player) {
-              mesh = this.MakeCellPlayer(animePackName + "/" + animeName);
-              mesh.name = partData.name();
-              this.prevMesh[index] = mesh;
               this.substituteOverWrite[index] = overWrite;
               if (keyParam === null) {
                 let defaultKeyParam = new SS6PlayerInstanceKeyParam();
@@ -3505,6 +3502,9 @@
               } else {
                 this.substituteKeyParam[index] = keyParam;
               }
+              mesh = this.MakeCellPlayer(animePackName + "/" + animeName, this.substituteKeyParam[index].refStartframe);
+              mesh.name = partData.name();
+              this.prevMesh[index] = mesh;
               rc = true;
               break;
             }
@@ -3689,11 +3689,11 @@
       }
       return null;
     }
-    MakeCellPlayer(refname) {
+    MakeCellPlayer(refname, refStart = void 0) {
       const split = refname.split("/");
       const ssp = new SS6Player(this.ss6project);
       ssp.Setup(split[0], split[1]);
-      ssp.Play();
+      ssp.Play(refStart);
       return ssp;
     }
     static GetVerts(cell, data) {
