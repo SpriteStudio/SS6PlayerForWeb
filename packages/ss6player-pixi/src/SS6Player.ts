@@ -583,6 +583,7 @@ export class SS6Player extends Container {
 
   private _uint32 = new Uint32Array(1);
   private _float32 = new Float32Array(this._uint32.buffer);
+
   /**
    * int型からfloat型に変換する
    * @return {floatView[0]} - float型に変換したデータ
@@ -1305,7 +1306,7 @@ export class SS6Player extends Container {
    *
    * @constructor
    */
-  public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
+  public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite: boolean, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
     let rc = false;
 
     if (this.curAnimePackName !== null && this.curAnimation !== null) {
