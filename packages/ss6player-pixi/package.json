@@ -1,6 +1,7 @@
 {
   "name": "ss6player-pixi",
-  "version": "1.7.1",
+  "private": true,
+  "version": "1.7.2",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
