@@ -361,11 +361,13 @@ export class SS6Player extends Container {
    * アニメーション再生を開始する
    */
   public Play();
+  // tslint:disable-next-line:unified-signatures
+  public Play(frameNo: number);
   public Play(frameNo?: number): void {
     this._isPlaying = true;
     this._isPausing = false;
 
-    let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+    let currentFrame: number = this.playDirection > 0 ? this._startFrame : this._endFrame;
     if (frameNo && typeof frameNo === 'number') {
       currentFrame = frameNo;
     }
@@ -581,6 +583,7 @@ export class SS6Player extends Container {
 
   private _uint32 = new Uint32Array(1);
   private _float32 = new Float32Array(this._uint32.buffer);
+
   /**
    * int型からfloat型に変換する
    * @return {floatView[0]} - float型に変換したデータ
@@ -1303,7 +1306,7 @@ export class SS6Player extends Container {
    *
    * @constructor
    */
-  public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
+  public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite: boolean, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
     let rc = false;
 
     if (this.curAnimePackName !== null && this.curAnimation !== null) {
@@ -1315,10 +1318,6 @@ export class SS6Player extends Container {
         if (partData.name() === partName) {
           let mesh: any = this.prevMesh[index];
           if (mesh === null || mesh instanceof SS6Player) {
-            mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
-            mesh.name = partData.name();
-
-            this.prevMesh[index] = mesh;
             this.substituteOverWrite[index] = overWrite;
             if (keyParam === null) {
               let defaultKeyParam = new SS6PlayerInstanceKeyParam();
@@ -1328,6 +1327,11 @@ export class SS6Player extends Container {
             } else {
               this.substituteKeyParam[index] = keyParam;
             }
+
+            mesh = this.MakeCellPlayer(animePackName + '/' + animeName, this.substituteKeyParam[index].refStartframe);
+            mesh.name = partData.name();
+            this.prevMesh[index] = mesh;
+
             rc = true;
             break;
           }
@@ -1624,13 +1628,14 @@ export class SS6Player extends Container {
   /**
    * セルをインスタンスで作成
    * @param {String} refname 参照アニメ名
+   * @param {number or undefined} refStart
    * @return {SS6Player} - インスタンス
    */
-  private MakeCellPlayer(refname: string): SS6Player {
+  private MakeCellPlayer(refname: string, refStart: number = undefined): SS6Player {
     const split = refname.split('/');
     const ssp = new SS6Player(this.ss6project);
     ssp.Setup(split[0], split[1]);
-    ssp.Play();
+    ssp.Play(refStart);
 
     return ssp;
   }
