@@ -1318,19 +1318,20 @@ export class SS6Player extends Container {
         if (partData.name() === partName) {
           let mesh: any = this.prevMesh[index];
           if (mesh === null || mesh instanceof SS6Player) {
-            this.substituteOverWrite[index] = overWrite;
-            if (keyParam === null) {
-              let defaultKeyParam = new SS6PlayerInstanceKeyParam();
-              defaultKeyParam.refStartframe = mesh.startFrame;
-              defaultKeyParam.refEndframe = mesh.endFrame;
-              this.substituteKeyParam[index] = defaultKeyParam;
-            } else {
-              this.substituteKeyParam[index] = keyParam;
-            }
+            let keyParamAsSubstitute: SS6PlayerInstanceKeyParam;
 
-            mesh = this.MakeCellPlayer(animePackName + '/' + animeName, this.substituteKeyParam[index].refStartframe);
+            if (keyParam !== null) {
+              keyParamAsSubstitute = keyParam;
+              mesh = this.MakeCellPlayer(animePackName + '/' + animeName, keyParam.refStartframe);
+            } else {
+              mesh = this.MakeCellPlayer(animePackName + '/' + animeName);
+              keyParamAsSubstitute = new SS6PlayerInstanceKeyParam();
+              keyParamAsSubstitute.refStartframe = (mesh as SS6Player).startFrame;
+              keyParamAsSubstitute.refEndframe = (mesh as SS6Player).endFrame;
+            }
             mesh.name = partData.name();
             this.prevMesh[index] = mesh;
+            this.substituteKeyParam[index] = keyParamAsSubstitute;
 
             rc = true;
             break;
