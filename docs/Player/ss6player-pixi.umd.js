@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.7.2
+ * SS6Player For pixi.js v1.7.3
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -3458,18 +3458,19 @@ this.PIXI = this.PIXI || {};
             if (partData.name() === partName) {
               let mesh = this.prevMesh[index];
               if (mesh === null || mesh instanceof SS6Player) {
-                this.substituteOverWrite[index] = overWrite;
-                if (keyParam === null) {
-                  let defaultKeyParam = new SS6PlayerInstanceKeyParam();
-                  defaultKeyParam.refStartframe = mesh.startFrame;
-                  defaultKeyParam.refEndframe = mesh.endFrame;
-                  this.substituteKeyParam[index] = defaultKeyParam;
+                let keyParamAsSubstitute;
+                if (keyParam !== null) {
+                  keyParamAsSubstitute = keyParam;
+                  mesh = this.MakeCellPlayer(animePackName + "/" + animeName, keyParam.refStartframe);
                 } else {
-                  this.substituteKeyParam[index] = keyParam;
+                  mesh = this.MakeCellPlayer(animePackName + "/" + animeName);
+                  keyParamAsSubstitute = new SS6PlayerInstanceKeyParam();
+                  keyParamAsSubstitute.refStartframe = mesh.startFrame;
+                  keyParamAsSubstitute.refEndframe = mesh.endFrame;
                 }
-                mesh = this.MakeCellPlayer(animePackName + "/" + animeName, this.substituteKeyParam[index].refStartframe);
                 mesh.name = partData.name();
                 this.prevMesh[index] = mesh;
+                this.substituteKeyParam[index] = keyParamAsSubstitute;
                 rc = true;
                 break;
               }
