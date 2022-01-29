@@ -1,11 +1,13 @@
 import {Point} from '@pixi/math';
+import {SsU8Color} from './SsU8Color';
+import {SsPoint2} from './SsPoint2';
 
 export class particleParameter {
 
   scale: Point = new Point();
 
-  startcolor: Array<number> = new Array(4);
-  endcolor: Array<number> = new Array(4);
+  startcolor: SsU8Color = new SsU8Color();
+  endcolor: SsU8Color = new SsU8Color();
 
   speed: number;
   speed2: number;
@@ -14,11 +16,11 @@ export class particleParameter {
   angleVariance: number;
 
   useGravity: boolean;
-  gravity: Point = new Point();
+  gravity: SsPoint2 = new SsPoint2();
 
   useOffset: boolean;
-  offset: Point = new Point();
-  offset2: Point = new Point();
+  offset: SsPoint2 = new SsPoint2();
+  offset2: SsPoint2 = new SsPoint2();
 
   useRotation: boolean;
   rotation: number;
@@ -36,28 +38,28 @@ export class particleParameter {
   tangentialAccel2: number;
 
   useColor: boolean;
-  initColor: Array<number> = new Array(4);
-  initColor2: Array<number> = new Array(4);
+  initColor: SsU8Color = new SsU8Color();
+  initColor2: SsU8Color = new SsU8Color();
 
   useTransColor: boolean;
-  transColor: Array<number> = new Array(4);
-  transColor2: Array<number> = new Array(4);
+  transColor: SsU8Color = new SsU8Color();
+  transColor2: SsU8Color = new SsU8Color();
 
   useInitScale: boolean;
-  scaleRange: Point = new Point();
+  scaleRange: SsPoint2 = new SsPoint2();
   scaleFactor: number;
   scaleFactor2: number;
 
   useTransScale: boolean;
-  transscale: Point = new Point();
-  transscaleRange: Point = new Point();
+  transscale: SsPoint2 = new SsPoint2();
+  transscaleRange: SsPoint2 = new SsPoint2();
   transscaleFactor: number;
   transscaleFactor2: number;
 
   delay: number;
 
   usePGravity: boolean;
-  gravityPos: Point = new Point();
+  gravityPos: SsPoint2 = new SsPoint2();
   gravityPower: number;
 
   useAlphaFade: boolean;

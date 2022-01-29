@@ -1,10 +1,10 @@
 import {EffectElementBase} from './EffectElementBase';
-import {Point} from '@pixi/math';
 import {EffectFunctionType} from './EffectFunctionType';
+import {SsPoint2} from './SsPoint2';
 
 export class ParticleElementRotation extends EffectElementBase {
-  Rotation: Point = new Point(0, 0);
-  RotationAdd: Point = new Point(0, 0);
+  Rotation: SsPoint2 = new SsPoint2(0, 0);
+  RotationAdd: SsPoint2 = new SsPoint2(0, 0);
 
   constructor() {
     super();

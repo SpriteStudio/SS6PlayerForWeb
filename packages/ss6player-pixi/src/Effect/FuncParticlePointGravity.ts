@@ -4,7 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticlePointGravity} from './ParticlePointGravity';
-import {Point} from '@pixi/math';
+import {SsPoint2} from './SsPoint2';
 
 export class FuncParticlePointGravity implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -27,17 +27,18 @@ export class FuncParticlePointGravity implements EffectFuncBase {
   updateParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticlePointGravity = ele as ParticlePointGravity;
 
-    let Target: Point = new Point();
+    let Target: SsPoint2 = new SsPoint2();
 		Target.x = source.Position.x + p.parentEmitter.position.x;
 		Target.y = source.Position.y + p.parentEmitter.position.y;
 
 		// 現在地点から指定された点に対してのベクトル*パワーを与える
-		let v2: Point = new Point();
+		let v2: SsPoint2 = new SsPoint2();
     v2.x = Target.x - p._position.x;
     v2.y = Target.y - p._position.y;
-		let v2_temp: Point = v2;
+		let v2_temp: SsPoint2 = v2;
 
-		SsVector2::normalize(v2, &v2);
+    SsPoint2.normalizeStatic(v2, v2);
+
 		v2.x = v2.x * source.Power;
     v2.y = v2.y * source.Power;
 

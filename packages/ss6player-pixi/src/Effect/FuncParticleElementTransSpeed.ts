@@ -4,6 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTransSpeed} from './ParticleElementTransSpeed';
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementTransSpeed implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -18,7 +19,7 @@ export class FuncParticleElementTransSpeed implements EffectFuncBase {
 
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementTransSpeed = ele as ParticleElementTransSpeed;
-    p.lastspeed = VarianceCalc(e, source.Speed.getMinValue(), source.Speed.getMaxValue());
+    p.lastspeed = ParticleUtils.VarianceCalc(e, source.Speed.getMinValue(), source.Speed.getMaxValue());
   }
 
   updateEmmiter(ele: EffectElementBase, emmiter: SsEffectRenderEmitter) {

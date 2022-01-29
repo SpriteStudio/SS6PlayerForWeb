@@ -4,7 +4,8 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTransSize} from './ParticleElementTransSize';
-import {Point} from '@pixi/math';
+import {ParticleUtils} from './ParticleUtils';
+import {SsPoint2} from './SsPoint2';
 
 export class FuncParticleElementTransSize implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -26,11 +27,11 @@ export class FuncParticleElementTransSize implements EffectFuncBase {
 
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementTransSize = ele as ParticleElementTransSize;
-    let endsize: Point = new Point();
-    endsize.x = VarianceCalc(e, source.SizeX.getMinValue(), source.SizeX.getMaxValue());
-    endsize.y = VarianceCalc(e, source.SizeY.getMinValue(), source.SizeY.getMaxValue());
+    let endsize: SsPoint2 = new SsPoint2();
+    endsize.x = ParticleUtils.VarianceCalc(e, source.SizeX.getMinValue(), source.SizeX.getMaxValue());
+    endsize.y = ParticleUtils.VarianceCalc(e, source.SizeY.getMinValue(), source.SizeY.getMaxValue());
 
-    let sf: number = VarianceCalc(e, source.ScaleFactor.getMinValue(), source.ScaleFactor.getMaxValue());
+    let sf: number = ParticleUtils.VarianceCalc(e, source.ScaleFactor.getMinValue(), source.ScaleFactor.getMaxValue());
 
     endsize.x = endsize.x * sf;
     endsize.y = endsize.y * sf;

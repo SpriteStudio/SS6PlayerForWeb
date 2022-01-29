@@ -77,6 +77,20 @@ export class SsPoint2 extends Point {
     return tmp;
   }
 
+  static normalizeStatic(in_: SsPoint2, out_: SsPoint2) {
+    const len: number = in_.getLength();
+    let div = 0;
+
+    if (len === 0) {
+      div = 0;
+    } else {
+      div = 1.0 / in_.getLength();
+    }
+
+    out_.x = in_.x * div;
+    out_.y = in_.y * div;
+  }
+
   lerp(other: SsPoint2, alpha: number): SsPoint2 {
 
     let tmp: SsPoint2 = new SsPoint2(this.x, this.y);

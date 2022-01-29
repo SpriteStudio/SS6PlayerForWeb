@@ -1,13 +1,15 @@
 import {EffectElementBase} from './EffectElementBase';
-import {Point} from '@pixi/math';
 import {EffectFunctionType} from './EffectFunctionType';
+import {VarianceValue} from './VarianceValue';
 
 export class ParticleElementPosition extends EffectElementBase {
-  OffsetX: Point = new Point(0, 0);
-  OffsetY: Point = new Point(0, 0);
+  OffsetX: VarianceValue<number>;
+  OffsetY: VarianceValue<number>;
 
   constructor() {
     super();
     super.setType(EffectFunctionType.Position);
+    this.OffsetX = new VarianceValue<number>(0, 0);
+    this.OffsetY = new VarianceValue<number>(0, 0);
   }
 }

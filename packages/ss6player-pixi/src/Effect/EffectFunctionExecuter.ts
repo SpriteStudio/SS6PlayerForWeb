@@ -74,9 +74,12 @@ export class SsEffectFunctionExecuter {
     }
   }
 
-  /*
-	static updateEmmiter( SsEffectBehavior* beh , SsEffectRenderEmitter* emmiter);
-	*/
+	static updateEmmiter(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter) {
+    for (let e of beh.plist) {
+      const cf: EffectFuncBase = SsEffectFunctionExecuter.callTable[e.myType];
+      cf.updateEmmiter(e, emmiter);
+    }
+  }
 
 	static initializeParticle(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter, particle: SsEffectRenderParticle) {
     for (let e of beh.plist) {

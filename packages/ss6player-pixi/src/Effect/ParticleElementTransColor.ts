@@ -1,9 +1,11 @@
 import {EffectElementBase} from './EffectElementBase';
 import {EffectFunctionType} from './EffectFunctionType';
 import {hex2rgb} from '@pixi/utils';
+import {VarianceValue} from './VarianceValue';
+import {SsU8Color} from './SsU8Color';
 
 export class ParticleElementTransColor extends EffectElementBase {
-  Color: Array<Array<number>> = new Array(2);
+  Color: VarianceValue<SsU8Color> = new VarianceValue<SsU8Color>(new SsU8Color(255, 255, 255, 255), new SsU8Color(255, 255, 255, 255));
 
   constructor() {
     super();

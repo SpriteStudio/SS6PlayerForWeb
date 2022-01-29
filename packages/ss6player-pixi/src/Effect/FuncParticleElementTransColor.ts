@@ -4,6 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTransColor} from './ParticleElementTransColor';
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementTransColor implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, emmiter: EffectEmitter) {
@@ -14,7 +15,7 @@ export class FuncParticleElementTransColor implements EffectFuncBase {
 
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementTransColor = ele as ParticleElementTransColor;
-    VarianceCalcColor(e, p._endcolor, source.Color.getMinValue(), source.Color.getMaxValue());
+    ParticleUtils.VarianceCalcColor(e, p._endcolor, source.Color.getMinValue(), source.Color.getMaxValue());
   }
 
   updateEmmiter(ele: EffectElementBase, emmiter: SsEffectRenderEmitter) {

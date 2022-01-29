@@ -1,6 +1,5 @@
 import {SsEffectRenderAtom} from './SsEffectRenderAtom';
 
-import {Point} from '@pixi/math';
 import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
 
 import {SsCellValue} from './SsCellValue';
@@ -9,7 +8,9 @@ import {SsEffectBehavior} from './EffectBehavior';
 import {EffectNode} from './EffectNode';
 import {SsRenderType} from './SsRenderType';
 import {SsEffectRenderer} from './SsEffectRenderer';
-import {SsColor} from './SsColor';
+import {SsU8Color} from './SsU8Color';
+import {SsPoint2} from './SsPoint2';
+import {SsEffectNode} from './SsEffectNode';
 
 // --------------------------------------------------------------------------
 // パーティクルオブジェクト
@@ -21,58 +22,58 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   parentEmitter: SsEffectRenderEmitter;
   refBehavior: SsEffectBehavior;
 
-  _baseEmiterPosition: Point; // もしかしてもう使ってないかも
-  _backposition: Point; // force計算前のポジション
-  _position: Point; // 描画用ポジション
+  _baseEmiterPosition: SsPoint2; // もしかしてもう使ってないかも
+  _backposition: SsPoint2; // force計算前のポジション
+  _position: SsPoint2; // 描画用ポジション
 
   _rotation: number;
   _rotationAdd: number;
   _rotationAddDst: number;
   _rotationAddOrg: number;
 
-  _size: Point;
-  _startsize: Point;
-  _divsize: Point;
+  _size: SsPoint2;
+  _startsize: SsPoint2;
+  _divsize: SsPoint2;
 
-  _color: SsColor;
-  _startcolor: SsColor;
-  _endcolor: SsColor;
+  _color: SsU8Color = new SsU8Color();
+  _startcolor: SsU8Color = new SsU8Color();
+  _endcolor: SsU8Color = new SsU8Color();
 
   _speed: number;		// 現在持っている速度
   firstspeed: number;
   lastspeed: number;
-  vector: Point = new Point();
+  vector: SsPoint2 = new SsPoint2();
 
-  _force: Point = new Point();
-  _gravity: Point = new Point();
-  // SsVector2   _orggravity;
+  _force: SsPoint2 = new SsPoint2();
+  _gravity: SsPoint2 = new SsPoint2();
+  _orggravity: SsPoint2 = new SsPoint2();
 
   _radialAccel: number;
   _tangentialAccel: number;
   direction: number;
   isTurnDirection: boolean;
 
-  _execforce: Point = new Point(); // 処理中の力 最終的には単位当たりの力に変換
+  _execforce: SsPoint2 = new SsPoint2(); // 処理中の力 最終的には単位当たりの力に変換
 
   InitParameter() {
 
     super.Initialize();
 
-    this._position = new Point(0, 0);
-    this._baseEmiterPosition = new Point(0, 0);
-    this._backposition = new Point(0, 0);
+    this._position = new SsPoint2(0, 0);
+    this._baseEmiterPosition = new SsPoint2(0, 0);
+    this._backposition = new SsPoint2(0, 0);
     this._rotation = 0;
-    this._size = new Point(1.0, 1.0);
-    this._startsize = new Point(1.0, 1.0);
-    this._divsize = new Point(0.0, 0.0);
-    this._force = new Point(0, 0);
-    this._gravity = new Point(0, 0);
+    this._size = new SsPoint2(1.0, 1.0);
+    this._startsize = new SsPoint2(1.0, 1.0);
+    this._divsize = new SsPoint2(0.0, 0.0);
+    this._force = new SsPoint2(0, 0);
+    this._gravity = new SsPoint2(0, 0);
     this._radialAccel = 0;
     this._tangentialAccel = 0;
-    this._color = new SsColor(255, 255, 255, 255);
+    this._color = new SsU8Color(255, 255, 255, 255);
     this._startcolor = this._color;
     this._exsitTime = 0;
-    this._execforce = new Point(0, 0);
+    this._execforce = new SsPoint2(0, 0);
     this.parentEmitter = null;
     this.dispCell = null;
   }
@@ -116,7 +117,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
         return;
       }
 
-      this.refBehavior = this.parentEmitter.data.getMyBehavior();
+      this.refBehavior = this.parentEmitter.data.GetMyBehavior();
       if (this.refBehavior) {
         SsEffectFunctionExecuter.initializeParticle(refBehavior, parentEmitter, this);
       }
@@ -128,7 +129,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
 
   genarate(render: SsEffectRenderer): boolean {
     // TODO: impl
-    let n: SsEffectNode = this.data.ctop;
+    let n: SsEffectNode = this.data.ctop as SsEffectNode;
     if (this.m_isInit && !this.m_isCreateChild) {
       if (this.parentEmitter !== null) {
         while (n) {
@@ -137,7 +138,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
           }
           let r: SsEffectRenderAtom = render.CreateAtom(this.parentEmitter.myseed, this, n);
           if (r) {
-            n = n.next;
+            n = n.next as SsEffectNode;
             r.Initialize();
             r.update(render.frameDelta);
             r.genarate(render);
@@ -213,12 +214,12 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
     this._exsitTime += delta;
     this._life = this._lifetime - this._exsitTime;
 
-    let tangential: Point = new Point(0, 0);
+    let tangential: SsPoint2 = new SsPoint2(0, 0);
 
     // 接線加速度の計算
-    let radial: Point = new Point(this._position.x, this._position.y);
+    let radial: SsPoint2 = new SsPoint2(this._position.x, this._position.y);
 
-    SsVector2.normalize( radial , &radial );
+    SsPoint2.normalizeStatic(radial , radial);
     tangential = radial;
 
     radial.x = radial.x * this._radialAccel;
@@ -231,10 +232,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
     tangential.x = tangential.x * this._tangentialAccel;
     tangential.y = tangential.y * this._tangentialAccel;
 
-    SsVector2 tmp = radial + tangential;
-
-    this._execforce = tmp;
-
+    this._execforce = new SsPoint2(radial.x + tangential.x, radial.y + tangential.y);
   }
 
   updateForce(delta: number) {

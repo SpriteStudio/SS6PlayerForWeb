@@ -3,6 +3,7 @@ import {SsPoint3} from './SsPoint3';
 import {SsEffectRenderAtom} from './SsEffectRenderAtom';
 import {EffectNode} from './EffectNode';
 import {SsEffectDrawBatch} from './SsEffectDrawBatch';
+import {SsEffectNode} from './SsEffectNode';
 
 export class SsEffectRenderer {
   private effectData: EffectModel = null;
@@ -150,7 +151,7 @@ export class SsEffectRenderer {
     }
 
     // ルートの子要素を調査して作成する
-    let root: EffectNode = this.effectData.getRoot();
+    let root: SsEffectNode = this.effectData.getRoot();
 
     // シード値の決定
     let seed: number = 0;
@@ -219,7 +220,7 @@ export class SsEffectRenderer {
   // TODO: impl SsPartState をどう適応するか考える
   // setParentAnimeState(state: SsPartState){ this.parentState = state; }
 
-  CreateAtom(seed: number, parent: SsEffectRenderAtom, node: EffectNode): SsEffectRenderAtom {
+  CreateAtom(seed: number, parent: SsEffectRenderAtom, node: SsEffectNode): SsEffectRenderAtom {
     // TODO: impl
     return null;
   }

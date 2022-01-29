@@ -1,13 +1,13 @@
 import {EffectElementBase} from './EffectElementBase';
 import {EffectFunctionType} from './EffectFunctionType';
+import {VarianceValue} from "./VarianceValue";
 
 export class ParticleElementAlphaFade extends EffectElementBase {
-  disprange: Float32Array = new Float32Array(2);
+  disprange: VarianceValue<number>;
 
   constructor() {
     super();
     super.setType(EffectFunctionType.AlphaFade);
-    this.disprange[0] = 25.0;
-    this.disprange[1] = 75.0;
+    this.disprange = new VarianceValue<number>(25.0, 75.0);
   }
 }

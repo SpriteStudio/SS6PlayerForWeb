@@ -13,5 +13,4 @@ export interface EffectFuncBase {
   updateParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, particle: SsEffectRenderParticle);
 
   initalizeEffect(ele: EffectElementBase, emmiter: EffectEmitter);
-
 }

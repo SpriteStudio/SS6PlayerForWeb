@@ -1,15 +1,17 @@
-import {Point} from '@pixi/math';
-import {EffectNode} from './EffectNode';
+import {SsPoint2} from './SsPoint2';
 import {SsPoint3} from './SsPoint3';
 import {SsRenderType} from './SsRenderType';
+import {SsEffectNode} from './SsEffectNode';
+import {SsEffectRenderer} from './SsEffectRenderer';
+
 
 export class SsEffectRenderAtom {
   position: SsPoint3;
   rotation: number = 0;
-  scale: Point = new Point(1.0, 1.0);
+  scale: SsPoint2 = new SsPoint2(1.0, 1.0);
 
   parent: SsEffectRenderAtom = null;
-  data: EffectNode;
+  data: SsEffectNode;
   m_isLive: boolean = true;
   m_isInit: boolean = false;
   m_isCreateChild: boolean = false;
@@ -23,10 +25,10 @@ export class SsEffectRenderAtom {
   alpha: number;
 
   constructor();
-  constructor(refdata: EffectNode, _p: SsEffectRenderAtom);
+  constructor(refdata: SsEffectNode, _p: SsEffectRenderAtom);
   constructor(a1?: any, a2?: any) {
     if (a1 !== undefined && a2 !== undefined) {
-      let refdata: EffectNode = a1;
+      let refdata: SsEffectNode = a1;
       let _p: SsEffectRenderAtom = a2;
 
       this.data = refdata;
@@ -59,7 +61,7 @@ export class SsEffectRenderAtom {
     this._life = 1.0;
     this.rotation = 0;
     this.position = new SsPoint3(0, 0, 0);
-    this.scale = new Point(1, 1);
+    this.scale = new SsPoint2(1, 1);
     this.m_isCreateChild = false;
     this.m_isInit = false;
   }
@@ -104,7 +106,7 @@ export class SsEffectRenderAtom {
     return this.rotation;
   }
 
-  getScale(): Point {
+  getScale(): SsPoint2 {
     return this.scale;
   }
 

@@ -8,6 +8,7 @@ import {particleExistSt} from './particleExistSt';
 import {SsRenderBlendType} from './RenderBlendType';
 import {Cell} from 'ssfblib';
 import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
+import {SsEffectNode} from "./SsEffectNode";
 
 export class EffectRenderV2 {
   effectData: EffectModel;
@@ -111,8 +112,8 @@ export class EffectRenderV2 {
     }
   }
 
-  protected initEmitter(e: EffectEmitter, node: EffectNode) {
-    e.refData = node.getMyBehavior();
+  protected initEmitter(e: EffectEmitter, node: SsEffectNode) {
+    e.refData = node.GetMyBehavior();
 
     e.dispCell.refCell = e.refData.refCell;
     e.dispCell.blendType = e.refData.blendType;
@@ -123,7 +124,6 @@ export class EffectRenderV2 {
 
     if (e.particle.userOverrideRSeed) {
       e.emitterSeed = e.particle.overrideRSeed;
-
     } else {
       if (this.effectData.isLockRandSeed) {
         e.emitterSeed = (this.effectData.lockRandSeed + 1) * EffectConstants.SEED_MAGIC;
@@ -134,7 +134,12 @@ export class EffectRenderV2 {
   }
 
   protected clearEmitterList() {
-    // TODO: impl
+    for (let i = 0; i < this.emmiterList.length; i++) {
+      this.emmiterList[i] = null;
+    }
+
+    this.emmiterList = [];
+    this.updateList = [];
   }
 
   play() {
