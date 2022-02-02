@@ -227,10 +227,12 @@ export class SsEffectRenderer {
 
   findBatchList(n: EffectNode): SsEffectDrawBatch {
     // TODO: impl
+    return null;
   }
 
   findBatchListSub(n: EffectNode): SsEffectDrawBatch {
     // TODO: impl
+    return null;
   }
 
   // TODO: impl cocos2d-x用エフェクトスプライトをどう適応するか考える

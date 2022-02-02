@@ -1,9 +1,9 @@
 import {EffectElementBase} from './EffectElementBase';
-import {Point} from '@pixi/math';
 import {EffectFunctionType} from './EffectFunctionType';
+import {SsPoint2} from './SsPoint2';
 
 export class ParticlePointGravity extends EffectElementBase {
-  Position: Point = new Point(0, 0);
+  Position: SsPoint2 = new SsPoint2(0, 0);
   Power: number = 0.0;
 
   constructor() {

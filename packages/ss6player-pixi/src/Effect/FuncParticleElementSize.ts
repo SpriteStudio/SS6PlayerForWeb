@@ -4,6 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementSize} from './ParticleElementSize';
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementSize implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -27,9 +28,9 @@ export class FuncParticleElementSize implements EffectFuncBase {
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementSize = ele as ParticleElementSize;
 
-    p._size.x = VarianceCalc(e, source.SizeX.getMinValue(), source.SizeX.getMaxValue());
-    p._size.y = VarianceCalc(e, source.SizeY.getMinValue(), source.SizeY.getMaxValue());
-    let sf: number = VarianceCalc(e, source.ScaleFactor.getMinValue(), source.ScaleFactor.getMaxValue());
+    p._size.x = ParticleUtils.VarianceCalc(e, source.SizeX.getMinValue(), source.SizeX.getMaxValue());
+    p._size.y = ParticleUtils.VarianceCalc(e, source.SizeY.getMinValue(), source.SizeY.getMaxValue());
+    let sf: number = ParticleUtils.VarianceCalc(e, source.ScaleFactor.getMinValue(), source.ScaleFactor.getMaxValue());
 
     p._size.x = p._size.x * sf;
     p._size.y = p._size.y * sf;

@@ -1,8 +1,8 @@
-import {EffectNode} from './EffectNode';
+import {SsEffectNode} from './SsEffectNode';
 
 export class EffectModel {
-  root: EffectNode = null;
-  nodeList: EffectNode[];
+  root: SsEffectNode = null;
+  nodeList: SsEffectNode[];
   lockRandSeed: number; 	 // ランダムシード固定値
   isLockRandSeed: boolean;  // ランダムシードを固定するか否か
   fps: number;             //
@@ -11,11 +11,11 @@ export class EffectModel {
   layoutScaleX: number;
   layoutScaleY: number;
 
-  getRoot(): EffectNode {
+  getRoot(): SsEffectNode {
     return this.root;
   }
 
-  getNodeList(): EffectNode[] {
+  getNodeList(): SsEffectNode[] {
     return this.nodeList;
   }
 }

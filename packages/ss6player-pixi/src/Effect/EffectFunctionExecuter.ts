@@ -1,4 +1,4 @@
-import {SsEffectBehavior} from './EffectBehavior';
+import {SsEffectBehavior} from './SsEffectBehavior';
 import {EffectFuncBase} from './EffectFuncBase';
 import {FuncParticleElementBasic} from './FuncParticleElementBasic';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';

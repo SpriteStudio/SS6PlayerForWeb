@@ -4,6 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementRotation} from './ParticleElementRotation';
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementRotation implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -22,8 +23,8 @@ export class FuncParticleElementRotation implements EffectFuncBase {
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementRotation = ele as ParticleElementRotation;
 
-		p._rotation = VarianceCalc(e, source.Rotation.getMinValue(), source.Rotation.getMaxValue());
-		p._rotationAdd = VarianceCalc(e, source.RotationAdd.getMinValue(), source.RotationAdd.getMaxValue());
+		p._rotation = ParticleUtils.VarianceCalc(e, source.Rotation.getMinValue(), source.Rotation.getMaxValue());
+		p._rotationAdd = ParticleUtils.VarianceCalc(e, source.RotationAdd.getMinValue(), source.RotationAdd.getMaxValue());
 		p._rotationAddDst = p._rotationAdd;
   }
 

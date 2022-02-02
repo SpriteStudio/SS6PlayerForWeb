@@ -1,10 +1,10 @@
 import {SsRenderBlendType} from './RenderBlendType';
-import {Cell} from 'ssfblib';
+import {SsCell} from './SsCell';
 
 /// パーツが使用するセルの情報
 export class SsCellValue {
   blendType: SsRenderBlendType = SsRenderBlendType.Add;
-  refCell: Cell;
+  refCell: SsCell;
 
   constructor() {
   }

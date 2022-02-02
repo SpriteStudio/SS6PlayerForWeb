@@ -8,7 +8,7 @@ import {SsPoint3} from './SsPoint3';
 import {EffectConstants} from './EffectConstants';
 import {SsU8Color} from './SsU8Color';
 import {SsPoint2} from './SsPoint2';
-import {ParticleUtils} from "./ParticleUtils";
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementBasic implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -54,7 +54,7 @@ export class FuncParticleElementBasic implements EffectFuncBase {
 		let angle_rad: number = EffectConstants.DegreeToRadian((temp_angle + 90.0));
 		let lspeed: number = ParticleUtils.VarianceCalc(e, source.speed.getMinValue(), source.speed.getMaxValue());
 
-		p._speed = lspeed;
+		p.speed = lspeed;
 		p.firstspeed = lspeed;
 		p.vector.x = Math.cos(angle_rad);
 		p.vector.y = Math.sin(angle_rad);

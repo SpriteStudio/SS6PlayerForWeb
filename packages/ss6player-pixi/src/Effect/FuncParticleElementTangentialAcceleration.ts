@@ -4,6 +4,7 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTangentialAcceleration} from './ParticleElementTangentialAcceleration';
+import {ParticleUtils} from './ParticleUtils';
 
 export class FuncParticleElementTangentialAcceleration implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
@@ -18,7 +19,7 @@ export class FuncParticleElementTangentialAcceleration implements EffectFuncBase
 
   initializeParticle(ele: EffectElementBase, e: SsEffectRenderEmitter, p: SsEffectRenderParticle) {
     const source: ParticleElementTangentialAcceleration = ele as ParticleElementTangentialAcceleration;
-    p._tangentialAccel = VarianceCalc(e, source.Acceleration.getMinValue(), source.Acceleration.getMaxValue());
+    p._tangentialAccel = ParticleUtils.VarianceCalc(e, source.Acceleration.getMinValue(), source.Acceleration.getMaxValue());
   }
 
   updateEmmiter(ele: EffectElementBase, emmiter: SsEffectRenderEmitter) {

@@ -6,6 +6,7 @@ import {EmmiterType} from './EmmiterType';
 import {SsEffectDrawBatch} from './SsEffectDrawBatch';
 import {SsRenderType} from './SsRenderType';
 import {SsEffectRenderer} from './SsEffectRenderer';
+import {SsEffectNode} from './SsEffectNode';
 
 // --------------------------------------------------------------------------
 // パーティクル生成能力を持つオブジェクト
@@ -57,11 +58,11 @@ export class SsEffectRenderEmitter extends SsEffectRenderAtom {
   }
 
   constructor();
-  constructor(refdata: EffectNode, _p: SsEffectRenderAtom);
+  constructor(refdata: SsEffectNode, _p: SsEffectRenderAtom);
   constructor(a1?: any, a2?: any) {
     super();
     if (a1 !== undefined) {
-      let refdata: EffectNode = a1;
+      let refdata: SsEffectNode = a1;
       let _p: SsEffectRenderAtom = a2;
 
       this.data = refdata;

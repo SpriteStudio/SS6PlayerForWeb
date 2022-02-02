@@ -6,9 +6,9 @@ import {EffectConstants} from './EffectConstants';
 import {Point} from '@pixi/math';
 import {particleExistSt} from './particleExistSt';
 import {SsRenderBlendType} from './RenderBlendType';
-import {Cell} from 'ssfblib';
 import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
-import {SsEffectNode} from "./SsEffectNode";
+import {SsEffectNode} from './SsEffectNode';
+import {SsCellValue} from './SsCellValue';
 
 export class EffectRenderV2 {
   effectData: EffectModel;
@@ -218,7 +218,7 @@ export class EffectRenderV2 {
   }
 
   drawSprite(
-			dispCell: Cell,
+			dispCell: SsCellValue,
       _position: Point,
 			_size: Point,
       _rotation: number,

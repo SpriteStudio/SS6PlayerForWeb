@@ -4,7 +4,7 @@ import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
 
 import {SsCellValue} from './SsCellValue';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
-import {SsEffectBehavior} from './EffectBehavior';
+import {SsEffectBehavior} from './SsEffectBehavior';
 import {EffectNode} from './EffectNode';
 import {SsRenderType} from './SsRenderType';
 import {SsEffectRenderer} from './SsEffectRenderer';
@@ -39,7 +39,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   _startcolor: SsU8Color = new SsU8Color();
   _endcolor: SsU8Color = new SsU8Color();
 
-  _speed: number;		// 現在持っている速度
+  speed: number;		// 現在持っている速度
   firstspeed: number;
   lastspeed: number;
   vector: SsPoint2 = new SsPoint2();
@@ -101,7 +101,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   Initialize() {
     // TODO: impl
     if (!this.m_isInit) {
-      let n: SsEffectNode = this.data.ctop;
+      let n: SsEffectNode = this.data.ctop as SsEffectNode;
 
       // 子要素を解析  基本的にエミッターのみの生成のはず　（Ｐではエラーでいい）
       // 処理を省いてエミッター生成のつもりで作成する

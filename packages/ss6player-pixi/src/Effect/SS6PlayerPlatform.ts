@@ -1,79 +1,85 @@
 export class SS6PlayerPlatform {
-  SSPlatformInit() {
+
+  // 座標系設定
+	static _direction: number;
+	static _window_w: number;
+	static _window_h: number;
+
+  static SSPlatformInit() {
     // TODO: impl
   }
 
-  SSPlatformRelese() {
+  static SSPlatformRelese() {
     // TODO: impl
   }
 
-  SSSetPlusDirection(direction: number, window_w: number, window_h: number) {
+  static SSSetPlusDirection(direction: number, window_w: number, window_h: number) {
     // TODO: impl
   }
 
-  SSGetPlusDirection(): [number, number, number] /* direction, window_w, window_h */ {
+  static SSGetPlusDirection(): [number, number, number] /* direction, window_w, window_h */ {
     // TODO: impl
     return [0, 0, 0];
   }
 
-  SSRenderingBlendFuncEnable(flg: number) {
+  static SSRenderingBlendFuncEnable(flg: number) {
     // TODO: impl
   }
 
   /*
   // TODO: impl
-  SSFileOpen(pszFileName: string, pszMode: string, unsigned long * pSize, const char * pszZipFileName):  {
+  static SSFileOpen(pszFileName: string, pszMode: string, unsigned long * pSize, const char * pszZipFileName):  {
 
   }
   */
 
-  SSTextureLoad(pszFileName: string, wrapmode: number, filtermode: number, pszZipFileName: string): number {
+  static SSTextureLoad(pszFileName: string, wrapmode: number, filtermode: number, pszZipFileName: string): number {
     // TODO: impl
     return 0;
   }
 
-  SSTextureRelese(handle: number): boolean {
+  static SSTextureRelese(handle: number): boolean {
     // TODO: impl
     return false;
   }
 
-  SSGetTextureIndex(key: string, indexList: [number]): boolean {
+  static SSGetTextureIndex(key: string, indexList: [number]): boolean {
     // TODO: impl
     return false;
   }
 
-  isAbsolutePath(strPath: string): boolean {
+  static isAbsolutePath(strPath: string): boolean {
     // TODO: impl
     return false;
   }
 
-  SSRenderSetup() {
+  static SSRenderSetup() {
     // TODO: impl
   }
 
-  SSRenderEnd() {
+  static SSRenderEnd() {
     // TODO: impl
   }
 
   /*
-  SSDrawSprite(CustomSprite *sprite, State *overwrite_state = NULL) {
+  static SSDrawSprite(CustomSprite *sprite, State *overwrite_state = NULL) {
     // TODO: impl
   }
    */
 
-  SSGetTextureSize(handle: number): [boolean, number, number] /* boolean, w, h */ {
+  static SSGetTextureSize(handle: number): [boolean, number, number] /* boolean, w, h */ {
     // TODO: impl
     return [false, 0, 0];
   }
-  clearMask() {
+  static clearMask() {
     // TODO: impl
   }
-  enableMask(flag: boolean) {
+  static enableMask(flag: boolean) {
     // TODO: impl
   }
 
   /*
-  execMask(sprite: CustomSprite) {
+  static execMask(sprite: CustomSprite) {
     // TODO: impl
   }
    */

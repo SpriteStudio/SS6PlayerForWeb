@@ -1,4 +1,4 @@
-import {SsEffectBehavior} from './EffectBehavior';
+import {SsEffectBehavior} from './SsEffectBehavior';
 import {EffectNode} from 'ssfblib/dist/types/ss/ssfb/effect-node';
 import {EffectNodeBehavior} from 'ssfblib/dist/types/ss/ssfb/effect-node-behavior';
 
@@ -70,7 +70,7 @@ export class SsEffectNode extends SimpleTree {
   }
   visible: boolean;
 
-  behavior: EffectNodeBehavior;
+  behavior: SsEffectBehavior;
 
   constructor(node: EffectNode) {
     super();
@@ -81,7 +81,7 @@ export class SsEffectNode extends SimpleTree {
     return this.type;
   }
 
-  GetMyBehavior(): EffectNodeBehavior {
+  GetMyBehavior(): SsEffectBehavior {
     return this.behavior;
   }
 }

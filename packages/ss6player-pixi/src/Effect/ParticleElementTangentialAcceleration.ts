@@ -1,9 +1,9 @@
 import {EffectElementBase} from './EffectElementBase';
-import {Point} from '@pixi/math';
 import {EffectFunctionType} from './EffectFunctionType';
+import {VarianceValue} from './VarianceValue';
 
 export class ParticleElementTangentialAcceleration extends EffectElementBase {
-  Acceleration: Point = new Point(0.0, 0.0);
+  Acceleration: VarianceValue<number> = new VarianceValue<number>(0.0, 0.0);
 
   ParticleElementTangentialAcceleration() {
     super.setType(EffectFunctionType.TangentialAcceleration);

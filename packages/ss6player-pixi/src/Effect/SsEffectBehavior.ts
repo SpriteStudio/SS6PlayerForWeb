@@ -1,12 +1,12 @@
 import {EffectElementBase} from './EffectElementBase';
-import { Cell } from 'ssfblib';
 import {SsRenderBlendType} from './RenderBlendType';
+import {SsCell} from './SsCell';
 
 export class SsEffectBehavior {
   plist: Array<EffectElementBase>;
 
   CellIndex: number;
-  refCell: Cell;
+  refCell: SsCell;
   CellName: string;
   CellMapName: string;
   blendType: SsRenderBlendType = SsRenderBlendType.invalid;

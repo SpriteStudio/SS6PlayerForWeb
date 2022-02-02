@@ -5,11 +5,13 @@ import {EffectConstants} from './EffectConstants';
 import {emitPattern} from './emitPattern';
 import {particleExistSt} from './particleExistSt';
 import {particleDrawData} from './particleDrawData';
-import {Point} from '@pixi/math';
-import {Cell, EffectNodeBehavior} from 'ssfblib';
+import {Cell} from 'ssfblib';
+import {SsEffectBehavior} from './SsEffectBehavior';
+import {SsPoint2} from './SsPoint2';
+import {SsCellValue} from './SsCellValue';
 
 export class EffectEmitter {
-  dispCell: Cell;
+  dispCell: SsCellValue;
 
   priority: number;
 
@@ -30,13 +32,13 @@ export class EffectEmitter {
   particleListBufferSize: number = 180 * 100;
   seedList: number[] = null;
 
-  position: Point = new Point();
+  position: SsPoint2 = new SsPoint2();
   _parent: EffectEmitter;
 
   _parentIndex: number = -1;
 
   refCell: Cell;
-  refData: EffectNodeBehavior;
+  refData: SsEffectBehavior;
 
   globaltime: number = 0;
   seedTableLen: number = 0;
@@ -292,7 +294,7 @@ export class EffectEmitter {
     }
 
     if (this.particle.useTransScale) {
-      let s2: Point = new Point();
+      let s2: SsPoint2 = new SsPoint2();
       let sf2: number;
       s2.x = this.particle.transscale.x + (this.rand.genrandFloat32() * this.particle.transscaleRange.x);
       s2.y = this.particle.transscale.y + (this.rand.genrandFloat32() * this.particle.transscaleRange.y);
@@ -311,10 +313,10 @@ export class EffectEmitter {
     p.y = y + oy + this.position.y;
 
     if (this.particle.usePGravity) {
-      let v: Point = new Point(this.particle.gravityPos.x - (ox + this.position.x), this.particle.gravityPos.y - (oy + this.position.y));
+      let v: SsPoint2 = new SsPoint2(this.particle.gravityPos.x - (ox + this.position.x), this.particle.gravityPos.y - (oy + this.position.y));
 
       // normalize
-      let nv: Point = new Point();
+      let nv: SsPoint2 = new SsPoint2();
       const len: number = Math.sqrt((v.x * v.x) + (v.y * v.y));
       let div = (len === 0) ? 0 : (1 / len);
       nv.x = v.x * div;
@@ -322,7 +324,7 @@ export class EffectEmitter {
 
       const gp = this.particle.gravityPower;
       if (gp > 0) {
-        let v2: Point = new Point(p.x, p.y);
+        let v2: SsPoint2 = new SsPoint2(p.x, p.y);
 
         let len = Math.sqrt((v.x * v.x) + (v.y * v.y));
         if (len === 0.0) {
@@ -366,8 +368,8 @@ export class EffectEmitter {
       {
         this.updateParticle(time + 1.0, dp, true);
 
-        let uv0: Point = new Point(1, 0);
-        let uv1: Point = new Point(p.x - dp.x, p.y - dp.y);
+        let uv0: SsPoint2 = new SsPoint2(1, 0);
+        let uv1: SsPoint2 = new SsPoint2(p.x - dp.x, p.y - dp.y);
 
         // normalized
         let len: number = Math.sqrt((uv0.x * uv0.x) + (uv0.y * uv0.y));
