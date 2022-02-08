@@ -4,7 +4,7 @@
 
 ## ライブラリ
 
-リリース最新版のライブラリソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.umd.js) になります。
+リリース最新版のライブラリソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.umd.js)([minified](https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.min.js)) になります。
 
 ## デモ
 
