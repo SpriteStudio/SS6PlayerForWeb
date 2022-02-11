@@ -1,4 +1,5 @@
 import {Cell} from 'ssfblib';
+import {SSRect} from './SSRect';
 
 export class SsCell {
   cell: Cell;
