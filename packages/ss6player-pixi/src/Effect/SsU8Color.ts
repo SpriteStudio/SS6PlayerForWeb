@@ -1,4 +1,3 @@
-import {type} from "typedoc/dist/lib/output/themes/default/partials/type";
 
 export class SsU8Color {
   private _color = new Uint8Array([0, 0, 0, 0]);

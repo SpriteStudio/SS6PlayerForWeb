@@ -1,7 +1,6 @@
 import {EffectElementBase} from './EffectElementBase';
-import {Point} from '@pixi/math';
 import {EffectFunctionType} from './EffectFunctionType';
-import {VarianceValue} from "./VarianceValue";
+import {VarianceValue} from './VarianceValue';
 
 export class ParticleElementBasic extends EffectElementBase {
   maximumParticle: number;

@@ -1,4 +1,4 @@
-import {SsU8Color} from "./SsU8Color";
+import {SsU8Color} from './SsU8Color';
 
 enum RangeType { None, MinMax, PlusMinus}
 

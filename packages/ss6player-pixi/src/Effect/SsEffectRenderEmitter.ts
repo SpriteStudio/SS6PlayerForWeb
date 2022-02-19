@@ -1,5 +1,4 @@
 import {SsEffectRenderAtom} from './SsEffectRenderAtom';
-import {Cell} from 'ssfblib';
 import {EffectNode} from './EffectNode';
 import MersenneTwister from 'mersenne-twister';
 import {EmmiterType} from './EmmiterType';
@@ -7,13 +6,14 @@ import {SsEffectDrawBatch} from './SsEffectDrawBatch';
 import {SsRenderType} from './SsRenderType';
 import {SsEffectRenderer} from './SsEffectRenderer';
 import {SsEffectNode} from './SsEffectNode';
+import {SsCellValue} from './SsCellValue';
 
 // --------------------------------------------------------------------------
 // パーティクル生成能力を持つオブジェクト
 // --------------------------------------------------------------------------
 export class SsEffectRenderEmitter extends SsEffectRenderAtom {
   myseed: number;
-  dispCell: Cell;
+  dispCell: SsCellValue;
   // エミッターパラメータ
 
   // パーティクルパラメータ

@@ -11,6 +11,7 @@ import {SsEffectRenderer} from './SsEffectRenderer';
 import {SsU8Color} from './SsU8Color';
 import {SsPoint2} from './SsPoint2';
 import {SsEffectNode} from './SsEffectNode';
+import {PLUS, SS6PlayerPlatform} from './SS6PlayerPlatform';
 
 // --------------------------------------------------------------------------
 // パーティクルオブジェクト
@@ -79,13 +80,13 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
   }
 
   constructor()
-  constructor(refdata: EffectNode, _p: SsEffectRenderAtom);
+  constructor(refdata: SsEffectNode, _p: SsEffectRenderAtom);
   constructor(a1?: any, a2?: any) {
     super();
     if (a1 === undefined) {
       this.parentEmitter = null;
     } else {
-      let refdata: EffectNode = a1;
+      let refdata: SsEffectNode = a1;
       let _p: SsEffectRenderAtom = a2;
       this.data = refdata;
       this.parent = _p;
@@ -108,7 +109,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
       // パーティクルに紐づいたエミッターが生成される
       this.parentEmitter = null;
 
-      this.parentEmitter = this.parent;
+      this.parentEmitter = this.parent as SsEffectRenderEmitter;
 
       this.dispCell = this.parentEmitter.dispCell;
       if (this.parentEmitter.data === null) {
@@ -119,7 +120,7 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
 
       this.refBehavior = this.parentEmitter.data.GetMyBehavior();
       if (this.refBehavior) {
-        SsEffectFunctionExecuter.initializeParticle(refBehavior, parentEmitter, this);
+        SsEffectFunctionExecuter.initializeParticle(this.refBehavior, this.parentEmitter, this);
       }
     }
 
@@ -203,9 +204,9 @@ export class SsEffectRenderParticle extends SsEffectRenderAtom {
     let updir: number;
     let window_w: number;
     let window_h: number;
-    SSGetPlusDirection(updir, window_w, window_h);
+    [updir, window_w, window_h] = SS6PlayerPlatform.SSGetPlusDirection();
 
-    if (updir === PLUS_DOWN) {
+    if (updir === PLUS.PLUS_DOWN) {
       this._rotation -= (this._rotationAdd * delta);
     } else {
       this._rotation += (this._rotationAdd * delta);

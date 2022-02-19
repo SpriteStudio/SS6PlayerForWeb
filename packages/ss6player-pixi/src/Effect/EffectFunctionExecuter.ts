@@ -64,7 +64,7 @@ export class SsEffectFunctionExecuter {
     SsEffectFunctionExecuter.funcTransSize,
     SsEffectFunctionExecuter.funcPointGravity,
     SsEffectFunctionExecuter.funcTurnToDirectionEnabled,
-    SsEffectFunctionExecuter.funcParticleInfiniteEmitEnabled,
+    SsEffectFunctionExecuter.funcParticleInfiniteEmitEnabled
   ];
 
   static initalize(beh: SsEffectBehavior, emmiter: SsEffectRenderEmitter) {
