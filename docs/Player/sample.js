@@ -22,11 +22,7 @@ PIXI.utils.sayHello(type);
 
 // Initialize PIXI Application
 // （通常のPIXI.jsアプリケーションの初期化手順）
-var app = new PIXI.Application({
-  width: 640, 
-  height: 640, 
-  backgroundColor : 0x606060
-}); // 比較しやすいようにSSの初期設定と同じ色にしてみた
+var app = new PIXI.Application({ width:1280, height:720, backgroundColor : 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
 document.body.appendChild(app.view);
 
 // 読込完了コールバック
