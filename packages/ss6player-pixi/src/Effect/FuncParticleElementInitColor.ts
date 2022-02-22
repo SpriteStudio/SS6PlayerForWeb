@@ -31,6 +31,9 @@ function VarianceCalcColor(e: SsEffectRenderEmitter, out: SsU8Color, color1: SsU
 	out.a = GetRandamNumberRange(e, color1.a, color2.a);
 }
 
+/**
+ * @internal
+ */
 export class FuncParticleElementInitColor implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementInitColor = ele as ParticleElementInitColor;

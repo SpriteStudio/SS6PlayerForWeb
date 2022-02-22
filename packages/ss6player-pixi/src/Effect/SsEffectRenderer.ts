@@ -5,6 +5,9 @@ import {EffectNode} from './EffectNode';
 import {SsEffectDrawBatch} from './SsEffectDrawBatch';
 import {SsEffectNode} from './SsEffectNode';
 
+/**
+ * @internal
+ */
 export class SsEffectRenderer {
   private effectData: EffectModel = null;
 

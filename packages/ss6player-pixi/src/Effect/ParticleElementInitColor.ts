@@ -4,6 +4,9 @@ import {hex2rgb} from '@pixi/utils';
 import {VarianceValue} from './VarianceValue';
 import {SsU8Color} from './SsU8Color';
 
+/**
+ * @internal
+ */
 export class ParticleElementInitColor extends EffectElementBase {
   Color: VarianceValue<SsU8Color> = new VarianceValue<SsU8Color>(new SsU8Color(255, 255, 255, 255), new SsU8Color(255, 255, 255, 255));
 

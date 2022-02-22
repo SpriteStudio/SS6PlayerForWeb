@@ -6,6 +6,9 @@ import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTangentialAcceleration} from './ParticleElementTangentialAcceleration';
 import {ParticleUtils} from './ParticleUtils';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementTangentialAcceleration implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementTangentialAcceleration = ele as ParticleElementTangentialAcceleration;

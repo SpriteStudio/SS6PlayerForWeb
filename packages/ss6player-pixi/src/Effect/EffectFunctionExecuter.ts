@@ -21,6 +21,9 @@ import {FuncParticleInfiniteEmitEnabled} from './FuncParticleInfiniteEmitEnabled
 import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 
+/**
+ * @internal
+ */
 export class SsEffectFunctionExecuter {
 
   static funcBasic: FuncParticleElementBasic = new FuncParticleElementBasic();

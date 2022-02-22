@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export class particleExistSt {
   id: number;
   cycle: number;

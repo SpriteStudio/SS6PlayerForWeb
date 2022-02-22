@@ -1,6 +1,8 @@
-
 import {Rectangle} from 'pixi.js';
 
+/**
+ * @internal
+ */
 export class SSRect extends Rectangle {
 
   constructor();

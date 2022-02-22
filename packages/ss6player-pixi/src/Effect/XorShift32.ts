@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export class XorShift32 {
   private seedNow: Uint32Array = new Uint32Array(1);
   private int32Now: Int32Array = new Int32Array(1);

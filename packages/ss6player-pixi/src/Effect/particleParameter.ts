@@ -2,6 +2,9 @@ import {Point} from '@pixi/math';
 import {SsU8Color} from './SsU8Color';
 import {SsPoint2} from './SsPoint2';
 
+/**
+ * @internal
+ */
 export class particleParameter {
 
   scale: Point = new Point();

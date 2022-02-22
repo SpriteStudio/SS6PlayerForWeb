@@ -6,6 +6,9 @@ import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticlePointGravity} from './ParticlePointGravity';
 import {SsPoint2} from './SsPoint2';
 
+/**
+ * @internal
+ */
 export class FuncParticlePointGravity implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticlePointGravity = ele as ParticlePointGravity;

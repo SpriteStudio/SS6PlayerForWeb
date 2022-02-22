@@ -11,6 +11,9 @@ import {SsCellValue} from './SsCellValue';
 // --------------------------------------------------------------------------
 // パーティクル生成能力を持つオブジェクト
 // --------------------------------------------------------------------------
+/**
+ * @internal
+ */
 export class SsEffectRenderEmitter extends SsEffectRenderAtom {
   myseed: number;
   dispCell: SsCellValue;

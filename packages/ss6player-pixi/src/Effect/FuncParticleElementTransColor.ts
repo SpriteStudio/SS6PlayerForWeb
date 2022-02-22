@@ -6,6 +6,9 @@ import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTransColor} from './ParticleElementTransColor';
 import {ParticleUtils} from './ParticleUtils';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementTransColor implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, emmiter: EffectEmitter) {
   }

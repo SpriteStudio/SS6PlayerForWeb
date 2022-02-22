@@ -5,6 +5,9 @@ import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementAlphaFade} from './ParticleElementAlphaFade';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementAlphaFade implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementAlphaFade = ele as ParticleElementAlphaFade;

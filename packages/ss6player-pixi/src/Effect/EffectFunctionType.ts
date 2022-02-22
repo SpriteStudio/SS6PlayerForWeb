@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export enum EffectFunctionType {
   Base,
   Basic,

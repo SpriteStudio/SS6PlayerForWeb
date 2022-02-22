@@ -5,6 +5,9 @@ import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementRotationTrans} from './ParticleElementRotationTrans';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementRotationTrans implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementRotationTrans = ele as ParticleElementRotationTrans;

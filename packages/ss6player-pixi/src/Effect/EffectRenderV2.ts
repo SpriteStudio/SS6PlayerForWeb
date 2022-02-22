@@ -10,6 +10,9 @@ import {SsEffectFunctionExecuter} from './EffectFunctionExecuter';
 import {SsEffectNode} from './SsEffectNode';
 import {SsCellValue} from './SsCellValue';
 
+/**
+ * @internal
+ */
 export class EffectRenderV2 {
   effectData: EffectModel;
 

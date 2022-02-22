@@ -1,4 +1,6 @@
-
+/**
+ * @internal
+ */
 export class SsU8Color {
   private _color = new Uint8Array([0, 0, 0, 0]);
 

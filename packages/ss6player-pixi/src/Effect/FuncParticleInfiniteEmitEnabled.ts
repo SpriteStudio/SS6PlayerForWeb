@@ -4,6 +4,9 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 
+/**
+ * @internal
+ */
 export class FuncParticleInfiniteEmitEnabled implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
 		e.emitter.Infinite = true;

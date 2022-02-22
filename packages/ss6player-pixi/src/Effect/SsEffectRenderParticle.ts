@@ -16,6 +16,9 @@ import {PLUS, SS6PlayerPlatform} from './SS6PlayerPlatform';
 // --------------------------------------------------------------------------
 // パーティクルオブジェクト
 // --------------------------------------------------------------------------
+/**
+ * @internal
+ */
 export class SsEffectRenderParticle extends SsEffectRenderAtom {
   dispCell: SsCellValue;
 

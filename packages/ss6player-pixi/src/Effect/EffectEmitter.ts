@@ -10,6 +10,9 @@ import {SsEffectBehavior} from './SsEffectBehavior';
 import {SsPoint2} from './SsPoint2';
 import {SsCellValue} from './SsCellValue';
 
+/**
+ * @internal
+ */
 export class EffectEmitter {
   dispCell: SsCellValue;
 

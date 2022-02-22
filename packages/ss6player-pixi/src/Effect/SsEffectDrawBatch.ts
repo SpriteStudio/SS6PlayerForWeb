@@ -3,6 +3,9 @@ import {SsRenderBlendType} from './RenderBlendType';
 import {SsEffectRenderAtom} from './SsEffectRenderAtom';
 import {Cell} from 'ssfblib';
 
+/**
+ * @internal
+ */
 export class SsEffectDrawBatch {
   priority: number = 0;
   dispCell: Cell;

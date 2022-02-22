@@ -1,5 +1,8 @@
 import {SsEffectNode} from './SsEffectNode';
 
+/**
+ * @internal
+ */
 export class EffectModel {
   root: SsEffectNode = null;
   nodeList: SsEffectNode[];

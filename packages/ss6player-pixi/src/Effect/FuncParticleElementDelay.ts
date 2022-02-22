@@ -5,6 +5,9 @@ import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementDelay} from './ParticleElementDelay';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementDelay implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementDelay = ele as ParticleElementDelay;

@@ -1,6 +1,9 @@
 import {Cell} from 'ssfblib';
 import {SSRect} from './SSRect';
 
+/**
+ * @internal
+ */
 export class SsCell {
   cell: Cell;
   get pivot_X(): number {

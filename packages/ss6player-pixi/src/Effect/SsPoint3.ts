@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export class SsPoint3 {
   private data: Array<number> = new Array(3);
   get x() {

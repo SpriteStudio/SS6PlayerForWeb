@@ -3,6 +3,9 @@ import {EffectEmitter} from './EffectEmitter';
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 
+/**
+ * @internal
+ */
 export interface EffectFuncBase {
   initalizeEmmiter(ele: EffectElementBase, emmiter: SsEffectRenderEmitter);
 

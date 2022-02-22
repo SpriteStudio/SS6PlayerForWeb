@@ -5,6 +5,9 @@ import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleTurnToDirectionEnabled} from './ParticleTurnToDirectionEnabled';
 
+/**
+ * @internal
+ */
 export class FuncParticleTurnToDirectionEnabled implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleTurnToDirectionEnabled = ele as ParticleTurnToDirectionEnabled;

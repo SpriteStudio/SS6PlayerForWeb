@@ -1,6 +1,9 @@
 import {SsEffectRenderEmitter} from './SsEffectRenderEmitter';
 import {SsU8Color} from './SsU8Color';
 
+/**
+ * @internal
+ */
 export class ParticleUtils {
   // 二つの値の範囲から値をランダムで得る
   static GetRandamNumberRange(e: SsEffectRenderEmitter, a: number, b: number) {

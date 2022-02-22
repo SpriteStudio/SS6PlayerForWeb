@@ -4,6 +4,9 @@ import {SsRenderType} from './SsRenderType';
 import {SsEffectNode} from './SsEffectNode';
 import {SsEffectRenderer} from './SsEffectRenderer';
 
+/**
+ * @internal
+ */
 export class SsEffectRenderAtom {
   position: SsPoint3;
   rotation: number = 0;

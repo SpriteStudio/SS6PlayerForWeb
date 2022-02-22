@@ -10,6 +10,9 @@ import {SsU8Color} from './SsU8Color';
 import {SsPoint2} from './SsPoint2';
 import {ParticleUtils} from './ParticleUtils';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementBasic implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
 

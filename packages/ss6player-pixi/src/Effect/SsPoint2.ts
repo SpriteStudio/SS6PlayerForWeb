@@ -1,5 +1,8 @@
 import {Point} from '@pixi/math';
 
+/**
+ * @internal
+ */
 export class SsPoint2 extends Point {
   constructor();
   constructor(x: number, y: number);

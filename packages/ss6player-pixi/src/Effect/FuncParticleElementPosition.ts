@@ -7,6 +7,9 @@ import {ParticleElementPosition} from './ParticleElementPosition';
 import {ParticleUtils} from './ParticleUtils';
 import {SsPoint2} from './SsPoint2';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementPosition implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementPosition = ele as ParticleElementPosition;

@@ -1,5 +1,8 @@
 import {EffectFunctionType} from './EffectFunctionType';
 
+/**
+ * @internal
+ */
 export class EffectElementBase {
   myType: EffectFunctionType = EffectFunctionType.Base;
 

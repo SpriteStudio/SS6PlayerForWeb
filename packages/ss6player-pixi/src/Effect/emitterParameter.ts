@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export class emitterParameter {
 	life: number = 15;
 	interval: number = 1;

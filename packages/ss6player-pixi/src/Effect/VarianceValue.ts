@@ -1,7 +1,13 @@
 import {SsU8Color} from './SsU8Color';
 
+/**
+ * @internal
+ */
 enum RangeType { None, MinMax, PlusMinus}
 
+/**
+ * @internal
+ */
 export class VarianceValue<mytype> {
   private type: RangeType;
   private value: mytype;
@@ -61,4 +67,7 @@ export class VarianceValue<mytype> {
   }
 }
 
+/**
+ * @internal
+ */
 export type SsU8cVValue = VarianceValue<SsU8Color>;

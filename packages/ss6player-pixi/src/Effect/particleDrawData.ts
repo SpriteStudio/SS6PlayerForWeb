@@ -1,5 +1,8 @@
 import {Point} from '@pixi/math';
 
+/**
+ * @internal
+ */
 export class particleDrawData {
   id: number;
   pid: number;

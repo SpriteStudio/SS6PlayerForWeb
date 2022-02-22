@@ -1,8 +1,14 @@
+/**
+ * @internal
+ */
 export enum PLUS {
   PLUS_UP,  // 上が正方向
   PLUS_DOWN // 下が正方向
 }
 
+/**
+ * @internal
+ */
 export class SS6PlayerPlatform {
 
   // 座標系設定

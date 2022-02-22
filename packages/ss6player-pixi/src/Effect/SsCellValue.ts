@@ -1,7 +1,9 @@
 import {SsRenderBlendType} from './RenderBlendType';
 import {SsCell} from './SsCell';
 
-/// パーツが使用するセルの情報
+/**
+ * @internal
+ */
 export class SsCellValue {
   blendType: SsRenderBlendType = SsRenderBlendType.Add;
   refCell: SsCell;

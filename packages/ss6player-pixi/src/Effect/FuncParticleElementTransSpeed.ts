@@ -6,6 +6,9 @@ import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementTransSpeed} from './ParticleElementTransSpeed';
 import {ParticleUtils} from './ParticleUtils';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementTransSpeed implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementTransSpeed = ele as ParticleElementTransSpeed;

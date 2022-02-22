@@ -1,7 +1,9 @@
 import {SsEffectBehavior} from './SsEffectBehavior';
 import {EffectNode} from 'ssfblib/dist/types/ss/ssfb/effect-node';
-import {EffectNodeBehavior} from 'ssfblib/dist/types/ss/ssfb/effect-node-behavior';
 
+/**
+ * @internal
+ */
 export enum SsEffectNodeType {
   invalid = -1,
   root,
@@ -10,6 +12,9 @@ export enum SsEffectNodeType {
   num
 }
 
+/**
+ * @internal
+ */
 export class SimpleTree {
   parent: SimpleTree = null;
   ctop: SimpleTree = null;
@@ -57,6 +62,9 @@ export class SimpleTree {
   }
 }
 
+/**
+ * @internal
+ */
 export class SsEffectNode extends SimpleTree {
   d: EffectNode;
   get arrayIndex(): number {

@@ -6,6 +6,9 @@ import {SsEffectRenderParticle} from './SsEffectRenderParticle';
 import {ParticleElementRndSeedChange} from './ParticleElementRndSeedChange';
 import {EffectConstants} from './EffectConstants';
 
+/**
+ * @internal
+ */
 export class FuncParticleElementRndSeedChange implements EffectFuncBase {
   initalizeEffect(ele: EffectElementBase, e: EffectEmitter) {
     const source: ParticleElementRndSeedChange = ele as ParticleElementRndSeedChange;

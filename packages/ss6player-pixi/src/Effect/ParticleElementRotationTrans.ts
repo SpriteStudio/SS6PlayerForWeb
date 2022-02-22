@@ -1,6 +1,9 @@
 import {EffectElementBase} from './EffectElementBase';
 import {EffectFunctionType} from './EffectFunctionType';
 
+/**
+ * @internal
+ */
 export class ParticleElementRotationTrans extends EffectElementBase {
   RotationFactor: number = 0.0;
   EndLifeTimePer: number = 75.0;
