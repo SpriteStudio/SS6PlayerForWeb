@@ -33,7 +33,7 @@
   "license": "SEE LICENSE",
   "scripts": {
     "start": "npm run watch",
-    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "npx tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "deploy": "npm run build && npx ncp dist/ss6player-rpgmakermz.js SampleProject/js/plugins/ss6player-rpgmakermz.js",
