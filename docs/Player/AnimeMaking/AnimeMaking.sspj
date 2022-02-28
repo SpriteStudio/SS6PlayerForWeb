@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <SpriteStudioProject version="2.00.01" edition="Professional">
-	<name>knight</name>
+	<name>AnimeMaking</name>
 	<exportPath></exportPath>
 	<settings>
 		<animeBaseDirectory></animeBaseDirectory>
@@ -38,17 +38,11 @@
 			<item>ROTZ</item>
 			<item>SCLX</item>
 			<item>SCLY</item>
-			<item>LSCX</item>
-			<item>LSCY</item>
 			<item>ALPH</item>
-			<item>LALP</item>
 			<item>PRIO</item>
 			<item>HIDE</item>
-			<item>PCOL</item>
+			<item>VCOL</item>
 			<item>VERT</item>
-			<item>SIZX</item>
-			<item>SIZY</item>
-			<item>MASK</item>
 			<item>USER</item>
 			<item>IPRM</item>
 			<item>EFCT</item>
@@ -68,17 +62,18 @@
 			<item>ALPH</item>
 			<item>PRIO</item>
 			<item>HIDE</item>
+			<item>VERT</item>
 		</defaultSetAttributes>
 		<wrapMode>clamp</wrapMode>
 		<filterMode>linear</filterMode>
 		<interpolationType>linear</interpolationType>
 		<renderingSettings>
-			<outputFolder></outputFolder>
-			<outputType>AVI</outputType>
+			<outputFolder>C:/Users/sera/Pictures/tips_anim/06_アレンジ</outputFolder>
+			<outputType>GIF</outputType>
 			<bgColor>FF606060</bgColor>
 			<addAnimeName>0</addAnimeName>
-			<addTimeStamp>0</addTimeStamp>
-			<addAlphaChanel>1</addAlphaChanel>
+			<addTimeStamp>1</addTimeStamp>
+			<addAlphaChanel>0</addAlphaChanel>
 			<imageSizeRatioW>100</imageSizeRatioW>
 			<imageSizeRatioH>100</imageSizeRatioH>
 			<imageSizeRatioFix>1</imageSizeRatioFix>
@@ -94,23 +89,23 @@
 		<cellTags />
 		<useDecimalDigit>2</useDecimalDigit>
 		<opacifyOutsideCanvasFrame>1</opacifyOutsideCanvasFrame>
-		<convertImageToPMA>0</convertImageToPMA>
-		<blendImageAsPMA>0</blendImageAsPMA>
-		<unpremultiplyAlpha>0</unpremultiplyAlpha>
+		<convertImageToPMA>1</convertImageToPMA>
+		<blendImageAsPMA>1</blendImageAsPMA>
+		<unpremultiplyAlpha>1</unpremultiplyAlpha>
 		<vertexAnimeFloat>0</vertexAnimeFloat>
 	</settings>
 	<animeSettings>
 		<fps>30</fps>
-		<frameCount>61</frameCount>
+		<frameCount>11</frameCount>
 		<sortMode>prio</sortMode>
-		<canvasSize>640 480</canvasSize>
+		<canvasSize>1280 720</canvasSize>
 		<pivot>0 0</pivot>
 		<bgColor>FF323232</bgColor>
 		<gridSize>32</gridSize>
 		<gridColor>FF808080</gridColor>
 		<ik_depth>3</ik_depth>
 		<startFrame>0</startFrame>
-		<endFrame>60</endFrame>
+		<endFrame>10</endFrame>
 		<bgSettings>
 			<value>
 				<imagePath></imagePath>
@@ -137,23 +132,17 @@
 		<padding>1</padding>
 	</texPackSettings>
 	<cellmapNames>
-		<value>Effect.ssce</value>
-		<value>Knight.ssce</value>
+		<value>AnimeMaking.ssce</value>
 	</cellmapNames>
 	<animepackNames>
-		<value>Knight_arrow.ssae</value>
-		<value>Knight_bomb.ssae</value>
-		<value>Knight_lance.ssae</value>
+		<value>AnimeMaking.ssae</value>
 	</animepackNames>
-	<effectFileNames>
-		<value>Flame_effect.ssee</value>
-	</effectFileNames>
-	<lastAnimeFile>Knight_arrow.ssae</lastAnimeFile>
-	<lastAnimeName>Arrow_Attack</lastAnimeName>
-	<lastPart>Head</lastPart>
-	<lastCellMapFile>Knight.ssce</lastCellMapFile>
-	<lastCell>Head</lastCell>
-	<lastEffectFile>Flame_effect.ssee</lastEffectFile>
+	<lastAnimeFile>AnimeMaking.ssae</lastAnimeFile>
+	<lastAnimeName>06_pose</lastAnimeName>
+	<lastPart>root</lastPart>
+	<lastCellMapFile>AnimeMaking.ssce</lastCellMapFile>
+	<lastCell>1</lastCell>
+	<lastEffectFile></lastEffectFile>
 	<setupmode>0</setupmode>
 	<expandAnimation />
 </SpriteStudioProject>

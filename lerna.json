@@ -1,8 +1,9 @@
 {
+  "version": "independent",
+  "npmClient": "npm",
   "packages": [
     "packages/*"
   ],
-  "version": "independent",
   "command": {
     "publish": {
       "allowBranch": "master",
