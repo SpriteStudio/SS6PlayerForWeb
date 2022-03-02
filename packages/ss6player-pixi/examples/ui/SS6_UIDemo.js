@@ -36,8 +36,8 @@ eventTarget.addEventListener('ReadSSPJ', () => {
 
 // Initialize SS6 Project (json file path)
 // ssbpをコンバートしたjsonファイルを指定
-var buttonSS6Project = new ss6PlayerPixi.SS6Project("assets/ButtonSample2/button.ssfb", () => {canReadCompleates[0] = true; eventTarget.dispatchEvent(completeEvent);});
-var clickSS6Project = new ss6PlayerPixi.SS6Project("assets/ButtonSample3/click.ssfb", () => {canReadCompleates[1] = true; eventTarget.dispatchEvent(completeEvent);});
+var buttonSS6Project = new ss6PlayerPixi.SS6Project("assets/button/button.ssfb", () => {canReadCompleates[0] = true; eventTarget.dispatchEvent(completeEvent);});
+var clickSS6Project = new ss6PlayerPixi.SS6Project("assets/effect/click.ssfb", () => {canReadCompleates[1] = true; eventTarget.dispatchEvent(completeEvent);});
 
 
 animeNames_pattern1 = ["Setup","in","wait","out"];
