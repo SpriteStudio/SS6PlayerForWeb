@@ -18,8 +18,16 @@ PIXI.utils.sayHello(type);
 
 // Initialize PIXI Application
 // （通常のPIXI.jsアプリケーションの初期化手順）
-const app = new PIXI.Application({ width:1280, height:760, backgroundColor : 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
+const app = new PIXI.Application({ width: 1280, height: 760, backgroundColor: 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
 document.body.appendChild(app.view);
+/*
+const bg = new PIXI.Container(PIXI.Texture.WHITE);
+bg.x = 100;
+bg.y = 100;
+bg.width = 100;
+bg.height = 200;
+app.stage.addChild(bg);
+*/
 
 const ssfbFiles = {
   "button": "assets/button/button.ssfb",
@@ -45,9 +53,9 @@ app.stage.on('loadedssfb', (ssfbName, success) => {
   if (success) {
     if (Object.values(loadedSsfbs).every(value => value)) {
       // completely loaded all ssfb files
-      LoadButtonAnimation(mySS6Projects["button"]);
-      LoadButtonAnimation2(mySS6Projects["button"], mySS6Projects["click"]);
 
+      LoadButtonAnimation(mySS6Projects["button"]);
+      // LoadButtonAnimation2(mySS6Projects["button"], mySS6Projects["click"]);
     }
   } else {
     // failed to load ssfbName file
@@ -56,74 +64,40 @@ app.stage.on('loadedssfb', (ssfbName, success) => {
   }
 });
 
-animeNames_pattern1 = ["Setup","in","wait","out"];
-var pattern1_Index = {
-  Setup : 0,
-  in : 1,
-  wait : 2,
-  out : 3
-};
-
-animeNames_pattern2 = ["Setup","in","wait","out","mouse"];
-var pattern2_Index = {
-  Setup : 0,
-  in : 1,
-  wait : 2,
-  out : 3,
-  mouse : 4,
-};
-
-class AnimeFunc{
-  constructor(){
-    this.pointerdown = null;
-    this.pointerup = null;
-    this.isPlay = false;
-  }
-}
-
 function LoadButtonAnimation(ss6project) {
-  PlayButtonAnimation(ss6project, "button_a01", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a02", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a03", animeNames_pattern1, new PIXI.Point(100 + 150 * 2, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a04", animeNames_pattern1, new PIXI.Point(100 + 150 * 3, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a05", animeNames_pattern1, new PIXI.Point(100 + 150 * 4, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a06", animeNames_pattern1, new PIXI.Point(100 + 150 * 5, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a07", animeNames_pattern1, new PIXI.Point(100 + 150 * 6, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a08", animeNames_pattern1, new PIXI.Point(100 + 150 * 7, 100), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a09", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a10", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a11", animeNames_pattern1, new PIXI.Point(100 + 150 * 2, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a12", animeNames_pattern1, new PIXI.Point(100 + 150 * 3, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a13", animeNames_pattern1, new PIXI.Point(100 + 150 * 4, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a14", animeNames_pattern1, new PIXI.Point(100 + 150 * 5, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a15", animeNames_pattern1, new PIXI.Point(100 + 150 * 6, 200), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_a16", animeNames_pattern1, new PIXI.Point(100 + 150 * 7, 200), new PIXI.Point(1, 1));
 
-  PlayButtonAnimation(ss6project, "button_b01", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b02", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b03", animeNames_pattern1, new PIXI.Point(100 + 150 * 2, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b04", animeNames_pattern1, new PIXI.Point(100 + 150 * 3, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b05", animeNames_pattern1, new PIXI.Point(100 + 150 * 4, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b06", animeNames_pattern1, new PIXI.Point(100 + 150 * 5, 300), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_b07", animeNames_pattern1, new PIXI.Point(100 + 150 * 6, 300), new PIXI.Point(1, 1));
+  const animePackNames = [
+    "button_a01", "button_a02", "button_a03", "button_a04", "button_a05", "button_a06", "button_a07", "button_a08", "button_a09", "button_a10", "button_a11", "button_a12", "button_a13", "button_a14", "button_a15", "button_a16",
+    "button_b01", "button_b02", "button_b03", "button_b04", "button_b05", "button_b06", "button_b07",
+    "button_c01", "button_c02", "button_c03", "button_c04", "button_c05", "button_c06", "button_c07", "button_c08", "button_c09",
+    "button_d01", "button_d02", "button_d03", "button_d04",
+    "button_f01", "button_f02",
+  ];
 
-  PlayButtonAnimation(ss6project, "button_c01", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c02", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c03", animeNames_pattern1, new PIXI.Point(100 + 150 * 2, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c04", animeNames_pattern1, new PIXI.Point(100 + 150 * 3, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c05", animeNames_pattern1, new PIXI.Point(100 + 150 * 4, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c06", animeNames_pattern1, new PIXI.Point(100 + 150 * 5, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c07", animeNames_pattern1, new PIXI.Point(100 + 150 * 6, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c08", animeNames_pattern1, new PIXI.Point(100 + 150 * 7, 400), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_c09", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 500), new PIXI.Point(1, 1));
+  const offset_x = 100;
+  const offset_y = 100;
+  const item_x = 150;
+  const item_y = 100;
+  const MAX_ROW_NUM = 8;
 
-  PlayButtonAnimation(ss6project, "button_d01", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 600), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_d02", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 600), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_d03", animeNames_pattern1, new PIXI.Point(100 + 150 * 2, 600), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_d04", animeNames_pattern1, new PIXI.Point(100 + 150 * 3, 600), new PIXI.Point(1, 1));
+  const scale = new PIXI.Point(1.0, 1.0);
 
-  PlayButtonAnimation(ss6project, "button_f01", animeNames_pattern1, new PIXI.Point(100 + 150 * 0, 700), new PIXI.Point(1, 1));
-  PlayButtonAnimation(ss6project, "button_f02", animeNames_pattern1, new PIXI.Point(100 + 150 * 1, 700), new PIXI.Point(1, 1));
+  let x_idx = 0;
+  let y_idx = 0;
+  for(let i=0; i<animePackNames.length; i++) {
+    const animePackName = animePackNames[i];
+    const x = offset_x + item_x * x_idx;
+    const y = offset_y + item_y * y_idx;
+    const position = new PIXI.Point(x, y);
+
+    PlayButtonAnimation(ss6project, animePackName, position, scale);
+
+    x_idx++;
+    if (x_idx >= MAX_ROW_NUM) {
+      x_idx = 0;
+      y_idx++;
+    }
+  }
 }
 
 function LoadButtonAnimation2(buttonSS6Project, clickSS6Project) {
@@ -137,6 +111,31 @@ function LoadButtonAnimation2(buttonSS6Project, clickSS6Project) {
   PlayOneClickAnimation(buttonSS6Project,"button_a01",animeNames_pattern1,new PIXI.Point(1000,700),new PIXI.Point(1,1),OneClickanimeFunc);
    */
 
+  /*
+  const bg = new PIXI.Sprite(PIXI.Texture.EMPTY);
+  bg.width = app.view.width;
+  bg.height = app.view.height;
+  // bg.interactive = true;
+  // bg.interactiveChildren = true;
+  bg.on('click', (event) => {
+    const position = event.data.global;
+
+    let mySS6Player = new ss6PlayerPixi.SS6Player(clickSS6Project);
+
+    mySS6Player.Setup('click', 'mouse');
+    mySS6Player.SetPlayEndCallback(function (player){
+      app.stage.removeChild(mySS6Player);
+    });
+    mySS6Player.position = position;
+    mySS6Player.loop = 1;
+    mySS6Player.Play();
+    app.stage.addChild(mySS6Player);
+
+  });
+  app.stage.addChild(bg);
+   */
+
+  /*
   app.stage.interactive = true;
   const clickEvent = (PIXI.utils.isMobile.any) ? 'touchstart' : 'click';
   app.stage.on(clickEvent, (event) => {
@@ -156,9 +155,11 @@ function LoadButtonAnimation2(buttonSS6Project, clickSS6Project) {
 
     app.stage.addChild(mySS6Player);
   });
+
+   */
 }
 
-function PlayButtonAnimation(SS6Project, animePackName, stub, position, scale) {
+function PlayButtonAnimation(SS6Project, animePackName, position, scale) {
   let mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
 
   // イベントを反応させる
@@ -199,201 +200,4 @@ function PlayButtonAnimation(SS6Project, animePackName, stub, position, scale) {
   mySS6Player.loop = 1;
   mySS6Player.Play(mySS6Player.endFrame);
   app.stage.addChild(mySS6Player);
-}
-
-
-//=========================================
-
-//ボタンを押されたときに反応するやつ
-
-function GetOneClickAnimation(SS6Project,animePackName,animeNames,position,scale){
-  var mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
-  //ボタンを表示するために必要な初期設定
-  mySS6Player.Setup(animePackName, animeNames[pattern2_Index.mouse]);
-  mySS6Player.position = position;
-  mySS6Player.scale = scale;
-  //イベントを反応させる
-  mySS6Player.interactive = true;
-
-  var animeFunc = new AnimeFunc();
-  animeFunc.pointerdown = function(){
-    mySS6Player.Setup(animePackName, animeNames[pattern2_Index.mouse]);
-    mySS6Player.Play();
-    mySS6Player.loop = 1;
-  };
-  app.stage.addChild(mySS6Player);
-
-  return animeFunc;
-}
-
-//ボタンを押した時に反応してもらうためのやつ
-function PlayOneClickAnimation(SS6Project,animePackName,animeNames,position,scale,animeFunc){
-  var mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
-  //ボタンを表示するために必要な初期設定
-  mySS6Player.Setup(animePackName, animeNames[pattern1_Index.out]);
-  mySS6Player.position = position;
-  mySS6Player.scale = scale;
-  //イベントを反応させる
-  mySS6Player.interactive = true;
-
-  var playFunc = function(index){
-    mySS6Player.Setup(animePackName, animeNames[index]);
-    mySS6Player.Play();
-  };
-
-  //マウスをボタンに乗せた時に呼ばれる関数
-  mySS6Player.mouseover = function() {
-    //マウスをボタンに乗せ続けた時に呼ばれる関数
-    mySS6Player.SetPlayEndCallback(function() {playFunc(pattern1_Index.wait);})
-    playFunc(pattern1_Index.in);
-    mySS6Player.loop = 1;
-  }
-
-  //マウスをボタンから離した時に呼ばれる関数
-  mySS6Player.mouseout = function() {
-    playFunc(pattern1_Index.out);
-    mySS6Player.loop = 1;
-  }
-
-    //クリック関連
-  mySS6Player.on('mousedown', function(){
-    animeFunc.pointerdown();
-  });
-
-  mySS6Player.loop = 1;
-  app.stage.addChild(mySS6Player);
-  mySS6Player.Play(mySS6Player.endFrame);
-}
-
-//=======================================
-
-function GetClickAnimation(SS6Project,animePackName,animeNames,position,scale){
-  var mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
-
-  //ボタンを表示するために必要な初期設定
-  mySS6Player.Setup(animePackName, animeNames[pattern2_Index.out]);
-  mySS6Player.position = position;
-  mySS6Player.scale = scale;
-
-  //イベントを反応させる
-  mySS6Player.interactive = true;
-
-  var animeFunc = new AnimeFunc();
-
-  animeFunc.pointerdown = function(){
-    mySS6Player.Setup(animePackName, animeNames[pattern2_Index.in]);
-    mySS6Player.loop = 1;
-    mySS6Player.SetPlayEndCallback(function() {
-      mySS6Player.Setup(animePackName, animeNames[pattern2_Index.wait]);
-      mySS6Player.SetPlayEndCallback(animeFunc.pointerup);
-      //mySS6Player.loop = 1; //PlayClickAnimation_OneClickを使う場合
-      mySS6Player.Play();
-    })
-    mySS6Player.Play();
-  };
-
-  animeFunc.pointerup = function(){
-    mySS6Player.Setup(animePackName, animeNames[pattern2_Index.out]);
-    mySS6Player.loop = 1;
-    mySS6Player.Play();
-  };
-  mySS6Player.loop = 1;
-  app.stage.addChild(mySS6Player);
-  mySS6Player.Play(mySS6Player.endFrame);
-
-  return animeFunc;
-}
-
-function PlayClickAnimation_Default(SS6Project,animePackName,animeNames,position,scale,animeFunc){
-  var mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
-
-  //ボタンを表示するために必要な初期設定
-  mySS6Player.Setup(animePackName, animeNames[pattern1_Index.out]);
-  mySS6Player.position = position;
-  mySS6Player.scale = scale;
-
-  //イベントを反応させる
-  mySS6Player.interactive = true;
-
-  var playFunc = function(index){
-    mySS6Player.Setup(animePackName, animeNames[index]);
-    mySS6Player.Play();
-  };
-
-  //クリック関連
-  mySS6Player.on('mousedown', function(){
-    animeFunc.pointerdown();
-    animeFunc.isPlay = true;
-  });
-
-  mySS6Player.on('mouseup', function(){
-    if(animeFunc.isPlay){
-      playFunc(pattern1_Index.wait);
-      animeFunc.pointerup();
-      animeFunc.isPlay = false;
-    }
-  });
-
-  //マウスをボタンに乗せた時に呼ばれる関数
-  mySS6Player.mouseover = function() {
-    //マウスをボタンに乗せ続けた時に呼ばれる関数
-    mySS6Player.SetPlayEndCallback(function() {playFunc(pattern1_Index.wait);})
-    playFunc(pattern1_Index.in);
-    mySS6Player.loop = 1;
-  }
-
-  //マウスをボタンから離した時に呼ばれる関数
-  mySS6Player.mouseout = function() {
-    playFunc(pattern1_Index.out);
-    mySS6Player.loop = 1;
-    if(animeFunc.isPlay){
-      animeFunc.pointerup();
-      animeFunc.isPlay = false;
-    }
-  }
-
-  mySS6Player.loop = 1;
-  app.stage.addChild(mySS6Player);
-  mySS6Player.Play(mySS6Player.endFrame);
-}
-
-//ワンクリックアニメーション
-function PlayClickAnimation_OneClick(SS6Project,animePackName,animeNames,position,scale,animeFunc){
-  var mySS6Player = new ss6PlayerPixi.SS6Player(SS6Project);
-
-  //ボタンを表示するために必要な初期設定
-  mySS6Player.Setup(animePackName, animeNames[pattern1_Index.out]);
-  mySS6Player.position = position;
-  mySS6Player.scale = scale;
-
-  //イベントを反応させる
-  mySS6Player.interactive = true;
-
-  var playFunc = function(index){
-    mySS6Player.Setup(animePackName, animeNames[index]);
-    mySS6Player.Play();
-  };
-
-  //クリック関連
-  mySS6Player.on('mousedown', function(){
-    animeFunc.pointerdown();
-  });
-
-  //マウスをボタンに乗せた時に呼ばれる関数
-  mySS6Player.mouseover = function() {
-    //マウスをボタンに乗せ続けた時に呼ばれる関数
-    mySS6Player.SetPlayEndCallback(function() {playFunc(pattern1_Index.wait);})
-    playFunc(pattern1_Index.in);
-    mySS6Player.loop = 1;
-  }
-
-  //マウスをボタンから離した時に呼ばれる関数
-  mySS6Player.mouseout = function() {
-    playFunc(pattern1_Index.out);
-    mySS6Player.loop = 1;
-  }
-
-  mySS6Player.loop = 1;
-  app.stage.addChild(mySS6Player);
-  mySS6Player.Play(mySS6Player.endFrame);
 }
