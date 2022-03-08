@@ -78,7 +78,7 @@ function LoadButtonAnimation(ss6project) {
   const offset_y = 100;
   const item_x = 150;
   const item_y = 100;
-  const MAX_ROW_NUM = 8;
+  const MAX_ROW_NUM = 6;
 
   const scale = new PIXI.Point(1.0, 1.0);
 
