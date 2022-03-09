@@ -2,7 +2,10 @@
   "version": "independent",
   "npmClient": "npm",
   "packages": [
-    "packages/*"
+    "packages/ssfblib",
+    "packages/ss6player-pixi",
+    "packages/ss6player-rpgmakermz",
+    "packages/ss6player-viewer"
   ],
   "command": {
     "publish": {
