@@ -18,7 +18,7 @@ PIXI.utils.sayHello(type);
 
 // Initialize PIXI Application
 // （通常のPIXI.jsアプリケーションの初期化手順）
-const app = new PIXI.Application({ width: 1280, height: 760, backgroundColor: 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
+const app = new PIXI.Application({ width: 960, height: 720, backgroundColor: 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
 document.body.appendChild(app.view);
 
 const bg = new PIXI.Container();
@@ -45,7 +45,8 @@ for (let ssfbName in ssfbFiles) {
     () => {bg.emit('loadedssfb', ssfbName, true);}, // onComplete
     30 * 1000, // timeout(ms)
     3, // retry
-    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);} // onError
+    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}, // onError
+    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}  // onTimeout
   );
 }
 
@@ -74,7 +75,7 @@ function LoadButtonAnimation(ss6project) {
   ];
 
   const offset_x = 100;
-  const offset_y = 100;
+  const offset_y = 60;
   const item_x = 150;
   const item_y = 100;
   const MAX_ROW_NUM = 6;

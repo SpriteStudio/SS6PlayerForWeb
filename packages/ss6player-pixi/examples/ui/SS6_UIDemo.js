@@ -45,7 +45,8 @@ for (let ssfbName in ssfbFiles) {
     () => {bg.emit('loadedssfb', ssfbName, true);}, // onComplete
     30 * 1000, // timeout(ms)
     3, // retry
-    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);} // onError
+    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}, // onError
+    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}  // onTimeout
   );
 }
 
