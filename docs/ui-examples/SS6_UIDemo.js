@@ -43,7 +43,7 @@ let mySS6Projects = {};
 for (let ssfbName in ssfbFiles) {
   mySS6Projects[ssfbName] = new ss6PlayerPixi.SS6Project(ssfbFiles[ssfbName],
     () => {bg.emit('loadedssfb', ssfbName, true);}, // onComplete
-    30, // timeout
+    30 * 1000, // timeout(ms)
     3, // retry
     (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);} // onError
   );
