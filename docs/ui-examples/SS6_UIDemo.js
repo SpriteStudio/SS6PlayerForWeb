@@ -65,7 +65,6 @@ bg.on('loadedssfb', (ssfbName, success) => {
 });
 
 function LoadButtonAnimation(ss6project) {
-
   const animePackNames = [
     "button_a01", "button_a02", "button_a03", "button_a04", "button_a05", "button_a06", "button_a07", "button_a08", "button_a09", "button_a10", "button_a11", "button_a12", "button_a13", "button_a14", "button_a15", "button_a16",
     "button_b01", "button_b02", "button_b03", "button_b04", "button_b05", "button_b06", "button_b07",

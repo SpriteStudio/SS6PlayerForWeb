@@ -200,8 +200,7 @@
 		<meshList />
 	</Model>
 	<cellmapNames>
-		<value>name01.ssce</value>
-		<value>board.ssce</value>
+		<value>button_0.ssce</value>
 	</cellmapNames>
 	<animeList>
 		<anime>
@@ -337,7 +336,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01a</name>
+									<name>name01a[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -386,7 +385,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01b</name>
+									<name>name01b[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -431,8 +430,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board00</name>
+									<mapId>0</mapId>
+									<name>board00[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -469,8 +468,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_u</name>
+									<mapId>0</mapId>
+									<name>board01_u[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -515,8 +514,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_d</name>
+									<mapId>0</mapId>
+									<name>board01_d[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -641,7 +640,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01a</name>
+									<name>name01a[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -687,7 +686,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01b</name>
+									<name>name01b[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -735,8 +734,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board00</name>
+									<mapId>0</mapId>
+									<name>board00[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -783,8 +782,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_u</name>
+									<mapId>0</mapId>
+									<name>board01_u[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -829,8 +828,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_d</name>
+									<mapId>0</mapId>
+									<name>board01_d[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -955,7 +954,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01a</name>
+									<name>name01a[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -998,7 +997,7 @@
 							<key time="0">
 								<value>
 									<mapId>0</mapId>
-									<name>name01b</name>
+									<name>name01b[name_b06]</name>
 								</value>
 							</key>
 						</attribute>
@@ -1040,8 +1039,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board00</name>
+									<mapId>0</mapId>
+									<name>board00[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -1088,8 +1087,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_u</name>
+									<mapId>0</mapId>
+									<name>board01_u[board]</name>
 								</value>
 							</key>
 						</attribute>
@@ -1131,8 +1130,8 @@
 						<attribute tag="CELL">
 							<key time="0">
 								<value>
-									<mapId>1</mapId>
-									<name>board01_d</name>
+									<mapId>0</mapId>
+									<name>board01_d[board]</name>
 								</value>
 							</key>
 						</attribute>

@@ -185,8 +185,7 @@
 		<padding>1</padding>
 	</texPackSettings>
 	<cellmapNames>
-		<value>board.ssce</value>
-		<value>name01.ssce</value>
+		<value>button_0.ssce</value>
 	</cellmapNames>
 	<animepackNames>
 		<value>button_a01.ssae</value>
@@ -228,11 +227,11 @@
 		<value>button_f01.ssae</value>
 		<value>button_f02.ssae</value>
 	</animepackNames>
-	<lastAnimeFile>button_a01.ssae</lastAnimeFile>
-	<lastAnimeName>in</lastAnimeName>
+	<lastAnimeFile>button_f02.ssae</lastAnimeFile>
+	<lastAnimeName>wait</lastAnimeName>
 	<lastPart>root</lastPart>
-	<lastCellMapFile>board.ssce</lastCellMapFile>
-	<lastCell>frame01</lastCell>
+	<lastCellMapFile></lastCellMapFile>
+	<lastCell></lastCell>
 	<lastEffectFile></lastEffectFile>
 	<setupmode>0</setupmode>
 	<expandAnimation />
