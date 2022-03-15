@@ -1,6 +1,6 @@
 {
   "name": "ssfblib",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "> TODO: description",
   "keywords": [
     "SpriteStudio"
@@ -39,14 +39,14 @@
     "typedoc": "^0.22.13",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.70.0",
+    "rollup": "^2.70.1",
     "@rollup/plugin-commonjs": "^21.0.2",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^4.1.0",
     "rollup-plugin-license": "^2.6.1",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "rollup-plugin-esbuild": "^4.8.2",
-    "esbuild": "^0.14.25"
+    "esbuild": "^0.14.27"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
