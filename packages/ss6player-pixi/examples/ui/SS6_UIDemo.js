@@ -78,7 +78,11 @@ function LoadButtonAnimation(ss6project) {
   const offset_y = 60;
   const item_x = 150;
   const item_y = 100;
-  const MAX_ROW_NUM = 6;
+  const MAX_ROW_NUM = 1 + Math.floor((app.view.width - (offset_x*2))/ item_x);
+  const column = Math.floor(offset_y + (animePackNames.length / MAX_ROW_NUM) * item_y);
+  if (column > app.view.height) {
+    console.log("Probably, lack of Pixi.js canvas height for showing all buttons. canvas height: " + app.view.height + " button column: " + column);
+  }
 
   const scale = new PIXI.Point(1.0, 1.0);
 
