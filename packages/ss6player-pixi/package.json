@@ -40,6 +40,7 @@
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/Player/index.html\"",
+    "sample-ui": "concurrently \"http-server -c-1 ../../\" \"opener http://localhost:8080/packages/ss6player-pixi/examples/ui/index.html\"",
     "clean": "rimraf dist"
   },
   "peerDependencies": {
