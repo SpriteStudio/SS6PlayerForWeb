@@ -185,7 +185,46 @@
 		<padding>1</padding>
 	</texPackSettings>
 	<cellmapNames>
-		<value>button_0.ssce</value>
+		<value>board.ssce</value>
+		<value>name01.ssce</value>
+		<value>name_a01.ssce</value>
+		<value>name_a02.ssce</value>
+		<value>name_a03.ssce</value>
+		<value>name_a04.ssce</value>
+		<value>name_a05.ssce</value>
+		<value>name_a06.ssce</value>
+		<value>name_a07.ssce</value>
+		<value>name_a08.ssce</value>
+		<value>name_a09.ssce</value>
+		<value>name_a10.ssce</value>
+		<value>name_a11.ssce</value>
+		<value>name_a12.ssce</value>
+		<value>name_a13.ssce</value>
+		<value>name_a14.ssce</value>
+		<value>name_a15.ssce</value>
+		<value>name_a16.ssce</value>
+		<value>name_b01.ssce</value>
+		<value>name_b02.ssce</value>
+		<value>name_b03.ssce</value>
+		<value>name_b04.ssce</value>
+		<value>name_b05.ssce</value>
+		<value>name_b06.ssce</value>
+		<value>name_b07.ssce</value>
+		<value>name_c01.ssce</value>
+		<value>name_c02.ssce</value>
+		<value>name_c03.ssce</value>
+		<value>name_c04.ssce</value>
+		<value>name_c05.ssce</value>
+		<value>name_c06.ssce</value>
+		<value>name_c07.ssce</value>
+		<value>name_c08.ssce</value>
+		<value>name_c09.ssce</value>
+		<value>name_d01.ssce</value>
+		<value>name_d02.ssce</value>
+		<value>name_d03.ssce</value>
+		<value>name_d04.ssce</value>
+		<value>name_f01.ssce</value>
+		<value>name_f02.ssce</value>
 	</cellmapNames>
 	<animepackNames>
 		<value>button_a01.ssae</value>
@@ -227,11 +266,11 @@
 		<value>button_f01.ssae</value>
 		<value>button_f02.ssae</value>
 	</animepackNames>
-	<lastAnimeFile>button_f02.ssae</lastAnimeFile>
-	<lastAnimeName>wait</lastAnimeName>
-	<lastPart>root</lastPart>
-	<lastCellMapFile></lastCellMapFile>
-	<lastCell></lastCell>
+	<lastAnimeFile>button_a16.ssae</lastAnimeFile>
+	<lastAnimeName>out</lastAnimeName>
+	<lastPart>name01</lastPart>
+	<lastCellMapFile>name_a16.ssce</lastCellMapFile>
+	<lastCell>name01a</lastCell>
 	<lastEffectFile></lastEffectFile>
 	<setupmode>0</setupmode>
 	<expandAnimation />
