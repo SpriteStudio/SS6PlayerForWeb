@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.7.3
+ * @version 0.7.4
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -152,22 +152,6 @@
   const float32 = new Float32Array(int32$1.buffer);
   const float64 = new Float64Array(int32$1.buffer);
   const isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  class Long {
-    constructor(low, high) {
-      this.low = low | 0;
-      this.high = high | 0;
-    }
-    static create(low, high) {
-      return low == 0 && high == 0 ? Long.ZERO : new Long(low, high);
-    }
-    toFloat64() {
-      return (this.low >>> 0) + this.high * 4294967296;
-    }
-    equals(other) {
-      return this.low == other.low && this.high == other.high;
-    }
-  }
-  Long.ZERO = new Long(0, 0);
   var Encoding$1;
   (function(Encoding2) {
     Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
@@ -215,10 +199,10 @@
       return this.readInt32(offset) >>> 0;
     }
     readInt64(offset) {
-      return new Long(this.readInt32(offset), this.readInt32(offset + 4));
+      return BigInt.asIntN(64, BigInt(this.readUint32(offset)) + (BigInt(this.readUint32(offset + 4)) << BigInt(32)));
     }
     readUint64(offset) {
-      return new Long(this.readUint32(offset), this.readUint32(offset + 4));
+      return BigInt.asUintN(64, BigInt(this.readUint32(offset)) + (BigInt(this.readUint32(offset + 4)) << BigInt(32)));
     }
     readFloat32(offset) {
       int32$1[0] = this.readInt32(offset);
@@ -256,12 +240,12 @@
       this.bytes_[offset + 3] = value >> 24;
     }
     writeInt64(offset, value) {
-      this.writeInt32(offset, value.low);
-      this.writeInt32(offset + 4, value.high);
+      this.writeInt32(offset, Number(BigInt.asIntN(32, value)));
+      this.writeInt32(offset + 4, Number(BigInt.asIntN(32, value >> BigInt(32))));
     }
     writeUint64(offset, value) {
-      this.writeUint32(offset, value.low);
-      this.writeUint32(offset + 4, value.high);
+      this.writeUint32(offset, Number(BigInt.asUintN(32, value)));
+      this.writeUint32(offset + 4, Number(BigInt.asUintN(32, value >> BigInt(32))));
     }
     writeFloat32(offset, value) {
       float32[0] = value;
@@ -353,9 +337,6 @@
         }
       }
       return true;
-    }
-    createLong(low, high) {
-      return Long.create(low, high);
     }
     createScalarList(listAccessor, listLength) {
       const ret = [];
