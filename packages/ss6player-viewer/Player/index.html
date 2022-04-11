@@ -32,13 +32,13 @@
 
                 const readSsfbFileButtonElement = document.querySelector('#read-ssfb-file-button');
                 readSsfbFileButtonElement.addEventListener('click', (event) => {
-                    const ssfbFileUrl = "./MeshBone/Knight.ssbp.ssfb";
+                    const ssfbFileUrl = "../../../TestData/MeshBone/Knight.ssbp.ssfb";
                     const iframeElement = document.querySelector('iframe');
                     iframeElement.src = "./player.html?ssfbUrl=" + ssfbFileUrl;
                 });
                 const readSspkgFileButtonElement = document.querySelector('#read-sspkg-file-button');
                 readSspkgFileButtonElement.addEventListener('click', (event) => {
-                    const sspkgFileUrl = './MeshBone/Knight.sspkg';
+                    const sspkgFileUrl = '../../../TestData/MeshBone/Knight.sspkg';
                     const iframeElement = document.querySelector('iframe');
                     iframeElement.src = "./player.html?sspkgUrl=" + sspkgFileUrl;
                 });

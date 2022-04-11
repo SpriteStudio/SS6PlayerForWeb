@@ -1,7 +1,7 @@
 {
   "name": "ss6player-viewer",
   "private": true,
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "SS6Player for viewer",
   "keywords": [
     "SpriteStudio",
@@ -39,36 +39,36 @@
     "docs": "typedoc --out ../../docs/ss6player_viewer_api src/ss6player-viewer.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
-    "view": "concurrently \"http-server -c-1 -p 8084 ./\" \"opener http://localhost:8084/Player/index.html\"",
+    "view": "concurrently \"http-server -c-1 -p 8084 ../../\" \"opener http://localhost:8084/packages/ss6player-viewer/Player/index.html\"",
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/display": "^6.2.1",
-    "@pixi/graphics": "^6.2.1",
-    "@pixi/core": "^6.2.1",
-    "@pixi/app": "^6.2.1"
+    "@pixi/display": "^6.2.2",
+    "@pixi/graphics": "^6.2.2",
+    "@pixi/core": "^6.2.2",
+    "@pixi/app": "^6.2.2"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.7.2",
-    "ssfblib": "1.1.0",
+    "ss6player-pixi": "^1.7.4",
+    "ssfblib": "1.1.1",
     "jszip": "^3.7.1"
   },
   "devDependencies": {
-    "typescript": "^4.5.4",
-    "typedoc": "^0.22.10",
+    "typescript": "^4.6.2",
+    "typedoc": "^0.22.13",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.63.0",
-    "@rollup/plugin-commonjs": "^21.0.1",
+    "rollup": "^2.70.1",
+    "@rollup/plugin-commonjs": "^21.0.2",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^4.1.0",
     "rollup-plugin-license": "^2.6.1",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "rollup-plugin-esbuild": "^4.8.2",
-    "esbuild": "^0.14.11",
+    "esbuild": "^0.14.27",
     "rollup-plugin-strip-code": "^0.2.7",
     "@types/offscreencanvas": "^2019.6.4",
-    "pixi.js": "^6.2.1",
+    "pixi.js": "^6.2.2",
     "concurrently": "^7.0.0",
     "http-server": "^14.1.0",
     "opener": "^1.5.2",

@@ -6,7 +6,8 @@
     "typeRoots": [
       "dist/types",
       "node_modules/@types"
-    ]
+    ],
+    "types": ["offscreencanvas"]
   },
   "include": [
     "src"

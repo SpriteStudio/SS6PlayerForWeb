@@ -1,4 +1,4 @@
-Copyright (c) 2018, Web Technology Corp.
+Copyright (c) CRI Middleware Co., Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -9,7 +9,7 @@ modification, are permitted provided that the following conditions are met:
 2. Redistributions in binary form must reproduce the above copyright notice, 
    this list of conditions and the following disclaimer in the documentation 
    and/or other materials provided with the distribution.
-3. Neither the name of the Web Technology Corp. nor the names of its contributors 
+3. Neither the name of the CRI Middleware Co., Ltd. nor the names of its contributors 
    may be used to endorse or promote products derived from this software 
    without specific prior written permission.
 
@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---------------
 
-Copyright (c) 2018, Web Technology Corp.
+Copyright (c) CRI Middleware Co., Ltd.
 All rights reserved.
 
 ソースコード形式かバイナリ形式か、変更するかしないかを問わず、以下の条件を
@@ -37,7 +37,7 @@ All rights reserved.
 2. バイナリ形式で再頒布する場合、頒布物に付属のドキュメント等の資料に、上記の
    著作権表示、本条件一覧、および下記免責条項を含めること。
 3. 書面による特別の許可なしに、本ソフトウェアから派生した製品の宣伝または販売
-   促進に、Web Technology Corp. の名前またはコントリビューターの名前を使用して
+   促進に、CRI Middleware Co., Ltd. の名前またはコントリビューターの名前を使用して
    はならない。
 
 本ソフトウェアは、著作権者およびコントリビューターによって「現状のまま」提供

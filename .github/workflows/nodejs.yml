@@ -10,7 +10,10 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        node-version: [16.x, 17.x]
+        node-version: [17.x]
+
+    env:
+      CI: true
 
     steps:
     - uses: actions/checkout@v1
@@ -18,11 +21,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: npm install, bootstrap, lint, dist
       run: |
-        npm install
-        npm run bootstrap
-        npm run lint
-        npm run dist
-      env:
-        CI: true
+          npm install
+          npm run bootstrap
+          npm run dist
