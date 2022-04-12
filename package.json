@@ -1,12 +1,6 @@
 {
   "name": "ss6playerforwebroot",
   "private": true,
-  "workspaces": [
-    "packages/ssfblib",
-    "packages/ss6player-pixi",
-    "packages/ss6player-rpgmakermz",
-    "packages/ss6player-viewer"
-  ],
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
   },
@@ -36,8 +30,8 @@
     "mzview": "npx lerna run view --scope=ss6player-rpgmakermz"
   },
   "devDependencies": {
-    "typescript": "^4.6.2",
-    "typedoc": "^0.22.13",
+    "typescript": "^4.6.3",
+    "typedoc": "^0.22.15",
     "lerna": "^4.0.0",
     "ncp": "^2.0.0",
     "rimraf": "^3.0.2",
