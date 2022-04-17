@@ -837,7 +837,7 @@ export class SS6Player extends Container {
    */
   private GetDefaultDataByIndex(id: number): any {
     const curDefaultData = this.defaultFrameMap[id];
-    let data = {
+    return {
       index: curDefaultData.index(),
       lowflag: curDefaultData.lowflag(),
       highflag: curDefaultData.highflag(),
@@ -906,8 +906,6 @@ export class SS6Player extends Container {
 
       partsColorARGB: 0
     };
-
-    return data;
   }
 
   private _instancePos: Float32Array = new Float32Array(5);
@@ -1251,20 +1249,39 @@ export class SS6Player extends Container {
           }
 
           const blendMode = this.alphaBlendType[i];
-          if (blendMode === 0) mesh.blendMode = BLEND_MODES.NORMAL;
-          if (blendMode === 1) {
-            mesh.blendMode = BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
-            mesh.alpha = 1.0; // 不透明度を固定にする
+          switch (blendMode) {
+            case 0:
+              mesh.blendMode = BLEND_MODES.NORMAL;
+              break;
+            case 1: {
+              mesh.blendMode = BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
+              mesh.alpha = 1.0; // 不透明度を固定にする
+            }
+              break;
+            case 2:
+              mesh.blendMode = BLEND_MODES.ADD;
+              break;
+            case 3:
+              mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+              break;
+            case 4:
+              mesh.blendMode = BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
+              break;
+            case 5: {
+              mesh.blendMode = BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
+              mesh.alpha = 1.0; // 不透明度を固定にする
+            }
+              break;
+            case 6:
+              mesh.blendMode = BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
+              break;
+            case 7:
+              mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
+              break;
+            default:
+              mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
+              break;
           }
-          if (blendMode === 2) mesh.blendMode = BLEND_MODES.ADD;
-          if (blendMode === 3) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
-          if (blendMode === 4) mesh.blendMode = BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
-          if (blendMode === 5) {
-            mesh.blendMode = BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
-            mesh.alpha = 1.0; // 不透明度を固定にする
-          }
-          if (blendMode === 6) mesh.blendMode = BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
-          if (blendMode === 7) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
           if (partType !== SsPartType.Mask) this.addChild(mesh);
           break;
