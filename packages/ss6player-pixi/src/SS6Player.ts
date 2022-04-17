@@ -910,6 +910,8 @@ export class SS6Player extends Container {
     return data;
   }
 
+  private _instancePos: Float32Array = new Float32Array(5);
+
   /**
    * １フレーム分のアニメーション描画
    * @param {number} frameNumber - フレーム番号
@@ -986,17 +988,17 @@ export class SS6Player extends Container {
       switch (partType) {
         case SsPartType.Instance: {
           // インスタンスパーツのアップデート
-          let pos = new Float32Array(5);
-          pos[0] = 0; // pos x
-          pos[1] = 0; // pos x
-          pos[2] = 1; // scale x
-          pos[3] = 1; // scale x
-          pos[4] = 0; // rot
-          pos = this.TransformPositionLocal(pos, data.index, frameNumber);
-          const rot = (pos[4] * Math.PI) / 180;
-          mesh.rotation = rot;
-          mesh.position.set(pos[0], pos[1]);
-          mesh.scale.set(pos[2], pos[3]);
+          // let pos = new Float32Array(5);
+          this._instancePos[0] = 0; // pos x
+          this._instancePos[1] = 0; // pos x
+          this._instancePos[2] = 1; // scale x
+          this._instancePos[3] = 1; // scale x
+          this._instancePos[4] = 0; // rot
+          this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+
+          mesh.rotation = (this._instancePos[4] * Math.PI) / 180;
+          mesh.position.set(this._instancePos[0], this._instancePos[1]);
+          mesh.scale.set(this._instancePos[2], this._instancePos[3]);
 
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
           if (data.localopacity < 255) {
