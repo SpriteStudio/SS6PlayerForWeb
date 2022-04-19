@@ -1473,8 +1473,8 @@ export class SS6Player extends Container {
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
-    const x = pos[0];// * (data.size_X | 1);
-    const y = pos[1];// * (data.size_Y | 1);
+    const x = pos[0] * data.scaleX * data.localscaleX; // * (data.size_X | 1);
+    const y = pos[1] * data.scaleY * data.localscaleY; // * (data.size_Y | 1);
 
     pos[2] *= data.scaleX * data.localscaleX;
     pos[3] *= data.scaleY * data.localscaleY;
@@ -1577,8 +1577,8 @@ export class SS6Player extends Container {
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
-    const x = pos[0];
-    const y = pos[1];
+    const x = pos[0] * data.scaleX;
+    const y = pos[1] * data.scaleY;
 
     pos[2] *= data.scaleX;
     pos[3] *= data.scaleY;
