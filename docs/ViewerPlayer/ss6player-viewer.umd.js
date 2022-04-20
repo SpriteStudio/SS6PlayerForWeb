@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.3.4
+ * SS6Player For Viewer v1.3.5
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
@@ -2424,6 +2424,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
       this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this._instancePos = new Float32Array(5);
+      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
       this.ss6project = ss6project;
       this.fbObj = this.ss6project.fbObj;
       this.resources = this.ss6project.resources;
@@ -2764,10 +2766,41 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     }
     GetPartsBlendMode() {
       const l = this.fbObj.animePacks(this.parts).partsLength();
-      const ret = [];
+      let ret = [];
       const animePacks = this.fbObj.animePacks(this.parts);
       for (let i = 0; i < l; i++) {
-        ret.push(animePacks.parts(i).alphaBlendType());
+        const alphaBlendType = animePacks.parts(i).alphaBlendType();
+        let blendMode;
+        switch (alphaBlendType) {
+          case 0:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          case 1:
+            blendMode = constants.BLEND_MODES.MULTIPLY;
+            break;
+          case 2:
+            blendMode = constants.BLEND_MODES.ADD;
+            break;
+          case 3:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          case 4:
+            blendMode = constants.BLEND_MODES.MULTIPLY;
+            break;
+          case 5:
+            blendMode = constants.BLEND_MODES.SCREEN;
+            break;
+          case 6:
+            blendMode = constants.BLEND_MODES.EXCLUSION;
+            break;
+          case 7:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          default:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+        }
+        ret.push(blendMode);
       }
       return ret;
     }
@@ -3056,7 +3089,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     }
     GetDefaultDataByIndex(id) {
       const curDefaultData = this.defaultFrameMap[id];
-      let data = {
+      return {
         index: curDefaultData.index(),
         lowflag: curDefaultData.lowflag(),
         highflag: curDefaultData.highflag(),
@@ -3116,7 +3149,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         flag2: 0,
         partsColorARGB: 0
       };
-      return data;
     }
     SetFrameAnimation(frameNumber, ds = 0) {
       const fd = this.GetFrameData(frameNumber);
@@ -3179,17 +3211,15 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         this.prevMesh[i] = mesh;
         switch (partType) {
           case SsPartType.Instance: {
-            let pos = new Float32Array(5);
-            pos[0] = 0;
-            pos[1] = 0;
-            pos[2] = 1;
-            pos[3] = 1;
-            pos[4] = 0;
-            pos = this.TransformPositionLocal(pos, data.index, frameNumber);
-            const rot = pos[4] * Math.PI / 180;
-            mesh.rotation = rot;
-            mesh.position.set(pos[0], pos[1]);
-            mesh.scale.set(pos[2], pos[3]);
+            this._instancePos[0] = 0;
+            this._instancePos[1] = 0;
+            this._instancePos[2] = 1;
+            this._instancePos[3] = 1;
+            this._instancePos[4] = 0;
+            this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+            mesh.rotation = this._instancePos[4] * Math.PI / 180;
+            mesh.position.set(this._instancePos[0], this._instancePos[1]);
+            mesh.scale.set(this._instancePos[2], this._instancePos[3]);
             let opacity = data.opacity / 255;
             if (data.localopacity < 255) {
               opacity = data.localopacity / 255;
@@ -3285,12 +3315,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
             let verts;
             if (partType === SsPartType.Mesh) {
               if (data.meshIsBind === 0) {
-                verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data), data.index, frameNumber);
+                verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
               } else {
-                verts = SS6Player.GetMeshVerts(cell, data);
+                verts = SS6Player.GetMeshVerts(cell, data, mesh.vertices);
               }
             } else {
-              verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data), data.index, frameNumber);
+              verts = partType === SsPartType.Joint ? new Float32Array(10) : mesh.vertices;
+              verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data, verts), data.index, frameNumber);
             }
             if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
               const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -3309,7 +3340,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
               const CoordinateLDRDy = (vertexCoordinateLDy + vertexCoordinateRDy) * 0.5;
               const CoordinateRURDx = (vertexCoordinateRUx + vertexCoordinateRDx) * 0.5;
               const CoordinateRURDy = (vertexCoordinateRUy + vertexCoordinateRDy) * 0.5;
-              const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
+              const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
               verts[0] = vec2[0];
               verts[1] = vec2[1];
             }
@@ -3373,26 +3404,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
               mesh.tintRgb = data.tintRgb;
             }
             const blendMode = this.alphaBlendType[i];
-            if (blendMode === 0)
-              mesh.blendMode = constants.BLEND_MODES.NORMAL;
-            if (blendMode === 1) {
-              mesh.blendMode = constants.BLEND_MODES.MULTIPLY;
+            if (blendMode === constants.BLEND_MODES.MULTIPLY || blendMode === constants.BLEND_MODES.SCREEN) {
               mesh.alpha = 1;
             }
-            if (blendMode === 2)
-              mesh.blendMode = constants.BLEND_MODES.ADD;
-            if (blendMode === 3)
-              mesh.blendMode = constants.BLEND_MODES.NORMAL;
-            if (blendMode === 4)
-              mesh.blendMode = constants.BLEND_MODES.MULTIPLY;
-            if (blendMode === 5) {
-              mesh.blendMode = constants.BLEND_MODES.SCREEN;
-              mesh.alpha = 1;
-            }
-            if (blendMode === 6)
-              mesh.blendMode = constants.BLEND_MODES.EXCLUSION;
-            if (blendMode === 7)
-              mesh.blendMode = constants.BLEND_MODES.NORMAL;
             if (partType !== SsPartType.Mask)
               this.addChild(mesh);
             break;
@@ -3516,8 +3530,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const rz = -data.rotationZ * Math.PI / 180;
       const cos = Math.cos(rz);
       const sin = Math.sin(rz);
-      const x = pos[0];
-      const y = pos[1];
+      const x = pos[0] * data.scaleX * data.localscaleX;
+      const y = pos[1] * data.scaleY * data.localscaleY;
       pos[2] *= data.scaleX * data.localscaleX;
       pos[3] *= data.scaleY * data.localscaleY;
       pos[0] = cos * x - sin * y + data.positionX;
@@ -3527,8 +3541,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       }
       return pos;
     }
-    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy) {
-      let vec2 = new Float32Array([cx, cy]);
+    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
       const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
       const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
       const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
@@ -3574,8 +3587,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const rz = -data.rotationZ * Math.PI / 180;
       const cos = Math.cos(rz);
       const sin = Math.sin(rz);
-      const x = pos[0];
-      const y = pos[1];
+      const x = pos[0] * data.scaleX;
+      const y = pos[1] * data.scaleY;
       pos[2] *= data.scaleX;
       pos[3] *= data.scaleY;
       pos[0] = cos * x - sin * y + data.positionX;
@@ -3596,15 +3609,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
       const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      const mesh = new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
-      return mesh;
+      return new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
     }
     MakeMeshCellMesh(partID, cellID) {
       const meshsDataUV = this.curAnimation.meshsDataUV(partID);
       const uvLength = meshsDataUV.uvLength();
       if (uvLength > 0) {
         const uvs = new Float32Array(uvLength - 2);
-        const num = meshsDataUV.uv(1);
+        const meshNum = meshsDataUV.uv(1);
         for (let idx = 2; idx < uvLength; idx++) {
           uvs[idx - 2] = meshsDataUV.uv(idx);
         }
@@ -3614,9 +3626,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         for (let idx = 1; idx < indicesLength; idx++) {
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
-        const verts = new Float32Array(num * 2);
-        const mesh = new meshExtras.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
-        return mesh;
+        const verts = new Float32Array(meshNum * 2);
+        return new meshExtras.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
       }
       return null;
     }
@@ -3627,25 +3638,23 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       ssp.Play(refStart);
       return ssp;
     }
-    static GetVerts(cell, data) {
+    static GetVerts(cell, data, verts) {
       const w = data.size_X / 2;
       const h = data.size_Y / 2;
       const px = data.size_X * -(data.pivotX + cell.pivotX());
       const py = data.size_Y * (data.pivotY + cell.pivotY());
-      const verts = new Float32Array([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
+      verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
       return verts;
     }
-    static GetMeshVerts(cell, data) {
-      let verts = new Float32Array(data.meshNum * 2);
+    static GetMeshVerts(cell, data, verts) {
       for (let idx = 0; idx < data.meshNum; idx++) {
-        verts[idx * 2 + 0] = data.meshDataPoint[idx * 3 + 0];
+        verts[idx * 2] = data.meshDataPoint[idx * 3];
         verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
       }
       return verts;
     }
     static GetDummyVerts() {
-      let verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
-      return verts;
+      return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     }
     resetLiveFrame() {
       const layers = this.curAnimation.defaultDataLength();
@@ -3769,7 +3778,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   /*!
 
-  JSZip v3.7.1 - A JavaScript class for generating and reading zip files
+  JSZip v3.9.1 - A JavaScript class for generating and reading zip files
   <http://stuartk.com/jszip>
 
   (c) 2009-2016 Stuart Knightley <stuart [at] stuartk.com>
@@ -4818,7 +4827,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   // TODO find a better way to handle this version,
   // a require('package.json').version doesn't work with webpack, see #327
-  JSZip.version = "3.7.1";
+  JSZip.version = "3.9.1";
 
   JSZip.loadAsync = function (content, options) {
       return new JSZip().loadAsync(content, options);
@@ -4890,7 +4899,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
               var files = zipEntries.files;
               for (var i = 0; i < files.length; i++) {
                   var input = files[i];
-                  zip.file(input.fileNameStr, input.decompressed, {
+
+                  var unsafeName = input.fileNameStr;
+                  var safeName = utils.resolve(input.fileNameStr);
+
+                  zip.file(safeName, input.decompressed, {
                       binary: true,
                       optimizedBinaryString: true,
                       date: input.date,
@@ -4900,6 +4913,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
                       dosPermissions: input.dosPermissions,
                       createFolders: options.createFolders
                   });
+                  if (!input.dir) {
+                      zip.file(safeName).unsafeOriginalName = unsafeName;
+                  }
               }
               if (zipEntries.zipComment.length) {
                   zip.comment = zipEntries.zipComment;
@@ -7091,6 +7107,31 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   };
 
   /**
+   * Resolve all relative path components, "." and "..", in a path. If these relative components
+   * traverse above the root then the resulting path will only contain the final path component.
+   *
+   * All empty components, e.g. "//", are removed.
+   * @param {string} path A path with / or \ separators
+   * @returns {string} The path with all relative path components resolved.
+   */
+  exports.resolve = function(path) {
+      var parts = path.split("/");
+      var result = [];
+      for (var index = 0; index < parts.length; index++) {
+          var part = parts[index];
+          // Allow the first and last component to be empty for trailing slashes.
+          if (part === "." || (part === "" && index !== 0 && index !== parts.length - 1)) {
+              continue;
+          } else if (part === "..") {
+              result.pop();
+          } else {
+              result.push(part);
+          }
+      }
+      return result.join("/");
+  };
+
+  /**
    * Return the type of the input.
    * The type will be in a format valid for JSZip.utils.transformTo : string, array, uint8array, arraybuffer.
    * @param {Object} input the input to identify.
@@ -7198,8 +7239,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
       // if inputData is already a promise, this flatten it.
       var promise = external.Promise.resolve(inputData).then(function(data) {
-          
-          
+
+
           var isBlob = support.blob && (data instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(data)) !== -1);
 
           if (isBlob && typeof FileReader !== "undefined") {
