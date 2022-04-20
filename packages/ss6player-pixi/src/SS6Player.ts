@@ -44,7 +44,7 @@ export class SS6Player extends Container {
   private substituteOverWrite: boolean[] = [];
   private substituteKeyParam: SS6PlayerInstanceKeyParam[] = [];
 
-  private alphaBlendType: number[] = [];
+  private alphaBlendType: BLEND_MODES[] = [];
   private _isPlaying: boolean;
   private _isPausing: boolean;
   private _startFrame: number;
@@ -571,12 +571,44 @@ export class SS6Player extends Container {
    * パーツの描画モードを取得する
    * @return {array} - 全パーツの描画モード
    */
-  private GetPartsBlendMode(): any[] {
+  private GetPartsBlendMode(): BLEND_MODES[] {
     const l = this.fbObj.animePacks(this.parts).partsLength();
-    const ret = [];
+    let ret = [];
     const animePacks = this.fbObj.animePacks(this.parts);
+
     for (let i = 0; i < l; i++) {
-      ret.push(animePacks.parts(i).alphaBlendType());
+      const alphaBlendType: number = animePacks.parts(i).alphaBlendType();
+      let blendMode: BLEND_MODES;
+      switch (alphaBlendType) {
+        case 0:
+          blendMode = BLEND_MODES.NORMAL;
+          break;
+        case 1:
+          blendMode = BLEND_MODES.MULTIPLY; // not supported 不透明度が利いてしまう。
+          break;
+        case 2:
+          blendMode = BLEND_MODES.ADD;
+          break;
+        case 3:
+          blendMode = BLEND_MODES.NORMAL; // WebGL does not supported "SUB"
+          break;
+        case 4:
+          blendMode = BLEND_MODES.MULTIPLY; // WebGL does not supported "alpha multiply"
+          break;
+        case 5:
+          blendMode = BLEND_MODES.SCREEN; // not supported 不透明度が利いてしまう。
+          break;
+        case 6:
+          blendMode = BLEND_MODES.EXCLUSION; // WebGL not supported "Exclusion"
+          break;
+        case 7:
+          blendMode = BLEND_MODES.NORMAL; // WebGL not supported "reverse"
+          break;
+        default:
+          blendMode = BLEND_MODES.NORMAL; // WebGL not supported "SUB"
+          break;
+      }
+      ret.push(blendMode);
     }
     return ret;
   }
@@ -837,7 +869,7 @@ export class SS6Player extends Container {
    */
   private GetDefaultDataByIndex(id: number): any {
     const curDefaultData = this.defaultFrameMap[id];
-    let data = {
+    return {
       index: curDefaultData.index(),
       lowflag: curDefaultData.lowflag(),
       highflag: curDefaultData.highflag(),
@@ -906,9 +938,10 @@ export class SS6Player extends Container {
 
       partsColorARGB: 0
     };
-
-    return data;
   }
+
+  private _instancePos: Float32Array = new Float32Array(5);
+  private _CoordinateGetDiagonalIntersectionVec2: Float32Array = new Float32Array(2);
 
   /**
    * １フレーム分のアニメーション描画
@@ -986,17 +1019,17 @@ export class SS6Player extends Container {
       switch (partType) {
         case SsPartType.Instance: {
           // インスタンスパーツのアップデート
-          let pos = new Float32Array(5);
-          pos[0] = 0; // pos x
-          pos[1] = 0; // pos x
-          pos[2] = 1; // scale x
-          pos[3] = 1; // scale x
-          pos[4] = 0; // rot
-          pos = this.TransformPositionLocal(pos, data.index, frameNumber);
-          const rot = (pos[4] * Math.PI) / 180;
-          mesh.rotation = rot;
-          mesh.position.set(pos[0], pos[1]);
-          mesh.scale.set(pos[2], pos[3]);
+          // let pos = new Float32Array(5);
+          this._instancePos[0] = 0; // pos x
+          this._instancePos[1] = 0; // pos x
+          this._instancePos[2] = 1; // scale x
+          this._instancePos[3] = 1; // scale x
+          this._instancePos[4] = 0; // rot
+          this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+
+          mesh.rotation = (this._instancePos[4] * Math.PI) / 180;
+          mesh.position.set(this._instancePos[0], this._instancePos[1]);
+          mesh.scale.set(this._instancePos[2], this._instancePos[3]);
 
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
           if (data.localopacity < 255) {
@@ -1130,13 +1163,14 @@ export class SS6Player extends Container {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data), data.index, frameNumber);
+              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = SS6Player.GetMeshVerts(cell, data);
+              verts = SS6Player.GetMeshVerts(cell, data, mesh.vertices);
             }
           } else {
-            verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data), data.index, frameNumber);
+            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.vertices;
+            verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data, verts), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
           if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
@@ -1160,7 +1194,7 @@ export class SS6Player extends Container {
             const CoordinateRURDx = (vertexCoordinateRUx + vertexCoordinateRDx) * 0.5;
             const CoordinateRURDy = (vertexCoordinateRUy + vertexCoordinateRDy) * 0.5;
 
-            const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy);
+            const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
             verts[0] = vec2[0];
             verts[1] = vec2[1];
           }
@@ -1171,7 +1205,6 @@ export class SS6Player extends Container {
             verts[j * 2] -= px;
             verts[j * 2 + 1] -= py;
           }
-
           mesh.vertices = verts;
           if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
@@ -1248,21 +1281,10 @@ export class SS6Player extends Container {
             mesh.tintRgb = data.tintRgb;
           }
 
-          const blendMode = this.alphaBlendType[i];
-          if (blendMode === 0) mesh.blendMode = BLEND_MODES.NORMAL;
-          if (blendMode === 1) {
-            mesh.blendMode = BLEND_MODES.MULTIPLY; // not suported 不透明度が利いてしまう。
+          const blendMode: BLEND_MODES = this.alphaBlendType[i];
+          if (blendMode === BLEND_MODES.MULTIPLY || blendMode === BLEND_MODES.SCREEN) {
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
-          if (blendMode === 2) mesh.blendMode = BLEND_MODES.ADD;
-          if (blendMode === 3) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "SUB"
-          if (blendMode === 4) mesh.blendMode = BLEND_MODES.MULTIPLY; // WebGL does not suported "alpha multiply"
-          if (blendMode === 5) {
-            mesh.blendMode = BLEND_MODES.SCREEN; // not suported 不透明度が利いてしまう。
-            mesh.alpha = 1.0; // 不透明度を固定にする
-          }
-          if (blendMode === 6) mesh.blendMode = BLEND_MODES.EXCLUSION; // WebGL does not suported "Exclusion"
-          if (blendMode === 7) mesh.blendMode = BLEND_MODES.NORMAL; // WebGL does not suported "reverse"
 
           if (partType !== SsPartType.Mask) this.addChild(mesh);
           break;
@@ -1451,8 +1473,8 @@ export class SS6Player extends Container {
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
-    const x = pos[0];// * (data.size_X | 1);
-    const y = pos[1];// * (data.size_Y | 1);
+    const x = pos[0] * data.scaleX * data.localscaleX; // * (data.size_X | 1);
+    const y = pos[1] * data.scaleY * data.localscaleY; // * (data.size_Y | 1);
 
     pos[2] *= data.scaleX * data.localscaleX;
     pos[3] *= data.scaleY * data.localscaleY;
@@ -1478,12 +1500,12 @@ export class SS6Player extends Container {
    * @param {number} LDy - 左下座標
    * @param {number} RDx - 右下座標
    * @param {number} RDy - 右下座標
+   * @param vec2
    * @return {array} vec2 - 4頂点から算出した中心点の座標
    */
-  private static CoordinateGetDiagonalIntersection(cx: number, cy: number, LUx: number, LUy: number, RUx: number, RUy: number, LDx: number, LDy: number, RDx: number, RDy: number): Float32Array {
+  private static CoordinateGetDiagonalIntersection(cx: number, cy: number, LUx: number, LUy: number, RUx: number, RUy: number, LDx: number, LDy: number, RDx: number, RDy: number, vec2: Float32Array): Float32Array {
     // 中間点を求める
 
-    let vec2 = new Float32Array([cx, cy]);
     // <<< 係数を求める >>>
     const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
     const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
@@ -1502,6 +1524,7 @@ export class SS6Player extends Container {
     }
     vec2[0] = cx;
     vec2[1] = cy;
+
     return vec2;
   }
 
@@ -1554,8 +1577,8 @@ export class SS6Player extends Container {
     const rz = (-data.rotationZ * Math.PI) / 180;
     const cos = Math.cos(rz);
     const sin = Math.sin(rz);
-    const x = pos[0];
-    const y = pos[1];
+    const x = pos[0] * data.scaleX;
+    const y = pos[1] * data.scaleY;
 
     pos[2] *= data.scaleX;
     pos[3] *= data.scaleY;
@@ -1585,8 +1608,7 @@ export class SS6Player extends Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    const mesh = new SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
-    return mesh;
+    return new SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
   }
 
   /**
@@ -1602,7 +1624,7 @@ export class SS6Player extends Container {
     if (uvLength > 0) {
       // 先頭の2データはヘッダになる
       const uvs = new Float32Array(uvLength - 2);
-      const num = meshsDataUV.uv(1);
+      const meshNum = meshsDataUV.uv(1);
 
       for (let idx = 2; idx < uvLength; idx++) {
         uvs[idx - 2] = meshsDataUV.uv(idx);
@@ -1617,10 +1639,9 @@ export class SS6Player extends Container {
         indices[idx - 1] = meshsDataIndices.indices(idx);
       }
 
-      const verts = new Float32Array(num * 2); // Zは必要ない？
+      const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      const mesh = new SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
-      return mesh;
+      return new SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
     }
 
     return null;
@@ -1645,15 +1666,16 @@ export class SS6Player extends Container {
    * 矩形セルメッシュの頂点情報のみ取得
    * @param {ssfblib.Cell} cell - セル
    * @param {array} data - アニメーションフレームデータ
+   * @param verts
    * @return {array} - 頂点情報配列
    */
-  private static GetVerts(cell: Cell, data: any): Float32Array {
+  private static GetVerts(cell: Cell, data: any, verts: Float32Array): Float32Array {
     const w = data.size_X / 2;
     const h = data.size_Y / 2;
     const px = data.size_X * -(data.pivotX + cell.pivotX());
     const py = data.size_Y * (data.pivotY + cell.pivotY());
 
-    const verts = new Float32Array([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
+    verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
     return verts;
   }
 
@@ -1661,21 +1683,20 @@ export class SS6Player extends Container {
    * 矩形セルメッシュの頂点情報のみ取得
    * @param {ssfblib.Cell} cell - セル
    * @param {array} data - アニメーションフレームデータ
+   * @param verts
    * @return {array} - 頂点情報配列
    */
-  private static GetMeshVerts(cell: Cell, data: any): Float32Array {
+  private static GetMeshVerts(cell: Cell, data: any, verts: Float32Array): Float32Array {
     // フレームデータからメッシュデータを取得しvertsを作成する
-    let verts = new Float32Array(data.meshNum * 2);
     for (let idx = 0; idx < data.meshNum; idx++) {
-      verts[idx * 2 + 0] = data.meshDataPoint[idx * 3 + 0];
+      verts[idx * 2 /*+ 0*/] = data.meshDataPoint[idx * 3 /*+ 0*/];
       verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
     }
     return verts;
   }
 
   private static GetDummyVerts(): Float32Array {
-    let verts = new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
-    return verts;
+    return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
   }
 
   private resetLiveFrame() {
