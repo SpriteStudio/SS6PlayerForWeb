@@ -10,6 +10,8 @@
 
 リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/index.html) になります。
 
+UI デモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/ui-examples/index.html) になります。
+
 ## ライセンス
 ss6player-pixi のライセンスは [LISENCE](../../LICENSE) となります。
 
