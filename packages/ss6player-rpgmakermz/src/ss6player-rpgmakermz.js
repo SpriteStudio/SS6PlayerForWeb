@@ -373,7 +373,7 @@ Sprite_Actor.svActorSsfbDir = function(actorId) {
   return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
 }
 Sprite_Actor.svActorSsfbPath = function (actorId) {
-  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
+  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssfb";
 }
 
 let notFoundSvActorSsfbMap = new Map();
@@ -508,7 +508,7 @@ Sprite_Enemy.svEnemySsfbDir = function(enemyId) {
   return PluginParameters.getInstance().svEnemyDir + String(enemyId) + "/";
 }
 Sprite_Enemy.svEnemySsfbPath = function (enemyId) {
-  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssbp.ssfb";
+  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssfb";
 }
 
 let notFoundSvEnemySsfbMap = new Map();

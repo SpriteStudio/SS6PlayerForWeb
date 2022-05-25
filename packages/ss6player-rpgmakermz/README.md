@@ -81,7 +81,7 @@ SV アクターアニメーションサンプルは [こちら](../../TestData/S
 プラグインパラメーター `SV アクターディレクトリ`(`svActorDir`) で指定したディレクトリに ssfb ファイルと画像ファイルを配置します。デフォルトでは `img/ssfb/sv_actors` となっております。
 
 1. `SV アクターディレクトリ` へ置換したいキャラクターの ActorID と同じ名前のサブディレクトリを作成します。
-2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
+2. ssfb ファイル名を `ディレクトリと同じ名前.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
 3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
 
 下記の例は、 ActorID 0001 のスプライトを [SV アクターアニメーションサンプル](../../TestData/SideViewActorSample/) のアニメーションに置き換える例となります。
@@ -89,14 +89,14 @@ SV アクターアニメーションサンプルは [こちら](../../TestData/S
 ActorID 0001 の ID は `1` になります。
 
 1. `img/ssfb/sv_actors/1/` というディレクトリを作成します。
-2. ssfb ファイル `sv_actor_motions_template.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_actors/1/` ディレクトリに配置します。
+2. ssfb ファイル `sv_actor_motions_template.ssfb` を `1.ssfb` にリネームして `img/ssfb/sv_actors/1/` ディレクトリに配置します。
 3. 画像ファイル `motions.png` ファイルを `img/ssfb/sv_actors/1/` ディレクトリに配置します。
 
 下記のようなディレクトリ構成になります。
 
 ```
 img/ssfb/sv_actors/1/
-|-- 1.ssbp.ssfb
+|-- 1.ssfb
 `-- motions.png
 ```
 
@@ -111,7 +111,7 @@ img/ssfb/sv_actors/1/
 プラグインパラメーター `SV エネミーディレクトリ`(`svEnemyDir`) で指定したディレクトリに ssfb ファイルと画像ファイルを配置します。デフォルトでは `img/ssfb/sv_enemies` となっております。
 
 1. `SV エネミーディレクトリ` へ置換したいキャラクターの EnemyID と同じ名前のサブディレクトリを作成します。
-2. ssfb ファイル名を `ディレクトリと同じ名前.ssbp.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
+2. ssfb ファイル名を `ディレクトリと同じ名前.ssfb` にリネームし、`1.` で作成したディレクトリへ配置します。
 3. `1.` で作成したディレクトリへ 画像ファイルを配置します。
 4. (optional)プラグインパラメータ `SV エネミーアニメーションパック名`(`svEnemyAnimationPack`)と `SV エネミーアニメーション名`(`svEnemyAnimationName`)で指定したものと異なるパラメータを指定する場合は、エネミーのメモ欄にノートタグに設定を記載します。
 
@@ -120,7 +120,7 @@ img/ssfb/sv_actors/1/
 EnemyID 0001 の ID は `1` になります。
 
 1. `img/ssfb/sv_enemies/1/` というディレクトリを作成します。
-2. ssfb ファイル ` box_00_00.ssbp.ssfb` を `1.ssbp.ssfb` にリネームして `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
+2. ssfb ファイル ` box_00_00.ssfb` を `1.ssfb` にリネームして `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
 3. 画像ファイル `box_00_00.png` ファイルを `img/ssfb/sv_enemies/1/` ディレクトリに配置します。
 4. アニメーションサンプルのアニメパック名とアニメ名がプラグインパラメータで指定した値(`motions` と `walk`)とは異なるため、データベースで EnemyID 0001 のノートタグに下記条件を記載する。
     - アニメパック名は `01_box_00_deform`
@@ -134,7 +134,7 @@ EnemyID 0001 の ID は `1` になります。
 
 ```
 img/ssfb/sv_enemies/1/
-|-- 1.ssbp.ssfb
+|-- 1.ssfb
 `-- box_00_00.png
 ```
 
@@ -166,10 +166,10 @@ EnemyID 0001 のノートタグには下記が記載されます。
 
 プラグインパラメーター `ssfb アニメーションベースディレクトリ`(`animationDir`) からの相対パスで指定してください。
 
-e.g. [img/ssfb/MeshBone/Knight.ssbp.ssfb](./SampleProject/img/ssfb/MeshBone/Knight.ssbp.ssfb) を指定する場合は下記のように設定してください。
+e.g. [img/ssfb/MeshBone/Knight.ssfb](./SampleProject/img/ssfb/MeshBone/Knight.ssfb) を指定する場合は下記のように設定してください。
 
 ```xml
-<SS6SVEnemy file:MeshBone/Knight.ssbp.ssfb>
+<SS6SVEnemy file:MeshBone/Knight.ssfb>
 ```
 
 ##### `<SS6SVEnemy animationPackName:>`

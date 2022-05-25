@@ -84,7 +84,7 @@
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
- * @desc ssfb ファイルをアニメーションディレクトリからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssbp.ssfb)
+ * @desc ssfb ファイルをアニメーションディレクトリからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssfb)
  * @type string
  *
  *
