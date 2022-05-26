@@ -1,7 +1,7 @@
 {
   "name": "ss6player-rpgmakermz",
   "private": true,
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "SS6Player for RPG Maker MZ",
   "keywords": [
     "SpriteStudio",
@@ -43,7 +43,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.7.5"
+    "ss6player-pixi": "^1.7.6"
   },
   "devDependencies": {
     "typescript": "^4.6.4",
