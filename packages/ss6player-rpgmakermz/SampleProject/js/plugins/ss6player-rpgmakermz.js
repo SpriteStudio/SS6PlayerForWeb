@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
- * @version 0.7.5
+ * @version 0.7.6
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -84,7 +84,7 @@
  *
  * @arg ssfbFile
  * @text ssfbファイルパス
- * @desc ssfb ファイルをアニメーションディレクトリからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssbp.ssfb)
+ * @desc ssfb ファイルをアニメーションディレクトリからの相対パスで指定してください。 (e.g. MeshBone/Knight.ssfb)
  * @type string
  *
  *
@@ -3900,6 +3900,14 @@
     }
     _Sprite_Picture_destroy.call(this, options);
   };
+  const _Game_Screen_erasePicture = Game_Screen.prototype.erasePicture;
+  Game_Screen.prototype.erasePicture = function(pictureId) {
+    const picture = this._pictures[pictureId];
+    if (picture && picture.mzkpSS6Player) {
+      picture.mzkpSS6Player = null;
+    }
+    _Game_Screen_erasePicture.call(this, pictureId);
+  };
   const _Scene_Base_terminate = Scene_Base.prototype.terminate;
   Scene_Base.prototype.terminate = function() {
     $gameActors._data.forEach((actor, index, actors) => {
@@ -3931,7 +3939,12 @@
       if (this.mzkpSS6Player !== player || playerChanged) {
         if (player !== null) {
           if (player.loop === 0) {
-            this.mzkpSS6Player = null;
+            if (this.mzkpSS6Player) {
+              this.mzkpSS6Player.Stop();
+              this.removeChild(this.mzkpSS6Player);
+              this.mzkpSS6Player = null;
+              picture.mzkpSS6Player = null;
+            }
             return;
           }
           const prependCallback = g_pictureSS6PlayerPrependCallback;
@@ -3949,6 +3962,10 @@
               appendCallback(player);
             }
           });
+          if (this.mzkpSS6Player) {
+            this.mzkpSS6Player.Stop();
+            this.removeChild(this.mzkpSS6Player);
+          }
           this.mzkpSS6Player = player;
           this.addChild(this.mzkpSS6Player);
           this.mzkpSS6Player.Play(picture.mzkpSS6PlayerPrevFrameNo);
@@ -4092,7 +4109,7 @@
     return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
   };
   Sprite_Actor.svActorSsfbPath = function(actorId) {
-    return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
+    return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssfb";
   };
   let notFoundSvActorSsfbMap = /* @__PURE__ */ new Map();
   const _Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
@@ -4198,7 +4215,7 @@
     return PluginParameters.getInstance().svEnemyDir + String(enemyId) + "/";
   };
   Sprite_Enemy.svEnemySsfbPath = function(enemyId) {
-    return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssbp.ssfb";
+    return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssfb";
   };
   let notFoundSvEnemySsfbMap = /* @__PURE__ */ new Map();
   const _Sprite_Enemy_setBattler = Sprite_Enemy.prototype.setBattler;

@@ -18,7 +18,7 @@ PluginManager.registerCommand(PLUGIN_NAME, "loadSsfb", function(args) {
   if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
     const existProject= SS6ProjectManager.getInstance().get(ssfbId);
     if (ssfbPath === existProject.ssfbPath) {
-      // already loaded same project.
+      // the ss6player-rpgmakermz has already loaded the same project.
       return;
     }
   }
@@ -112,6 +112,7 @@ Game_Picture.prototype.show = function() {
 
 const _Sprite_Picture_destroy = Sprite_Picture.prototype.destroy;
 Sprite_Picture.prototype.destroy = function(options) {
+  // console.log("Sprite_Picture.prototype.destroy");
   if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
     this.mzkpSS6Player.Stop();
     this.picture().mzkpSS6PlayerPrevFrameNo = this.mzkpSS6Player.frameNo;
@@ -121,6 +122,17 @@ Sprite_Picture.prototype.destroy = function(options) {
   _Sprite_Picture_destroy.call(this, options);
 };
 
+const _Game_Screen_erasePicture = Game_Screen.prototype.erasePicture;
+Game_Screen.prototype.erasePicture = function (pictureId) {
+  // console.log("Game_Screen.prototype.erasePicture");
+
+  const picture = this._pictures[pictureId];
+  if(picture && picture.mzkpSS6Player) {
+    picture.mzkpSS6Player = null;
+  }
+
+  _Game_Screen_erasePicture.call(this, pictureId);
+}
 
 const _Scene_Base_terminate = Scene_Base.prototype.terminate;
 Scene_Base.prototype.terminate = function() {
@@ -162,8 +174,14 @@ Sprite_Picture.prototype.updateBitmap = function() {
     if (this.mzkpSS6Player !== player || playerChanged) {
       if (player !== null) {
         if (player.loop === 0) {
-          // don't play when player loop number equals 0
-          this.mzkpSS6Player = null;
+          // At coming back to a previous scene that has a ss6player instance that finished playing an animation,
+          // the ss6player instance plays animation again, so it must remove the ss6player instance.
+          if (this.mzkpSS6Player) {
+            this.mzkpSS6Player.Stop();
+            this.removeChild(this.mzkpSS6Player);
+            this.mzkpSS6Player = null;
+            picture.mzkpSS6Player = null;
+          }
           return;
         }
 
@@ -184,6 +202,12 @@ Sprite_Picture.prototype.updateBitmap = function() {
             appendCallback(player);
           }
         });
+
+        if (this.mzkpSS6Player) {
+          this.mzkpSS6Player.Stop();
+          this.removeChild(this.mzkpSS6Player);
+          // this.mzkpSS6Player = null; // unnecessary
+        }
         this.mzkpSS6Player = player;
         this.addChild(this.mzkpSS6Player);
         this.mzkpSS6Player.Play(picture.mzkpSS6PlayerPrevFrameNo);
@@ -196,7 +220,7 @@ Sprite_Picture.prototype.updateBitmap = function() {
     }
   } else {
     if (this.mzkpSS6Player !== null && this.mzkpSS6Player instanceof SS6Player) {
-      // erase SS6Player instance when `ピクチャの消去`
+      // erase SS6Player instance when `erasePicture` command.
       this.mzkpSS6Player.Stop();
       this.removeChild(this.mzkpSS6Player);
     }
@@ -339,7 +363,7 @@ DataManager.loadEnemyNoteTags = function() {
 
 //
 //
-// replace side view character sprite to sprite studio animation
+// Below logics replaces a side view actor character sprite to a sprite studio animation
 //
 //
 Sprite_Actor.svActorSsfbId = function (actorId) {
@@ -349,7 +373,7 @@ Sprite_Actor.svActorSsfbDir = function(actorId) {
   return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
 }
 Sprite_Actor.svActorSsfbPath = function (actorId) {
-  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssbp.ssfb";
+  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssfb";
 }
 
 let notFoundSvActorSsfbMap = new Map();
@@ -474,7 +498,7 @@ Sprite_Actor.prototype.setupWeaponAnimation = function () {
 
 //
 //
-// replace side view enemy sprite to sprite studio animation
+// Below logics replaces a side view enemy character sprite to a sprite studio animation
 //
 //
 Sprite_Enemy.svEnemySsfbId = function (enemyId) {
@@ -484,7 +508,7 @@ Sprite_Enemy.svEnemySsfbDir = function(enemyId) {
   return PluginParameters.getInstance().svEnemyDir + String(enemyId) + "/";
 }
 Sprite_Enemy.svEnemySsfbPath = function (enemyId) {
-  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssbp.ssfb";
+  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssfb";
 }
 
 let notFoundSvEnemySsfbMap = new Map();

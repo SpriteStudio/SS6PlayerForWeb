@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.7.5
+ * SS6Player For pixi.js v1.7.6
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
