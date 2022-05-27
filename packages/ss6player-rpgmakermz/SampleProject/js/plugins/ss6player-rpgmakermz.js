@@ -1,6 +1,6 @@
 /*:ja
  * @target MZ
- * @plugindesc SpriteStudio 6 アニメーション再生プラグイン
+ * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
  * @version 0.7.6
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz

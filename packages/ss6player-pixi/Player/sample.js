@@ -43,17 +43,17 @@ var onComplete = function() {
 };
 
 // Initialize SS6 Project (json file path)
-// ssbpをコンバートしたjsonファイルを指定
+// ssfb ファイルを指定
 var ssfbFile;
 switch (testVersion) {
   case "sampleAnimation1":
-    ssfbFile = "../../../TestData/character_sample1/character_sample1.ssbp.ssfb";
+    ssfbFile = "../../../TestData/character_sample1/character_sample1.ssfb";
     break;
   case "sampleAnimation2":
-    ssfbFile = "../../../TestData/AnimeMaking/AnimeMaking.ssbp.ssfb";
+    ssfbFile = "../../../TestData/AnimeMaking/AnimeMaking.ssfb";
     break;
   case "sampleAnimation3":
-    ssfbFile = "../../../TestData/MeshBone/Knight.ssbp.ssfb";
+    ssfbFile = "../../../TestData/MeshBone/Knight.ssfb";
     break;
   default:
     ssfbFile = "";

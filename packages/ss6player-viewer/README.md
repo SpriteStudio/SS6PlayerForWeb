@@ -1,6 +1,6 @@
 # SS6Player for Viewer
 
-[SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを Web 上で再生するプラグインです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを Web 上で再生するプラグインです。
 
 ## ライブラリ
 

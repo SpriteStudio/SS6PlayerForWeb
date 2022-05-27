@@ -32,7 +32,7 @@
 
                 const readSsfbFileButtonElement = document.querySelector('#read-ssfb-file-button');
                 readSsfbFileButtonElement.addEventListener('click', (event) => {
-                    const ssfbFileUrl = "../../../TestData/MeshBone/Knight.ssbp.ssfb";
+                    const ssfbFileUrl = "../../../TestData/MeshBone/Knight.ssfb";
                     const iframeElement = document.querySelector('iframe');
                     iframeElement.src = "./player.html?ssfbUrl=" + ssfbFileUrl;
                 });

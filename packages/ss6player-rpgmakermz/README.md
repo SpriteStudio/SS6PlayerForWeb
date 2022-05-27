@@ -1,6 +1,6 @@
 # SS6Player for RPG Maker MZ
 
-[SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) で作成されたアニメーションを [RPGツクールMZ](https://tkool.jp/mz/) で再生するプラグインです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [RPGツクールMZ](https://tkool.jp/mz/) で再生するプラグインです。
 
 ## プラグイン
 
