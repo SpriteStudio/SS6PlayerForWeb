@@ -1,6 +1,6 @@
 # ssfblib
 
-[SpriteStudio 6](https://www.webtech.co.jp/spritestudio/index.html) のアニメーションデータの一つである ssfb フォーマットをパースするライブラリです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションデータの一つである ssfb フォーマットをパースするライブラリです。
 
 ## ssfb schema
 
