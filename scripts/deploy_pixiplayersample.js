@@ -28,9 +28,9 @@ fs.writeFileSync(indexHtmlPath, indexHtml, 'utf-8');
 // update sample.js
 const sampleJsPath = path.join(docsDir, 'Player', 'sample.js');
 let sampleJs = fs.readFileSync(sampleJsPath, 'utf8');
-sampleJs = sampleJs.replaceAll('../../../TestData/character_sample1/character_sample1.ssbp.ssfb', './character_sample1/character_sample1.ssbp.ssfb');
-sampleJs = sampleJs.replaceAll('../../../TestData/AnimeMaking/AnimeMaking.ssbp.ssfb', './AnimeMaking/AnimeMaking.ssbp.ssfb');
-sampleJs = sampleJs.replaceAll('../../../TestData/MeshBone/Knight.ssbp.ssfb', './MeshBone/Knight.ssbp.ssfb');
+sampleJs = sampleJs.replaceAll('../../../TestData/character_sample1/character_sample1.ssfb', './character_sample1/character_sample1.ssfb');
+sampleJs = sampleJs.replaceAll('../../../TestData/AnimeMaking/AnimeMaking.ssfb', './AnimeMaking/AnimeMaking.ssfb');
+sampleJs = sampleJs.replaceAll('../../../TestData/MeshBone/Knight.ssfb', './MeshBone/Knight.ssfb');
 fs.writeFileSync(sampleJsPath, sampleJs, 'utf-8');
 
 // ----

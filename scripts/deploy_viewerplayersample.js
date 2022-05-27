@@ -16,7 +16,7 @@ fs.cpSync(path.join(baseDir, 'TestData', 'MeshBone'), path.join(docsDir, 'Viewer
 // update index.html
 const indexHtmlPath = path.join(docsDir, 'ViewerPlayer', 'index.html');
 let indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
-indexHtml = indexHtml.replaceAll('../../../TestData/MeshBone/Knight.ssbp.ssfb', './MeshBone/Knight.ssbp.ssfb');
+indexHtml = indexHtml.replaceAll('../../../TestData/MeshBone/Knight.ssfb', './MeshBone/Knight.ssfb');
 indexHtml = indexHtml.replaceAll('../../../TestData/MeshBone/Knight.sspkg', './MeshBone/Knight.sspkg');
 fs.writeFileSync(indexHtmlPath, indexHtml, 'utf-8');
 
