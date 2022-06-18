@@ -1084,6 +1084,10 @@ export class SS6Player extends Container {
             independent = overWritekeyParam.independent;
           }
 
+          if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
+            mesh.SetAnimationSection(refStartframe, refEndframe);
+          }
+
           // タイムライン上の時間 （絶対時間）
           let time = frameNumber;
 
