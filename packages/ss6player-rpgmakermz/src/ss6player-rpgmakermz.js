@@ -383,7 +383,13 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   _Sprite_Actor_setBattler.call(this, battler);
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     if (changed) {
-      const actorId = this._actor.actorId();
+      let actorId;
+      if (this.constructor.name === "Sprite_SvEnemy") {
+        // for VisuMZ
+        actorId = this._actor.enemyId();
+      } else {
+        actorId = this._actor.actorId();
+      }
 
       const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
       if (notFoundSvActorSsfbMap.has(ssfbId)) {
