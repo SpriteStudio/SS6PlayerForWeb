@@ -4,7 +4,6 @@ import camelCase from 'lodash.camelcase';
 import esbuild, { minify } from 'rollup-plugin-esbuild';
 import json from '@rollup/plugin-json';
 import license from 'rollup-plugin-license';
-import stripCode from 'rollup-plugin-strip-code';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -24,14 +23,13 @@ const pixiGlobals = {
   '@pixi/app': 'PIXI',
   '@pixi/graphics': 'PIXI'
 };
-const pixiBanner = `\nthis.PIXI = this.PIXI || {};`;
 
 export default {
   input: `src/${libraryName}.ts`,
   output: [
-    { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner: pixiBanner },
-    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner: pixiBanner, plugins: [ minify() ] },
-    { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals, banner: pixiBanner },
+    { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, plugins: [ minify() ] },
+    { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
@@ -51,10 +49,6 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    // delete declare this.PIXI of ss6player-pixi.
-    stripCode({
-      pattern: "this.PIXI = this.PIXI || {};"
-    }),
     license({
       banner: `-----------------------------------------------------------
  SS6Player For Viewer v<%= pkg.version %>
