@@ -5,7 +5,6 @@ import esbuild, { minify } from 'rollup-plugin-esbuild';
 import json from '@rollup/plugin-json';
 import license from 'rollup-plugin-license';
 import * as path from 'path';
-import stripCode from 'rollup-plugin-strip-code';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -52,10 +51,6 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    // delete declare this.PIXI of ss6player-pixi.
-    stripCode({
-      pattern: "this.PIXI = this.PIXI || {};"
-    }),
     license({
       banner: {
         commentStyle: 'none',

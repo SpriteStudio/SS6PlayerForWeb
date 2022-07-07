@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_objects.js v1.4.4
+// rmmz_objects.js v1.5.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -6115,11 +6115,19 @@ Game_Map.prototype.isEventRunning = function() {
 };
 
 Game_Map.prototype.tileWidth = function() {
-    return 48;
+    if ("tileSize" in $dataSystem) {
+        return $dataSystem.tileSize;
+    } else {
+        return 48;
+    }
 };
 
 Game_Map.prototype.tileHeight = function() {
-    return 48;
+    return this.tileWidth();
+};
+
+Game_Map.prototype.bushDepth = function() {
+    return this.tileHeight() / 4;
 };
 
 Game_Map.prototype.mapId = function() {
@@ -7299,7 +7307,7 @@ Game_CharacterBase.prototype.refreshBushDepth = function() {
         !this.isJumping()
     ) {
         if (!this.isMoving()) {
-            this._bushDepth = 12;
+            this._bushDepth = $gameMap.bushDepth();
         }
     } else {
         this._bushDepth = 0;
@@ -9900,6 +9908,12 @@ Game_Interpreter.prototype.command108 = function(params) {
         this._index++;
         this._comments.push(this.currentCommand().parameters[0]);
     }
+    return true;
+};
+
+// Skip
+Game_Interpreter.prototype.command109 = function() {
+    this.skipBranch();
     return true;
 };
 
