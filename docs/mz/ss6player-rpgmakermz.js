@@ -1,7 +1,7 @@
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.7.6
+ * @version 0.7.7
  * @author Web Technology Corp.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -3312,6 +3312,9 @@
               reverse = overWritekeyParam.reverse;
               pingpong = overWritekeyParam.pingpong;
               independent = overWritekeyParam.independent;
+            }
+            if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
+              mesh.SetAnimationSection(refStartframe, refEndframe);
             }
             let time = frameNumber;
             if (independent === true) {

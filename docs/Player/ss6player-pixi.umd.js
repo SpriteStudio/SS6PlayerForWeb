@@ -1,14 +1,12 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.7.6
+ * SS6Player For pixi.js v1.7.7
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */
 
-
-this.PIXI = this.PIXI || {};
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/loaders'), require('@pixi/display'), require('@pixi/mesh-extras'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants')) :
     typeof define === 'function' && define.amd ? define(['exports', '@pixi/loaders', '@pixi/display', '@pixi/mesh-extras', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants'], factory) :
@@ -3272,6 +3270,9 @@ this.PIXI = this.PIXI || {};
                 reverse = overWritekeyParam.reverse;
                 pingpong = overWritekeyParam.pingpong;
                 independent = overWritekeyParam.independent;
+              }
+              if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
+                mesh.SetAnimationSection(refStartframe, refEndframe);
               }
               let time = frameNumber;
               if (independent === true) {

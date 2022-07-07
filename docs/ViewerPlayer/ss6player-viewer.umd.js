@@ -1,14 +1,12 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.3.6
+ * SS6Player For Viewer v1.3.7
  *
  * Copyright(C) Web Technology Corp.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */
 
-
-this.PIXI = this.PIXI || {};
 var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshExtras, ticker, filterColorMatrix, constants) {
   'use strict';
 
@@ -3261,6 +3259,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
               reverse = overWritekeyParam.reverse;
               pingpong = overWritekeyParam.pingpong;
               independent = overWritekeyParam.independent;
+            }
+            if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
+              mesh.SetAnimationSection(refStartframe, refEndframe);
             }
             let time = frameNumber;
             if (independent === true) {
