@@ -1,6 +1,34 @@
-| Licensed Code | License Type | Licenser URL |
-| --- |---------------------------------------|----------------------------------------|
-| FlatBuffers  | Apache License v2.0 | https://github.com/google/flatbuffers/ |
-| JSZip | [MIT license or the GPLv3 license.](https://github.com/Stuk/jszip/blob/master/LICENSE.markdown) | https://github.com/Stuk/jszip |
- 
-Notice: The license type above may differ from the latest one. (updated at 2022/01/13)
+
+# ssfblib
+
+| Licensed Code | License Type        | Licenser URL                                                  |
+|---------------|---------------------|---------------------------------------------------------------|
+| FlatBuffers   | Apache License v2.0 | https://github.com/google/flatbuffers/blob/master/LICENSE.txt |
+
+
+# ss6player-pixi
+
+| Licensed Code | License Type        | Licenser URL                                                        |
+|---------------|---------------------|---------------------------------------------------------------------|
+| FlatBuffers   | Apache License v2.0 | https://github.com/google/flatbuffers/blob/master/LICENSE.txt       |
+| ssfblib       | original            | https://github.com/SpriteStudio/SS6PlayerForWeb/blob/master/LICENSE |
+
+
+# ss6player-rpgmakermz
+
+| Licensed Code  | License Type        | Licenser URL                                                        |
+|----------------|---------------------|---------------------------------------------------------------------|
+| FlatBuffers    | Apache License v2.0 | https://github.com/google/flatbuffers/blob/master/LICENSE.txt       |
+| ssfblib        | original            | https://github.com/SpriteStudio/SS6PlayerForWeb/blob/master/LICENSE |
+| ss6player-pixi | original            | https://github.com/SpriteStudio/SS6PlayerForWeb/blob/master/LICENSE |
+
+
+# ss6player-viewer
+
+| Licensed Code  | License Type                     | Licenser URL                                                        |
+|----------------|----------------------------------|---------------------------------------------------------------------|
+| FlatBuffers    | Apache License v2.0              | https://github.com/google/flatbuffers/blob/master/LICENSE.txt       |
+| JSZip          | MIT license or the GPLv3 license | https://github.com/Stuk/jszip/blob/main/LICENSE.markdown            |
+| ssfblib        | original                         | https://github.com/SpriteStudio/SS6PlayerForWeb/blob/master/LICENSE |
+| ss6player-pixi | original                         | https://github.com/SpriteStudio/SS6PlayerForWeb/blob/master/LICENSE |
+
