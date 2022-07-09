@@ -1,3 +1,13 @@
+// -----------------------------------------------------------
+// SS6Player For RPG Maker MZ v<%= pkg.version %>
+//
+// Copyright(C) <%= pkg.author.name %>
+// <%= pkg.author.url %>
+// -----------------------------------------------------------
+
+var Imported = Imported || {};
+Imported.SS6PlayerRPGMakerMZ = true;
+
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
