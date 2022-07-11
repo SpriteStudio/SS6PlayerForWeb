@@ -1,7 +1,7 @@
 // -----------------------------------------------------------
 // SS6Player For RPG Maker MZ v0.7.7
 //
-// Copyright(C) Web Technology Corp.
+// Copyright(C) CRI Middleware Co., Ltd.
 // https://www.webtech.co.jp/
 // -----------------------------------------------------------
 
@@ -12,7 +12,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
  * @version 0.7.7
- * @author Web Technology Corp.
+ * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
  *
