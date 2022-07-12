@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
 // SS6Player For Web
 //
-// Copyright(C) Web Technology Corp.
+// Copyright(C) CRI Middleware Co., Ltd.
 // http://www.webtech.co.jp/
 //-----------------------------------------------------------
 
