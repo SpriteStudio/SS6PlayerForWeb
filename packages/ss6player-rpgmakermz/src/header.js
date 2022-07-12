@@ -1,9 +1,11 @@
-// -----------------------------------------------------------
-// SS6Player For RPG Maker MZ v<%= pkg.version %>
-//
-// Copyright(C) <%= pkg.author.name %>
-// <%= pkg.author.url %>
-// -----------------------------------------------------------
+/**
+ * -----------------------------------------------------------
+ * SS6Player For RPG Maker MZ v<%= pkg.version %>
+ *
+ * Copyright(C) <%= pkg.author.name %>
+ * <%= pkg.author.url %>
+ * -----------------------------------------------------------
+ */
 
 var Imported = Imported || {};
 Imported.SS6PlayerRPGMakerMZ = true;
