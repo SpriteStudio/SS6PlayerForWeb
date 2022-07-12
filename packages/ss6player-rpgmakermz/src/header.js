@@ -1,8 +1,20 @@
+/**
+ * -----------------------------------------------------------
+ * SS6Player For RPG Maker MZ v<%= pkg.version %>
+ *
+ * Copyright(C) <%= pkg.author.name %>
+ * <%= pkg.author.url %>
+ * -----------------------------------------------------------
+ */
+
+var Imported = Imported || {};
+Imported.SS6PlayerRPGMakerMZ = true;
+
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
  * @version <%= pkg.version %>
- * @author Web Technology Corp.
+ * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
  *

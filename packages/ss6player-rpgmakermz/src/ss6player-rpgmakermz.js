@@ -280,6 +280,8 @@ SceneManager.updateScene = function() {
         });
       }
 
+
+
       // execute to suspend all SS6Player instance of SV Enemy
       if ($gameTroop && $gameTroop.members()) {
         $gameTroop.members().forEach((enemy, index, enemies) => {
@@ -383,14 +385,23 @@ Sprite_Actor.prototype.setBattler = function (battler) {
   _Sprite_Actor_setBattler.call(this, battler);
   if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
     if (changed) {
-      const actorId = this._actor.actorId();
+      let actorId; // number
+      let ssfbId; // number
+      let ssfbPath; // string
+      if (Imported.VisuMZ_0_CoreEngine && Imported.VisuMZ_1_BattleCore && this instanceof Sprite_SvEnemy) {
+        // TODO: impl Sprite_SvEnemy for VisuStella
+        actorId = this._actor.enemyId();
+        ssfbId = "sv_enemy_" + actorId;
+        ssfbPath = PluginParameters.getInstance().svActorDir + "svenemy" + String(actorId) + "/" + String(actorId) + ".ssfb";
+      } else {
+        actorId = this._actor.actorId();
+        ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+        ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+      }
 
-      const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
       if (notFoundSvActorSsfbMap.has(ssfbId)) {
         return;
       }
-
-      let ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
 
       if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
         const existProject = SS6ProjectManager.getInstance().get(ssfbId);

@@ -1,8 +1,8 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.7.7
+ * SS6Player For pixi.js v1.7.8
  *
- * Copyright(C) Web Technology Corp.
+ * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */

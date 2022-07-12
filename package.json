@@ -6,7 +6,7 @@
   },
   "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
   "author": {
-    "name": "Web Technology Corp.",
+    "name": "CRI Middleware Co., Ltd.",
     "url": "https://www.webtech.co.jp/"
   },
   "scripts": {
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "typescript": "^4.7.4",
-    "typedoc": "^0.23.5",
+    "typedoc": "^0.23.7",
     "lerna": "^5.1.8",
     "ncp": "^2.0.0",
     "rimraf": "^3.0.2",

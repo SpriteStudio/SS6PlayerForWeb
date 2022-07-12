@@ -1,8 +1,20 @@
+/**
+ * -----------------------------------------------------------
+ * SS6Player For RPG Maker MZ v0.7.8
+ *
+ * Copyright(C) CRI Middleware Co., Ltd.
+ * https://www.webtech.co.jp/
+ * -----------------------------------------------------------
+ */
+
+var Imported = Imported || {};
+Imported.SS6PlayerRPGMakerMZ = true;
+
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.7.7
- * @author Web Technology Corp.
+ * @version 0.7.8
+ * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
  *
@@ -4121,12 +4133,21 @@
     _Sprite_Actor_setBattler.call(this, battler);
     if (PluginParameters.getInstance().replaceSVActorSpriteFlag) {
       if (changed) {
-        const actorId = this._actor.actorId();
-        const ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+        let actorId;
+        let ssfbId;
+        let ssfbPath;
+        if (Imported.VisuMZ_0_CoreEngine && Imported.VisuMZ_1_BattleCore && this instanceof Sprite_SvEnemy) {
+          actorId = this._actor.enemyId();
+          ssfbId = "sv_enemy_" + actorId;
+          ssfbPath = PluginParameters.getInstance().svActorDir + "svenemy" + String(actorId) + "/" + String(actorId) + ".ssfb";
+        } else {
+          actorId = this._actor.actorId();
+          ssfbId = Sprite_Actor.svActorSsfbId(actorId);
+          ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
+        }
         if (notFoundSvActorSsfbMap.has(ssfbId)) {
           return;
         }
-        let ssfbPath = Sprite_Actor.svActorSsfbPath(actorId);
         if (SS6ProjectManager.getInstance().isExist(ssfbId)) {
           const existProject = SS6ProjectManager.getInstance().get(ssfbId);
           if (ssfbPath === existProject.ssfbPath) {

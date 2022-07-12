@@ -55,7 +55,7 @@ export default {
       banner: {
         commentStyle: 'none',
         content: {
-          file: path.join(__dirname, 'src/header.ts'),
+          file: path.join(__dirname, 'src/header.js'),
           encoding: 'utf-8' // Default is utf-8
         }
       }

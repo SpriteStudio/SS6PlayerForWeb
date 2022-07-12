@@ -1,8 +1,8 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.3.7
+ * SS6Player For Viewer v1.3.8
  *
- * Copyright(C) Web Technology Corp.
+ * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */
