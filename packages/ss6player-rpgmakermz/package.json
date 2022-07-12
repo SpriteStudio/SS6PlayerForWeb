@@ -1,7 +1,7 @@
 {
   "name": "ss6player-rpgmakermz",
   "private": true,
-  "version": "0.7.7",
+  "version": "0.7.8",
   "description": "SS6Player for RPG Maker MZ",
   "keywords": [
     "SpriteStudio",
@@ -43,21 +43,21 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-pixi": "^1.7.7"
+    "ss6player-pixi": "^1.7.8"
   },
   "devDependencies": {
     "typescript": "^4.7.4",
-    "typedoc": "^0.23.5",
+    "typedoc": "^0.23.7",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.75.7",
+    "rollup": "^2.76.0",
     "@rollup/plugin-commonjs": "^22.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^4.1.0",
     "rollup-plugin-license": "^2.8.1",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "rollup-plugin-esbuild": "^4.9.1",
-    "esbuild": "^0.14.48",
+    "esbuild": "^0.14.49",
     "@types/offscreencanvas": "^2019.7.0",
     "pixi.js": "^5.3.12",
     "concurrently": "^7.2.2",
