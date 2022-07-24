@@ -43,10 +43,10 @@
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/display": "^6.4.2",
-    "@pixi/graphics": "^6.4.2",
-    "@pixi/core": "^6.4.2",
-    "@pixi/app": "^6.4.2"
+    "@pixi/display": "^6.5.0",
+    "@pixi/graphics": "^6.5.0",
+    "@pixi/core": "^6.5.0",
+    "@pixi/app": "^6.5.0"
   },
   "dependencies": {
     "ss6player-pixi": "^1.7.8",
@@ -67,7 +67,7 @@
     "rollup-plugin-esbuild": "^4.9.1",
     "esbuild": "^0.14.49",
     "@types/offscreencanvas": "^2019.7.0",
-    "pixi.js": "^6.4.2",
+    "pixi.js": "^6.5.0",
     "concurrently": "^7.2.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",

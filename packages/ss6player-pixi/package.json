@@ -44,13 +44,13 @@
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/loaders": "^6.4.2",
-    "@pixi/display": "^6.4.2",
-    "@pixi/mesh-extras": "^6.4.2",
-    "@pixi/ticker": "^6.4.2",
-    "@pixi/filter-color-matrix": "^6.4.2",
-    "@pixi/core": "^6.4.2",
-    "@pixi/constants": "^6.4.2"
+    "@pixi/loaders": "^6.5.0",
+    "@pixi/display": "^6.5.0",
+    "@pixi/mesh-extras": "^6.5.0",
+    "@pixi/ticker": "^6.5.0",
+    "@pixi/filter-color-matrix": "^6.5.0",
+    "@pixi/core": "^6.5.0",
+    "@pixi/constants": "^6.5.0"
   },
   "dependencies": {
     "ssfblib": "1.1.2"
@@ -70,7 +70,7 @@
     "rollup-plugin-esbuild": "^4.9.1",
     "esbuild": "^0.14.49",
     "@types/offscreencanvas": "^2019.7.0",
-    "pixi.js": "^6.4.2",
+    "pixi.js": "^6.5.0",
     "concurrently": "^7.2.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
