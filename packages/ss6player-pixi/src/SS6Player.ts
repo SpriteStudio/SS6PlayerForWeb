@@ -1344,8 +1344,9 @@ export class SS6Player extends Container {
         if (partData.name() === partName) {
           let mesh: any = this.prevMesh[index];
           if (mesh === null || mesh instanceof SS6Player) {
-            let keyParamAsSubstitute: SS6PlayerInstanceKeyParam;
+            this.substituteOverWrite[index] = overWrite;
 
+            let keyParamAsSubstitute: SS6PlayerInstanceKeyParam;
             if (keyParam !== null) {
               keyParamAsSubstitute = keyParam;
               mesh = this.MakeCellPlayer(animePackName + '/' + animeName, keyParam.refStartframe);
