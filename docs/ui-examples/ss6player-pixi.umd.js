@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v1.7.8
+ * SS6Player For pixi.js v1.7.9
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -3449,6 +3449,7 @@
             if (partData.name() === partName) {
               let mesh = this.prevMesh[index];
               if (mesh === null || mesh instanceof SS6Player) {
+                this.substituteOverWrite[index] = overWrite;
                 let keyParamAsSubstitute;
                 if (keyParam !== null) {
                   keyParamAsSubstitute = keyParam;
