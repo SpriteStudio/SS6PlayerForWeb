@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.7.8
+ * SS6Player For RPG Maker MZ v0.7.9
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -13,7 +13,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.7.8
+ * @version 0.7.9
  * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -3503,6 +3503,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
           if (partData.name() === partName) {
             let mesh = this.prevMesh[index];
             if (mesh === null || mesh instanceof SS6Player) {
+              this.substituteOverWrite[index] = overWrite;
               let keyParamAsSubstitute;
               if (keyParam !== null) {
                 keyParamAsSubstitute = keyParam;
@@ -3833,16 +3834,24 @@ Imported.SS6PlayerRPGMakerMZ = true;
     }
     this.setWaitMode(SS6PROJECT_LOAD_WAIT_MODE);
     SS6ProjectManager.getInstance().prepare(ssfbId);
-    let project = new SS6Project(ssfbPath, () => {
-      SS6ProjectManager.getInstance().set(ssfbId, project);
-    }, 180 * 1e3, 3, (ssfbPath2, timeout, retry, httpObj) => {
-      this.setWaitMode("");
-      throw httpObj;
-    }, (ssfbPath2, timeout, retry, httpObj) => {
-      console.log("timeout download ssfb file: " + ssfbPath2);
-      this.setWaitMode("");
-      throw httpObj;
-    }, null);
+    let project = new SS6Project(
+      ssfbPath,
+      () => {
+        SS6ProjectManager.getInstance().set(ssfbId, project);
+      },
+      180 * 1e3,
+      3,
+      (ssfbPath2, timeout, retry, httpObj) => {
+        this.setWaitMode("");
+        throw httpObj;
+      },
+      (ssfbPath2, timeout, retry, httpObj) => {
+        console.log("timeout download ssfb file: " + ssfbPath2);
+        this.setWaitMode("");
+        throw httpObj;
+      },
+      null
+    );
   });
   PluginManager.registerCommand(PLUGIN_NAME, "setAsPicture", function(args) {
     const ssfbId = Number(args.ssfbId);
@@ -4157,14 +4166,20 @@ Imported.SS6PlayerRPGMakerMZ = true;
           }
         }
         SS6ProjectManager.getInstance().prepare(ssfbId);
-        let project = new SS6Project(ssfbPath, () => {
-          this._actor._svActorSS6Player = null;
-          this._actor._svActorSS6PlayerParent = null;
-          SS6ProjectManager.getInstance().set(ssfbId, project);
-        }, 180 * 1e3, 3, (ssfbPath2, timeout, retry, httpObj) => {
-          notFoundSvActorSsfbMap.set(ssfbId, null);
-          SS6ProjectManager.getInstance().set(ssfbId, null);
-        });
+        let project = new SS6Project(
+          ssfbPath,
+          () => {
+            this._actor._svActorSS6Player = null;
+            this._actor._svActorSS6PlayerParent = null;
+            SS6ProjectManager.getInstance().set(ssfbId, project);
+          },
+          180 * 1e3,
+          3,
+          (ssfbPath2, timeout, retry, httpObj) => {
+            notFoundSvActorSsfbMap.set(ssfbId, null);
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+          }
+        );
       }
     }
   };
@@ -4269,16 +4284,22 @@ Imported.SS6PlayerRPGMakerMZ = true;
           }
         }
         SS6ProjectManager.getInstance().prepare(ssfbId);
-        let project = new SS6Project(ssfbPath, () => {
-          this._enemy._svEnemySS6ProjectLoaded = true;
-          this._enemy._svEnemySS6Player = null;
-          this._enemy._svEnemySS6PlayerParent = null;
-          SS6ProjectManager.getInstance().set(ssfbId, project);
-        }, 180 * 1e3, 3, (ssfbPath2, timeout, retry, httpObj) => {
-          this._enemy._svEnemySS6ProjectLoaded = true;
-          notFoundSvEnemySsfbMap.set(ssfbId, null);
-          SS6ProjectManager.getInstance().set(ssfbId, null);
-        });
+        let project = new SS6Project(
+          ssfbPath,
+          () => {
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            this._enemy._svEnemySS6Player = null;
+            this._enemy._svEnemySS6PlayerParent = null;
+            SS6ProjectManager.getInstance().set(ssfbId, project);
+          },
+          180 * 1e3,
+          3,
+          (ssfbPath2, timeout, retry, httpObj) => {
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            notFoundSvEnemySsfbMap.set(ssfbId, null);
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+          }
+        );
       }
     }
   };
