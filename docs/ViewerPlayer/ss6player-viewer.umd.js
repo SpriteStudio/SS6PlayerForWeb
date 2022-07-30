@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.3.8
+ * SS6Player For Viewer v1.3.9
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -3438,6 +3438,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           if (partData.name() === partName) {
             let mesh = this.prevMesh[index];
             if (mesh === null || mesh instanceof SS6Player) {
+              this.substituteOverWrite[index] = overWrite;
               let keyParamAsSubstitute;
               if (keyParam !== null) {
                 keyParamAsSubstitute = keyParam;
