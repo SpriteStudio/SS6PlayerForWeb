@@ -5,25 +5,25 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementPosition {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementPosition {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementPosition {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-OffsetXMinValue():number {
+offsetXminValue():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-OffsetXMaxValue():number {
+offsetXmaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 
-OffsetYMinValue():number {
+offsetYminValue():number {
   return this.bb!.readFloat32(this.bb_pos + 8);
 }
 
-OffsetYMaxValue():number {
+offsetYmaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 12);
 }
 

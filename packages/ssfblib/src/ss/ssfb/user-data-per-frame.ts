@@ -8,7 +8,7 @@ import { userDataItem } from '../../ss/ssfb/user-data-item';
 export class userDataPerFrame {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataPerFrame {
+  __init(i:number, bb:flatbuffers.ByteBuffer):userDataPerFrame {
   this.bb_pos = i;
   this.bb = bb;
   return this;

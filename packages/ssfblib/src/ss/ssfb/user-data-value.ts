@@ -6,7 +6,7 @@ import { userDataRect } from '../../ss/ssfb/user-data-rect';
 import { userDataString } from '../../ss/ssfb/user-data-string';
 
 
-export enum userDataValue{
+export enum userDataValue {
   NONE = 0,
   userDataInteger = 1,
   userDataRect = 2,
@@ -42,4 +42,3 @@ export function unionListTouserDataValue(
     default: return null;
   }
 }
-

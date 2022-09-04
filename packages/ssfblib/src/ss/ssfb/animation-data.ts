@@ -6,14 +6,14 @@ import { AnimationInitialData } from '../../ss/ssfb/animation-initial-data';
 import { frameDataIndex } from '../../ss/ssfb/frame-data-index';
 import { labelDataItem } from '../../ss/ssfb/label-data-item';
 import { meshDataIndices } from '../../ss/ssfb/mesh-data-indices';
-import { meshDataUV } from '../../ss/ssfb/mesh-data-u-v';
+import { meshDataUV } from '../../ss/ssfb/mesh-data-uv';
 import { userDataPerFrame } from '../../ss/ssfb/user-data-per-frame';
 
 
 export class AnimationData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):AnimationData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):AnimationData {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -75,12 +75,12 @@ labelDataLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-meshsDataUV(index: number, obj?:meshDataUV):meshDataUV|null {
+meshsDataUv(index: number, obj?:meshDataUV):meshDataUV|null {
   const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? (obj || new meshDataUV()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
-meshsDataUVLength():number {
+meshsDataUvLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
@@ -212,11 +212,11 @@ static startLabelDataVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addMeshsDataUV(builder:flatbuffers.Builder, meshsDataUVOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, meshsDataUVOffset, 0);
+static addMeshsDataUv(builder:flatbuffers.Builder, meshsDataUvOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, meshsDataUvOffset, 0);
 }
 
-static createMeshsDataUVVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+static createMeshsDataUvVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]!);
@@ -224,7 +224,7 @@ static createMeshsDataUVVector(builder:flatbuffers.Builder, data:flatbuffers.Off
   return builder.endVector();
 }
 
-static startMeshsDataUVVector(builder:flatbuffers.Builder, numElems:number) {
+static startMeshsDataUvVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -285,14 +285,14 @@ static endAnimationData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createAnimationData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, defaultDataOffset:flatbuffers.Offset, frameDataOffset:flatbuffers.Offset, userDataOffset:flatbuffers.Offset, labelDataOffset:flatbuffers.Offset, meshsDataUVOffset:flatbuffers.Offset, meshsDataIndicesOffset:flatbuffers.Offset, startFrames:number, endFrames:number, totalFrames:number, fps:number, labelNum:number, canvasSizeW:number, canvasSizeH:number, canvasPvotX:number, canvasPvotY:number):flatbuffers.Offset {
+static createAnimationData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, defaultDataOffset:flatbuffers.Offset, frameDataOffset:flatbuffers.Offset, userDataOffset:flatbuffers.Offset, labelDataOffset:flatbuffers.Offset, meshsDataUvOffset:flatbuffers.Offset, meshsDataIndicesOffset:flatbuffers.Offset, startFrames:number, endFrames:number, totalFrames:number, fps:number, labelNum:number, canvasSizeW:number, canvasSizeH:number, canvasPvotX:number, canvasPvotY:number):flatbuffers.Offset {
   AnimationData.startAnimationData(builder);
   AnimationData.addName(builder, nameOffset);
   AnimationData.addDefaultData(builder, defaultDataOffset);
   AnimationData.addFrameData(builder, frameDataOffset);
   AnimationData.addUserData(builder, userDataOffset);
   AnimationData.addLabelData(builder, labelDataOffset);
-  AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
+  AnimationData.addMeshsDataUv(builder, meshsDataUvOffset);
   AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
   AnimationData.addStartFrames(builder, startFrames);
   AnimationData.addEndFrames(builder, endFrames);

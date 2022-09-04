@@ -385,8 +385,9 @@ export class Player {
       }
       if (f2 & PART_FLAG2.MESHDATA) {
         // mesh [1]
-        fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
-        fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
+        const meshUv = this.curAnimation.meshsDataUv(index);
+        fd.meshIsBind = meshUv.uv(0);
+        fd.meshNum = meshUv.uv(1);
         let mp = new Float32Array(fd.meshNum * 3);
 
         for (let idx = 0; idx < fd.meshNum; idx++) {

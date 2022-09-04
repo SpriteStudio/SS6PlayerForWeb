@@ -8,7 +8,7 @@ import { EffectNode } from '../../ss/ssfb/effect-node';
 export class EffectFile {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectFile {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectFile {
   this.bb_pos = i;
   this.bb = bb;
   return this;

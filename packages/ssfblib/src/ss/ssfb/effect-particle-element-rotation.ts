@@ -5,25 +5,25 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementRotation {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotation {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotation {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-RotationMinValue():number {
+rotationMinValue():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-RotationMaxValue():number {
+rotationMaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 
-RotationAddMinValue():number {
+rotationAddMinValue():number {
   return this.bb!.readFloat32(this.bb_pos + 8);
 }
 
-RotationAddMaxValue():number {
+rotationAddMaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 12);
 }
 

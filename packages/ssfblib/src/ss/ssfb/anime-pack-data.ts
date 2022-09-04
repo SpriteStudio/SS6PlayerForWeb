@@ -9,7 +9,7 @@ import { PartData } from '../../ss/ssfb/part-data';
 export class AnimePackData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):AnimePackData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):AnimePackData {
   this.bb_pos = i;
   this.bb = bb;
   return this;

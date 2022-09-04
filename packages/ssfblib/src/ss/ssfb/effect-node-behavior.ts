@@ -19,7 +19,7 @@ import { EffectParticlePointGravity } from '../../ss/ssfb/effect-particle-point-
 import { EffectParticleTurnToDirectionEnabled } from '../../ss/ssfb/effect-particle-turn-to-direction-enabled';
 
 
-export enum EffectNodeBehavior{
+export enum EffectNodeBehavior {
   NONE = 0,
   EffectParticleElementBasic = 1,
   EffectParticleElementRndSeedChange = 2,
@@ -94,4 +94,3 @@ export function unionListToEffectNodeBehavior(
     default: return null;
   }
 }
-

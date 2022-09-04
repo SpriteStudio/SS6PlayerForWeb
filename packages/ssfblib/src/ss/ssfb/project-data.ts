@@ -10,7 +10,7 @@ import { EffectFile } from '../../ss/ssfb/effect-file';
 export class ProjectData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):ProjectData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):ProjectData {
   this.bb_pos = i;
   this.bb = bb;
   return this;

@@ -1007,7 +1007,7 @@ export class SS6Player extends Container {
    * @return {PIXI.SimpleMesh} - メッシュ
    */
   private MakeMeshCellMesh(partID: number, cellID: number): SimpleMesh {
-    const meshsDataUV = this.playerLib.animationData.meshsDataUV(partID);
+    const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
     const uvLength = meshsDataUV.uvLength();
 
     if (uvLength > 0) {

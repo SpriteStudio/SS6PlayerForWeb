@@ -5,13 +5,13 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementDelay {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementDelay {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementDelay {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-DelayTime():number {
+delayTime():number {
   return this.bb!.readInt32(this.bb_pos);
 }
 

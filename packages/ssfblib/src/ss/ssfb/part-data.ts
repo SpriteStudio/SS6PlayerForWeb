@@ -8,7 +8,7 @@ import { SsPartType } from '../../ss/ssfb/ss-part-type';
 export class PartData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):PartData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):PartData {
   this.bb_pos = i;
   this.bb = bb;
   return this;

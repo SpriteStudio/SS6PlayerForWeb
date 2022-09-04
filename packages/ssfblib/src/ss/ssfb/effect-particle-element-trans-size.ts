@@ -5,33 +5,33 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementTransSize {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSize {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSize {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-SizeXMinValue():number {
+sizeXminValue():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-SizeXMaxValue():number {
+sizeXmaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 
-SizeYMinValue():number {
+sizeYminValue():number {
   return this.bb!.readFloat32(this.bb_pos + 8);
 }
 
-SizeYMaxValue():number {
+sizeYmaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 12);
 }
 
-ScaleFactorMinValue():number {
+scaleFactorMinValue():number {
   return this.bb!.readFloat32(this.bb_pos + 16);
 }
 
-ScaleFactorMaxValue():number {
+scaleFactorMaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 20);
 }
 

@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class meshDataIndices {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):meshDataIndices {
+  __init(i:number, bb:flatbuffers.ByteBuffer):meshDataIndices {
   this.bb_pos = i;
   this.bb = bb;
   return this;
