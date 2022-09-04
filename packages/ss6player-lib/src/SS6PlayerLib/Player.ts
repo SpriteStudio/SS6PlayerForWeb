@@ -1,8 +1,8 @@
-import { ByteBuffer } from 'flatbuffers';
 import { ProjectData, AnimationData, AnimePackData, userDataInteger,
   userDataRect, userDataPoint, userDataString, userDataPerFrame,
   PART_FLAG, PART_FLAG2, Cell, AnimationInitialData } from 'ssfblib';
 import {FrameData} from './FrameData';
+import {Utils} from './Utils';
 
 export class Player {
   private readonly _fbObj: ProjectData;
@@ -57,8 +57,7 @@ export class Player {
       this._fbObj = ssfbData as ProjectData;
     } else {
       // Uint8Array
-      const buf: ByteBuffer = new ByteBuffer(ssfbData as Uint8Array);
-      this._fbObj = ProjectData.getRootAsProjectData(buf);
+      this._fbObj = Utils.getProjectData(ssfbData as Uint8Array);
     }
 
     if (animePackName !== null && animeName !== null) {

@@ -1,6 +1,6 @@
 import { LoaderResource, Loader } from '@pixi/loaders';
-import { ByteBuffer } from 'flatbuffers';
 import { ProjectData } from 'ssfblib';
+import { Utils as playerLibUtils } from 'ss6player-lib';
 
 export class SS6Project {
   public ssfbPath: string;
@@ -102,8 +102,7 @@ export class SS6Project {
       }
       const arrayBuffer = this.response;
       const bytes = new Uint8Array(arrayBuffer);
-      const buf = new ByteBuffer(bytes);
-      self.fbObj = ProjectData.getRootAsProjectData(buf);
+      self.fbObj = playerLibUtils.getProjectData(bytes);
       self.LoadCellResources();
     };
     httpObj.ontimeout = function () {
@@ -156,8 +155,7 @@ export class SS6Project {
   }
 
   private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
-    const buffer = new ByteBuffer(bytes);
-    this.fbObj = ProjectData.getRootAsProjectData(buffer);
+    this.fbObj = playerLibUtils.getProjectData(bytes);
 
     const loader = new Loader();
     for (let imageName in imageBinaryMap) {

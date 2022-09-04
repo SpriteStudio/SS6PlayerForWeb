@@ -41,3 +41,6 @@ export { userDataRect } from './ss/ssfb/user-data-rect';
 export { userDataString } from './ss/ssfb/user-data-string';
 export { userDataValue, unionListTouserDataValue, unionTouserDataValue } from './ss/ssfb/user-data-value';
 export { VERTEX_FLAG } from './ss/ssfb/vertex-flag';
+
+export { Utils } from './Utils';
+
