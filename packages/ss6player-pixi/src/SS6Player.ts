@@ -6,32 +6,20 @@ import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
 import { Filter } from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
 
-import { ProjectData, AnimationData, AnimePackData, userDataInteger,
-  userDataRect, userDataPoint, userDataString,
-  PART_FLAG, PART_FLAG2, PartData, SsPartType,
-  Cell } from 'ssfblib';
+import {Player} from 'ss6player-lib';
+
+import { AnimePackData, PART_FLAG, PartData, SsPartType } from 'ssfblib';
 import { SS6Project } from './SS6Project';
 import { SS6PlayerInstanceKeyParam } from './SS6PlayerInstanceKeyParam';
 
 export class SS6Player extends Container {
+  protected playerLib: Player;
+
   // Properties
   private readonly ss6project: SS6Project;
-  private readonly fbObj: ProjectData;
   private readonly resources: Partial<Record<string, LoaderResource>>;
-  private animation: number[] = [];
-  private curAnimePackName: string = null;
-  private curAnimeName: string = null;
-  protected curAnimation: AnimationData = null;
-  protected curAnimePackData: AnimePackData = null;
-  private parts: number = -1;
-  private parentIndex: number[] = [];
-  private prio2index: any[] = [];
-  private userData: any[] = [];
-  private frameDataCache: any = {};
-  private currentCachedFrameNumber: number = -1;
   private liveFrame: any[] = [];
   private colorMatrixFilterCache: any[] = [];
-  private defaultFrameMap: any[] = [];
 
   private parentAlpha: number = 1.0;
 
@@ -63,15 +51,15 @@ export class SS6Player extends Container {
   }
 
   public get endFrame(): number {
-    return this.curAnimation.endFrames();
+    return this._endFrame;
   }
 
   public get totalFrame(): number {
-    return this.curAnimation.totalFrames();
+    return this.playerLib.animationData.totalFrames();
   }
 
   public get fps(): number {
-    return this.curAnimation.fps();
+    return this.playerLib.animationData.fps();
   }
 
   public get frameNo(): number {
@@ -95,11 +83,11 @@ export class SS6Player extends Container {
   }
 
   public get animePackName(): string {
-    return this.curAnimePackName;
+    return this.playerLib.animePackName;
   }
 
   public get animeName(): string {
-    return this.curAnimeName;
+    return this.playerLib.animeName;
   }
 
   /**
@@ -113,7 +101,7 @@ export class SS6Player extends Container {
     super();
 
     this.ss6project = ss6project;
-    this.fbObj = this.ss6project.fbObj;
+    this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
     this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
@@ -136,49 +124,27 @@ export class SS6Player extends Container {
    * @param {string} animeName - The name of animation.
    */
   public Setup(animePackName: string, animeName: string): void {
+    this.playerLib.Setup(animePackName, animeName);
+
     this.clearCaches();
-    const animePacksLength = this.fbObj.animePacksLength();
-    for (let i = 0; i < animePacksLength; i++) {
-      if (this.fbObj.animePacks(i).name() === animePackName) {
-        let j;
-        const animationsLength = this.fbObj.animePacks(i).animationsLength();
-        for (j = 0; j < animationsLength; j++) {
-          if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
-            this.animation = [i, j];
-            this.curAnimePackName = animePackName;
-            this.curAnimeName = animeName;
-            this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
-            this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
-            break;
-          }
-        }
 
-        // default data map
-        const defaultDataLength = this.curAnimation.defaultDataLength();
-        for (let i = 0; i < defaultDataLength; i++) {
-          const curDefaultData = this.curAnimation.defaultData(i);
-          this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
-        }
+    const animePackData: AnimePackData = this.playerLib.animePackData;
+    const partsLength = animePackData.partsLength();
 
-        // parts
-        this.parts = i;
-        const partsLength = this.fbObj.animePacks(this.parts).partsLength();
-        this.parentIndex = new Array(partsLength);
-        // cell再利用
-        this.prevCellID = new Array(partsLength);
-        this.prevMesh = new Array(partsLength);
-        this.substituteOverWrite = new Array(partsLength);
-        this.substituteKeyParam = new Array(partsLength);
-        for (j = 0; j < partsLength; j++) {
-          const index = this.fbObj.animePacks(this.parts).parts(j).index();
-          this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
-          // cell再利用
-          this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-          this.prevMesh[index] = null;
-          this.substituteOverWrite[index] = null;
-          this.substituteKeyParam[index] = null;
-        }
-      }
+    // cell再利用
+    this.prevCellID = new Array(partsLength);
+    this.prevMesh = new Array(partsLength);
+    this.substituteOverWrite = new Array(partsLength);
+    this.substituteKeyParam = new Array(partsLength);
+
+    for (let j = 0; j < partsLength; j++) {
+      const index = animePackData.parts(j).index();
+
+      // cell再利用
+      this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
+      this.prevMesh[index] = null;
+      this.substituteOverWrite[index] = null;
+      this.substituteKeyParam[index] = null;
     }
 
     // 各アニメーションステータスを初期化
@@ -186,13 +152,13 @@ export class SS6Player extends Container {
 
     this._isPlaying = false;
     this._isPausing = true;
-    this._startFrame = this.curAnimation.startFrames();
-    this._endFrame = this.curAnimation.endFrames();
-    this._currentFrame = this.curAnimation.startFrames();
+    this._startFrame = this.playerLib.animationData.startFrames();
+    this._endFrame = this.playerLib.animationData.endFrames();
+    this._currentFrame = this.playerLib.animationData.startFrames();
     this.nextFrameTime = 0;
     this._loops = -1;
     this.skipEnabled = true;
-    this.updateInterval = 1000 / this.curAnimation.fps();
+    this.updateInterval = 1000 / this.playerLib.animationData.fps();
     this.playDirection = 1; // forward
     this.onUserDataCallback = null;
     this.playEndCallback = null;
@@ -200,13 +166,8 @@ export class SS6Player extends Container {
   }
 
   private clearCaches() {
-    this.prio2index = [];
-    this.userData = [];
-    this.frameDataCache = [];
-    this.currentCachedFrameNumber = -1;
     this.liveFrame = [];
     this.colorMatrixFilterCache = [];
-    this.defaultFrameMap = [];
   }
 
   protected Update(delta: number): void {
@@ -259,9 +220,9 @@ export class SS6Player extends Container {
             currentFrameNo = incFrameNo;
             // Check User Data
             if (this._isPlaying) {
-              if (this.HaveUserData(currentFrameNo)) {
+              if (this.playerLib.HaveUserData(currentFrameNo)) {
                 if (this.onUserDataCallback !== null) {
-                  this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                  this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
                 }
               }
             }
@@ -290,9 +251,9 @@ export class SS6Player extends Container {
             currentFrameNo = decFrameNo;
             // Check User Data
             if (this._isPlaying) {
-              if (this.HaveUserData(currentFrameNo)) {
+              if (this.playerLib.HaveUserData(currentFrameNo)) {
                 if (this.onUserDataCallback !== null) {
-                  this.onUserDataCallback(this.GetUserData(currentFrameNo));
+                  this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
                 }
               }
             }
@@ -331,7 +292,7 @@ export class SS6Player extends Container {
   public SetAnimationSpeed(fpsRate: number, _skipEnabled: boolean = true): void {
     if (fpsRate === 0) return; // illegal?
     this.playDirection = fpsRate > 0 ? 1 : -1;
-    this.updateInterval = 1000 / (this.curAnimation.fps() * fpsRate * this.playDirection);
+    this.updateInterval = 1000 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
     this.skipEnabled = _skipEnabled;
   }
 
@@ -342,10 +303,10 @@ export class SS6Player extends Container {
    * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
    */
   public SetAnimationSection(_startframe: number = -1, _endframe: number = -1, _loops: number = -1): void {
-    if (_startframe >= 0 && _startframe < this.curAnimation.totalFrames()) {
+    if (_startframe >= 0 && _startframe < this.playerLib.animationData.totalFrames()) {
       this._startFrame = _startframe;
     }
-    if (_endframe >= 0 && _endframe < this.curAnimation.totalFrames()) {
+    if (_endframe >= 0 && _endframe < this.playerLib.animationData.totalFrames()) {
       this._endFrame = _endframe;
     }
     if (_loops > 0) {
@@ -377,9 +338,9 @@ export class SS6Player extends Container {
 
     const currentFrameNo = Math.floor(this._currentFrame);
     this.SetFrameAnimation(currentFrameNo);
-    if (this.HaveUserData(currentFrameNo)) {
+    if (this.playerLib.HaveUserData(currentFrameNo)) {
       if (this.onUserDataCallback !== null) {
-        this.onUserDataCallback(this.GetUserData(currentFrameNo));
+        this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
       }
     }
   }
@@ -484,98 +445,13 @@ export class SS6Player extends Container {
   }
 
   /**
-   * ユーザーデータの存在チェック
-   * @param {number} frameNumber - フレーム番号
-   * @return {boolean} - 存在するかどうか
-   */
-  private HaveUserData(frameNumber: number): boolean {
-    if (this.userData[frameNumber] === -1) {
-      // データはない
-      return false;
-    }
-    if (this.userData[frameNumber]) {
-      // キャッシュされたデータがある
-      return true;
-    }
-    // ユーザーデータ検索する
-    for (let k = 0; k < this.curAnimation.userDataLength(); k++) {
-      // フレームデータがあるかを調べる
-      if (frameNumber === this.curAnimation.userData(k).frameIndex()) {
-        // ついでにキャッシュしておく
-        this.userData[frameNumber] = this.curAnimation.userData(k);
-        return true;
-      }
-    }
-    // データなしにしておく
-    this.userData[frameNumber] = -1;
-    return false;
-  }
-
-  /**
-   * ユーザーデータの取得
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - ユーザーデータ
-   */
-  protected GetUserData(frameNumber: number): any[] {
-    // HaveUserDataでデータのキャッシュするので、ここで確認しておく
-    if (this.HaveUserData(frameNumber) === false) {
-      return;
-    }
-    const framedata = this.userData[frameNumber]; // キャッシュされたデータを確認する
-    const layers = framedata.dataLength();
-    let id = 0;
-    let data = [];
-    for (let i = 0; i < layers; i++) {
-      const bit = framedata.data(i).flags();
-      const partsID = framedata.data(i).arrayIndex();
-      let d_int = null;
-      let d_rect_x = null;
-      let d_rect_y = null;
-      let d_rect_w = null;
-      let d_rect_h = null;
-      let d_pos_x = null;
-      let d_pos_y = null;
-      let d_string_length = null;
-      let d_string = null;
-      if (bit & 1) {
-        // int
-        d_int = framedata.data(i).data(id, new userDataInteger()).integer();
-        id++;
-      }
-      if (bit & 2) {
-        // rect
-        d_rect_x = framedata.data(i).data(id, new userDataRect()).x();
-        d_rect_y = framedata.data(i).data(id, new userDataRect()).y();
-        d_rect_w = framedata.data(i).data(id, new userDataRect()).w();
-        d_rect_h = framedata.data(i).data(id, new userDataRect()).h();
-        id++;
-      }
-      if (bit & 4) {
-        // pos
-        d_pos_x = framedata.data(i).data(id, new userDataPoint()).x();
-        d_pos_y = framedata.data(i).data(id, new userDataPoint()).y();
-        id++;
-      }
-      if (bit & 8) {
-        // string
-        d_string_length = framedata.data(i).data(id, new userDataString()).length();
-        d_string = framedata.data(i).data(id, new userDataString()).data();
-        id++;
-      }
-      data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
-    }
-    return data;
-  }
-
-  /**
    * パーツの描画モードを取得する
    * @return {array} - 全パーツの描画モード
    */
   private GetPartsBlendMode(): BLEND_MODES[] {
-    const l = this.fbObj.animePacks(this.parts).partsLength();
+    const animePacks: AnimePackData = this.playerLib.animePackData;
+    const l = animePacks.partsLength();
     let ret = [];
-    const animePacks = this.fbObj.animePacks(this.parts);
-
     for (let i = 0; i < l; i++) {
       const alphaBlendType: number = animePacks.parts(i).alphaBlendType();
       let blendMode: BLEND_MODES;
@@ -613,199 +489,7 @@ export class SS6Player extends Container {
     return ret;
   }
 
-  private _uint32 = new Uint32Array(1);
-  private _float32 = new Float32Array(this._uint32.buffer);
-
-  /**
-   * int型からfloat型に変換する
-   * @return {floatView[0]} - float型に変換したデータ
-   */
-  private I2F(i: number): number {
-    this._uint32[0] = i;
-    return this._float32[0];
-  }
-
   private defaultColorFilter: Filter = new ColorMatrixFilter();
-
-  /**
-   * １フレーム分のデータを取得する（未設定項目はデフォルト）
-   * [注意]現verでは未対応項目があると正常動作しない可能性があります
-   * @param {number} frameNumber - フレーム番号
-   */
-  private GetFrameData(frameNumber: number): any {
-    if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
-      return this.frameDataCache;
-    }
-    const layers = this.curAnimation.defaultDataLength();
-    let frameData = new Array(layers);
-    this.prio2index = new Array(layers);
-    const curFrameData = this.curAnimation.frameData(frameNumber);
-    for (let i = 0; i < layers; i++) {
-      const curPartState = curFrameData.states(i);
-      const index = curPartState.index();
-      let f1 = curPartState.flag1();
-      let f2 = curPartState.flag2();
-      let blendType = -1;
-      let fd = this.GetDefaultDataByIndex(index);
-      // データにフラグを追加する
-      fd.flag1 = f1;
-      fd.flag2 = f2;
-
-      let id = 0;
-      if (f1 & PART_FLAG.INVISIBLE) fd.f_hide = true;
-      if (f1 & PART_FLAG.FLIP_H) fd.f_flipH = true;
-      if (f1 & PART_FLAG.FLIP_V) fd.f_flipV = true;
-      if (f1 & PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++); // 8 Cell ID
-      if (f1 & PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
-      if (f1 & PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
-      if (f1 & PART_FLAG.POSITION_Z) id++; // 64
-      if (f1 & PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++)); // 128 Pivot Offset X
-      if (f1 & PART_FLAG.PIVOT_Y) fd.pivotY = this.I2F(curPartState.data(id++)); // 256 Pivot Offset Y
-      if (f1 & PART_FLAG.ROTATIONX) id++; // 512
-      if (f1 & PART_FLAG.ROTATIONY) id++; // 1024
-      if (f1 & PART_FLAG.ROTATIONZ) fd.rotationZ = this.I2F(curPartState.data(id++)); // 2048
-      if (f1 & PART_FLAG.SCALE_X) fd.scaleX = this.I2F(curPartState.data(id++)); // 4096
-      if (f1 & PART_FLAG.SCALE_Y) fd.scaleY = this.I2F(curPartState.data(id++)); // 8192
-      if (f1 & PART_FLAG.LOCALSCALE_X) fd.localscaleX = this.I2F(curPartState.data(id++)); // 16384
-      if (f1 & PART_FLAG.LOCALSCALE_Y) fd.localscaleY = this.I2F(curPartState.data(id++)); // 32768
-      if (f1 & PART_FLAG.OPACITY) fd.opacity = curPartState.data(id++); // 65536
-      if (f1 & PART_FLAG.LOCALOPACITY) fd.localopacity = curPartState.data(id++); // 131072
-      if (f1 & PART_FLAG.SIZE_X) fd.size_X = this.I2F(curPartState.data(id++)); // 1048576 Size X [1]
-      if (f1 & PART_FLAG.SIZE_Y) fd.size_Y = this.I2F(curPartState.data(id++)); // 2097152 Size Y [1]
-      if (f1 & PART_FLAG.U_MOVE) fd.uv_move_X = this.I2F(curPartState.data(id++)); // 4194304 UV Move X
-      if (f1 & PART_FLAG.V_MOVE) fd.uv_move_Y = this.I2F(curPartState.data(id++)); // 8388608 UV Move Y
-      if (f1 & PART_FLAG.UV_ROTATION) fd.uv_rotation = this.I2F(curPartState.data(id++)); // 16777216 UV Rotation
-      if (f1 & PART_FLAG.U_SCALE) fd.uv_scale_X = this.I2F(curPartState.data(id++)); // 33554432 ? UV Scale X
-      if (f1 & PART_FLAG.V_SCALE) fd.uv_scale_Y = this.I2F(curPartState.data(id++)); // 67108864 ? UV Scale Y
-      if (f1 & PART_FLAG.BOUNDINGRADIUS) id++; // 134217728 boundingRadius
-      if (f1 & PART_FLAG.MASK) fd.masklimen = curPartState.data(id++); // 268435456 masklimen
-      if (f1 & PART_FLAG.PRIORITY) fd.priority = curPartState.data(id++); // 536870912 priority
-      //
-      if (f1 & PART_FLAG.INSTANCE_KEYFRAME) {
-        // 1073741824 instance keyframe
-        fd.instanceValue_curKeyframe = curPartState.data(id++);
-        fd.instanceValue_startFrame = curPartState.data(id++);
-        fd.instanceValue_endFrame = curPartState.data(id++);
-        fd.instanceValue_loopNum = curPartState.data(id++);
-        fd.instanceValue_speed = this.I2F(curPartState.data(id++));
-        fd.instanceValue_loopflag = curPartState.data(id++);
-      }
-      if (f1 & PART_FLAG.EFFECT_KEYFRAME) {
-        // 2147483648 effect keyframe
-        fd.effectValue_curKeyframe = curPartState.data(id++);
-        fd.effectValue_startTime = curPartState.data(id++);
-        fd.effectValue_speed = this.I2F(curPartState.data(id++));
-        fd.effectValue_loopflag = curPartState.data(id++);
-      }
-      if (f1 & PART_FLAG.VERTEX_TRANSFORM) {
-        // 524288 verts [4]
-        // verts
-        fd.f_mesh = true;
-        const f = (fd.i_transformVerts = curPartState.data(id++));
-        if (f & 1) {
-          fd.u00 = this.I2F(curPartState.data(id++));
-          fd.v00 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 2) {
-          fd.u01 = this.I2F(curPartState.data(id++));
-          fd.v01 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 4) {
-          fd.u10 = this.I2F(curPartState.data(id++));
-          fd.v10 = this.I2F(curPartState.data(id++));
-        }
-        if (f & 8) {
-          fd.u11 = this.I2F(curPartState.data(id++));
-          fd.v11 = this.I2F(curPartState.data(id++));
-        }
-      }
-
-      if (f1 & PART_FLAG.PARTS_COLOR) {
-        // 262144 parts color [3]
-        const f = curPartState.data(id++);
-        blendType = f & 0xff;
-        // 小西 - パーツカラーが乗算合成ならフィルタを使わないように
-        fd.useColorMatrix = blendType !== 1;
-        // [replaced]//fd.useColorMatrix = true;
-        if (f & 0x1000) {
-          // one color
-          // 小西 - プロパティを一時退避
-          const rate = this.I2F(curPartState.data(id++));
-          const bf = curPartState.data(id++);
-          const bf2 = curPartState.data(id++);
-          const argb32 = (bf << 16) | bf2;
-
-          // 小西 - パーツカラーが乗算合成ならtintで処理
-          fd.partsColorARGB = argb32 >>> 0;
-          if (blendType === 1) {
-            fd.tint = argb32 & 0xffffff;
-          } else {
-            // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
-            fd.colorMatrix = this.GetColorMatrixFilter(blendType, rate, argb32);
-          }
-        }
-
-        if (f & 0x0800) {
-          // LT color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0400) {
-          // RT color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0200) {
-          // LB color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-        if (f & 0x0100) {
-          // RB color
-          id++;
-          id++;
-          id++;
-          fd.colorMatrix = this.defaultColorFilter; // TODO
-        }
-      }
-      if (f2 & PART_FLAG2.MESHDATA) {
-        // mesh [1]
-        fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
-        fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-        let mp = new Float32Array(fd.meshNum * 3);
-
-        for (let idx = 0; idx < fd.meshNum; idx++) {
-          const mx = this.I2F(curPartState.data(id++));
-          const my = this.I2F(curPartState.data(id++));
-          const mz = this.I2F(curPartState.data(id++));
-          mp[idx * 3 + 0] = mx;
-          mp[idx * 3 + 1] = my;
-          mp[idx * 3 + 2] = mz;
-
-        }
-        fd.meshDataPoint = mp;
-      }
-
-      frameData[index] = fd;
-      this.prio2index[i] = index;
-
-      // NULLパーツにダミーのセルIDを設定する
-      if (
-        this.fbObj.animePacks(this.parts).parts(index).type() === 0
-      ) {
-        frameData[index].cellIndex = -2;
-      }
-    }
-    this.frameDataCache = frameData;
-    this.currentCachedFrameNumber = frameNumber;
-    return frameData;
-  }
 
   /**
    * パーツカラーのブレンド用カラーマトリクス
@@ -862,84 +546,6 @@ export class SS6Player extends Container {
     return colorMatrix;
   }
 
-  /**
-   * デフォルトデータを取得する
-   * @param {number} id - パーツ（レイヤー）ID
-   * @return {array} - データ
-   */
-  private GetDefaultDataByIndex(id: number): any {
-    const curDefaultData = this.defaultFrameMap[id];
-    return {
-      index: curDefaultData.index(),
-      lowflag: curDefaultData.lowflag(),
-      highflag: curDefaultData.highflag(),
-      priority: curDefaultData.priority(),
-      cellIndex: curDefaultData.cellIndex(),
-      opacity: curDefaultData.opacity(),
-      localopacity: curDefaultData.localopacity(),
-      masklimen: curDefaultData.masklimen(),
-      positionX: curDefaultData.positionX(),
-      positionY: curDefaultData.positionY(),
-      pivotX: curDefaultData.pivotX(),
-      pivotY: curDefaultData.pivotY(),
-      rotationX: curDefaultData.rotationX(),
-      rotationY: curDefaultData.rotationY(),
-      rotationZ: curDefaultData.rotationZ(),
-      scaleX: curDefaultData.scaleX(),
-      scaleY: curDefaultData.scaleY(),
-      localscaleX: curDefaultData.localscaleX(),
-      localscaleY: curDefaultData.localscaleY(),
-      size_X: curDefaultData.sizeX(),
-      size_Y: curDefaultData.sizeY(),
-      uv_move_X: curDefaultData.uvMoveX(),
-      uv_move_Y: curDefaultData.uvMoveY(),
-      uv_rotation: curDefaultData.uvRotation(),
-      uv_scale_X: curDefaultData.uvScaleX(),
-      uv_scale_Y: curDefaultData.uvScaleY(),
-      boundingRadius: curDefaultData.boundingRadius(),
-      instanceValue_curKeyframe: curDefaultData.instanceValueCurKeyframe(),
-      instanceValue_endFrame: curDefaultData.instanceValueEndFrame(),
-      instanceValue_startFrame: curDefaultData.instanceValueStartFrame(),
-      instanceValue_loopNum: curDefaultData.instanceValueLoopNum(),
-      instanceValue_speed: curDefaultData.instanceValueSpeed(),
-      instanceValue_loopflag: curDefaultData.instanceValueLoopflag(),
-      effectValue_curKeyframe: curDefaultData.effectValueCurKeyframe(),
-      effectValue_startTime: curDefaultData.effectValueStartTime(),
-      effectValue_speed: curDefaultData.effectValueSpeed(),
-      effectValue_loopflag: curDefaultData.effectValueLoopflag(),
-
-      // Add visiblity
-      f_hide: false,
-      // Add flip
-      f_flipH: false,
-      f_flipV: false,
-      // Add mesh
-      f_mesh: false,
-      // Add vert data
-      i_transformVerts: 0,
-      u00: 0,
-      v00: 0,
-      u01: 0,
-      v01: 0,
-      u10: 0,
-      v10: 0,
-      u11: 0,
-      v11: 0,
-      //
-      useColorMatrix: false,
-      colorMatrix: null,
-      //
-      meshIsBind: 0,
-      meshNum: 0,
-      meshDataPoint: 0,
-      //
-      flag1: 0,
-      flag2: 0,
-
-      partsColorARGB: 0
-    };
-  }
-
   private _instancePos: Float32Array = new Float32Array(5);
   private _CoordinateGetDiagonalIntersectionVec2: Float32Array = new Float32Array(2);
 
@@ -949,21 +555,21 @@ export class SS6Player extends Container {
    * @param {number} ds - delta step
    */
   protected SetFrameAnimation(frameNumber: number, ds: number = 0.0): void {
-    const fd = this.GetFrameData(frameNumber);
+    const fd = this.playerLib.GetFrameData(frameNumber);
     this.removeChildren();
 
     // 優先度順パーツ単位ループ
     const l = fd.length;
     for (let ii = 0; ii < l; ii = (ii + 1) | 0) {
       // 優先度に変換
-      const i = this.prio2index[ii];
+      const i = this.playerLib.prio2index[ii];
 
       const data = fd[i];
       const cellID = data.cellIndex;
 
       // cell再利用
       let mesh: any = this.prevMesh[i];
-      const part: PartData = this.fbObj.animePacks(this.parts).parts(i);
+      const part: PartData = this.playerLib.animePackData.parts(i);
       const partType = part.type();
       let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
       let overWritekeyParam: SS6PlayerInstanceKeyParam = this.substituteKeyParam[i];
@@ -1025,7 +631,7 @@ export class SS6Player extends Container {
           this._instancePos[2] = 1; // scale x
           this._instancePos[3] = 1; // scale x
           this._instancePos[4] = 0; // rot
-          this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+          this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
 
           mesh.rotation = (this._instancePos[4] * Math.PI) / 180;
           mesh.position.set(this._instancePos[0], this._instancePos[1]);
@@ -1161,20 +767,20 @@ export class SS6Player extends Container {
         case SsPartType.Mesh:
         case SsPartType.Joint:
         case SsPartType.Mask: {
-          const cell = this.fbObj.cells(cellID);
+          const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = SS6Player.GetMeshVerts(cell, data, mesh.vertices);
+              verts = Player.GetMeshVerts(cell, data, mesh.vertices);
             }
           } else {
             verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.vertices;
-            verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data, verts), data.index, frameNumber);
+            verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
           if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
@@ -1198,7 +804,7 @@ export class SS6Player extends Container {
             const CoordinateRURDx = (vertexCoordinateRUx + vertexCoordinateRDx) * 0.5;
             const CoordinateRURDy = (vertexCoordinateRUy + vertexCoordinateRDy) * 0.5;
 
-            const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
+            const vec2 = Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
             verts[0] = vec2[0];
             verts[1] = vec2[1];
           }
@@ -1271,7 +877,9 @@ export class SS6Player extends Container {
           // if (data.h_hide) console.log('hide ! ' + data.cellIndex);
           //
           if (data.useColorMatrix) {
-            mesh.filters = [data.colorMatrix];
+            // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
+            const colorMatrix: Filter = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+            mesh.filters = [colorMatrix];
           }
 
           // 小西 - tintデータがあれば適用
@@ -1281,9 +889,13 @@ export class SS6Player extends Container {
             const ca = ((data.partsColorARGB & 0xff000000) >>> 24) / 255;
             mesh.alpha = mesh.alpha * ca;
           }
+
+          // TODO:
+          /*
           if (data.tintRgb) {
             mesh.tintRgb = data.tintRgb;
           }
+           */
 
           const blendMode: BLEND_MODES = this.alphaBlendType[i];
           if (blendMode === BLEND_MODES.MULTIPLY || blendMode === BLEND_MODES.SCREEN) {
@@ -1295,9 +907,9 @@ export class SS6Player extends Container {
         }
         case SsPartType.Nulltype: {
           // NULLパーツのOpacity/Transform設定
-          const opacity = this.InheritOpacity(1.0, data.index, frameNumber);
+          const opacity = this.playerLib.InheritOpacity(1.0, data.index, frameNumber);
           mesh.alpha = (opacity * data.localopacity) / 255.0;
-          const verts = this.TransformVerts(SS6Player.GetDummyVerts(), data.index, frameNumber);
+          const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
           const px = verts[0];
           const py = verts[1];
           mesh.position.set(px, py);
@@ -1335,8 +947,8 @@ export class SS6Player extends Container {
   public ChangeInstanceAnime(partName: string, animePackName: string, animeName: string, overWrite: boolean, keyParam: SS6PlayerInstanceKeyParam = null): boolean {
     let rc = false;
 
-    if (this.curAnimePackName !== null && this.curAnimation !== null) {
-      let packData: AnimePackData = this.curAnimePackData;
+    if (this.animePackName !== null && this.animeName !== null) {
+      let packData: AnimePackData = this.playerLib.animePackData;
       let partsLength = packData.partsLength();
       for (let index = 0; index < partsLength; index++) {
 
@@ -1370,240 +982,12 @@ export class SS6Player extends Container {
   }
 
   /**
-   * 親を遡って不透明度を継承する
-   * @param {number} opacity - 透明度
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {number} - 透明度
-   */
-  private InheritOpacity(opacity: number, id: number, frameNumber: number): number {
-    const data = this.GetFrameData(frameNumber)[id];
-    opacity = data.opacity / 255.0;
-
-    if (this.parentIndex[id] >= 0) {
-      opacity = this.InheritOpacity(opacity, this.parentIndex[id], frameNumber);
-    }
-    return opacity;
-  }
-
-  /**
-   * 親を遡って座標変換する（ローカルアトリビュート適用）
-   * @param {array} verts - 頂点情報配列
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - 変換された頂点座標配列
-   */
-  private TransformVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
-
-    const rz = (-data.rotationZ * Math.PI) / 180;
-    const cos = Math.cos(rz);
-    const sin = Math.sin(rz);
-    for (let i = 0; i < verts.length / 2; i++) {
-      let x = verts[i * 2]; // * (data.size_X | 1);
-      let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
-      if (data.i_transformVerts & 1 && i === 1) {
-        x += data.u00;
-        y -= data.v00; // 上下修正
-      }
-      if (data.i_transformVerts & 2 && i === 2) {
-        x += data.u01;
-        y -= data.v01; // 上下修正
-      }
-      if (data.i_transformVerts & 4 && i === 3) {
-        x += data.u10;
-        y -= data.v10; // 上下修正
-      }
-      if (data.i_transformVerts & 8 && i === 4) {
-        x += data.u11;
-        y -= data.v11; // 上下修正
-      }
-      x *= data.scaleX * data.localscaleX;
-      y *= data.scaleY * data.localscaleY;
-      verts[i * 2] = cos * x - sin * y + data.positionX;
-      verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-      //
-      if (data.f_flipH) {
-        verts[i * 2] = verts[0] * 2 - verts[i * 2];
-      }
-      if (data.f_flipV) {
-        verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-      }
-    }
-    if (this.parentIndex[id] >= 0) {
-      verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-    }
-    return verts;
-  }
-
-  /**
-   * 親を遡って座標変換する（ローカルアトリビュート適用）
-   * @param {array} verts - 頂点情報配列
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - 変換された頂点座標配列
-   */
-  private TransformMeshVertsLocal(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
-
-    const rz = (-data.rotationZ * Math.PI) / 180;
-    const cos = Math.cos(rz);
-    const sin = Math.sin(rz);
-    for (let i = 0; i < verts.length / 2; i++) {
-      let x = verts[i * 2]; // * (data.size_X | 1);
-      let y = verts[i * 2 + 1]; // * (data.size_Y | 1);
-      x *= data.scaleX * data.localscaleX;
-      y *= data.scaleY * data.localscaleY;
-      verts[i * 2] = cos * x - sin * y + data.positionX;
-      verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-    }
-    if (this.parentIndex[id] >= 0) {
-      verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-    }
-    return verts;
-  }
-
-  /**
-   * 親を遡って座標変換する（ローカルアトリビュート適用）
-   * @param {array} pos - 頂点情報配列
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - 変換された頂点座標配列
-   */
-  private TransformPositionLocal(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
-
-    pos[4] += -data.rotationZ;
-
-    const rz = (-data.rotationZ * Math.PI) / 180;
-    const cos = Math.cos(rz);
-    const sin = Math.sin(rz);
-    const x = pos[0] * data.scaleX * data.localscaleX; // * (data.size_X | 1);
-    const y = pos[1] * data.scaleY * data.localscaleY; // * (data.size_Y | 1);
-
-    pos[2] *= data.scaleX * data.localscaleX;
-    pos[3] *= data.scaleY * data.localscaleY;
-    pos[0] = (cos * x - sin * y) + data.positionX;
-    pos[1] = (sin * x + cos * y) - data.positionY;
-
-    if (this.parentIndex[id] >= 0) {
-      pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-    }
-
-    return pos;
-  }
-
-  /**
-   * 5頂点の中間点を求める
-   * @param {number} cx - 元の中心点
-   * @param {number} cy - 元の中心点
-   * @param {number} LUx - 左上座標
-   * @param {number} LUy - 左上座標
-   * @param {number} RUx - 右上座標
-   * @param {number} RUy - 右上座標
-   * @param {number} LDx - 左下座標
-   * @param {number} LDy - 左下座標
-   * @param {number} RDx - 右下座標
-   * @param {number} RDy - 右下座標
-   * @param vec2
-   * @return {array} vec2 - 4頂点から算出した中心点の座標
-   */
-  private static CoordinateGetDiagonalIntersection(cx: number, cy: number, LUx: number, LUy: number, RUx: number, RUy: number, LDx: number, LDy: number, RDx: number, RDy: number, vec2: Float32Array): Float32Array {
-    // 中間点を求める
-
-    // <<< 係数を求める >>>
-    const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
-    const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
-    const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
-
-    if (c3 <= 0 && c3 >= 0) return vec2;
-
-    const ca = c1 / c3;
-    const cb = c2 / c3;
-
-    // <<< 交差判定 >>>
-    if (0.0 <= ca && 1.0 >= ca && (0.0 <= cb && 1.0 >= cb)) {
-      // 交差している
-      cx = LUx + ca * (RDx - LUx);
-      cy = LUy + ca * (RDy - LUy);
-    }
-    vec2[0] = cx;
-    vec2[1] = cy;
-
-    return vec2;
-  }
-
-  /**
-   * 親を遡って座標変換する
-   * @param {array} verts - 頂点情報配列
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - 変換された頂点座標配列
-   */
-  private TransformVerts(verts: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
-
-    const rz = (-data.rotationZ * Math.PI) / 180;
-    const cos = Math.cos(rz);
-    const sin = Math.sin(rz);
-    for (let i = 0; i < verts.length / 2; i++) {
-      let x = verts[i * 2];
-      let y = verts[i * 2 + 1];
-      x *= data.scaleX;
-      y *= data.scaleY;
-      verts[i * 2] = cos * x - sin * y + data.positionX;
-      verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-      //
-      if (data.f_flipH) {
-        verts[i * 2] = verts[0] * 2 - verts[i * 2];
-      }
-      if (data.f_flipV) {
-        verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-      }
-    }
-
-    if (this.parentIndex[id] >= 0) {
-      verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-    }
-    return verts;
-  }
-
-  /**
-   * 親を遡って座標変換する
-   * @param {array} pos - 頂点情報配列
-   * @param {number} id - パーツ（レイヤー）ID
-   * @param {number} frameNumber - フレーム番号
-   * @return {array} - 変換された頂点座標配列
-   */
-  private TransformPosition(pos: Float32Array, id: number, frameNumber: number): Float32Array {
-    const data = this.GetFrameData(frameNumber)[id];
-
-    pos[4] += -data.rotationZ;
-    const rz = (-data.rotationZ * Math.PI) / 180;
-    const cos = Math.cos(rz);
-    const sin = Math.sin(rz);
-    const x = pos[0] * data.scaleX;
-    const y = pos[1] * data.scaleY;
-
-    pos[2] *= data.scaleX;
-    pos[3] *= data.scaleY;
-    pos[0] = (cos * x - sin * y) + data.positionX;
-    pos[1] = (sin * x + cos * y) - data.positionY;
-
-    if (this.parentIndex[id] >= 0) {
-      pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-    }
-
-    return pos;
-  }
-
-  /**
    * 矩形セルをメッシュ（5verts4Tri）で作成
    * @param {number} id - セルID
    * @return {PIXI.SimpleMesh} - メッシュ
    */
   private MakeCellMesh(id: number): SimpleMesh {
-    const cell = this.fbObj.cells(id);
+    const cell = this.playerLib.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
     const v1 = cell.v1();
@@ -1623,7 +1007,7 @@ export class SS6Player extends Container {
    * @return {PIXI.SimpleMesh} - メッシュ
    */
   private MakeMeshCellMesh(partID: number, cellID: number): SimpleMesh {
-    const meshsDataUV = this.curAnimation.meshsDataUV(partID);
+    const meshsDataUV = this.playerLib.animationData.meshsDataUV(partID);
     const uvLength = meshsDataUV.uvLength();
 
     if (uvLength > 0) {
@@ -1635,7 +1019,7 @@ export class SS6Player extends Container {
         uvs[idx - 2] = meshsDataUV.uv(idx);
       }
 
-      const meshsDataIndices = this.curAnimation.meshsDataIndices(partID);
+      const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
       const indicesLength = meshsDataIndices.indicesLength();
 
       // 先頭の1データはヘッダになる
@@ -1646,7 +1030,7 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      return new SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+      return new SimpleMesh(this.resources[this.playerLib.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
     }
 
     return null;
@@ -1667,45 +1051,8 @@ export class SS6Player extends Container {
     return ssp;
   }
 
-  /**
-   * 矩形セルメッシュの頂点情報のみ取得
-   * @param {ssfblib.Cell} cell - セル
-   * @param {array} data - アニメーションフレームデータ
-   * @param verts
-   * @return {array} - 頂点情報配列
-   */
-  private static GetVerts(cell: Cell, data: any, verts: Float32Array): Float32Array {
-    const w = data.size_X / 2;
-    const h = data.size_Y / 2;
-    const px = data.size_X * -(data.pivotX + cell.pivotX());
-    const py = data.size_Y * (data.pivotY + cell.pivotY());
-
-    verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
-    return verts;
-  }
-
-  /**
-   * 矩形セルメッシュの頂点情報のみ取得
-   * @param {ssfblib.Cell} cell - セル
-   * @param {array} data - アニメーションフレームデータ
-   * @param verts
-   * @return {array} - 頂点情報配列
-   */
-  private static GetMeshVerts(cell: Cell, data: any, verts: Float32Array): Float32Array {
-    // フレームデータからメッシュデータを取得しvertsを作成する
-    for (let idx = 0; idx < data.meshNum; idx++) {
-      verts[idx * 2 /*+ 0*/] = data.meshDataPoint[idx * 3 /*+ 0*/];
-      verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
-    }
-    return verts;
-  }
-
-  private static GetDummyVerts(): Float32Array {
-    return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
-  }
-
   private resetLiveFrame() {
-    const layers = this.curAnimation.defaultDataLength();
+    const layers = this.playerLib.animationData.defaultDataLength();
     for (let i = 0; i < layers; i++) {
       this.liveFrame[i] = 0;
     }

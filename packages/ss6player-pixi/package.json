@@ -53,7 +53,8 @@
     "@pixi/constants": "^6.5.8"
   },
   "dependencies": {
-    "ssfblib": "1.1.2"
+    "ssfblib": "1.1.2",
+    "ss6player-lib": "1.0.0"
   },
   "devDependencies": {
     "flatbuffers": "^22.10.26",
