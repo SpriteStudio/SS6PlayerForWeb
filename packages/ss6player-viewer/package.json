@@ -50,12 +50,12 @@
   },
   "dependencies": {
     "ss6player-pixi": "^1.7.9",
-    "ssfblib": "1.1.2",
     "jszip": "^3.10.1"
   },
   "devDependencies": {
     "typescript": "^4.8.4",
     "typedoc": "^0.23.19",
+    "ssfblib": "1.1.2",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
     "rollup": "2.79.1",
