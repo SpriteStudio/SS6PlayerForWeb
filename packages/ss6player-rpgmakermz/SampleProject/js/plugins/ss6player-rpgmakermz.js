@@ -158,8 +158,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
 (function (loaders, display, meshExtras, ticker, filterColorMatrix, constants) {
   'use strict';
 
+  class FrameData {
+  }
   const SIZEOF_INT = 4;
   const FILE_IDENTIFIER_LENGTH = 4;
+  const SIZE_PREFIX_LENGTH = 4;
   const int32$1 = new Int32Array(2);
   const float32 = new Float32Array(int32$1.buffer);
   const float64 = new Float64Array(int32$1.buffer);
@@ -173,6 +176,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     constructor(bytes_) {
       this.bytes_ = bytes_;
       this.position_ = 0;
+      this.text_decoder_ = new TextDecoder();
     }
     static allocate(byte_size) {
       return new ByteBuffer(new Uint8Array(byte_size));
@@ -290,39 +294,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
     __string(offset, opt_encoding) {
       offset += this.readInt32(offset);
       const length = this.readInt32(offset);
-      let result = "";
-      let i = 0;
       offset += SIZEOF_INT;
-      if (opt_encoding === Encoding$1.UTF8_BYTES) {
-        return this.bytes_.subarray(offset, offset + length);
-      }
-      while (i < length) {
-        let codePoint;
-        const a = this.readUint8(offset + i++);
-        if (a < 192) {
-          codePoint = a;
-        } else {
-          const b = this.readUint8(offset + i++);
-          if (a < 224) {
-            codePoint = (a & 31) << 6 | b & 63;
-          } else {
-            const c = this.readUint8(offset + i++);
-            if (a < 240) {
-              codePoint = (a & 15) << 12 | (b & 63) << 6 | c & 63;
-            } else {
-              const d = this.readUint8(offset + i++);
-              codePoint = (a & 7) << 18 | (b & 63) << 12 | (c & 63) << 6 | d & 63;
-            }
-          }
-        }
-        if (codePoint < 65536) {
-          result += String.fromCharCode(codePoint);
-        } else {
-          codePoint -= 65536;
-          result += String.fromCharCode((codePoint >> 10) + 55296, (codePoint & (1 << 10) - 1) + 56320);
-        }
-      }
-      return result;
+      const utf8bytes = this.bytes_.subarray(offset, offset + length);
+      if (opt_encoding === Encoding$1.UTF8_BYTES)
+        return utf8bytes;
+      else
+        return this.text_decoder_.decode(utf8bytes);
     }
     __union_with_string(o, offset) {
       if (typeof o === "string") {
@@ -353,8 +330,9 @@ Imported.SS6PlayerRPGMakerMZ = true;
     createScalarList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
-        if (listAccessor(i) !== null) {
-          ret.push(listAccessor(i));
+        const val = listAccessor(i);
+        if (val !== null) {
+          ret.push(val);
         }
       }
       return ret;
@@ -370,16 +348,6 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return ret;
     }
   }
-  const SIZE_PREFIX_LENGTH = 4;
-  const int32 = new Int32Array(2);
-  new Float32Array(int32.buffer);
-  new Float64Array(int32.buffer);
-  new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  var Encoding;
-  (function(Encoding2) {
-    Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
-    Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
-  })(Encoding || (Encoding = {}));
   class AnimationInitialData {
     constructor() {
       this.bb = null;
@@ -1203,11 +1171,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const offset = this.bb.__offset(this.bb_pos, 12);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
-    meshsDataUV(index, obj) {
+    meshsDataUv(index, obj) {
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? (obj || new meshDataUV()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
     }
-    meshsDataUVLength() {
+    meshsDataUvLength() {
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
@@ -1313,17 +1281,17 @@ Imported.SS6PlayerRPGMakerMZ = true;
     static startLabelDataVector(builder, numElems) {
       builder.startVector(4, numElems, 4);
     }
-    static addMeshsDataUV(builder, meshsDataUVOffset) {
-      builder.addFieldOffset(5, meshsDataUVOffset, 0);
+    static addMeshsDataUv(builder, meshsDataUvOffset) {
+      builder.addFieldOffset(5, meshsDataUvOffset, 0);
     }
-    static createMeshsDataUVVector(builder, data) {
+    static createMeshsDataUvVector(builder, data) {
       builder.startVector(4, data.length, 4);
       for (let i = data.length - 1; i >= 0; i--) {
         builder.addOffset(data[i]);
       }
       return builder.endVector();
     }
-    static startMeshsDataUVVector(builder, numElems) {
+    static startMeshsDataUvVector(builder, numElems) {
       builder.startVector(4, numElems, 4);
     }
     static addMeshsDataIndices(builder, meshsDataIndicesOffset) {
@@ -1370,14 +1338,14 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const offset = builder.endObject();
       return offset;
     }
-    static createAnimationData(builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUVOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
+    static createAnimationData(builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUvOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
       AnimationData.startAnimationData(builder);
       AnimationData.addName(builder, nameOffset);
       AnimationData.addDefaultData(builder, defaultDataOffset);
       AnimationData.addFrameData(builder, frameDataOffset);
       AnimationData.addUserData(builder, userDataOffset);
       AnimationData.addLabelData(builder, labelDataOffset);
-      AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
+      AnimationData.addMeshsDataUv(builder, meshsDataUvOffset);
       AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
       AnimationData.addStartFrames(builder, startFrames);
       AnimationData.addEndFrames(builder, endFrames);
@@ -1391,7 +1359,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimationData.endAnimationData(builder);
     }
   }
-  var SsPartType = /* @__PURE__ */ ((SsPartType2) => {
+  var SsPartType$1 = /* @__PURE__ */ ((SsPartType2) => {
     SsPartType2[SsPartType2["Invalid"] = -1] = "Invalid";
     SsPartType2[SsPartType2["Nulltype"] = 0] = "Nulltype";
     SsPartType2[SsPartType2["Normal"] = 1] = "Normal";
@@ -1406,7 +1374,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     SsPartType2[SsPartType2["Joint"] = 10] = "Joint";
     SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
     return SsPartType2;
-  })(SsPartType || {});
+  })(SsPartType$1 || {});
   class PartData {
     constructor() {
       this.bb = null;
@@ -1438,7 +1406,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     }
     type() {
       const offset = this.bb.__offset(this.bb_pos, 10);
-      return offset ? this.bb.readInt8(this.bb_pos + offset) : SsPartType.Nulltype;
+      return offset ? this.bb.readInt8(this.bb_pos + offset) : SsPartType$1.Nulltype;
     }
     boundsType() {
       const offset = this.bb.__offset(this.bb_pos, 12);
@@ -1477,7 +1445,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       builder.addFieldInt16(2, parentIndex, 0);
     }
     static addType(builder, type) {
-      builder.addFieldInt8(3, type, SsPartType.Nulltype);
+      builder.addFieldInt8(3, type, SsPartType$1.Nulltype);
     }
     static addBoundsType(builder, boundsType) {
       builder.addFieldInt16(4, boundsType, 0);
@@ -1823,23 +1791,23 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
     }
-    BehaviorType(index) {
+    behaviorType(index) {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     }
-    BehaviorTypeLength() {
+    behaviorTypeLength() {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
-    BehaviorTypeArray() {
+    behaviorTypeArray() {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     }
-    Behavior(index, obj) {
+    behavior(index, obj) {
       const offset = this.bb.__offset(this.bb_pos, 18);
       return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
     }
-    BehaviorLength() {
+    behaviorLength() {
       const offset = this.bb.__offset(this.bb_pos, 18);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
@@ -1864,8 +1832,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
     static addNumBehavior(builder, numBehavior) {
       builder.addFieldInt16(5, numBehavior, 0);
     }
-    static addBehaviorType(builder, BehaviorTypeOffset) {
-      builder.addFieldOffset(6, BehaviorTypeOffset, 0);
+    static addBehaviorType(builder, behaviorTypeOffset) {
+      builder.addFieldOffset(6, behaviorTypeOffset, 0);
     }
     static createBehaviorTypeVector(builder, data) {
       builder.startVector(1, data.length, 1);
@@ -1877,8 +1845,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
     static startBehaviorTypeVector(builder, numElems) {
       builder.startVector(1, numElems, 1);
     }
-    static addBehavior(builder, BehaviorOffset) {
-      builder.addFieldOffset(7, BehaviorOffset, 0);
+    static addBehavior(builder, behaviorOffset) {
+      builder.addFieldOffset(7, behaviorOffset, 0);
     }
     static createBehaviorVector(builder, data) {
       builder.startVector(4, data.length, 4);
@@ -1894,7 +1862,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const offset = builder.endObject();
       return offset;
     }
-    static createEffectNode(builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, BehaviorTypeOffset, BehaviorOffset) {
+    static createEffectNode(builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, behaviorTypeOffset, behaviorOffset) {
       EffectNode.startEffectNode(builder);
       EffectNode.addArrayIndex(builder, arrayIndex);
       EffectNode.addParentIndex(builder, parentIndex);
@@ -1902,8 +1870,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       EffectNode.addCellIndex(builder, cellIndex);
       EffectNode.addBlendType(builder, blendType);
       EffectNode.addNumBehavior(builder, numBehavior);
-      EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
-      EffectNode.addBehavior(builder, BehaviorOffset);
+      EffectNode.addBehaviorType(builder, behaviorTypeOffset);
+      EffectNode.addBehavior(builder, behaviorOffset);
       return EffectNode.endEffectNode(builder);
     }
   }
@@ -2014,7 +1982,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return EffectFile.endEffectFile(builder);
     }
   }
-  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+  var PART_FLAG$1 = /* @__PURE__ */ ((PART_FLAG22) => {
     PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
     PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
     PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
@@ -2048,7 +2016,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
     PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
     return PART_FLAG22;
-  })(PART_FLAG || {});
+  })(PART_FLAG$1 || {});
   var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
     PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
     return PART_FLAG22;
@@ -2340,195 +2308,43 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataString.enduserDataString(builder);
     }
   }
-  class SS6Project {
-    constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
-      if (typeof arg1 === "string") {
-        let ssfbPath = arg1;
-        let onComplete = arg2;
-        let timeout = arg3 !== void 0 ? arg3 : 0;
-        let retry = arg4 !== void 0 ? arg4 : 0;
-        let onError = arg5 !== void 0 ? arg5 : null;
-        let onTimeout = arg6 !== void 0 ? arg6 : null;
-        let onRetry = arg7 !== void 0 ? arg7 : null;
-        this.ssfbPath = ssfbPath;
-        const index = ssfbPath.lastIndexOf("/");
-        this.rootPath = ssfbPath.substring(0, index) + "/";
-        this.status = "not ready";
-        this.onComplete = onComplete;
-        this.onError = onError;
-        this.onTimeout = onTimeout;
-        this.onRetry = onRetry;
-        this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
-      } else if (typeof arg1 === "object" && arg1.constructor === Uint8Array) {
-        let ssfbByte = arg1;
-        let imageBinaryMap = arg2;
-        this.onComplete = arg3 !== void 0 ? arg3 : null;
-        this.load(ssfbByte, imageBinaryMap);
-      }
-    }
-    LoadFlatBuffersProject(ssfbPath, timeout = 0, retry = 0) {
-      const self = this;
-      const httpObj = new XMLHttpRequest();
-      const method = "GET";
-      httpObj.open(method, ssfbPath, true);
-      httpObj.responseType = "arraybuffer";
-      httpObj.timeout = timeout;
-      httpObj.onload = function() {
-        if (!(httpObj.status >= 200 && httpObj.status < 400)) {
-          if (self.onError !== null) {
-            self.onError(ssfbPath, timeout, retry, httpObj);
-          }
-          return;
-        }
-        const arrayBuffer = this.response;
-        const bytes = new Uint8Array(arrayBuffer);
-        const buf = new ByteBuffer(bytes);
-        self.fbObj = ProjectData.getRootAsProjectData(buf);
-        self.LoadCellResources();
-      };
-      httpObj.ontimeout = function() {
-        if (retry > 0) {
-          if (self.onRetry !== null) {
-            self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
-          }
-          self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
-        } else {
-          if (self.onTimeout !== null) {
-            self.onTimeout(ssfbPath, timeout, retry, httpObj);
-          }
-        }
-      };
-      httpObj.onerror = function() {
-        if (self.onError !== null) {
-          self.onError(ssfbPath, timeout, retry, httpObj);
-        }
-      };
-      httpObj.send(null);
-    }
-    LoadCellResources() {
-      const self = this;
-      let loader = new loaders.Loader();
-      let ids = [];
-      for (let i = 0; i < self.fbObj.cellsLength(); i++) {
-        if (!ids.some(function(id) {
-          return id === self.fbObj.cells(i).cellMap().index();
-        })) {
-          ids.push(self.fbObj.cells(i).cellMap().index());
-          loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
-        }
-      }
-      loader.load(function(loader2, resources) {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
-        }
-      });
-    }
-    load(bytes, imageBinaryMap) {
-      const buffer = new ByteBuffer(bytes);
-      this.fbObj = ProjectData.getRootAsProjectData(buffer);
-      const loader = new loaders.Loader();
-      for (let imageName in imageBinaryMap) {
-        const binary = imageBinaryMap[imageName];
-        let b = "";
-        const len = binary.byteLength;
-        for (let i = 0; i < len; i++) {
-          b += String.fromCharCode(binary[i]);
-        }
-        const base64 = "data:image/png;base64," + window.btoa(b);
-        loader.add(imageName, base64);
-      }
-      const self = this;
-      loader.load((loader2, resources) => {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
-        }
-      });
+  class Utils$1 {
+    static getProjectData(bytes) {
+      const buf = new ByteBuffer(bytes);
+      return ProjectData.getRootAsProjectData(buf);
     }
   }
-  class SS6PlayerInstanceKeyParam {
-    constructor() {
-      this.refStartframe = 0;
-      this.refEndframe = 0;
-      this.refSpeed = 1;
-      this.refloopNum = 0;
-      this.infinity = false;
-      this.reverse = false;
-      this.pingpong = false;
-      this.independent = false;
+  class Utils {
+    static getProjectData(bytes) {
+      return Utils$1.getProjectData(bytes);
     }
   }
-  class SS6Player extends display.Container {
-    constructor(ss6project, animePackName = null, animeName = null) {
-      super();
-      this.animation = [];
+  class Player {
+    constructor(ssfbData, animePackName = null, animeName = null) {
       this.curAnimePackName = null;
       this.curAnimeName = null;
       this.curAnimation = null;
       this.curAnimePackData = null;
-      this.parts = -1;
-      this.parentIndex = [];
-      this.prio2index = [];
+      this._animePackIdx = -1;
+      this._parentIndex = [];
+      this._prio2index = [];
       this.userData = [];
-      this.frameDataCache = {};
+      this.frameDataCache = null;
       this.currentCachedFrameNumber = -1;
-      this.liveFrame = [];
-      this.colorMatrixFilterCache = [];
       this.defaultFrameMap = [];
-      this.parentAlpha = 1;
-      this.prevCellID = [];
-      this.prevMesh = [];
-      this.substituteOverWrite = [];
-      this.substituteKeyParam = [];
-      this.alphaBlendType = [];
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
-      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
-      this._instancePos = new Float32Array(5);
-      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
-      this.ss6project = ss6project;
-      this.fbObj = this.ss6project.fbObj;
-      this.resources = this.ss6project.resources;
-      this.parentAlpha = 1;
+      if (ssfbData.hasOwnProperty("bb")) {
+        this._fbObj = ssfbData;
+      } else {
+        this._fbObj = Utils.getProjectData(ssfbData);
+      }
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
       }
-      this.on("added", (...args) => {
-        ticker.Ticker.shared.add(this.Update, this);
-      }, this);
-      this.on("removed", (...args) => {
-        ticker.Ticker.shared.remove(this.Update, this);
-      }, this);
     }
-    get startFrame() {
-      return this._startFrame;
-    }
-    get endFrame() {
-      return this.curAnimation.endFrames();
-    }
-    get totalFrame() {
-      return this.curAnimation.totalFrames();
-    }
-    get fps() {
-      return this.curAnimation.fps();
-    }
-    get frameNo() {
-      return Math.floor(this._currentFrame);
-    }
-    set loop(loop) {
-      this._loops = loop;
-    }
-    get loop() {
-      return this._loops;
-    }
-    get isPlaying() {
-      return this._isPlaying;
-    }
-    get isPausing() {
-      return this._isPausing;
+    get fbObj() {
+      return this._fbObj;
     }
     get animePackName() {
       return this.curAnimePackName;
@@ -2536,241 +2352,72 @@ Imported.SS6PlayerRPGMakerMZ = true;
     get animeName() {
       return this.curAnimeName;
     }
+    get animePackIdx() {
+      return this._animePackIdx;
+    }
+    get animePackData() {
+      return this.curAnimePackData;
+    }
+    get animationData() {
+      return this.curAnimation;
+    }
+    get parentIndex() {
+      return this._parentIndex;
+    }
+    get prio2index() {
+      return this._prio2index;
+    }
     Setup(animePackName, animeName) {
       this.clearCaches();
-      const animePacksLength = this.fbObj.animePacksLength();
+      const animePacksLength = this._fbObj.animePacksLength();
+      let found = false;
       for (let i = 0; i < animePacksLength; i++) {
-        if (this.fbObj.animePacks(i).name() === animePackName) {
+        if (this._fbObj.animePacks(i).name() === animePackName) {
           let j;
-          const animationsLength = this.fbObj.animePacks(i).animationsLength();
+          const animationsLength = this._fbObj.animePacks(i).animationsLength();
           for (j = 0; j < animationsLength; j++) {
-            if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
-              this.animation = [i, j];
+            if (this._fbObj.animePacks(i).animations(j).name() === animeName) {
               this.curAnimePackName = animePackName;
               this.curAnimeName = animeName;
-              this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
-              this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
+              this.curAnimePackData = this._fbObj.animePacks(i);
+              this.curAnimation = this.curAnimePackData.animations(j);
+              found = true;
               break;
             }
           }
+          if (!found) {
+            continue;
+          }
           const defaultDataLength = this.curAnimation.defaultDataLength();
-          for (let i2 = 0; i2 < defaultDataLength; i2++) {
-            const curDefaultData = this.curAnimation.defaultData(i2);
+          for (let j2 = 0; j2 < defaultDataLength; j2++) {
+            const curDefaultData = this.curAnimation.defaultData(j2);
             this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
           }
-          this.parts = i;
-          const partsLength = this.fbObj.animePacks(this.parts).partsLength();
-          this.parentIndex = new Array(partsLength);
-          this.prevCellID = new Array(partsLength);
-          this.prevMesh = new Array(partsLength);
-          this.substituteOverWrite = new Array(partsLength);
-          this.substituteKeyParam = new Array(partsLength);
+          this._animePackIdx = i;
+          const partsLength = this.curAnimePackData.partsLength();
+          this._parentIndex = new Array(partsLength);
           for (j = 0; j < partsLength; j++) {
-            const index = this.fbObj.animePacks(this.parts).parts(j).index();
-            this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
-            this.prevCellID[index] = -1;
-            this.prevMesh[index] = null;
-            this.substituteOverWrite[index] = null;
-            this.substituteKeyParam[index] = null;
+            const index = this.curAnimePackData.parts(j).index();
+            this._parentIndex[index] = this._fbObj.animePacks(i).parts(j).parentIndex();
           }
         }
       }
-      this.alphaBlendType = this.GetPartsBlendMode();
-      this._isPlaying = false;
-      this._isPausing = true;
-      this._startFrame = this.curAnimation.startFrames();
-      this._endFrame = this.curAnimation.endFrames();
-      this._currentFrame = this.curAnimation.startFrames();
-      this.nextFrameTime = 0;
-      this._loops = -1;
-      this.skipEnabled = true;
-      this.updateInterval = 1e3 / this.curAnimation.fps();
-      this.playDirection = 1;
-      this.onUserDataCallback = null;
-      this.playEndCallback = null;
-      this.parentAlpha = 1;
+      if (!found) {
+        throw Error("not found animePackName: " + animePackName + " animeName: " + animeName);
+      }
     }
     clearCaches() {
-      this.prio2index = [];
+      this._prio2index = [];
       this.userData = [];
-      this.frameDataCache = [];
+      this.frameDataCache = null;
       this.currentCachedFrameNumber = -1;
-      this.liveFrame = [];
-      this.colorMatrixFilterCache = [];
       this.defaultFrameMap = [];
     }
-    Update(delta) {
-      this.UpdateInternal(delta);
-    }
-    UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
-      const elapsedTime = ticker.Ticker.shared.elapsedMS;
-      const toNextFrame = this._isPlaying && !this._isPausing;
-      if (toNextFrame && this.updateInterval !== 0) {
-        this.nextFrameTime += elapsedTime;
-        if (this.nextFrameTime >= this.updateInterval) {
-          let playEndFlag = false;
-          const step = this.nextFrameTime / this.updateInterval;
-          this.nextFrameTime -= this.updateInterval * step;
-          let s = this.skipEnabled ? step * this.playDirection : this.playDirection;
-          let next = this._currentFrame + s;
-          let nextFrameNo = Math.floor(next);
-          let nextFrameDecimal = next - nextFrameNo;
-          let currentFrameNo = Math.floor(this._currentFrame);
-          if (this.playDirection >= 1) {
-            for (let c = nextFrameNo - currentFrameNo; c; c--) {
-              let incFrameNo = currentFrameNo + 1;
-              if (incFrameNo > this._endFrame) {
-                if (this._loops === -1) {
-                  incFrameNo = this._startFrame;
-                } else {
-                  this._loops--;
-                  playEndFlag = true;
-                  if (this._loops === 0) {
-                    this._isPlaying = false;
-                    incFrameNo = rewindAfterReachingEndFrame ? this._startFrame : this._endFrame;
-                    break;
-                  } else {
-                    incFrameNo = this._startFrame;
-                  }
-                }
-              }
-              currentFrameNo = incFrameNo;
-              if (this._isPlaying) {
-                if (this.HaveUserData(currentFrameNo)) {
-                  if (this.onUserDataCallback !== null) {
-                    this.onUserDataCallback(this.GetUserData(currentFrameNo));
-                  }
-                }
-              }
-            }
-          }
-          if (this.playDirection <= -1) {
-            for (let c = currentFrameNo - nextFrameNo; c; c--) {
-              let decFrameNo = currentFrameNo - 1;
-              if (decFrameNo < this._startFrame) {
-                if (this._loops === -1) {
-                  decFrameNo = this._endFrame;
-                } else {
-                  this._loops--;
-                  playEndFlag = true;
-                  if (this._loops === 0) {
-                    this._isPlaying = false;
-                    decFrameNo = rewindAfterReachingEndFrame ? this._endFrame : this._startFrame;
-                    break;
-                  } else {
-                    decFrameNo = this._endFrame;
-                  }
-                }
-              }
-              currentFrameNo = decFrameNo;
-              if (this._isPlaying) {
-                if (this.HaveUserData(currentFrameNo)) {
-                  if (this.onUserDataCallback !== null) {
-                    this.onUserDataCallback(this.GetUserData(currentFrameNo));
-                  }
-                }
-              }
-            }
-          }
-          this._currentFrame = currentFrameNo + nextFrameDecimal;
-          if (playEndFlag) {
-            if (this.playEndCallback !== null) {
-              this.playEndCallback(this);
-            }
-          }
-          this.SetFrameAnimation(Math.floor(this._currentFrame), step);
-        }
-      } else {
-        this.SetFrameAnimation(Math.floor(this._currentFrame));
-      }
-    }
-    SetAnimationFramerate(fps, _skipEnabled = true) {
-      if (fps <= 0)
-        return;
-      this.updateInterval = 1e3 / fps;
-      this.skipEnabled = _skipEnabled;
-    }
-    SetAnimationSpeed(fpsRate, _skipEnabled = true) {
-      if (fpsRate === 0)
-        return;
-      this.playDirection = fpsRate > 0 ? 1 : -1;
-      this.updateInterval = 1e3 / (this.curAnimation.fps() * fpsRate * this.playDirection);
-      this.skipEnabled = _skipEnabled;
-    }
-    SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
-      if (_startframe >= 0 && _startframe < this.curAnimation.totalFrames()) {
-        this._startFrame = _startframe;
-      }
-      if (_endframe >= 0 && _endframe < this.curAnimation.totalFrames()) {
-        this._endFrame = _endframe;
-      }
-      if (_loops > 0) {
-        this._loops = _loops;
-      } else {
-        this._loops = -1;
-      }
-      this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
-    }
-    Play(frameNo) {
-      this._isPlaying = true;
-      this._isPausing = false;
-      let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
-      if (frameNo && typeof frameNo === "number") {
-        currentFrame = frameNo;
-      }
-      this._currentFrame = currentFrame;
-      this.resetLiveFrame();
-      const currentFrameNo = Math.floor(this._currentFrame);
-      this.SetFrameAnimation(currentFrameNo);
-      if (this.HaveUserData(currentFrameNo)) {
-        if (this.onUserDataCallback !== null) {
-          this.onUserDataCallback(this.GetUserData(currentFrameNo));
-        }
-      }
-    }
-    Pause() {
-      this._isPausing = true;
-    }
-    Resume() {
-      this._isPausing = false;
-    }
-    Stop() {
-      this._isPlaying = false;
-    }
-    SetFrame(frame) {
-      this._currentFrame = frame;
-    }
-    NextFrame() {
-      const currentFrame = Math.floor(this._currentFrame);
-      const endFrame = this.endFrame;
-      if (currentFrame === endFrame) {
-        return;
-      }
-      this.SetFrame(currentFrame + 1);
-    }
-    PrevFrame() {
-      const currentFrame = Math.floor(this._currentFrame);
-      if (currentFrame === 0) {
-        return;
-      }
-      this.SetFrame(currentFrame - 1);
-    }
-    SetAlpha(alpha) {
-      this.parentAlpha = alpha;
-    }
-    ThrowError(_error) {
-    }
-    SetUserDataCalback(fn) {
-      this.onUserDataCallback = fn;
-    }
-    SetPlayEndCallback(fn) {
-      this.playEndCallback = fn;
-    }
     HaveUserData(frameNumber) {
-      if (this.userData[frameNumber] === -1) {
+      if (this.userData[frameNumber] === null) {
         return false;
       }
-      if (this.userData[frameNumber]) {
+      if (this.userData[frameNumber] !== void 0) {
         return true;
       }
       for (let k = 0; k < this.curAnimation.userDataLength(); k++) {
@@ -2779,7 +2426,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
           return true;
         }
       }
-      this.userData[frameNumber] = -1;
+      this.userData[frameNumber] = null;
       return false;
     }
     GetUserData(frameNumber) {
@@ -2827,10 +2474,827 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return data;
     }
+    I2F(i) {
+      this._uint32[0] = i;
+      return this._float32[0];
+    }
+    GetFrameData(frameNumber) {
+      if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
+        return this.frameDataCache;
+      }
+      const layers = this.curAnimation.defaultDataLength();
+      let frameData = new Array(layers);
+      this._prio2index = new Array(layers);
+      const curFrameData = this.curAnimation.frameData(frameNumber);
+      for (let i = 0; i < layers; i++) {
+        const curPartState = curFrameData.states(i);
+        const index = curPartState.index();
+        let f1 = curPartState.flag1();
+        let f2 = curPartState.flag2();
+        let fd = this.GetDefaultDataByIndex(index);
+        fd.flag1 = f1;
+        fd.flag2 = f2;
+        let id = 0;
+        if (f1 & PART_FLAG$1.INVISIBLE)
+          fd.f_hide = true;
+        if (f1 & PART_FLAG$1.FLIP_H)
+          fd.f_flipH = true;
+        if (f1 & PART_FLAG$1.FLIP_V)
+          fd.f_flipV = true;
+        if (f1 & PART_FLAG$1.CELL_INDEX)
+          fd.cellIndex = curPartState.data(id++);
+        if (f1 & PART_FLAG$1.POSITION_X)
+          fd.positionX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.POSITION_Y)
+          fd.positionY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.POSITION_Z)
+          id++;
+        if (f1 & PART_FLAG$1.PIVOT_X)
+          fd.pivotX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.PIVOT_Y)
+          fd.pivotY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.ROTATIONX)
+          id++;
+        if (f1 & PART_FLAG$1.ROTATIONY)
+          id++;
+        if (f1 & PART_FLAG$1.ROTATIONZ)
+          fd.rotationZ = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.SCALE_X)
+          fd.scaleX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.SCALE_Y)
+          fd.scaleY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.LOCALSCALE_X)
+          fd.localscaleX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.LOCALSCALE_Y)
+          fd.localscaleY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.OPACITY)
+          fd.opacity = curPartState.data(id++);
+        if (f1 & PART_FLAG$1.LOCALOPACITY)
+          fd.localopacity = curPartState.data(id++);
+        if (f1 & PART_FLAG$1.SIZE_X)
+          fd.size_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.SIZE_Y)
+          fd.size_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.U_MOVE)
+          fd.uv_move_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.V_MOVE)
+          fd.uv_move_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.UV_ROTATION)
+          fd.uv_rotation = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.U_SCALE)
+          fd.uv_scale_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.V_SCALE)
+          fd.uv_scale_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG$1.BOUNDINGRADIUS)
+          id++;
+        if (f1 & PART_FLAG$1.MASK)
+          fd.masklimen = curPartState.data(id++);
+        if (f1 & PART_FLAG$1.PRIORITY)
+          fd.priority = curPartState.data(id++);
+        if (f1 & PART_FLAG$1.INSTANCE_KEYFRAME) {
+          fd.instanceValue_curKeyframe = curPartState.data(id++);
+          fd.instanceValue_startFrame = curPartState.data(id++);
+          fd.instanceValue_endFrame = curPartState.data(id++);
+          fd.instanceValue_loopNum = curPartState.data(id++);
+          fd.instanceValue_speed = this.I2F(curPartState.data(id++));
+          fd.instanceValue_loopflag = curPartState.data(id++);
+        }
+        if (f1 & PART_FLAG$1.EFFECT_KEYFRAME) {
+          fd.effectValue_curKeyframe = curPartState.data(id++);
+          fd.effectValue_startTime = curPartState.data(id++);
+          fd.effectValue_speed = this.I2F(curPartState.data(id++));
+          fd.effectValue_loopflag = curPartState.data(id++);
+        }
+        if (f1 & PART_FLAG$1.VERTEX_TRANSFORM) {
+          fd.f_mesh = true;
+          const f = fd.i_transformVerts = curPartState.data(id++);
+          if (f & 1) {
+            fd.u00 = this.I2F(curPartState.data(id++));
+            fd.v00 = this.I2F(curPartState.data(id++));
+          }
+          if (f & 2) {
+            fd.u01 = this.I2F(curPartState.data(id++));
+            fd.v01 = this.I2F(curPartState.data(id++));
+          }
+          if (f & 4) {
+            fd.u10 = this.I2F(curPartState.data(id++));
+            fd.v10 = this.I2F(curPartState.data(id++));
+          }
+          if (f & 8) {
+            fd.u11 = this.I2F(curPartState.data(id++));
+            fd.v11 = this.I2F(curPartState.data(id++));
+          }
+        }
+        if (f1 & PART_FLAG$1.PARTS_COLOR) {
+          const f = curPartState.data(id++);
+          fd.colorBlendType = f & 255;
+          fd.useColorMatrix = fd.colorBlendType !== 1;
+          if (f & 4096) {
+            fd.colorRate = this.I2F(curPartState.data(id++));
+            const bf = curPartState.data(id++);
+            const bf2 = curPartState.data(id++);
+            fd.colorArgb32 = bf << 16 | bf2;
+            fd.partsColorARGB = fd.colorArgb32 >>> 0;
+            if (fd.colorBlendType === 1) {
+              fd.tint = fd.colorArgb32 & 16777215;
+            }
+          }
+        }
+        if (f2 & PART_FLAG2.MESHDATA) {
+          const meshUv = this.curAnimation.meshsDataUv(index);
+          fd.meshIsBind = meshUv.uv(0);
+          fd.meshNum = meshUv.uv(1);
+          let mp = new Float32Array(fd.meshNum * 3);
+          for (let idx = 0; idx < fd.meshNum; idx++) {
+            const mx = this.I2F(curPartState.data(id++));
+            const my = this.I2F(curPartState.data(id++));
+            const mz = this.I2F(curPartState.data(id++));
+            mp[idx * 3 + 0] = mx;
+            mp[idx * 3 + 1] = my;
+            mp[idx * 3 + 2] = mz;
+          }
+          fd.meshDataPoint = mp;
+        }
+        frameData[index] = fd;
+        this._prio2index[i] = index;
+        if (this.curAnimePackData.parts(index).type() === 0) {
+          frameData[index].cellIndex = -2;
+        }
+      }
+      this.frameDataCache = frameData;
+      this.currentCachedFrameNumber = frameNumber;
+      return frameData;
+    }
+    GetDefaultDataByIndex(id) {
+      const curDefaultData = this.defaultFrameMap[id];
+      let dfd = new FrameData();
+      dfd.index = curDefaultData.index();
+      dfd.lowflag = curDefaultData.lowflag();
+      dfd.highflag = curDefaultData.highflag();
+      dfd.priority = curDefaultData.priority();
+      dfd.cellIndex = curDefaultData.cellIndex();
+      dfd.opacity = curDefaultData.opacity();
+      dfd.localopacity = curDefaultData.localopacity();
+      dfd.masklimen = curDefaultData.masklimen();
+      dfd.positionX = curDefaultData.positionX();
+      dfd.positionY = curDefaultData.positionY();
+      dfd.pivotX = curDefaultData.pivotX();
+      dfd.pivotY = curDefaultData.pivotY();
+      dfd.rotationX = curDefaultData.rotationX();
+      dfd.rotationY = curDefaultData.rotationY();
+      dfd.rotationZ = curDefaultData.rotationZ();
+      dfd.scaleX = curDefaultData.scaleX();
+      dfd.scaleY = curDefaultData.scaleY();
+      dfd.localscaleX = curDefaultData.localscaleX();
+      dfd.localscaleY = curDefaultData.localscaleY();
+      dfd.size_X = curDefaultData.sizeX();
+      dfd.size_Y = curDefaultData.sizeY();
+      dfd.uv_move_X = curDefaultData.uvMoveX();
+      dfd.uv_move_Y = curDefaultData.uvMoveY();
+      dfd.uv_rotation = curDefaultData.uvRotation();
+      dfd.uv_scale_X = curDefaultData.uvScaleX();
+      dfd.uv_scale_Y = curDefaultData.uvScaleY();
+      dfd.boundingRadius = curDefaultData.boundingRadius();
+      dfd.instanceValue_curKeyframe = curDefaultData.instanceValueCurKeyframe();
+      dfd.instanceValue_endFrame = curDefaultData.instanceValueEndFrame();
+      dfd.instanceValue_startFrame = curDefaultData.instanceValueStartFrame();
+      dfd.instanceValue_loopNum = curDefaultData.instanceValueLoopNum();
+      dfd.instanceValue_speed = curDefaultData.instanceValueSpeed();
+      dfd.instanceValue_loopflag = curDefaultData.instanceValueLoopflag();
+      dfd.effectValue_curKeyframe = curDefaultData.effectValueCurKeyframe();
+      dfd.effectValue_startTime = curDefaultData.effectValueStartTime();
+      dfd.effectValue_speed = curDefaultData.effectValueSpeed();
+      dfd.effectValue_loopflag = curDefaultData.effectValueLoopflag();
+      dfd.f_hide = false;
+      dfd.f_flipH = false;
+      dfd.f_flipV = false;
+      dfd.f_mesh = false;
+      dfd.i_transformVerts = 0;
+      dfd.u00 = 0;
+      dfd.v00 = 0;
+      dfd.u01 = 0;
+      dfd.v01 = 0;
+      dfd.u10 = 0;
+      dfd.v10 = 0;
+      dfd.u11 = 0;
+      dfd.v11 = 0;
+      dfd.useColorMatrix = false;
+      dfd.colorBlendType = 0;
+      dfd.colorRate = 0;
+      dfd.colorArgb32 = 0;
+      dfd.meshIsBind = 0;
+      dfd.meshNum = 0;
+      dfd.meshDataPoint = null;
+      dfd.flag1 = 0;
+      dfd.flag2 = 0;
+      dfd.partsColorARGB = 0;
+      return dfd;
+    }
+    InheritOpacity(opacity, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      opacity = data.opacity / 255;
+      if (this._parentIndex[partId] >= 0) {
+        opacity = this.InheritOpacity(opacity, this._parentIndex[partId], frameNumber);
+      }
+      return opacity;
+    }
+    TransformVertsLocal(verts, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        if (data.i_transformVerts & 1 && i === 1) {
+          x += data.u00;
+          y -= data.v00;
+        }
+        if (data.i_transformVerts & 2 && i === 2) {
+          x += data.u01;
+          y -= data.v01;
+        }
+        if (data.i_transformVerts & 4 && i === 3) {
+          x += data.u10;
+          y -= data.v10;
+        }
+        if (data.i_transformVerts & 8 && i === 4) {
+          x += data.u11;
+          y -= data.v11;
+        }
+        x *= data.scaleX * data.localscaleX;
+        y *= data.scaleY * data.localscaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+        if (data.f_flipH) {
+          verts[i * 2] = verts[0] * 2 - verts[i * 2];
+        }
+        if (data.f_flipV) {
+          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
+        }
+      }
+      if (this._parentIndex[partId] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[partId], frameNumber);
+      }
+      return verts;
+    }
+    TransformMeshVertsLocal(verts, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        x *= data.scaleX * data.localscaleX;
+        y *= data.scaleY * data.localscaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+      }
+      if (this._parentIndex[partId] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[partId], frameNumber);
+      }
+      return verts;
+    }
+    TransformPositionLocal(pos, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      pos[4] += -data.rotationZ;
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      const x = pos[0] * data.scaleX * data.localscaleX;
+      const y = pos[1] * data.scaleY * data.localscaleY;
+      pos[2] *= data.scaleX * data.localscaleX;
+      pos[3] *= data.scaleY * data.localscaleY;
+      pos[0] = cos * x - sin * y + data.positionX;
+      pos[1] = sin * x + cos * y - data.positionY;
+      if (this._parentIndex[partId] >= 0) {
+        pos = this.TransformPosition(pos, this._parentIndex[partId], frameNumber);
+      }
+      return pos;
+    }
+    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
+      const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
+      const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
+      const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
+      if (c3 <= 0 && c3 >= 0)
+        return vec2;
+      const ca = c1 / c3;
+      const cb = c2 / c3;
+      if (0 <= ca && 1 >= ca && (0 <= cb && 1 >= cb)) {
+        cx = LUx + ca * (RDx - LUx);
+        cy = LUy + ca * (RDy - LUy);
+      }
+      vec2[0] = cx;
+      vec2[1] = cy;
+      return vec2;
+    }
+    TransformVerts(verts, id, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[id];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        x *= data.scaleX;
+        y *= data.scaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+        if (data.f_flipH) {
+          verts[i * 2] = verts[0] * 2 - verts[i * 2];
+        }
+        if (data.f_flipV) {
+          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
+        }
+      }
+      if (this._parentIndex[id] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[id], frameNumber);
+      }
+      return verts;
+    }
+    TransformPosition(pos, id, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[id];
+      pos[4] += -data.rotationZ;
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      const x = pos[0] * data.scaleX;
+      const y = pos[1] * data.scaleY;
+      pos[2] *= data.scaleX;
+      pos[3] *= data.scaleY;
+      pos[0] = cos * x - sin * y + data.positionX;
+      pos[1] = sin * x + cos * y - data.positionY;
+      if (this._parentIndex[id] >= 0) {
+        pos = this.TransformPosition(pos, this._parentIndex[id], frameNumber);
+      }
+      return pos;
+    }
+    static GetVerts(cell, data, verts) {
+      const w = data.size_X / 2;
+      const h = data.size_Y / 2;
+      const px = data.size_X * -(data.pivotX + cell.pivotX());
+      const py = data.size_Y * (data.pivotY + cell.pivotY());
+      verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
+      return verts;
+    }
+    static GetMeshVerts(cell, data, verts) {
+      for (let idx = 0; idx < data.meshNum; idx++) {
+        verts[idx * 2] = data.meshDataPoint[idx * 3];
+        verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
+      }
+      return verts;
+    }
+    static GetDummyVerts() {
+      return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
+    }
+  }
+  class SS6Project {
+    constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+      if (typeof arg1 === "string") {
+        let ssfbPath = arg1;
+        let onComplete = arg2;
+        let timeout = arg3 !== void 0 ? arg3 : 0;
+        let retry = arg4 !== void 0 ? arg4 : 0;
+        let onError = arg5 !== void 0 ? arg5 : null;
+        let onTimeout = arg6 !== void 0 ? arg6 : null;
+        let onRetry = arg7 !== void 0 ? arg7 : null;
+        this.ssfbPath = ssfbPath;
+        const index = ssfbPath.lastIndexOf("/");
+        this.rootPath = ssfbPath.substring(0, index) + "/";
+        this.status = "not ready";
+        this.onComplete = onComplete;
+        this.onError = onError;
+        this.onTimeout = onTimeout;
+        this.onRetry = onRetry;
+        this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
+      } else if (typeof arg1 === "object" && arg1.constructor === Uint8Array) {
+        let ssfbByte = arg1;
+        let imageBinaryMap = arg2;
+        this.onComplete = arg3 !== void 0 ? arg3 : null;
+        this.load(ssfbByte, imageBinaryMap);
+      }
+    }
+    LoadFlatBuffersProject(ssfbPath, timeout = 0, retry = 0) {
+      const self = this;
+      const httpObj = new XMLHttpRequest();
+      const method = "GET";
+      httpObj.open(method, ssfbPath, true);
+      httpObj.responseType = "arraybuffer";
+      httpObj.timeout = timeout;
+      httpObj.onload = function() {
+        if (!(httpObj.status >= 200 && httpObj.status < 400)) {
+          if (self.onError !== null) {
+            self.onError(ssfbPath, timeout, retry, httpObj);
+          }
+          return;
+        }
+        const arrayBuffer = this.response;
+        const bytes = new Uint8Array(arrayBuffer);
+        self.fbObj = Utils.getProjectData(bytes);
+        self.LoadCellResources();
+      };
+      httpObj.ontimeout = function() {
+        if (retry > 0) {
+          if (self.onRetry !== null) {
+            self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
+          }
+          self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
+        } else {
+          if (self.onTimeout !== null) {
+            self.onTimeout(ssfbPath, timeout, retry, httpObj);
+          }
+        }
+      };
+      httpObj.onerror = function() {
+        if (self.onError !== null) {
+          self.onError(ssfbPath, timeout, retry, httpObj);
+        }
+      };
+      httpObj.send(null);
+    }
+    LoadCellResources() {
+      const self = this;
+      let loader = new loaders.Loader();
+      let ids = [];
+      for (let i = 0; i < self.fbObj.cellsLength(); i++) {
+        if (!ids.some(function(id) {
+          return id === self.fbObj.cells(i).cellMap().index();
+        })) {
+          ids.push(self.fbObj.cells(i).cellMap().index());
+          loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
+        }
+      }
+      loader.load(function(loader2, resources) {
+        self.resources = resources;
+        self.status = "ready";
+        if (self.onComplete !== null) {
+          self.onComplete();
+        }
+      });
+    }
+    load(bytes, imageBinaryMap) {
+      this.fbObj = Utils.getProjectData(bytes);
+      const loader = new loaders.Loader();
+      for (let imageName in imageBinaryMap) {
+        const binary = imageBinaryMap[imageName];
+        let b = "";
+        const len = binary.byteLength;
+        for (let i = 0; i < len; i++) {
+          b += String.fromCharCode(binary[i]);
+        }
+        const base64 = "data:image/png;base64," + window.btoa(b);
+        loader.add(imageName, base64);
+      }
+      const self = this;
+      loader.load((loader2, resources) => {
+        self.resources = resources;
+        self.status = "ready";
+        if (self.onComplete !== null) {
+          self.onComplete();
+        }
+      });
+    }
+  }
+  const int32 = new Int32Array(2);
+  new Float32Array(int32.buffer);
+  new Float64Array(int32.buffer);
+  new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
+  var Encoding;
+  (function(Encoding2) {
+    Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
+    Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
+  })(Encoding || (Encoding = {}));
+  var SsPartType = /* @__PURE__ */ ((SsPartType2) => {
+    SsPartType2[SsPartType2["Invalid"] = -1] = "Invalid";
+    SsPartType2[SsPartType2["Nulltype"] = 0] = "Nulltype";
+    SsPartType2[SsPartType2["Normal"] = 1] = "Normal";
+    SsPartType2[SsPartType2["Text"] = 2] = "Text";
+    SsPartType2[SsPartType2["Instance"] = 3] = "Instance";
+    SsPartType2[SsPartType2["Armature"] = 4] = "Armature";
+    SsPartType2[SsPartType2["Effect"] = 5] = "Effect";
+    SsPartType2[SsPartType2["Mesh"] = 6] = "Mesh";
+    SsPartType2[SsPartType2["Movenode"] = 7] = "Movenode";
+    SsPartType2[SsPartType2["Constraint"] = 8] = "Constraint";
+    SsPartType2[SsPartType2["Mask"] = 9] = "Mask";
+    SsPartType2[SsPartType2["Joint"] = 10] = "Joint";
+    SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
+    return SsPartType2;
+  })(SsPartType || {});
+  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
+    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
+    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
+    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
+    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
+    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
+    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
+    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
+    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
+    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
+    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
+    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
+    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
+    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
+    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
+    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
+    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
+    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
+    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
+    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
+    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
+    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
+    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    return PART_FLAG22;
+  })(PART_FLAG || {});
+  class SS6PlayerInstanceKeyParam {
+    constructor() {
+      this.refStartframe = 0;
+      this.refEndframe = 0;
+      this.refSpeed = 1;
+      this.refloopNum = 0;
+      this.infinity = false;
+      this.reverse = false;
+      this.pingpong = false;
+      this.independent = false;
+    }
+  }
+  class SS6Player extends display.Container {
+    constructor(ss6project, animePackName = null, animeName = null) {
+      super();
+      this.liveFrame = [];
+      this.colorMatrixFilterCache = [];
+      this.parentAlpha = 1;
+      this.prevCellID = [];
+      this.prevMesh = [];
+      this.substituteOverWrite = [];
+      this.substituteKeyParam = [];
+      this.alphaBlendType = [];
+      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this._instancePos = new Float32Array(5);
+      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
+      this.ss6project = ss6project;
+      this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
+      this.resources = this.ss6project.resources;
+      this.parentAlpha = 1;
+      if (animePackName !== null && animeName !== null) {
+        this.Setup(animePackName, animeName);
+      }
+      this.on("added", (...args) => {
+        ticker.Ticker.shared.add(this.Update, this);
+      }, this);
+      this.on("removed", (...args) => {
+        ticker.Ticker.shared.remove(this.Update, this);
+      }, this);
+    }
+    get startFrame() {
+      return this._startFrame;
+    }
+    get endFrame() {
+      return this._endFrame;
+    }
+    get totalFrame() {
+      return this.playerLib.animationData.totalFrames();
+    }
+    get fps() {
+      return this.playerLib.animationData.fps();
+    }
+    get frameNo() {
+      return Math.floor(this._currentFrame);
+    }
+    set loop(loop) {
+      this._loops = loop;
+    }
+    get loop() {
+      return this._loops;
+    }
+    get isPlaying() {
+      return this._isPlaying;
+    }
+    get isPausing() {
+      return this._isPausing;
+    }
+    get animePackName() {
+      return this.playerLib.animePackName;
+    }
+    get animeName() {
+      return this.playerLib.animeName;
+    }
+    Setup(animePackName, animeName) {
+      this.playerLib.Setup(animePackName, animeName);
+      this.clearCaches();
+      const animePackData = this.playerLib.animePackData;
+      const partsLength = animePackData.partsLength();
+      this.prevCellID = new Array(partsLength);
+      this.prevMesh = new Array(partsLength);
+      this.substituteOverWrite = new Array(partsLength);
+      this.substituteKeyParam = new Array(partsLength);
+      for (let j = 0; j < partsLength; j++) {
+        const index = animePackData.parts(j).index();
+        this.prevCellID[index] = -1;
+        this.prevMesh[index] = null;
+        this.substituteOverWrite[index] = null;
+        this.substituteKeyParam[index] = null;
+      }
+      this.alphaBlendType = this.GetPartsBlendMode();
+      this._isPlaying = false;
+      this._isPausing = true;
+      this._startFrame = this.playerLib.animationData.startFrames();
+      this._endFrame = this.playerLib.animationData.endFrames();
+      this._currentFrame = this.playerLib.animationData.startFrames();
+      this.nextFrameTime = 0;
+      this._loops = -1;
+      this.skipEnabled = true;
+      this.updateInterval = 1e3 / this.playerLib.animationData.fps();
+      this.playDirection = 1;
+      this.onUserDataCallback = null;
+      this.playEndCallback = null;
+      this.parentAlpha = 1;
+    }
+    clearCaches() {
+      this.liveFrame = [];
+      this.colorMatrixFilterCache = [];
+    }
+    Update(delta) {
+      this.UpdateInternal(delta);
+    }
+    UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
+      const elapsedTime = ticker.Ticker.shared.elapsedMS;
+      const toNextFrame = this._isPlaying && !this._isPausing;
+      if (toNextFrame && this.updateInterval !== 0) {
+        this.nextFrameTime += elapsedTime;
+        if (this.nextFrameTime >= this.updateInterval) {
+          let playEndFlag = false;
+          const step = this.nextFrameTime / this.updateInterval;
+          this.nextFrameTime -= this.updateInterval * step;
+          let s = this.skipEnabled ? step * this.playDirection : this.playDirection;
+          let next = this._currentFrame + s;
+          let nextFrameNo = Math.floor(next);
+          let nextFrameDecimal = next - nextFrameNo;
+          let currentFrameNo = Math.floor(this._currentFrame);
+          if (this.playDirection >= 1) {
+            for (let c = nextFrameNo - currentFrameNo; c; c--) {
+              let incFrameNo = currentFrameNo + 1;
+              if (incFrameNo > this._endFrame) {
+                if (this._loops === -1) {
+                  incFrameNo = this._startFrame;
+                } else {
+                  this._loops--;
+                  playEndFlag = true;
+                  if (this._loops === 0) {
+                    this._isPlaying = false;
+                    incFrameNo = rewindAfterReachingEndFrame ? this._startFrame : this._endFrame;
+                    break;
+                  } else {
+                    incFrameNo = this._startFrame;
+                  }
+                }
+              }
+              currentFrameNo = incFrameNo;
+              if (this._isPlaying) {
+                if (this.playerLib.HaveUserData(currentFrameNo)) {
+                  if (this.onUserDataCallback !== null) {
+                    this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+                  }
+                }
+              }
+            }
+          }
+          if (this.playDirection <= -1) {
+            for (let c = currentFrameNo - nextFrameNo; c; c--) {
+              let decFrameNo = currentFrameNo - 1;
+              if (decFrameNo < this._startFrame) {
+                if (this._loops === -1) {
+                  decFrameNo = this._endFrame;
+                } else {
+                  this._loops--;
+                  playEndFlag = true;
+                  if (this._loops === 0) {
+                    this._isPlaying = false;
+                    decFrameNo = rewindAfterReachingEndFrame ? this._endFrame : this._startFrame;
+                    break;
+                  } else {
+                    decFrameNo = this._endFrame;
+                  }
+                }
+              }
+              currentFrameNo = decFrameNo;
+              if (this._isPlaying) {
+                if (this.playerLib.HaveUserData(currentFrameNo)) {
+                  if (this.onUserDataCallback !== null) {
+                    this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+                  }
+                }
+              }
+            }
+          }
+          this._currentFrame = currentFrameNo + nextFrameDecimal;
+          if (playEndFlag) {
+            if (this.playEndCallback !== null) {
+              this.playEndCallback(this);
+            }
+          }
+          this.SetFrameAnimation(Math.floor(this._currentFrame), step);
+        }
+      } else {
+        this.SetFrameAnimation(Math.floor(this._currentFrame));
+      }
+    }
+    SetAnimationFramerate(fps, _skipEnabled = true) {
+      if (fps <= 0)
+        return;
+      this.updateInterval = 1e3 / fps;
+      this.skipEnabled = _skipEnabled;
+    }
+    SetAnimationSpeed(fpsRate, _skipEnabled = true) {
+      if (fpsRate === 0)
+        return;
+      this.playDirection = fpsRate > 0 ? 1 : -1;
+      this.updateInterval = 1e3 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
+      this.skipEnabled = _skipEnabled;
+    }
+    SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
+      if (_startframe >= 0 && _startframe < this.playerLib.animationData.totalFrames()) {
+        this._startFrame = _startframe;
+      }
+      if (_endframe >= 0 && _endframe < this.playerLib.animationData.totalFrames()) {
+        this._endFrame = _endframe;
+      }
+      if (_loops > 0) {
+        this._loops = _loops;
+      } else {
+        this._loops = -1;
+      }
+      this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+    }
+    Play(frameNo) {
+      this._isPlaying = true;
+      this._isPausing = false;
+      let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+      if (frameNo && typeof frameNo === "number") {
+        currentFrame = frameNo;
+      }
+      this._currentFrame = currentFrame;
+      this.resetLiveFrame();
+      const currentFrameNo = Math.floor(this._currentFrame);
+      this.SetFrameAnimation(currentFrameNo);
+      if (this.playerLib.HaveUserData(currentFrameNo)) {
+        if (this.onUserDataCallback !== null) {
+          this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+        }
+      }
+    }
+    Pause() {
+      this._isPausing = true;
+    }
+    Resume() {
+      this._isPausing = false;
+    }
+    Stop() {
+      this._isPlaying = false;
+    }
+    SetFrame(frame) {
+      this._currentFrame = frame;
+    }
+    NextFrame() {
+      const currentFrame = Math.floor(this._currentFrame);
+      const endFrame = this.endFrame;
+      if (currentFrame === endFrame) {
+        return;
+      }
+      this.SetFrame(currentFrame + 1);
+    }
+    PrevFrame() {
+      const currentFrame = Math.floor(this._currentFrame);
+      if (currentFrame === 0) {
+        return;
+      }
+      this.SetFrame(currentFrame - 1);
+    }
+    SetAlpha(alpha) {
+      this.parentAlpha = alpha;
+    }
+    ThrowError(_error) {
+    }
+    SetUserDataCalback(fn) {
+      this.onUserDataCallback = fn;
+    }
+    SetPlayEndCallback(fn) {
+      this.playEndCallback = fn;
+    }
     GetPartsBlendMode() {
-      const l = this.fbObj.animePacks(this.parts).partsLength();
+      const animePacks = this.playerLib.animePackData;
+      const l = animePacks.partsLength();
       let ret = [];
-      const animePacks = this.fbObj.animePacks(this.parts);
       for (let i = 0; i < l; i++) {
         const alphaBlendType = animePacks.parts(i).alphaBlendType();
         let blendMode;
@@ -2866,183 +3330,6 @@ Imported.SS6PlayerRPGMakerMZ = true;
         ret.push(blendMode);
       }
       return ret;
-    }
-    I2F(i) {
-      this._uint32[0] = i;
-      return this._float32[0];
-    }
-    GetFrameData(frameNumber) {
-      if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
-        return this.frameDataCache;
-      }
-      const layers = this.curAnimation.defaultDataLength();
-      let frameData = new Array(layers);
-      this.prio2index = new Array(layers);
-      const curFrameData = this.curAnimation.frameData(frameNumber);
-      for (let i = 0; i < layers; i++) {
-        const curPartState = curFrameData.states(i);
-        const index = curPartState.index();
-        let f1 = curPartState.flag1();
-        let f2 = curPartState.flag2();
-        let blendType = -1;
-        let fd = this.GetDefaultDataByIndex(index);
-        fd.flag1 = f1;
-        fd.flag2 = f2;
-        let id = 0;
-        if (f1 & PART_FLAG.INVISIBLE)
-          fd.f_hide = true;
-        if (f1 & PART_FLAG.FLIP_H)
-          fd.f_flipH = true;
-        if (f1 & PART_FLAG.FLIP_V)
-          fd.f_flipV = true;
-        if (f1 & PART_FLAG.CELL_INDEX)
-          fd.cellIndex = curPartState.data(id++);
-        if (f1 & PART_FLAG.POSITION_X)
-          fd.positionX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.POSITION_Y)
-          fd.positionY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.POSITION_Z)
-          id++;
-        if (f1 & PART_FLAG.PIVOT_X)
-          fd.pivotX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.PIVOT_Y)
-          fd.pivotY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.ROTATIONX)
-          id++;
-        if (f1 & PART_FLAG.ROTATIONY)
-          id++;
-        if (f1 & PART_FLAG.ROTATIONZ)
-          fd.rotationZ = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SCALE_X)
-          fd.scaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SCALE_Y)
-          fd.scaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.LOCALSCALE_X)
-          fd.localscaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.LOCALSCALE_Y)
-          fd.localscaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.OPACITY)
-          fd.opacity = curPartState.data(id++);
-        if (f1 & PART_FLAG.LOCALOPACITY)
-          fd.localopacity = curPartState.data(id++);
-        if (f1 & PART_FLAG.SIZE_X)
-          fd.size_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SIZE_Y)
-          fd.size_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.U_MOVE)
-          fd.uv_move_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.V_MOVE)
-          fd.uv_move_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.UV_ROTATION)
-          fd.uv_rotation = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.U_SCALE)
-          fd.uv_scale_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.V_SCALE)
-          fd.uv_scale_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.BOUNDINGRADIUS)
-          id++;
-        if (f1 & PART_FLAG.MASK)
-          fd.masklimen = curPartState.data(id++);
-        if (f1 & PART_FLAG.PRIORITY)
-          fd.priority = curPartState.data(id++);
-        if (f1 & PART_FLAG.INSTANCE_KEYFRAME) {
-          fd.instanceValue_curKeyframe = curPartState.data(id++);
-          fd.instanceValue_startFrame = curPartState.data(id++);
-          fd.instanceValue_endFrame = curPartState.data(id++);
-          fd.instanceValue_loopNum = curPartState.data(id++);
-          fd.instanceValue_speed = this.I2F(curPartState.data(id++));
-          fd.instanceValue_loopflag = curPartState.data(id++);
-        }
-        if (f1 & PART_FLAG.EFFECT_KEYFRAME) {
-          fd.effectValue_curKeyframe = curPartState.data(id++);
-          fd.effectValue_startTime = curPartState.data(id++);
-          fd.effectValue_speed = this.I2F(curPartState.data(id++));
-          fd.effectValue_loopflag = curPartState.data(id++);
-        }
-        if (f1 & PART_FLAG.VERTEX_TRANSFORM) {
-          fd.f_mesh = true;
-          const f = fd.i_transformVerts = curPartState.data(id++);
-          if (f & 1) {
-            fd.u00 = this.I2F(curPartState.data(id++));
-            fd.v00 = this.I2F(curPartState.data(id++));
-          }
-          if (f & 2) {
-            fd.u01 = this.I2F(curPartState.data(id++));
-            fd.v01 = this.I2F(curPartState.data(id++));
-          }
-          if (f & 4) {
-            fd.u10 = this.I2F(curPartState.data(id++));
-            fd.v10 = this.I2F(curPartState.data(id++));
-          }
-          if (f & 8) {
-            fd.u11 = this.I2F(curPartState.data(id++));
-            fd.v11 = this.I2F(curPartState.data(id++));
-          }
-        }
-        if (f1 & PART_FLAG.PARTS_COLOR) {
-          const f = curPartState.data(id++);
-          blendType = f & 255;
-          fd.useColorMatrix = blendType !== 1;
-          if (f & 4096) {
-            const rate = this.I2F(curPartState.data(id++));
-            const bf = curPartState.data(id++);
-            const bf2 = curPartState.data(id++);
-            const argb32 = bf << 16 | bf2;
-            fd.partsColorARGB = argb32 >>> 0;
-            if (blendType === 1) {
-              fd.tint = argb32 & 16777215;
-            } else {
-              fd.colorMatrix = this.GetColorMatrixFilter(blendType, rate, argb32);
-            }
-          }
-          if (f & 2048) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 1024) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 512) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 256) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-        }
-        if (f2 & PART_FLAG2.MESHDATA) {
-          fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
-          fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
-          let mp = new Float32Array(fd.meshNum * 3);
-          for (let idx = 0; idx < fd.meshNum; idx++) {
-            const mx = this.I2F(curPartState.data(id++));
-            const my = this.I2F(curPartState.data(id++));
-            const mz = this.I2F(curPartState.data(id++));
-            mp[idx * 3 + 0] = mx;
-            mp[idx * 3 + 1] = my;
-            mp[idx * 3 + 2] = mz;
-          }
-          fd.meshDataPoint = mp;
-        }
-        frameData[index] = fd;
-        this.prio2index[i] = index;
-        if (this.fbObj.animePacks(this.parts).parts(index).type() === 0) {
-          frameData[index].cellIndex = -2;
-        }
-      }
-      this.frameDataCache = frameData;
-      this.currentCachedFrameNumber = frameNumber;
-      return frameData;
     }
     GetColorMatrixFilter(blendType, rate, argb32) {
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
@@ -3150,79 +3437,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.colorMatrixFilterCache[key] = colorMatrix;
       return colorMatrix;
     }
-    GetDefaultDataByIndex(id) {
-      const curDefaultData = this.defaultFrameMap[id];
-      return {
-        index: curDefaultData.index(),
-        lowflag: curDefaultData.lowflag(),
-        highflag: curDefaultData.highflag(),
-        priority: curDefaultData.priority(),
-        cellIndex: curDefaultData.cellIndex(),
-        opacity: curDefaultData.opacity(),
-        localopacity: curDefaultData.localopacity(),
-        masklimen: curDefaultData.masklimen(),
-        positionX: curDefaultData.positionX(),
-        positionY: curDefaultData.positionY(),
-        pivotX: curDefaultData.pivotX(),
-        pivotY: curDefaultData.pivotY(),
-        rotationX: curDefaultData.rotationX(),
-        rotationY: curDefaultData.rotationY(),
-        rotationZ: curDefaultData.rotationZ(),
-        scaleX: curDefaultData.scaleX(),
-        scaleY: curDefaultData.scaleY(),
-        localscaleX: curDefaultData.localscaleX(),
-        localscaleY: curDefaultData.localscaleY(),
-        size_X: curDefaultData.sizeX(),
-        size_Y: curDefaultData.sizeY(),
-        uv_move_X: curDefaultData.uvMoveX(),
-        uv_move_Y: curDefaultData.uvMoveY(),
-        uv_rotation: curDefaultData.uvRotation(),
-        uv_scale_X: curDefaultData.uvScaleX(),
-        uv_scale_Y: curDefaultData.uvScaleY(),
-        boundingRadius: curDefaultData.boundingRadius(),
-        instanceValue_curKeyframe: curDefaultData.instanceValueCurKeyframe(),
-        instanceValue_endFrame: curDefaultData.instanceValueEndFrame(),
-        instanceValue_startFrame: curDefaultData.instanceValueStartFrame(),
-        instanceValue_loopNum: curDefaultData.instanceValueLoopNum(),
-        instanceValue_speed: curDefaultData.instanceValueSpeed(),
-        instanceValue_loopflag: curDefaultData.instanceValueLoopflag(),
-        effectValue_curKeyframe: curDefaultData.effectValueCurKeyframe(),
-        effectValue_startTime: curDefaultData.effectValueStartTime(),
-        effectValue_speed: curDefaultData.effectValueSpeed(),
-        effectValue_loopflag: curDefaultData.effectValueLoopflag(),
-        f_hide: false,
-        f_flipH: false,
-        f_flipV: false,
-        f_mesh: false,
-        i_transformVerts: 0,
-        u00: 0,
-        v00: 0,
-        u01: 0,
-        v01: 0,
-        u10: 0,
-        v10: 0,
-        u11: 0,
-        v11: 0,
-        useColorMatrix: false,
-        colorMatrix: null,
-        meshIsBind: 0,
-        meshNum: 0,
-        meshDataPoint: 0,
-        flag1: 0,
-        flag2: 0,
-        partsColorARGB: 0
-      };
-    }
     SetFrameAnimation(frameNumber, ds = 0) {
-      const fd = this.GetFrameData(frameNumber);
+      const fd = this.playerLib.GetFrameData(frameNumber);
       this.removeChildren();
       const l = fd.length;
       for (let ii = 0; ii < l; ii = ii + 1 | 0) {
-        const i = this.prio2index[ii];
+        const i = this.playerLib.prio2index[ii];
         const data = fd[i];
         const cellID = data.cellIndex;
         let mesh = this.prevMesh[i];
-        const part = this.fbObj.animePacks(this.parts).parts(i);
+        const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
         let overWrite = this.substituteOverWrite[i] !== null ? this.substituteOverWrite[i] : false;
         let overWritekeyParam = this.substituteKeyParam[i];
@@ -3279,7 +3503,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
             this._instancePos[2] = 1;
             this._instancePos[3] = 1;
             this._instancePos[4] = 0;
-            this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+            this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
             mesh.rotation = this._instancePos[4] * Math.PI / 180;
             mesh.position.set(this._instancePos[0], this._instancePos[1]);
             mesh.scale.set(this._instancePos[2], this._instancePos[3]);
@@ -3377,17 +3601,17 @@ Imported.SS6PlayerRPGMakerMZ = true;
           case SsPartType.Mesh:
           case SsPartType.Joint:
           case SsPartType.Mask: {
-            const cell = this.fbObj.cells(cellID);
+            const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
             if (partType === SsPartType.Mesh) {
               if (data.meshIsBind === 0) {
-                verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+                verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
               } else {
-                verts = SS6Player.GetMeshVerts(cell, data, mesh.vertices);
+                verts = Player.GetMeshVerts(cell, data, mesh.vertices);
               }
             } else {
               verts = partType === SsPartType.Joint ? new Float32Array(10) : mesh.vertices;
-              verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data, verts), data.index, frameNumber);
+              verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
             }
             if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
               const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -3406,7 +3630,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
               const CoordinateLDRDy = (vertexCoordinateLDy + vertexCoordinateRDy) * 0.5;
               const CoordinateRURDx = (vertexCoordinateRUx + vertexCoordinateRDx) * 0.5;
               const CoordinateRURDy = (vertexCoordinateRUy + vertexCoordinateRDy) * 0.5;
-              const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
+              const vec2 = Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
               verts[0] = vec2[0];
               verts[1] = vec2[1];
             }
@@ -3459,15 +3683,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
             mesh.alpha = opacity * this.parentAlpha;
             mesh.visible = !data.f_hide;
             if (data.useColorMatrix) {
-              mesh.filters = [data.colorMatrix];
+              const colorMatrix = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+              mesh.filters = [colorMatrix];
             }
             if (data.tint) {
               mesh.tint = data.tint;
               const ca = ((data.partsColorARGB & 4278190080) >>> 24) / 255;
               mesh.alpha = mesh.alpha * ca;
-            }
-            if (data.tintRgb) {
-              mesh.tintRgb = data.tintRgb;
             }
             const blendMode = this.alphaBlendType[i];
             if (blendMode === constants.BLEND_MODES.MULTIPLY || blendMode === constants.BLEND_MODES.SCREEN) {
@@ -3478,9 +3700,9 @@ Imported.SS6PlayerRPGMakerMZ = true;
             break;
           }
           case SsPartType.Nulltype: {
-            const opacity = this.InheritOpacity(1, data.index, frameNumber);
+            const opacity = this.playerLib.InheritOpacity(1, data.index, frameNumber);
             mesh.alpha = opacity * data.localopacity / 255;
-            const verts = this.TransformVerts(SS6Player.GetDummyVerts(), data.index, frameNumber);
+            const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
             const px = verts[0];
             const py = verts[1];
             mesh.position.set(px, py);
@@ -3495,8 +3717,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
     }
     ChangeInstanceAnime(partName, animePackName, animeName, overWrite, keyParam = null) {
       let rc = false;
-      if (this.curAnimePackName !== null && this.curAnimation !== null) {
-        let packData = this.curAnimePackData;
+      if (this.animePackName !== null && this.animeName !== null) {
+        let packData = this.playerLib.animePackData;
         let partsLength = packData.partsLength();
         for (let index = 0; index < partsLength; index++) {
           let partData = packData.parts(index);
@@ -3525,148 +3747,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return rc;
     }
-    InheritOpacity(opacity, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      opacity = data.opacity / 255;
-      if (this.parentIndex[id] >= 0) {
-        opacity = this.InheritOpacity(opacity, this.parentIndex[id], frameNumber);
-      }
-      return opacity;
-    }
-    TransformVertsLocal(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        if (data.i_transformVerts & 1 && i === 1) {
-          x += data.u00;
-          y -= data.v00;
-        }
-        if (data.i_transformVerts & 2 && i === 2) {
-          x += data.u01;
-          y -= data.v01;
-        }
-        if (data.i_transformVerts & 4 && i === 3) {
-          x += data.u10;
-          y -= data.v10;
-        }
-        if (data.i_transformVerts & 8 && i === 4) {
-          x += data.u11;
-          y -= data.v11;
-        }
-        x *= data.scaleX * data.localscaleX;
-        y *= data.scaleY * data.localscaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-        if (data.f_flipH) {
-          verts[i * 2] = verts[0] * 2 - verts[i * 2];
-        }
-        if (data.f_flipV) {
-          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-        }
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformMeshVertsLocal(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        x *= data.scaleX * data.localscaleX;
-        y *= data.scaleY * data.localscaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformPositionLocal(pos, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      pos[4] += -data.rotationZ;
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      const x = pos[0] * data.scaleX * data.localscaleX;
-      const y = pos[1] * data.scaleY * data.localscaleY;
-      pos[2] *= data.scaleX * data.localscaleX;
-      pos[3] *= data.scaleY * data.localscaleY;
-      pos[0] = cos * x - sin * y + data.positionX;
-      pos[1] = sin * x + cos * y - data.positionY;
-      if (this.parentIndex[id] >= 0) {
-        pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-      }
-      return pos;
-    }
-    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
-      const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
-      const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
-      const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
-      if (c3 <= 0 && c3 >= 0)
-        return vec2;
-      const ca = c1 / c3;
-      const cb = c2 / c3;
-      if (0 <= ca && 1 >= ca && (0 <= cb && 1 >= cb)) {
-        cx = LUx + ca * (RDx - LUx);
-        cy = LUy + ca * (RDy - LUy);
-      }
-      vec2[0] = cx;
-      vec2[1] = cy;
-      return vec2;
-    }
-    TransformVerts(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        x *= data.scaleX;
-        y *= data.scaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-        if (data.f_flipH) {
-          verts[i * 2] = verts[0] * 2 - verts[i * 2];
-        }
-        if (data.f_flipV) {
-          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-        }
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformPosition(pos, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      pos[4] += -data.rotationZ;
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      const x = pos[0] * data.scaleX;
-      const y = pos[1] * data.scaleY;
-      pos[2] *= data.scaleX;
-      pos[3] *= data.scaleY;
-      pos[0] = cos * x - sin * y + data.positionX;
-      pos[1] = sin * x + cos * y - data.positionY;
-      if (this.parentIndex[id] >= 0) {
-        pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-      }
-      return pos;
-    }
     MakeCellMesh(id) {
-      const cell = this.fbObj.cells(id);
+      const cell = this.playerLib.fbObj.cells(id);
       const u1 = cell.u1();
       const u2 = cell.u2();
       const v1 = cell.v1();
@@ -3679,7 +3761,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
     }
     MakeMeshCellMesh(partID, cellID) {
-      const meshsDataUV = this.curAnimation.meshsDataUV(partID);
+      const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
       const uvLength = meshsDataUV.uvLength();
       if (uvLength > 0) {
         const uvs = new Float32Array(uvLength - 2);
@@ -3687,14 +3769,14 @@ Imported.SS6PlayerRPGMakerMZ = true;
         for (let idx = 2; idx < uvLength; idx++) {
           uvs[idx - 2] = meshsDataUV.uv(idx);
         }
-        const meshsDataIndices = this.curAnimation.meshsDataIndices(partID);
+        const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
         const indicesLength = meshsDataIndices.indicesLength();
         const indices = new Uint16Array(indicesLength - 1);
         for (let idx = 1; idx < indicesLength; idx++) {
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        return new meshExtras.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+        return new meshExtras.SimpleMesh(this.resources[this.playerLib.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
       }
       return null;
     }
@@ -3705,26 +3787,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       ssp.Play(refStart);
       return ssp;
     }
-    static GetVerts(cell, data, verts) {
-      const w = data.size_X / 2;
-      const h = data.size_Y / 2;
-      const px = data.size_X * -(data.pivotX + cell.pivotX());
-      const py = data.size_Y * (data.pivotY + cell.pivotY());
-      verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
-      return verts;
-    }
-    static GetMeshVerts(cell, data, verts) {
-      for (let idx = 0; idx < data.meshNum; idx++) {
-        verts[idx * 2] = data.meshDataPoint[idx * 3];
-        verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
-      }
-      return verts;
-    }
-    static GetDummyVerts() {
-      return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
-    }
     resetLiveFrame() {
-      const layers = this.curAnimation.defaultDataLength();
+      const layers = this.playerLib.animationData.defaultDataLength();
       for (let i = 0; i < layers; i++) {
         this.liveFrame[i] = 0;
       }

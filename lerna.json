@@ -3,8 +3,9 @@
   "packages": [
     "packages/ssfblib",
     "packages/ss6player-lib",
-    "packages/ss6player-pixi",
+    "packages/ss6player-pixi6",
     "packages/ss6player-rpgmakermz",
+    "packages/ss6player-pixi",
     "packages/ss6player-viewer"
   ],
   "command": {

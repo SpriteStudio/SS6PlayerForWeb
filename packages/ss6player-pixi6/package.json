@@ -1,8 +1,8 @@
 {
-  "name": "ss6player-rpgmakermz",
+  "name": "ss6player-pixi6",
   "private": true,
-  "version": "0.7.9",
-  "description": "SS6Player for RPG Maker MZ",
+  "version": "1.0.0",
+  "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
     "SS6Player",
@@ -10,11 +10,11 @@
     "Animation",
     "Sprite",
     "Skeletal",
-    "pixi.js",
-    "RPG Maker MZ",
-    "RMMZ"
+    "pixi"
   ],
-  "main": "dist/ss6player-rpgmakermz.js",
+  "main": "dist/ss6player-pixi6.umd.js",
+  "module": "dist/ss6player-pixi6.es5.js",
+  "typings": "dist/types/ss6player-pixi6.d.ts",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
   },
@@ -36,16 +36,25 @@
     "lint": "npx tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "deploy": "npm run build && npx ncp dist/ss6player-rpgmakermz.js SampleProject/js/plugins/ss6player-rpgmakermz.js",
     "watch": "rollup -c rollup.config.ts -w",
-    "dist": "npm run build",
-    "view": "concurrently \"http-server -c-1 -p 8083 ./SampleProject\" \"opener http://localhost:8083/index.html\"",
+    "dist": "npm run docs && npm run build",
+    "view": "concurrently \"http-server -c-1 -p 8086 ../../\" \"opener http://localhost:8086/packages/ss6player-pixi6/Player/index.html\"",
     "clean": "rimraf dist"
   },
+  "peerDependencies": {
+    "@pixi/loaders": "^6.5.8",
+    "@pixi/display": "^6.5.8",
+    "@pixi/mesh-extras": "^6.5.8",
+    "@pixi/ticker": "^6.5.8",
+    "@pixi/filter-color-matrix": "^6.5.8",
+    "@pixi/core": "^6.5.8",
+    "@pixi/constants": "^6.5.8"
+  },
   "dependencies": {
-    "ss6player-pixi6": "^1.0.0"
+    "ss6player-lib": "1.0.0"
   },
   "devDependencies": {
+    "ssfblib": "1.1.2",
     "typescript": "^4.8.4",
     "typedoc": "^0.23.19",
     "lodash.camelcase": "^4.3.0",
@@ -60,12 +69,10 @@
     "rollup-plugin-esbuild": "^4.10.1",
     "esbuild": "^0.15.12",
     "@types/offscreencanvas": "^2019.7.0",
-    "pixi.js": "^5.3.12",
+    "pixi.js": "^6.5.8",
     "concurrently": "^7.5.0",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "replace": "^1.2.2",
-    "ncp": "^2.0.0",
     "tslint": "^6.1.3",
     "tslint-config-standard": "^9.0.0"
   },

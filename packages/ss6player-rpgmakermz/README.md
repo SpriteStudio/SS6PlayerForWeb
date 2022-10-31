@@ -13,7 +13,7 @@
 ## ライセンス
 ss6player-rpgmakermz のライセンスは [LISENCE](../../LICENSE) となります。
 
-ss6player-rpgmakermz は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi](../ss6player-pixi) をバンドルしています。
+ss6player-rpgmakermz は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-pixi6](../ss6player-pixi6) をバンドルしています。
 ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
 
 ## アニメーションデータの作成方法
