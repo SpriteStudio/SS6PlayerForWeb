@@ -32,11 +32,11 @@
     "docs": "typedoc --out ../../docs/ssfblib_api src/ssfblib.ts"
   },
   "dependencies": {
-    "flatbuffers": "^2.0.7"
+    "flatbuffers": "^22.10.26"
   },
   "devDependencies": {
     "typescript": "^4.8.4",
-    "typedoc": "^0.23.17",
+    "typedoc": "^0.23.19",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
     "rollup": "2.79.1",
