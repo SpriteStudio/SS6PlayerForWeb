@@ -1,6 +1,5 @@
 import { LoaderResource, Loader } from '@pixi/loaders';
-import { ProjectData } from 'ssfblib';
-import { Utils as playerLibUtils } from 'ss6player-lib';
+import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
 
 export class SS6Project {
   public ssfbPath: string;

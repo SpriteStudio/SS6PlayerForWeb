@@ -36,6 +36,7 @@
     "lint": "npx tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "docs": "typedoc --out ../../docs/ss6player_pixi6_api src/ss6player-pixi6.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -c-1 -p 8086 ../../\" \"opener http://localhost:8086/packages/ss6player-pixi6/Player/index.html\"",
@@ -54,7 +55,6 @@
     "ss6player-lib": "1.0.0"
   },
   "devDependencies": {
-    "ssfblib": "1.1.2",
     "typescript": "^4.8.4",
     "typedoc": "^0.23.19",
     "lodash.camelcase": "^4.3.0",

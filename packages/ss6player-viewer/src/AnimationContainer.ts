@@ -1,4 +1,4 @@
-import { SS6Player, SS6Project } from 'ss6player-pixi';
+import { SS6Player } from 'ss6player-pixi';
 import { Player } from './Player';
 
 /**

@@ -1,7 +1,7 @@
 import JSZip from 'jszip/dist/jszip'; // for avoding rollup error (https://github.com/Stuk/jszip/issues/673)
 
 export class SspkgLoader {
-  load(url: string, onFinishCallback: (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => void) {
+  load(url: string, onFinishCallback: (ssfbFileName: string, ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => void) {
     const self = this;
 
     fetch(url)
@@ -27,7 +27,7 @@ export class SspkgLoader {
           if (fileExtension === 'ssfb') {
             if (ssfbFilePath !== null) {
               // 既に ssfb が存在していた場合、エラー
-              onFinishCallback(null, null, new Error('already exist ssfb file'));
+              onFinishCallback(null, null, null, new Error('already exist ssfb file'));
               return;
             }
             ssfbFilePath = fileName;
@@ -40,10 +40,10 @@ export class SspkgLoader {
         // self.spriteStudioWebPlayer.setImageBinaryMap(imageBinaryMap);
 
         let ssfbBinary = await zipFile.file(ssfbFilePath).async('uint8array');
-        onFinishCallback(ssfbBinary, imageBinaryMap, null);
+        onFinishCallback(ssfbFilePath, ssfbBinary, imageBinaryMap, null);
       }, function error(e) {
         console.log(e);
-        onFinishCallback(null, null, e);
+        onFinishCallback(null,null, null, e);
       });
   }
 }

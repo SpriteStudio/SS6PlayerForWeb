@@ -1,15 +1,14 @@
-import { LoaderResource } from '@pixi/loaders';
+import { Assets } from '@pixi/assets';
 import { Container } from '@pixi/display';
 import { SimpleMesh } from '@pixi/mesh-extras';
 import { Ticker } from '@pixi/ticker';
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import { Filter } from '@pixi/core';
+import {Filter, Texture} from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
 
-import {Player} from 'ss6player-lib';
-
-import { AnimePackData, PART_FLAG, PartData, SsPartType } from 'ssfblib';
+import {Player, AnimePackData, PART_FLAG, PartData, SsPartType} from 'ss6player-lib';
 import { SS6Project } from './SS6Project';
+
 import { SS6PlayerInstanceKeyParam } from './SS6PlayerInstanceKeyParam';
 
 export class SS6Player extends Container {
@@ -17,7 +16,6 @@ export class SS6Player extends Container {
 
   // Properties
   private readonly ss6project: SS6Project;
-  private readonly resources: Partial<Record<string, LoaderResource>>;
   private liveFrame: any[] = [];
   private colorMatrixFilterCache: any[] = [];
 
@@ -102,7 +100,6 @@ export class SS6Player extends Container {
 
     this.ss6project = ss6project;
     this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
-    this.resources = this.ss6project.resources;
     this.parentAlpha = 1.0;
 
     if (animePackName !== null && animeName !== null) {
@@ -879,7 +876,7 @@ export class SS6Player extends Container {
           if (data.useColorMatrix) {
             // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
             const colorMatrix: Filter = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
-            mesh.filters = [colorMatrix];
+            // mesh.filters = [colorMatrix];
           }
 
           // 小西 - tintデータがあれば適用
@@ -997,7 +994,8 @@ export class SS6Player extends Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    return new SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+    return new SimpleMesh(Assets.get(cell.cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+    return null;
   }
 
   /**
@@ -1030,7 +1028,7 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      return new SimpleMesh(this.resources[this.playerLib.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+      return new SimpleMesh(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
     }
 
     return null;

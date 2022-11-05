@@ -1,21 +1,21 @@
-# SS6Player for pixi.js
+# SS6Player for pixi.js v6
 
 [OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v6 で再生するライブラリです。
 
+([ss6player-rpgmakermz](../ss6player-rpgmakermz) のサポート用に pixi v6 向け ss6player の実装を残しています。pixi.js 最新版で ss6player を利用する際は [ss6player-pixi](../ss6player-pixi) を利用してください。)
+
 ## ライブラリ
 
-リリース最新版のライブラリソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.umd.js)([minified](https://spritestudio.github.io/SS6PlayerForWeb/Player/ss6player-pixi.min.js)) になります。
+リリース最新版のライブラリソースは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player6/ss6player-pixi6.umd.js)([minified](https://spritestudio.github.io/SS6PlayerForWeb/Player6/ss6player-pixi6.min.js)) になります。
 
 ## デモ
 
-リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player/index.html) になります。
-
-UI デモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/ui-examples/index.html) になります。
+リリース最新版のデモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/Player6/index.html) になります。
 
 ## ライセンス
-ss6player-pixi のライセンスは [LISENCE](../../LICENSE) となります。
+ss6player-pixi6 のライセンスは [LISENCE](../../LICENSE) となります。
 
-ss6player-pixi は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) をバンドルしています。
+ss6player-pixi6 は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-lib](../ss6player-lib) をバンドルしています。
 ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
 
 ## アニメーションデータの作成方法
@@ -28,7 +28,7 @@ Ss6Converter は SpriteStudio6-SDK に同封するツールです。利用方法
 
 ### API リファレンス
 
-ss6player-pixi の API リファレンスは[こちら](https://spritestudio.github.io/SS6PlayerForWeb/ss6player_pixi_api/index.html)です。
+ss6player-pixi6 の API リファレンスは[こちら](https://spritestudio.github.io/SS6PlayerForWeb/ss6player_pixi6_api/index.html)です。
 
 ### サンプル
 
@@ -56,35 +56,35 @@ npm run bootstrap
 npm run build
 ```
 
-ビルドが成功すると `ss6player-pixi.umd.js` と `ss6player-pixi.es5.js` が `SS6PlayerForWeb/packages/ss6player-pixi/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ss6player-pixi6.umd.js` と `ss6player-pixi6.es5.js` が `SS6PlayerForWeb/packages/ss6player-pixi6/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 
-[全ビルド](#全ビルド)実行後は `SS6PlayerForWeb/packages/ss6player-pixi` ディレクトリ上で `ss6player-pixi` の単独ビルドが可能になります。
+[全ビルド](#全ビルド)実行後は `SS6PlayerForWeb/packages/ss6player-pixi6` ディレクトリ上で `ss6player-pixi6` の単独ビルドが可能になります。
 
 ```bash
-cd SS6PlayerForWeb/packages/ss6player-pixi
+cd SS6PlayerForWeb/packages/ss6player-pixi6
 npm run build
 ```
 
 ## ローカル環境での動作確認
 
-[全ビルド](#全ビルド)後、`SS6PlayerForWeb/packages/ss6player-pixi/` ディレクトリ上で下記コマンドを実行してください。
+[全ビルド](#全ビルド)後、`SS6PlayerForWeb/packages/ss6player-pixi6/` ディレクトリ上で下記コマンドを実行してください。
 
 ローカル環境で http サーバが起動し、ブラウザ上で Player ディレクトリのサンプルを表示します。
 
 ```bash
-cd SS6PlayerForWeb/packages/ss6player-pixi
+cd SS6PlayerForWeb/packages/ss6player-pixi6
 npm run view
 ```
 
 ## 単独ビルドの監視
 
-`SS6PlayerForWeb/packages/ss6player-pixi` ディレクトリ上で `npm run start` を実行すると、 `src/` ディレクトリのソースファイルが変更されると自動的に[単独ビルド](#単独ビルド)が走るようになります。 
+`SS6PlayerForWeb/packages/ss6player-pixi6` ディレクトリ上で `npm run start` を実行すると、 `src/` ディレクトリのソースファイルが変更されると自動的に[単独ビルド](#単独ビルド)が走るようになります。 
 
 [ローカル環境での動作確認](#ローカル環境での動作確認) と併用するとスムーズに動作確認が行なえます。
 
 ```bash
-cd SS6PlayerForWeb/packages/ss6player-pixi
+cd SS6PlayerForWeb/packages/ss6player-pixi6
 npm run start
 ```

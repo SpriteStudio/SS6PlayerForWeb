@@ -6,10 +6,9 @@ import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
 import { Filter } from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
 
-import {Player} from 'ss6player-lib';
-
-import { AnimePackData, PART_FLAG, PartData, SsPartType } from 'ssfblib';
+import { Player, AnimePackData, PART_FLAG, PartData, SsPartType } from 'ss6player-lib';
 import { SS6Project } from './SS6Project';
+
 import { SS6PlayerInstanceKeyParam } from './SS6PlayerInstanceKeyParam';
 
 export class SS6Player extends Container {
