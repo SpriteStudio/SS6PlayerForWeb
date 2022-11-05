@@ -14,7 +14,7 @@ export class FrameData {
   pivotY: number;
   rotationX: number;
   rotationY: number;
-  rotationZ: number
+  rotationZ: number;
   scaleX: number;
   scaleY: number;
   localscaleX: number;
