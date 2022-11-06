@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { partState } from '../../ss/ssfb/part-state';
+import { partState } from '../../ss/ssfb/part-state.js';
 
 
 export class frameDataIndex {

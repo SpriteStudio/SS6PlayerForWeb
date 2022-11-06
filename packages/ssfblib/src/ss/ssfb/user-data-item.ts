@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { userDataValue, unionTouserDataValue, unionListTouserDataValue } from '../../ss/ssfb/user-data-value';
+import { userDataValue, unionTouserDataValue, unionListTouserDataValue } from '../../ss/ssfb/user-data-value.js';
 
 
 export class userDataItem {

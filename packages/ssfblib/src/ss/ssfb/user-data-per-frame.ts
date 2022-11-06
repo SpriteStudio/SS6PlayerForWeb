@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { userDataItem } from '../../ss/ssfb/user-data-item';
+import { userDataItem } from '../../ss/ssfb/user-data-item.js';
 
 
 export class userDataPerFrame {

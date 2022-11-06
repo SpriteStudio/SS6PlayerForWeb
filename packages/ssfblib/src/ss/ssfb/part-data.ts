@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { SsPartType } from '../../ss/ssfb/ss-part-type';
+import { SsPartType } from '../../ss/ssfb/ss-part-type.js';
 
 
 export class PartData {

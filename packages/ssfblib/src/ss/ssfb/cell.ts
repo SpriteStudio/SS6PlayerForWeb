@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { CellMap } from '../../ss/ssfb/cell-map';
+import { CellMap } from '../../ss/ssfb/cell-map.js';
 
 
 export class Cell {

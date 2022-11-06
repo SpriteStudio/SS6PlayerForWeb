@@ -2,12 +2,12 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { AnimationInitialData } from '../../ss/ssfb/animation-initial-data';
-import { frameDataIndex } from '../../ss/ssfb/frame-data-index';
-import { labelDataItem } from '../../ss/ssfb/label-data-item';
-import { meshDataIndices } from '../../ss/ssfb/mesh-data-indices';
-import { meshDataUV } from '../../ss/ssfb/mesh-data-uv';
-import { userDataPerFrame } from '../../ss/ssfb/user-data-per-frame';
+import { AnimationInitialData } from '../../ss/ssfb/animation-initial-data.js';
+import { frameDataIndex } from '../../ss/ssfb/frame-data-index.js';
+import { labelDataItem } from '../../ss/ssfb/label-data-item.js';
+import { meshDataIndices } from '../../ss/ssfb/mesh-data-indices.js';
+import { meshDataUV } from '../../ss/ssfb/mesh-data-uv.js';
+import { userDataPerFrame } from '../../ss/ssfb/user-data-per-frame.js';
 
 
 export class AnimationData {

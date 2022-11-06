@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EffectNodeBehavior, unionToEffectNodeBehavior, unionListToEffectNodeBehavior } from '../../ss/ssfb/effect-node-behavior';
+import { EffectNodeBehavior, unionToEffectNodeBehavior, unionListToEffectNodeBehavior } from '../../ss/ssfb/effect-node-behavior.js';
 
 
 export class EffectNode {

@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EffectNode } from '../../ss/ssfb/effect-node';
+import { EffectNode } from '../../ss/ssfb/effect-node.js';
 
 
 export class EffectFile {

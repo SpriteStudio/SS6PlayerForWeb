@@ -2,8 +2,8 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { AnimationData } from '../../ss/ssfb/animation-data';
-import { PartData } from '../../ss/ssfb/part-data';
+import { AnimationData } from '../../ss/ssfb/animation-data.js';
+import { PartData } from '../../ss/ssfb/part-data.js';
 
 
 export class AnimePackData {

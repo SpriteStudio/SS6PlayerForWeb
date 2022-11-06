@@ -2,9 +2,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { AnimePackData } from '../../ss/ssfb/anime-pack-data';
-import { Cell } from '../../ss/ssfb/cell';
-import { EffectFile } from '../../ss/ssfb/effect-file';
+import { AnimePackData } from '../../ss/ssfb/anime-pack-data.js';
+import { Cell } from '../../ss/ssfb/cell.js';
+import { EffectFile } from '../../ss/ssfb/effect-file.js';
 
 
 export class ProjectData {
