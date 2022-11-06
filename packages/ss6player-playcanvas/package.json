@@ -1,0 +1,77 @@
+{
+  "name": "ss6player-playcanvas",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SS6Player for PlayCanvas",
+  "keywords": [
+    "SpriteStudio",
+    "SS6Player",
+    "2D",
+    "Animation",
+    "Sprite",
+    "Skeletal",
+    "PlayCanvas"
+  ],
+  "main": "dist/ss6player-playcanvas.js",
+  "bugs": {
+    "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
+  },
+  "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "CRI Middleware Co., Ltd.",
+    "url": "https://www.webtech.co.jp/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SpriteStudio/SS6PlayerForWeb.git"
+  },
+  "license": "SEE LICENSE",
+  "scripts": {
+    "start": "npm run watch",
+    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "npm run clean",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
+    "docs": "typedoc --out ../../docs/ss6player_playcanvas_api src/ss6player-playcanvas.ts",
+    "watch": "rollup -c rollup.config.ts -w",
+    "dist": "npm run docs && npm run build",
+    "view": "concurrently \"http-server -c-1 -p 8085 ../../\" \"opener http://localhost:8085/packages/ss6player-playcanvas/SampleProject/\"",
+    "clean": "rimraf dist",
+    "deploy": "npm run build && npx ncp dist/ss6player-playcanvas.js SampleProject/Scripts/ss6player-playcanvas.js",
+    "push": "node node_modules/playcanvas-sync/pcsync.js pushAll --yes",
+    "push-build": "npm run deploy && npm run push"
+  },
+  "dependencies": {
+    "ss6player-lib": "1.0.0"
+  },
+  "devDependencies": {
+    "playcanvas": "^1.60.0",
+    "playcanvas-sync": "git+https://github.com/playcanvas/playcanvas-sync.git",
+    "flatbuffers": "^23.1.21",
+    "typescript": "^4.9.4",
+    "typedoc": "^0.23.24",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^4.1.2",
+    "rollup": "^3.12.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "@rollup/plugin-json": "^6.0.0",
+    "rollup-plugin-license": "^3.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "esbuild": "^0.17.5",
+    "concurrently": "^7.6.0",
+    "http-server": "^14.1.1",
+    "opener": "^1.5.2",
+    "replace": "^1.2.2",
+    "ncp": "^2.0.0",
+    "tslint": "^6.1.3",
+    "tslint-config-standard": "^9.0.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
+  }
+}

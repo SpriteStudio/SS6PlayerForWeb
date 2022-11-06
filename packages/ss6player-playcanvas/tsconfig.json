@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist/lib",
+    "typeRoots": [
+      "dist/types",
+      "node_modules/@types"
+    ],
+    "types": ["playcanvas"]
+  },
+  "include": [
+    "src"
+  ]
+}

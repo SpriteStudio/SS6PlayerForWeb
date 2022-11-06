@@ -2308,13 +2308,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
     PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
     return PART_FLAG22;
   })(PART_FLAG2 || {});
-  class Utils$1 {
+  let Utils$1 = class Utils {
     static getProjectData(bytes) {
       const buf = new ByteBuffer(bytes);
       return ProjectData.getRootAsProjectData(buf);
     }
-  }
-  class Utils {
+  };
+  class Utils2 {
     static getProjectData(bytes) {
       return Utils$1.getProjectData(bytes);
     }
@@ -2337,7 +2337,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       if (ssfbData.hasOwnProperty("bb")) {
         this._fbObj = ssfbData;
       } else {
-        this._fbObj = Utils.getProjectData(ssfbData);
+        this._fbObj = Utils2.getProjectData(ssfbData);
       }
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
@@ -2891,7 +2891,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
         }
         const arrayBuffer = this.response;
         const bytes = new Uint8Array(arrayBuffer);
-        self.fbObj = Utils.getProjectData(bytes);
+        self.fbObj = Utils2.getProjectData(bytes);
         self.LoadCellResources();
       };
       httpObj.ontimeout = function() {
@@ -2934,7 +2934,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       });
     }
     load(bytes, imageBinaryMap) {
-      this.fbObj = Utils.getProjectData(bytes);
+      this.fbObj = Utils2.getProjectData(bytes);
       const loader = new loaders.Loader();
       for (let imageName in imageBinaryMap) {
         const binary = imageBinaryMap[imageName];
