@@ -15,7 +15,7 @@ ssfblib のライセンスは [LISENCE](../../LICENSE) となります。
 ## 使い方
 ### API リファレンス
 
-ssfblib の API リファレンスは[こちら](https://spritestudio.github.io/SS6PlayerForWeb/ssfblib_api/modules/ss.ssfb.html)です。
+ssfblib の API リファレンスは[こちら](https://spritestudio.github.io/SS6PlayerForWeb/ssfblib_api/index.html)です。
 
 ### サンプル
 

@@ -1,4 +1,4 @@
-import { SS6Player, SS6Project } from 'ss6player-pixi';
+import { SS6Player } from 'ss6player-pixi';
 import { Player } from './Player';
 
 /**
@@ -46,7 +46,7 @@ export class AnimationContainer extends SS6Player {
     return this.currentAnimationFrameDataMap;
   }
   private setupCurrentAnimationFrameDataMap() {
-    const currentAnimation = this.curAnimation;
+    const currentAnimation = this.playerLib.animationData;
     let frameDataMap = {};
     // ユーザーデータ
     const userDataLength = currentAnimation.userDataLength();
@@ -62,7 +62,7 @@ export class AnimationContainer extends SS6Player {
       }
 
       // console.log('userData', frameIndex);
-      const data = this.GetUserData(frameIndex);
+      const data = this.playerLib.GetUserData(frameIndex);
       // console.log('userData.data', data);
 
       let frameUserDataMap = {};
@@ -72,7 +72,7 @@ export class AnimationContainer extends SS6Player {
 
         // data.push([partsID, bit, d_int, d_rect_x, d_rect_y, d_rect_w, d_rect_h, d_pos_x, d_pos_y, d_string_length, d_string]);
         const partsArrayIndex = dataArray[0]; // パーツと紐づく
-        const parts = this.curAnimePackData.parts(partsArrayIndex);
+        const parts = this.playerLib.animePackData.parts(partsArrayIndex);
         const partsName = parts.name();
 
         const intValue = dataArray[2];

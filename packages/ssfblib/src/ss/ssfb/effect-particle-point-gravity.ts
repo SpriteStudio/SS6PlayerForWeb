@@ -5,21 +5,21 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticlePointGravity {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticlePointGravity {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticlePointGravity {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-PositionX():number {
+positionX():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-PositionY():number {
+positionY():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 
-Power():number {
+power():number {
   return this.bb!.readFloat32(this.bb_pos + 8);
 }
 

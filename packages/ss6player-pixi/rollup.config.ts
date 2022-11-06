@@ -13,7 +13,7 @@ const libraryName = 'ss6player-pixi';
 
 // reference: @pixi-build-tools/globals
 const pixiGlobals = {
-  '@pixi/loaders': 'PIXI',
+  '@pixi/assets': 'PIXI',
   '@pixi/display': 'PIXI',
   '@pixi/mesh-extras': 'PIXI',
   '@pixi/ticker': 'PIXI',

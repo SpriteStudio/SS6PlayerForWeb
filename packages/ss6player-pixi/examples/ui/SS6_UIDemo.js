@@ -11,11 +11,6 @@
 // Copyright (C) CRI Middleware Co., Ltd.
 //-----------------------------------------------------------
 
-// Say Hello
-// （動作には関係ないPIXI.jsのバージョン表示）
-const type = PIXI.utils.isWebGLSupported() ? "WebGL" : "Canvas";
-PIXI.utils.sayHello(type);
-
 // Initialize PIXI Application
 // （通常のPIXI.jsアプリケーションの初期化手順）
 const app = new PIXI.Application({ width: 960, height: 720, backgroundColor: 0x606060 }); // 比較しやすいようにSSの初期設定と同じ色にしてみた
@@ -41,13 +36,7 @@ let loadedSsfbs = {
 };
 let mySS6Projects = {};
 for (let ssfbName in ssfbFiles) {
-  mySS6Projects[ssfbName] = new ss6PlayerPixi.SS6Project(ssfbFiles[ssfbName],
-    () => {bg.emit('loadedssfb', ssfbName, true);}, // onComplete
-    30 * 1000, // timeout(ms)
-    3, // retry
-    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}, // onError
-    (ssfbPath, timeout, retry, httpObj) => { bg.emit('loadedssfb', ssfbName, false);}  // onTimeout
-  );
+  mySS6Projects[ssfbName] = new ss6PlayerPixi.SS6Project(ssfbFiles[ssfbName], () => {bg.emit('loadedssfb', ssfbName, true);});
 }
 
 bg.on('loadedssfb', (ssfbName, success) => {

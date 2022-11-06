@@ -1,0 +1,59 @@
+{
+  "name": "ss6player-lib",
+  "version": "1.0.0",
+  "description": "generate an animation framedata from ssfblib for ss6players",
+  "keywords": [
+    "SpriteStudio"
+  ],
+  "main": "dist/ss6player-lib.umd.js",
+  "module": "dist/ss6player-lib.es5.js",
+  "typings": "dist/types/ss6player-lib.d.ts",
+  "bugs": {
+    "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
+  },
+  "homepage": "https://github.com/SpriteStudio/SS6PlayerForWeb#readme",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "CRI Middleware Co., Ltd.",
+    "url": "https://www.webtech.co.jp/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SpriteStudio/SS6PlayerForWeb.git"
+  },
+  "types": "",
+  "license": "SEE LICENSE",
+  "scripts": {
+    "start": "npm run watch",
+    "lint": "npx tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "npm run clean",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "watch": "rollup -c rollup.config.ts -w",
+    "dist": "npm run docs && npm run build",
+    "clean": "rimraf dist",
+    "docs": "typedoc --out ../../docs/ss6player_lib_api src/ss6player-lib.ts"
+  },
+  "dependencies": {
+    "ssfblib": "1.1.2"
+  },
+  "devDependencies": {
+    "flatbuffers": "^22.10.26",
+    "typescript": "^4.8.4",
+    "typedoc": "^0.23.20",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "@rollup/plugin-json": "^5.0.1",
+    "rollup-plugin-license": "^3.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "rollup-plugin-esbuild": "^4.10.1",
+    "esbuild": "^0.15.13"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
+  }
+}

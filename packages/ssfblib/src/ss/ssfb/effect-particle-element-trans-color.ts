@@ -5,17 +5,17 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementTransColor {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransColor {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransColor {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-ColorMinValue():number {
+colorMinValue():number {
   return this.bb!.readUint32(this.bb_pos);
 }
 
-ColorMaxValue():number {
+colorMaxValue():number {
   return this.bb!.readUint32(this.bb_pos + 4);
 }
 

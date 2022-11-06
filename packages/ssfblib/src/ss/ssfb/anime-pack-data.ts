@@ -2,14 +2,14 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { AnimationData } from '../../ss/ssfb/animation-data';
-import { PartData } from '../../ss/ssfb/part-data';
+import { AnimationData } from '../../ss/ssfb/animation-data.js';
+import { PartData } from '../../ss/ssfb/part-data.js';
 
 
 export class AnimePackData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):AnimePackData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):AnimePackData {
   this.bb_pos = i;
   this.bb = bb;
   return this;
