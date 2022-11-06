@@ -5,13 +5,13 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementBasic {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementBasic {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementBasic {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-SsEffectFunctionType():number {
+ssEffectFunctionType():number {
   return this.bb!.readInt32(this.bb_pos);
 }
 

@@ -1,6 +1,6 @@
 # SS6Player for pixi.js
 
-[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v6 で再生するライブラリです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v7 で再生するライブラリです。
 
 ## ライブラリ
 
@@ -15,7 +15,7 @@ UI デモは [こちら](https://spritestudio.github.io/SS6PlayerForWeb/ui-examp
 ## ライセンス
 ss6player-pixi のライセンスは [LISENCE](../../LICENSE) となります。
 
-ss6player-pixi は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) をバンドルしています。
+ss6player-pixi は依存ライブラリの [FlatBuffers](https://google.github.io/flatbuffers/) と [ssfblib](../ssfblib) と [ss6player-lib](../ss6player-lib) をバンドルしています。
 ForWeb のコンポーネントが依存しているサードパーティライブラリのライセンスは [ThirdPartyLicenses.md](../../ThirdPartyLicenses.md) を参照してください。
 
 ## アニメーションデータの作成方法

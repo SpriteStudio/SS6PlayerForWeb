@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class partState {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):partState {
+  __init(i:number, bb:flatbuffers.ByteBuffer):partState {
   this.bb_pos = i;
   this.bb = bb;
   return this;

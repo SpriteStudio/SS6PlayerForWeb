@@ -1,4 +1,3 @@
-import { Texture } from '@pixi/core';
 import { Application } from '@pixi/app';
 import { MainContainer } from './MainContainer';
 import { AnimationContainer } from './AnimationContainer';
@@ -12,8 +11,6 @@ export class Player {
   public projectData: SS6Project;
 
   public onComplete: () => void;
-
-  public textureMap: { [key: string]: Texture; } = null;
 
   private animePackMap: { [key: string]: any; } = null;
 
@@ -57,7 +54,7 @@ export class Player {
   public constructor(canvasWrapperElement: any) {
     this.canvasWidth = canvasWrapperElement.clientWidth;
     this.canvasHeight = canvasWrapperElement.clientHeight;
-    const pixiApplication = new Application({ width: this.canvasWidth, height: this.canvasHeight, transparent: true });
+    const pixiApplication = new Application({ width: this.canvasWidth, height: this.canvasHeight, backgroundAlpha: 0 });
 
     const canvasElement = pixiApplication.view;
     canvasWrapperElement.appendChild(canvasElement);
@@ -92,11 +89,11 @@ export class Player {
   public loadSspkg(url: string) {
     const self = this;
     let sspkgLoader = new SspkgLoader();
-    sspkgLoader.load(url, (ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => {
+    sspkgLoader.load(url, (ssfbFileName, ssfbFileData, imageBinaryMap, error) => {
       if (error !== null) {
         return;
       }
-      let ss6Project = new SS6Project(ssfbFileData, imageBinaryMap, () => {
+      let ss6Project = new SS6Project(ssfbFileName, ssfbFileData, imageBinaryMap, () => {
         self.setupForLoadComplete(ss6Project);
       });
     });
@@ -104,11 +101,6 @@ export class Player {
 
   private setupForLoadComplete(ss6Project: SS6Project) {
     this.projectData = ss6Project;
-    this.textureMap = {};
-    for (let imageName in ss6Project.resources) {
-      const resource = ss6Project.resources[imageName];
-      this.textureMap[imageName] = resource.texture;
-    }
 
     this.animePackMap = SsfbDataUtil.createAnimePackMap(this.projectData);
     // console.log('setupForLoadComplete', this.animePackMap);

@@ -5,17 +5,17 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementTransSpeed {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSpeed {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTransSpeed {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-SpeedMinValue():number {
+speedMinValue():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-SpeedMaxValue():number {
+speedMaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 

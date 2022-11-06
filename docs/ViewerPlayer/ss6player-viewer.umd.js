@@ -1,13 +1,13 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.3.9
+ * SS6Player For Viewer v1.4.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */
 
-var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshExtras, ticker, filterColorMatrix, constants) {
+var ss6PlayerViewer = (function (exports, app, display, graphics, assets, meshExtras, ticker, filterColorMatrix, constants) {
   'use strict';
 
   const ZOOM_ARRAY = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
@@ -93,21 +93,25 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     }
   }
 
+  class FrameData {
+  }
   const SIZEOF_INT = 4;
   const FILE_IDENTIFIER_LENGTH = 4;
-  const int32$1 = new Int32Array(2);
-  const float32 = new Float32Array(int32$1.buffer);
-  const float64 = new Float64Array(int32$1.buffer);
+  const SIZE_PREFIX_LENGTH = 4;
+  const int32 = new Int32Array(2);
+  const float32 = new Float32Array(int32.buffer);
+  const float64 = new Float64Array(int32.buffer);
   const isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  var Encoding$1;
+  var Encoding;
   (function(Encoding2) {
     Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
     Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
-  })(Encoding$1 || (Encoding$1 = {}));
+  })(Encoding || (Encoding = {}));
   class ByteBuffer {
     constructor(bytes_) {
       this.bytes_ = bytes_;
       this.position_ = 0;
+      this.text_decoder_ = new TextDecoder();
     }
     static allocate(byte_size) {
       return new ByteBuffer(new Uint8Array(byte_size));
@@ -152,12 +156,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       return BigInt.asUintN(64, BigInt(this.readUint32(offset)) + (BigInt(this.readUint32(offset + 4)) << BigInt(32)));
     }
     readFloat32(offset) {
-      int32$1[0] = this.readInt32(offset);
+      int32[0] = this.readInt32(offset);
       return float32[0];
     }
     readFloat64(offset) {
-      int32$1[isLittleEndian ? 0 : 1] = this.readInt32(offset);
-      int32$1[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
+      int32[isLittleEndian ? 0 : 1] = this.readInt32(offset);
+      int32[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
       return float64[0];
     }
     writeInt8(offset, value) {
@@ -196,12 +200,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     }
     writeFloat32(offset, value) {
       float32[0] = value;
-      this.writeInt32(offset, int32$1[0]);
+      this.writeInt32(offset, int32[0]);
     }
     writeFloat64(offset, value) {
       float64[0] = value;
-      this.writeInt32(offset, int32$1[isLittleEndian ? 0 : 1]);
-      this.writeInt32(offset + 4, int32$1[isLittleEndian ? 1 : 0]);
+      this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
+      this.writeInt32(offset + 4, int32[isLittleEndian ? 1 : 0]);
     }
     getBufferIdentifier() {
       if (this.bytes_.length < this.position_ + SIZEOF_INT + FILE_IDENTIFIER_LENGTH) {
@@ -225,39 +229,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     __string(offset, opt_encoding) {
       offset += this.readInt32(offset);
       const length = this.readInt32(offset);
-      let result = "";
-      let i = 0;
       offset += SIZEOF_INT;
-      if (opt_encoding === Encoding$1.UTF8_BYTES) {
-        return this.bytes_.subarray(offset, offset + length);
-      }
-      while (i < length) {
-        let codePoint;
-        const a = this.readUint8(offset + i++);
-        if (a < 192) {
-          codePoint = a;
-        } else {
-          const b = this.readUint8(offset + i++);
-          if (a < 224) {
-            codePoint = (a & 31) << 6 | b & 63;
-          } else {
-            const c = this.readUint8(offset + i++);
-            if (a < 240) {
-              codePoint = (a & 15) << 12 | (b & 63) << 6 | c & 63;
-            } else {
-              const d = this.readUint8(offset + i++);
-              codePoint = (a & 7) << 18 | (b & 63) << 12 | (c & 63) << 6 | d & 63;
-            }
-          }
-        }
-        if (codePoint < 65536) {
-          result += String.fromCharCode(codePoint);
-        } else {
-          codePoint -= 65536;
-          result += String.fromCharCode((codePoint >> 10) + 55296, (codePoint & (1 << 10) - 1) + 56320);
-        }
-      }
-      return result;
+      const utf8bytes = this.bytes_.subarray(offset, offset + length);
+      if (opt_encoding === Encoding.UTF8_BYTES)
+        return utf8bytes;
+      else
+        return this.text_decoder_.decode(utf8bytes);
     }
     __union_with_string(o, offset) {
       if (typeof o === "string") {
@@ -288,8 +265,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     createScalarList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
-        if (listAccessor(i) !== null) {
-          ret.push(listAccessor(i));
+        const val = listAccessor(i);
+        if (val !== null) {
+          ret.push(val);
         }
       }
       return ret;
@@ -305,16 +283,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       return ret;
     }
   }
-  const SIZE_PREFIX_LENGTH = 4;
-  const int32 = new Int32Array(2);
-  new Float32Array(int32.buffer);
-  new Float64Array(int32.buffer);
-  new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  var Encoding;
-  (function(Encoding2) {
-    Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
-    Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
-  })(Encoding || (Encoding = {}));
   class AnimationInitialData {
     constructor() {
       this.bb = null;
@@ -1138,11 +1106,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const offset = this.bb.__offset(this.bb_pos, 12);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
-    meshsDataUV(index, obj) {
+    meshsDataUv(index, obj) {
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? (obj || new meshDataUV()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
     }
-    meshsDataUVLength() {
+    meshsDataUvLength() {
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
@@ -1248,17 +1216,17 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     static startLabelDataVector(builder, numElems) {
       builder.startVector(4, numElems, 4);
     }
-    static addMeshsDataUV(builder, meshsDataUVOffset) {
-      builder.addFieldOffset(5, meshsDataUVOffset, 0);
+    static addMeshsDataUv(builder, meshsDataUvOffset) {
+      builder.addFieldOffset(5, meshsDataUvOffset, 0);
     }
-    static createMeshsDataUVVector(builder, data) {
+    static createMeshsDataUvVector(builder, data) {
       builder.startVector(4, data.length, 4);
       for (let i = data.length - 1; i >= 0; i--) {
         builder.addOffset(data[i]);
       }
       return builder.endVector();
     }
-    static startMeshsDataUVVector(builder, numElems) {
+    static startMeshsDataUvVector(builder, numElems) {
       builder.startVector(4, numElems, 4);
     }
     static addMeshsDataIndices(builder, meshsDataIndicesOffset) {
@@ -1305,14 +1273,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const offset = builder.endObject();
       return offset;
     }
-    static createAnimationData(builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUVOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
+    static createAnimationData(builder, nameOffset, defaultDataOffset, frameDataOffset, userDataOffset, labelDataOffset, meshsDataUvOffset, meshsDataIndicesOffset, startFrames, endFrames, totalFrames, fps, labelNum, canvasSizeW, canvasSizeH, canvasPvotX, canvasPvotY) {
       AnimationData.startAnimationData(builder);
       AnimationData.addName(builder, nameOffset);
       AnimationData.addDefaultData(builder, defaultDataOffset);
       AnimationData.addFrameData(builder, frameDataOffset);
       AnimationData.addUserData(builder, userDataOffset);
       AnimationData.addLabelData(builder, labelDataOffset);
-      AnimationData.addMeshsDataUV(builder, meshsDataUVOffset);
+      AnimationData.addMeshsDataUv(builder, meshsDataUvOffset);
       AnimationData.addMeshsDataIndices(builder, meshsDataIndicesOffset);
       AnimationData.addStartFrames(builder, startFrames);
       AnimationData.addEndFrames(builder, endFrames);
@@ -1758,23 +1726,23 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const offset = this.bb.__offset(this.bb_pos, 14);
       return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
     }
-    BehaviorType(index) {
+    behaviorType(index) {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     }
-    BehaviorTypeLength() {
+    behaviorTypeLength() {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
-    BehaviorTypeArray() {
+    behaviorTypeArray() {
       const offset = this.bb.__offset(this.bb_pos, 16);
       return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     }
-    Behavior(index, obj) {
+    behavior(index, obj) {
       const offset = this.bb.__offset(this.bb_pos, 18);
       return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
     }
-    BehaviorLength() {
+    behaviorLength() {
       const offset = this.bb.__offset(this.bb_pos, 18);
       return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     }
@@ -1799,8 +1767,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     static addNumBehavior(builder, numBehavior) {
       builder.addFieldInt16(5, numBehavior, 0);
     }
-    static addBehaviorType(builder, BehaviorTypeOffset) {
-      builder.addFieldOffset(6, BehaviorTypeOffset, 0);
+    static addBehaviorType(builder, behaviorTypeOffset) {
+      builder.addFieldOffset(6, behaviorTypeOffset, 0);
     }
     static createBehaviorTypeVector(builder, data) {
       builder.startVector(1, data.length, 1);
@@ -1812,8 +1780,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     static startBehaviorTypeVector(builder, numElems) {
       builder.startVector(1, numElems, 1);
     }
-    static addBehavior(builder, BehaviorOffset) {
-      builder.addFieldOffset(7, BehaviorOffset, 0);
+    static addBehavior(builder, behaviorOffset) {
+      builder.addFieldOffset(7, behaviorOffset, 0);
     }
     static createBehaviorVector(builder, data) {
       builder.startVector(4, data.length, 4);
@@ -1829,7 +1797,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const offset = builder.endObject();
       return offset;
     }
-    static createEffectNode(builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, BehaviorTypeOffset, BehaviorOffset) {
+    static createEffectNode(builder, arrayIndex, parentIndex, type, cellIndex, blendType, numBehavior, behaviorTypeOffset, behaviorOffset) {
       EffectNode.startEffectNode(builder);
       EffectNode.addArrayIndex(builder, arrayIndex);
       EffectNode.addParentIndex(builder, parentIndex);
@@ -1837,8 +1805,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       EffectNode.addCellIndex(builder, cellIndex);
       EffectNode.addBlendType(builder, blendType);
       EffectNode.addNumBehavior(builder, numBehavior);
-      EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
-      EffectNode.addBehavior(builder, BehaviorOffset);
+      EffectNode.addBehaviorType(builder, behaviorTypeOffset);
+      EffectNode.addBehavior(builder, behaviorOffset);
       return EffectNode.endEffectNode(builder);
     }
   }
@@ -1949,45 +1917,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       return EffectFile.endEffectFile(builder);
     }
   }
-  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
-    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
-    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
-    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
-    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
-    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
-    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
-    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
-    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
-    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
-    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
-    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
-    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
-    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
-    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
-    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
-    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
-    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
-    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
-    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
-    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
-    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
-    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-    return PART_FLAG22;
-  })(PART_FLAG || {});
-  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
-    return PART_FLAG22;
-  })(PART_FLAG2 || {});
   class ProjectData {
     constructor() {
       this.bb = null;
@@ -2275,195 +2204,82 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       return userDataString.enduserDataString(builder);
     }
   }
-  class SS6Project {
-    constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
-      if (typeof arg1 === "string") {
-        let ssfbPath = arg1;
-        let onComplete = arg2;
-        let timeout = arg3 !== void 0 ? arg3 : 0;
-        let retry = arg4 !== void 0 ? arg4 : 0;
-        let onError = arg5 !== void 0 ? arg5 : null;
-        let onTimeout = arg6 !== void 0 ? arg6 : null;
-        let onRetry = arg7 !== void 0 ? arg7 : null;
-        this.ssfbPath = ssfbPath;
-        const index = ssfbPath.lastIndexOf("/");
-        this.rootPath = ssfbPath.substring(0, index) + "/";
-        this.status = "not ready";
-        this.onComplete = onComplete;
-        this.onError = onError;
-        this.onTimeout = onTimeout;
-        this.onRetry = onRetry;
-        this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
-      } else if (typeof arg1 === "object" && arg1.constructor === Uint8Array) {
-        let ssfbByte = arg1;
-        let imageBinaryMap = arg2;
-        this.onComplete = arg3 !== void 0 ? arg3 : null;
-        this.load(ssfbByte, imageBinaryMap);
-      }
-    }
-    LoadFlatBuffersProject(ssfbPath, timeout = 0, retry = 0) {
-      const self = this;
-      const httpObj = new XMLHttpRequest();
-      const method = "GET";
-      httpObj.open(method, ssfbPath, true);
-      httpObj.responseType = "arraybuffer";
-      httpObj.timeout = timeout;
-      httpObj.onload = function() {
-        if (!(httpObj.status >= 200 && httpObj.status < 400)) {
-          if (self.onError !== null) {
-            self.onError(ssfbPath, timeout, retry, httpObj);
-          }
-          return;
-        }
-        const arrayBuffer = this.response;
-        const bytes = new Uint8Array(arrayBuffer);
-        const buf = new ByteBuffer(bytes);
-        self.fbObj = ProjectData.getRootAsProjectData(buf);
-        self.LoadCellResources();
-      };
-      httpObj.ontimeout = function() {
-        if (retry > 0) {
-          if (self.onRetry !== null) {
-            self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
-          }
-          self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
-        } else {
-          if (self.onTimeout !== null) {
-            self.onTimeout(ssfbPath, timeout, retry, httpObj);
-          }
-        }
-      };
-      httpObj.onerror = function() {
-        if (self.onError !== null) {
-          self.onError(ssfbPath, timeout, retry, httpObj);
-        }
-      };
-      httpObj.send(null);
-    }
-    LoadCellResources() {
-      const self = this;
-      let loader = new loaders.Loader();
-      let ids = [];
-      for (let i = 0; i < self.fbObj.cellsLength(); i++) {
-        if (!ids.some(function(id) {
-          return id === self.fbObj.cells(i).cellMap().index();
-        })) {
-          ids.push(self.fbObj.cells(i).cellMap().index());
-          loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
-        }
-      }
-      loader.load(function(loader2, resources) {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
-        }
-      });
-    }
-    load(bytes, imageBinaryMap) {
-      const buffer = new ByteBuffer(bytes);
-      this.fbObj = ProjectData.getRootAsProjectData(buffer);
-      const loader = new loaders.Loader();
-      for (let imageName in imageBinaryMap) {
-        const binary = imageBinaryMap[imageName];
-        let b = "";
-        const len = binary.byteLength;
-        for (let i = 0; i < len; i++) {
-          b += String.fromCharCode(binary[i]);
-        }
-        const base64 = "data:image/png;base64," + window.btoa(b);
-        loader.add(imageName, base64);
-      }
-      const self = this;
-      loader.load((loader2, resources) => {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
-        }
-      });
+  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
+    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
+    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
+    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
+    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
+    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
+    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
+    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
+    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
+    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
+    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
+    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
+    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
+    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
+    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
+    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
+    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
+    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
+    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
+    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
+    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
+    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
+    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    return PART_FLAG22;
+  })(PART_FLAG || {});
+  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
+    return PART_FLAG22;
+  })(PART_FLAG2 || {});
+  class Utils$1 {
+    static getProjectData(bytes) {
+      const buf = new ByteBuffer(bytes);
+      return ProjectData.getRootAsProjectData(buf);
     }
   }
-  class SS6PlayerInstanceKeyParam {
-    constructor() {
-      this.refStartframe = 0;
-      this.refEndframe = 0;
-      this.refSpeed = 1;
-      this.refloopNum = 0;
-      this.infinity = false;
-      this.reverse = false;
-      this.pingpong = false;
-      this.independent = false;
+  class Utils {
+    static getProjectData(bytes) {
+      return Utils$1.getProjectData(bytes);
     }
   }
-  class SS6Player extends display.Container {
-    constructor(ss6project, animePackName = null, animeName = null) {
-      super();
-      this.animation = [];
+  class Player$1 {
+    constructor(ssfbData, animePackName = null, animeName = null) {
       this.curAnimePackName = null;
       this.curAnimeName = null;
       this.curAnimation = null;
       this.curAnimePackData = null;
-      this.parts = -1;
-      this.parentIndex = [];
-      this.prio2index = [];
+      this._animePackIdx = -1;
+      this._parentIndex = [];
+      this._prio2index = [];
       this.userData = [];
-      this.frameDataCache = {};
+      this.frameDataCache = null;
       this.currentCachedFrameNumber = -1;
-      this.liveFrame = [];
-      this.colorMatrixFilterCache = [];
       this.defaultFrameMap = [];
-      this.parentAlpha = 1;
-      this.prevCellID = [];
-      this.prevMesh = [];
-      this.substituteOverWrite = [];
-      this.substituteKeyParam = [];
-      this.alphaBlendType = [];
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
-      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
-      this._instancePos = new Float32Array(5);
-      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
-      this.ss6project = ss6project;
-      this.fbObj = this.ss6project.fbObj;
-      this.resources = this.ss6project.resources;
-      this.parentAlpha = 1;
+      if (ssfbData.hasOwnProperty("bb")) {
+        this._fbObj = ssfbData;
+      } else {
+        this._fbObj = Utils.getProjectData(ssfbData);
+      }
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
       }
-      this.on("added", (...args) => {
-        ticker.Ticker.shared.add(this.Update, this);
-      }, this);
-      this.on("removed", (...args) => {
-        ticker.Ticker.shared.remove(this.Update, this);
-      }, this);
     }
-    get startFrame() {
-      return this._startFrame;
-    }
-    get endFrame() {
-      return this.curAnimation.endFrames();
-    }
-    get totalFrame() {
-      return this.curAnimation.totalFrames();
-    }
-    get fps() {
-      return this.curAnimation.fps();
-    }
-    get frameNo() {
-      return Math.floor(this._currentFrame);
-    }
-    set loop(loop) {
-      this._loops = loop;
-    }
-    get loop() {
-      return this._loops;
-    }
-    get isPlaying() {
-      return this._isPlaying;
-    }
-    get isPausing() {
-      return this._isPausing;
+    get fbObj() {
+      return this._fbObj;
     }
     get animePackName() {
       return this.curAnimePackName;
@@ -2471,241 +2287,72 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     get animeName() {
       return this.curAnimeName;
     }
+    get animePackIdx() {
+      return this._animePackIdx;
+    }
+    get animePackData() {
+      return this.curAnimePackData;
+    }
+    get animationData() {
+      return this.curAnimation;
+    }
+    get parentIndex() {
+      return this._parentIndex;
+    }
+    get prio2index() {
+      return this._prio2index;
+    }
     Setup(animePackName, animeName) {
       this.clearCaches();
-      const animePacksLength = this.fbObj.animePacksLength();
+      const animePacksLength = this._fbObj.animePacksLength();
+      let found = false;
       for (let i = 0; i < animePacksLength; i++) {
-        if (this.fbObj.animePacks(i).name() === animePackName) {
+        if (this._fbObj.animePacks(i).name() === animePackName) {
           let j;
-          const animationsLength = this.fbObj.animePacks(i).animationsLength();
+          const animationsLength = this._fbObj.animePacks(i).animationsLength();
           for (j = 0; j < animationsLength; j++) {
-            if (this.fbObj.animePacks(i).animations(j).name() === animeName) {
-              this.animation = [i, j];
+            if (this._fbObj.animePacks(i).animations(j).name() === animeName) {
               this.curAnimePackName = animePackName;
               this.curAnimeName = animeName;
-              this.curAnimePackData = this.fbObj.animePacks(this.animation[0]);
-              this.curAnimation = this.curAnimePackData.animations(this.animation[1]);
+              this.curAnimePackData = this._fbObj.animePacks(i);
+              this.curAnimation = this.curAnimePackData.animations(j);
+              found = true;
               break;
             }
           }
+          if (!found) {
+            continue;
+          }
           const defaultDataLength = this.curAnimation.defaultDataLength();
-          for (let i2 = 0; i2 < defaultDataLength; i2++) {
-            const curDefaultData = this.curAnimation.defaultData(i2);
+          for (let j2 = 0; j2 < defaultDataLength; j2++) {
+            const curDefaultData = this.curAnimation.defaultData(j2);
             this.defaultFrameMap[curDefaultData.index()] = curDefaultData;
           }
-          this.parts = i;
-          const partsLength = this.fbObj.animePacks(this.parts).partsLength();
-          this.parentIndex = new Array(partsLength);
-          this.prevCellID = new Array(partsLength);
-          this.prevMesh = new Array(partsLength);
-          this.substituteOverWrite = new Array(partsLength);
-          this.substituteKeyParam = new Array(partsLength);
+          this._animePackIdx = i;
+          const partsLength = this.curAnimePackData.partsLength();
+          this._parentIndex = new Array(partsLength);
           for (j = 0; j < partsLength; j++) {
-            const index = this.fbObj.animePacks(this.parts).parts(j).index();
-            this.parentIndex[index] = this.fbObj.animePacks(i).parts(j).parentIndex();
-            this.prevCellID[index] = -1;
-            this.prevMesh[index] = null;
-            this.substituteOverWrite[index] = null;
-            this.substituteKeyParam[index] = null;
+            const index = this.curAnimePackData.parts(j).index();
+            this._parentIndex[index] = this._fbObj.animePacks(i).parts(j).parentIndex();
           }
         }
       }
-      this.alphaBlendType = this.GetPartsBlendMode();
-      this._isPlaying = false;
-      this._isPausing = true;
-      this._startFrame = this.curAnimation.startFrames();
-      this._endFrame = this.curAnimation.endFrames();
-      this._currentFrame = this.curAnimation.startFrames();
-      this.nextFrameTime = 0;
-      this._loops = -1;
-      this.skipEnabled = true;
-      this.updateInterval = 1e3 / this.curAnimation.fps();
-      this.playDirection = 1;
-      this.onUserDataCallback = null;
-      this.playEndCallback = null;
-      this.parentAlpha = 1;
+      if (!found) {
+        throw Error("not found animePackName: " + animePackName + " animeName: " + animeName);
+      }
     }
     clearCaches() {
-      this.prio2index = [];
+      this._prio2index = [];
       this.userData = [];
-      this.frameDataCache = [];
+      this.frameDataCache = null;
       this.currentCachedFrameNumber = -1;
-      this.liveFrame = [];
-      this.colorMatrixFilterCache = [];
       this.defaultFrameMap = [];
     }
-    Update(delta) {
-      this.UpdateInternal(delta);
-    }
-    UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
-      const elapsedTime = ticker.Ticker.shared.elapsedMS;
-      const toNextFrame = this._isPlaying && !this._isPausing;
-      if (toNextFrame && this.updateInterval !== 0) {
-        this.nextFrameTime += elapsedTime;
-        if (this.nextFrameTime >= this.updateInterval) {
-          let playEndFlag = false;
-          const step = this.nextFrameTime / this.updateInterval;
-          this.nextFrameTime -= this.updateInterval * step;
-          let s = this.skipEnabled ? step * this.playDirection : this.playDirection;
-          let next = this._currentFrame + s;
-          let nextFrameNo = Math.floor(next);
-          let nextFrameDecimal = next - nextFrameNo;
-          let currentFrameNo = Math.floor(this._currentFrame);
-          if (this.playDirection >= 1) {
-            for (let c = nextFrameNo - currentFrameNo; c; c--) {
-              let incFrameNo = currentFrameNo + 1;
-              if (incFrameNo > this._endFrame) {
-                if (this._loops === -1) {
-                  incFrameNo = this._startFrame;
-                } else {
-                  this._loops--;
-                  playEndFlag = true;
-                  if (this._loops === 0) {
-                    this._isPlaying = false;
-                    incFrameNo = rewindAfterReachingEndFrame ? this._startFrame : this._endFrame;
-                    break;
-                  } else {
-                    incFrameNo = this._startFrame;
-                  }
-                }
-              }
-              currentFrameNo = incFrameNo;
-              if (this._isPlaying) {
-                if (this.HaveUserData(currentFrameNo)) {
-                  if (this.onUserDataCallback !== null) {
-                    this.onUserDataCallback(this.GetUserData(currentFrameNo));
-                  }
-                }
-              }
-            }
-          }
-          if (this.playDirection <= -1) {
-            for (let c = currentFrameNo - nextFrameNo; c; c--) {
-              let decFrameNo = currentFrameNo - 1;
-              if (decFrameNo < this._startFrame) {
-                if (this._loops === -1) {
-                  decFrameNo = this._endFrame;
-                } else {
-                  this._loops--;
-                  playEndFlag = true;
-                  if (this._loops === 0) {
-                    this._isPlaying = false;
-                    decFrameNo = rewindAfterReachingEndFrame ? this._endFrame : this._startFrame;
-                    break;
-                  } else {
-                    decFrameNo = this._endFrame;
-                  }
-                }
-              }
-              currentFrameNo = decFrameNo;
-              if (this._isPlaying) {
-                if (this.HaveUserData(currentFrameNo)) {
-                  if (this.onUserDataCallback !== null) {
-                    this.onUserDataCallback(this.GetUserData(currentFrameNo));
-                  }
-                }
-              }
-            }
-          }
-          this._currentFrame = currentFrameNo + nextFrameDecimal;
-          if (playEndFlag) {
-            if (this.playEndCallback !== null) {
-              this.playEndCallback(this);
-            }
-          }
-          this.SetFrameAnimation(Math.floor(this._currentFrame), step);
-        }
-      } else {
-        this.SetFrameAnimation(Math.floor(this._currentFrame));
-      }
-    }
-    SetAnimationFramerate(fps, _skipEnabled = true) {
-      if (fps <= 0)
-        return;
-      this.updateInterval = 1e3 / fps;
-      this.skipEnabled = _skipEnabled;
-    }
-    SetAnimationSpeed(fpsRate, _skipEnabled = true) {
-      if (fpsRate === 0)
-        return;
-      this.playDirection = fpsRate > 0 ? 1 : -1;
-      this.updateInterval = 1e3 / (this.curAnimation.fps() * fpsRate * this.playDirection);
-      this.skipEnabled = _skipEnabled;
-    }
-    SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
-      if (_startframe >= 0 && _startframe < this.curAnimation.totalFrames()) {
-        this._startFrame = _startframe;
-      }
-      if (_endframe >= 0 && _endframe < this.curAnimation.totalFrames()) {
-        this._endFrame = _endframe;
-      }
-      if (_loops > 0) {
-        this._loops = _loops;
-      } else {
-        this._loops = -1;
-      }
-      this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
-    }
-    Play(frameNo) {
-      this._isPlaying = true;
-      this._isPausing = false;
-      let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
-      if (frameNo && typeof frameNo === "number") {
-        currentFrame = frameNo;
-      }
-      this._currentFrame = currentFrame;
-      this.resetLiveFrame();
-      const currentFrameNo = Math.floor(this._currentFrame);
-      this.SetFrameAnimation(currentFrameNo);
-      if (this.HaveUserData(currentFrameNo)) {
-        if (this.onUserDataCallback !== null) {
-          this.onUserDataCallback(this.GetUserData(currentFrameNo));
-        }
-      }
-    }
-    Pause() {
-      this._isPausing = true;
-    }
-    Resume() {
-      this._isPausing = false;
-    }
-    Stop() {
-      this._isPlaying = false;
-    }
-    SetFrame(frame) {
-      this._currentFrame = frame;
-    }
-    NextFrame() {
-      const currentFrame = Math.floor(this._currentFrame);
-      const endFrame = this.endFrame;
-      if (currentFrame === endFrame) {
-        return;
-      }
-      this.SetFrame(currentFrame + 1);
-    }
-    PrevFrame() {
-      const currentFrame = Math.floor(this._currentFrame);
-      if (currentFrame === 0) {
-        return;
-      }
-      this.SetFrame(currentFrame - 1);
-    }
-    SetAlpha(alpha) {
-      this.parentAlpha = alpha;
-    }
-    ThrowError(_error) {
-    }
-    SetUserDataCalback(fn) {
-      this.onUserDataCallback = fn;
-    }
-    SetPlayEndCallback(fn) {
-      this.playEndCallback = fn;
-    }
     HaveUserData(frameNumber) {
-      if (this.userData[frameNumber] === -1) {
+      if (this.userData[frameNumber] === null) {
         return false;
       }
-      if (this.userData[frameNumber]) {
+      if (this.userData[frameNumber] !== void 0) {
         return true;
       }
       for (let k = 0; k < this.curAnimation.userDataLength(); k++) {
@@ -2714,7 +2361,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           return true;
         }
       }
-      this.userData[frameNumber] = -1;
+      this.userData[frameNumber] = null;
       return false;
     }
     GetUserData(frameNumber) {
@@ -2762,46 +2409,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       }
       return data;
     }
-    GetPartsBlendMode() {
-      const l = this.fbObj.animePacks(this.parts).partsLength();
-      let ret = [];
-      const animePacks = this.fbObj.animePacks(this.parts);
-      for (let i = 0; i < l; i++) {
-        const alphaBlendType = animePacks.parts(i).alphaBlendType();
-        let blendMode;
-        switch (alphaBlendType) {
-          case 0:
-            blendMode = constants.BLEND_MODES.NORMAL;
-            break;
-          case 1:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
-            break;
-          case 2:
-            blendMode = constants.BLEND_MODES.ADD;
-            break;
-          case 3:
-            blendMode = constants.BLEND_MODES.NORMAL;
-            break;
-          case 4:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
-            break;
-          case 5:
-            blendMode = constants.BLEND_MODES.SCREEN;
-            break;
-          case 6:
-            blendMode = constants.BLEND_MODES.EXCLUSION;
-            break;
-          case 7:
-            blendMode = constants.BLEND_MODES.NORMAL;
-            break;
-          default:
-            blendMode = constants.BLEND_MODES.NORMAL;
-            break;
-        }
-        ret.push(blendMode);
-      }
-      return ret;
-    }
     I2F(i) {
       this._uint32[0] = i;
       return this._float32[0];
@@ -2812,14 +2419,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       }
       const layers = this.curAnimation.defaultDataLength();
       let frameData = new Array(layers);
-      this.prio2index = new Array(layers);
+      this._prio2index = new Array(layers);
       const curFrameData = this.curAnimation.frameData(frameNumber);
       for (let i = 0; i < layers; i++) {
         const curPartState = curFrameData.states(i);
         const index = curPartState.index();
         let f1 = curPartState.flag1();
         let f2 = curPartState.flag2();
-        let blendType = -1;
         let fd = this.GetDefaultDataByIndex(index);
         fd.flag1 = f1;
         fd.flag2 = f2;
@@ -2916,48 +2522,23 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         }
         if (f1 & PART_FLAG.PARTS_COLOR) {
           const f = curPartState.data(id++);
-          blendType = f & 255;
-          fd.useColorMatrix = blendType !== 1;
+          fd.colorBlendType = f & 255;
+          fd.useColorMatrix = fd.colorBlendType !== 1;
           if (f & 4096) {
-            const rate = this.I2F(curPartState.data(id++));
+            fd.colorRate = this.I2F(curPartState.data(id++));
             const bf = curPartState.data(id++);
             const bf2 = curPartState.data(id++);
-            const argb32 = bf << 16 | bf2;
-            fd.partsColorARGB = argb32 >>> 0;
-            if (blendType === 1) {
-              fd.tint = argb32 & 16777215;
-            } else {
-              fd.colorMatrix = this.GetColorMatrixFilter(blendType, rate, argb32);
+            fd.colorArgb32 = bf << 16 | bf2;
+            fd.partsColorARGB = fd.colorArgb32 >>> 0;
+            if (fd.colorBlendType === 1) {
+              fd.tint = fd.colorArgb32 & 16777215;
             }
-          }
-          if (f & 2048) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 1024) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 512) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
-          }
-          if (f & 256) {
-            id++;
-            id++;
-            id++;
-            fd.colorMatrix = this.defaultColorFilter;
           }
         }
         if (f2 & PART_FLAG2.MESHDATA) {
-          fd.meshIsBind = this.curAnimation.meshsDataUV(index).uv(0);
-          fd.meshNum = this.curAnimation.meshsDataUV(index).uv(1);
+          const meshUv = this.curAnimation.meshsDataUv(index);
+          fd.meshIsBind = meshUv.uv(0);
+          fd.meshNum = meshUv.uv(1);
           let mp = new Float32Array(fd.meshNum * 3);
           for (let idx = 0; idx < fd.meshNum; idx++) {
             const mx = this.I2F(curPartState.data(id++));
@@ -2970,14 +2551,646 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           fd.meshDataPoint = mp;
         }
         frameData[index] = fd;
-        this.prio2index[i] = index;
-        if (this.fbObj.animePacks(this.parts).parts(index).type() === 0) {
+        this._prio2index[i] = index;
+        if (this.curAnimePackData.parts(index).type() === 0) {
           frameData[index].cellIndex = -2;
         }
       }
       this.frameDataCache = frameData;
       this.currentCachedFrameNumber = frameNumber;
       return frameData;
+    }
+    GetDefaultDataByIndex(id) {
+      const curDefaultData = this.defaultFrameMap[id];
+      let dfd = new FrameData();
+      dfd.index = curDefaultData.index();
+      dfd.lowflag = curDefaultData.lowflag();
+      dfd.highflag = curDefaultData.highflag();
+      dfd.priority = curDefaultData.priority();
+      dfd.cellIndex = curDefaultData.cellIndex();
+      dfd.opacity = curDefaultData.opacity();
+      dfd.localopacity = curDefaultData.localopacity();
+      dfd.masklimen = curDefaultData.masklimen();
+      dfd.positionX = curDefaultData.positionX();
+      dfd.positionY = curDefaultData.positionY();
+      dfd.pivotX = curDefaultData.pivotX();
+      dfd.pivotY = curDefaultData.pivotY();
+      dfd.rotationX = curDefaultData.rotationX();
+      dfd.rotationY = curDefaultData.rotationY();
+      dfd.rotationZ = curDefaultData.rotationZ();
+      dfd.scaleX = curDefaultData.scaleX();
+      dfd.scaleY = curDefaultData.scaleY();
+      dfd.localscaleX = curDefaultData.localscaleX();
+      dfd.localscaleY = curDefaultData.localscaleY();
+      dfd.size_X = curDefaultData.sizeX();
+      dfd.size_Y = curDefaultData.sizeY();
+      dfd.uv_move_X = curDefaultData.uvMoveX();
+      dfd.uv_move_Y = curDefaultData.uvMoveY();
+      dfd.uv_rotation = curDefaultData.uvRotation();
+      dfd.uv_scale_X = curDefaultData.uvScaleX();
+      dfd.uv_scale_Y = curDefaultData.uvScaleY();
+      dfd.boundingRadius = curDefaultData.boundingRadius();
+      dfd.instanceValue_curKeyframe = curDefaultData.instanceValueCurKeyframe();
+      dfd.instanceValue_endFrame = curDefaultData.instanceValueEndFrame();
+      dfd.instanceValue_startFrame = curDefaultData.instanceValueStartFrame();
+      dfd.instanceValue_loopNum = curDefaultData.instanceValueLoopNum();
+      dfd.instanceValue_speed = curDefaultData.instanceValueSpeed();
+      dfd.instanceValue_loopflag = curDefaultData.instanceValueLoopflag();
+      dfd.effectValue_curKeyframe = curDefaultData.effectValueCurKeyframe();
+      dfd.effectValue_startTime = curDefaultData.effectValueStartTime();
+      dfd.effectValue_speed = curDefaultData.effectValueSpeed();
+      dfd.effectValue_loopflag = curDefaultData.effectValueLoopflag();
+      dfd.f_hide = false;
+      dfd.f_flipH = false;
+      dfd.f_flipV = false;
+      dfd.f_mesh = false;
+      dfd.i_transformVerts = 0;
+      dfd.u00 = 0;
+      dfd.v00 = 0;
+      dfd.u01 = 0;
+      dfd.v01 = 0;
+      dfd.u10 = 0;
+      dfd.v10 = 0;
+      dfd.u11 = 0;
+      dfd.v11 = 0;
+      dfd.useColorMatrix = false;
+      dfd.colorBlendType = 0;
+      dfd.colorRate = 0;
+      dfd.colorArgb32 = 0;
+      dfd.meshIsBind = 0;
+      dfd.meshNum = 0;
+      dfd.meshDataPoint = null;
+      dfd.flag1 = 0;
+      dfd.flag2 = 0;
+      dfd.partsColorARGB = 0;
+      return dfd;
+    }
+    InheritOpacity(opacity, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      opacity = data.opacity / 255;
+      if (this._parentIndex[partId] >= 0) {
+        opacity = this.InheritOpacity(opacity, this._parentIndex[partId], frameNumber);
+      }
+      return opacity;
+    }
+    TransformVertsLocal(verts, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        if (data.i_transformVerts & 1 && i === 1) {
+          x += data.u00;
+          y -= data.v00;
+        }
+        if (data.i_transformVerts & 2 && i === 2) {
+          x += data.u01;
+          y -= data.v01;
+        }
+        if (data.i_transformVerts & 4 && i === 3) {
+          x += data.u10;
+          y -= data.v10;
+        }
+        if (data.i_transformVerts & 8 && i === 4) {
+          x += data.u11;
+          y -= data.v11;
+        }
+        x *= data.scaleX * data.localscaleX;
+        y *= data.scaleY * data.localscaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+        if (data.f_flipH) {
+          verts[i * 2] = verts[0] * 2 - verts[i * 2];
+        }
+        if (data.f_flipV) {
+          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
+        }
+      }
+      if (this._parentIndex[partId] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[partId], frameNumber);
+      }
+      return verts;
+    }
+    TransformMeshVertsLocal(verts, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        x *= data.scaleX * data.localscaleX;
+        y *= data.scaleY * data.localscaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+      }
+      if (this._parentIndex[partId] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[partId], frameNumber);
+      }
+      return verts;
+    }
+    TransformPositionLocal(pos, partId, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[partId];
+      pos[4] += -data.rotationZ;
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      const x = pos[0] * data.scaleX * data.localscaleX;
+      const y = pos[1] * data.scaleY * data.localscaleY;
+      pos[2] *= data.scaleX * data.localscaleX;
+      pos[3] *= data.scaleY * data.localscaleY;
+      pos[0] = cos * x - sin * y + data.positionX;
+      pos[1] = sin * x + cos * y - data.positionY;
+      if (this._parentIndex[partId] >= 0) {
+        pos = this.TransformPosition(pos, this._parentIndex[partId], frameNumber);
+      }
+      return pos;
+    }
+    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
+      const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
+      const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
+      const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
+      if (c3 <= 0 && c3 >= 0)
+        return vec2;
+      const ca = c1 / c3;
+      const cb = c2 / c3;
+      if (0 <= ca && 1 >= ca && (0 <= cb && 1 >= cb)) {
+        cx = LUx + ca * (RDx - LUx);
+        cy = LUy + ca * (RDy - LUy);
+      }
+      vec2[0] = cx;
+      vec2[1] = cy;
+      return vec2;
+    }
+    TransformVerts(verts, id, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[id];
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      for (let i = 0; i < verts.length / 2; i++) {
+        let x = verts[i * 2];
+        let y = verts[i * 2 + 1];
+        x *= data.scaleX;
+        y *= data.scaleY;
+        verts[i * 2] = cos * x - sin * y + data.positionX;
+        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
+        if (data.f_flipH) {
+          verts[i * 2] = verts[0] * 2 - verts[i * 2];
+        }
+        if (data.f_flipV) {
+          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
+        }
+      }
+      if (this._parentIndex[id] >= 0) {
+        verts = this.TransformVerts(verts, this._parentIndex[id], frameNumber);
+      }
+      return verts;
+    }
+    TransformPosition(pos, id, frameNumber) {
+      const data = this.GetFrameData(frameNumber)[id];
+      pos[4] += -data.rotationZ;
+      const rz = -data.rotationZ * Math.PI / 180;
+      const cos = Math.cos(rz);
+      const sin = Math.sin(rz);
+      const x = pos[0] * data.scaleX;
+      const y = pos[1] * data.scaleY;
+      pos[2] *= data.scaleX;
+      pos[3] *= data.scaleY;
+      pos[0] = cos * x - sin * y + data.positionX;
+      pos[1] = sin * x + cos * y - data.positionY;
+      if (this._parentIndex[id] >= 0) {
+        pos = this.TransformPosition(pos, this._parentIndex[id], frameNumber);
+      }
+      return pos;
+    }
+    static GetVerts(cell, data, verts) {
+      const w = data.size_X / 2;
+      const h = data.size_Y / 2;
+      const px = data.size_X * -(data.pivotX + cell.pivotX());
+      const py = data.size_Y * (data.pivotY + cell.pivotY());
+      verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
+      return verts;
+    }
+    static GetMeshVerts(cell, data, verts) {
+      for (let idx = 0; idx < data.meshNum; idx++) {
+        verts[idx * 2] = data.meshDataPoint[idx * 3];
+        verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
+      }
+      return verts;
+    }
+    static GetDummyVerts() {
+      return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
+    }
+  }
+  class SS6Project {
+    getBundle() {
+      return this.ssfbFile;
+    }
+    constructor(arg1, arg2, arg3, arg4) {
+      if (typeof arg1 === "string" && arg3 === void 0) {
+        let ssfbPath = arg1;
+        this.ssfbPath = ssfbPath;
+        const index = ssfbPath.lastIndexOf("/");
+        this.rootPath = ssfbPath.substring(0, index) + "/";
+        this.ssfbFile = ssfbPath.substring(index + 1);
+        this.onComplete = arg2 === void 0 ? null : arg2;
+        this.status = 0;
+        this.LoadFlatBuffersProject();
+      } else if (typeof arg2 === "object" && arg2.constructor === Uint8Array) {
+        this.ssfbPath = null;
+        this.rootPath = null;
+        this.ssfbFile = arg1;
+        let ssfbByte = arg2;
+        let imageBinaryMap = arg3;
+        this.onComplete = arg4 === void 0 ? null : arg4;
+        this.load(ssfbByte, imageBinaryMap);
+      }
+    }
+    LoadFlatBuffersProject() {
+      const self = this;
+      fetch(this.ssfbPath, { method: "get" }).then((response) => {
+        if (response.ok) {
+          return Promise.resolve(response.arrayBuffer());
+        } else {
+          return Promise.reject(new Error(response.statusText));
+        }
+      }).then((a) => {
+        self.fbObj = Utils.getProjectData(new Uint8Array(a));
+        self.LoadCellResources();
+      }).catch((error) => {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
+        }
+      });
+    }
+    LoadCellResources() {
+      let ids = [];
+      let sspjMap = {};
+      for (let i = 0; i < this.fbObj.cellsLength(); i++) {
+        const cellMap = this.fbObj.cells(i).cellMap();
+        const cellMapIndex = cellMap.index();
+        if (!ids.some(function(id) {
+          return id === cellMapIndex;
+        })) {
+          ids.push(cellMapIndex);
+          const name = cellMap.name();
+          sspjMap[name] = this.rootPath + cellMap.imagePath();
+        }
+      }
+      assets.Assets.addBundle(this.getBundle(), sspjMap);
+      const self = this;
+      assets.Assets.loadBundle(this.getBundle()).then(() => {
+        self.status = 1;
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      }).catch((e) => {
+        if (this.onComplete !== null) {
+          this.onComplete(null, e);
+        }
+      });
+    }
+    load(bytes, imageBinaryMap) {
+      this.fbObj = Utils.getProjectData(bytes);
+      let assetMap = {};
+      for (let imageName in imageBinaryMap) {
+        const binary = imageBinaryMap[imageName];
+        let b = "";
+        const len = binary.byteLength;
+        for (let i = 0; i < len; i++) {
+          b += String.fromCharCode(binary[i]);
+        }
+        assetMap[imageName] = "data:image/png;base64," + btoa(b);
+      }
+      assets.Assets.addBundle(this.getBundle(), assetMap);
+      const self = this;
+      assets.Assets.loadBundle(this.getBundle()).then(() => {
+        self.status = 1;
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      }).catch((e) => {
+        if (this.onComplete !== null) {
+          this.onComplete(null, e);
+        }
+      });
+    }
+  }
+  class SS6PlayerInstanceKeyParam {
+    constructor() {
+      this.refStartframe = 0;
+      this.refEndframe = 0;
+      this.refSpeed = 1;
+      this.refloopNum = 0;
+      this.infinity = false;
+      this.reverse = false;
+      this.pingpong = false;
+      this.independent = false;
+    }
+  }
+  class SS6Player extends display.Container {
+    constructor(ss6project, animePackName = null, animeName = null) {
+      super();
+      this.liveFrame = [];
+      this.colorMatrixFilterCache = [];
+      this.parentAlpha = 1;
+      this.prevCellID = [];
+      this.prevMesh = [];
+      this.substituteOverWrite = [];
+      this.substituteKeyParam = [];
+      this.alphaBlendType = [];
+      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this._instancePos = new Float32Array(5);
+      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
+      this.ss6project = ss6project;
+      this.playerLib = new Player$1(ss6project.fbObj, animePackName, animeName);
+      this.parentAlpha = 1;
+      if (animePackName !== null && animeName !== null) {
+        this.Setup(animePackName, animeName);
+      }
+      this.on("added", (...args) => {
+        ticker.Ticker.shared.add(this.Update, this);
+      }, this);
+      this.on("removed", (...args) => {
+        ticker.Ticker.shared.remove(this.Update, this);
+      }, this);
+    }
+    get startFrame() {
+      return this._startFrame;
+    }
+    get endFrame() {
+      return this._endFrame;
+    }
+    get totalFrame() {
+      return this.playerLib.animationData.totalFrames();
+    }
+    get fps() {
+      return this.playerLib.animationData.fps();
+    }
+    get frameNo() {
+      return Math.floor(this._currentFrame);
+    }
+    set loop(loop) {
+      this._loops = loop;
+    }
+    get loop() {
+      return this._loops;
+    }
+    get isPlaying() {
+      return this._isPlaying;
+    }
+    get isPausing() {
+      return this._isPausing;
+    }
+    get animePackName() {
+      return this.playerLib.animePackName;
+    }
+    get animeName() {
+      return this.playerLib.animeName;
+    }
+    Setup(animePackName, animeName) {
+      this.playerLib.Setup(animePackName, animeName);
+      this.clearCaches();
+      const animePackData = this.playerLib.animePackData;
+      const partsLength = animePackData.partsLength();
+      this.prevCellID = new Array(partsLength);
+      this.prevMesh = new Array(partsLength);
+      this.substituteOverWrite = new Array(partsLength);
+      this.substituteKeyParam = new Array(partsLength);
+      for (let j = 0; j < partsLength; j++) {
+        const index = animePackData.parts(j).index();
+        this.prevCellID[index] = -1;
+        this.prevMesh[index] = null;
+        this.substituteOverWrite[index] = null;
+        this.substituteKeyParam[index] = null;
+      }
+      this.alphaBlendType = this.GetPartsBlendMode();
+      this._isPlaying = false;
+      this._isPausing = true;
+      this._startFrame = this.playerLib.animationData.startFrames();
+      this._endFrame = this.playerLib.animationData.endFrames();
+      this._currentFrame = this.playerLib.animationData.startFrames();
+      this.nextFrameTime = 0;
+      this._loops = -1;
+      this.skipEnabled = true;
+      this.updateInterval = 1e3 / this.playerLib.animationData.fps();
+      this.playDirection = 1;
+      this.onUserDataCallback = null;
+      this.playEndCallback = null;
+      this.parentAlpha = 1;
+    }
+    clearCaches() {
+      this.liveFrame = [];
+      this.colorMatrixFilterCache = [];
+    }
+    Update(delta) {
+      this.UpdateInternal(delta);
+    }
+    UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
+      const elapsedTime = ticker.Ticker.shared.elapsedMS;
+      const toNextFrame = this._isPlaying && !this._isPausing;
+      if (toNextFrame && this.updateInterval !== 0) {
+        this.nextFrameTime += elapsedTime;
+        if (this.nextFrameTime >= this.updateInterval) {
+          let playEndFlag = false;
+          const step = this.nextFrameTime / this.updateInterval;
+          this.nextFrameTime -= this.updateInterval * step;
+          let s = this.skipEnabled ? step * this.playDirection : this.playDirection;
+          let next = this._currentFrame + s;
+          let nextFrameNo = Math.floor(next);
+          let nextFrameDecimal = next - nextFrameNo;
+          let currentFrameNo = Math.floor(this._currentFrame);
+          if (this.playDirection >= 1) {
+            for (let c = nextFrameNo - currentFrameNo; c; c--) {
+              let incFrameNo = currentFrameNo + 1;
+              if (incFrameNo > this._endFrame) {
+                if (this._loops === -1) {
+                  incFrameNo = this._startFrame;
+                } else {
+                  this._loops--;
+                  playEndFlag = true;
+                  if (this._loops === 0) {
+                    this._isPlaying = false;
+                    incFrameNo = rewindAfterReachingEndFrame ? this._startFrame : this._endFrame;
+                    break;
+                  } else {
+                    incFrameNo = this._startFrame;
+                  }
+                }
+              }
+              currentFrameNo = incFrameNo;
+              if (this._isPlaying) {
+                if (this.playerLib.HaveUserData(currentFrameNo)) {
+                  if (this.onUserDataCallback !== null) {
+                    this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+                  }
+                }
+              }
+            }
+          }
+          if (this.playDirection <= -1) {
+            for (let c = currentFrameNo - nextFrameNo; c; c--) {
+              let decFrameNo = currentFrameNo - 1;
+              if (decFrameNo < this._startFrame) {
+                if (this._loops === -1) {
+                  decFrameNo = this._endFrame;
+                } else {
+                  this._loops--;
+                  playEndFlag = true;
+                  if (this._loops === 0) {
+                    this._isPlaying = false;
+                    decFrameNo = rewindAfterReachingEndFrame ? this._endFrame : this._startFrame;
+                    break;
+                  } else {
+                    decFrameNo = this._endFrame;
+                  }
+                }
+              }
+              currentFrameNo = decFrameNo;
+              if (this._isPlaying) {
+                if (this.playerLib.HaveUserData(currentFrameNo)) {
+                  if (this.onUserDataCallback !== null) {
+                    this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+                  }
+                }
+              }
+            }
+          }
+          this._currentFrame = currentFrameNo + nextFrameDecimal;
+          if (playEndFlag) {
+            if (this.playEndCallback !== null) {
+              this.playEndCallback(this);
+            }
+          }
+          this.SetFrameAnimation(Math.floor(this._currentFrame), step);
+        }
+      } else {
+        this.SetFrameAnimation(Math.floor(this._currentFrame));
+      }
+    }
+    SetAnimationFramerate(fps, _skipEnabled = true) {
+      if (fps <= 0)
+        return;
+      this.updateInterval = 1e3 / fps;
+      this.skipEnabled = _skipEnabled;
+    }
+    SetAnimationSpeed(fpsRate, _skipEnabled = true) {
+      if (fpsRate === 0)
+        return;
+      this.playDirection = fpsRate > 0 ? 1 : -1;
+      this.updateInterval = 1e3 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
+      this.skipEnabled = _skipEnabled;
+    }
+    SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
+      if (_startframe >= 0 && _startframe < this.playerLib.animationData.totalFrames()) {
+        this._startFrame = _startframe;
+      }
+      if (_endframe >= 0 && _endframe < this.playerLib.animationData.totalFrames()) {
+        this._endFrame = _endframe;
+      }
+      if (_loops > 0) {
+        this._loops = _loops;
+      } else {
+        this._loops = -1;
+      }
+      this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+    }
+    Play(frameNo) {
+      this._isPlaying = true;
+      this._isPausing = false;
+      let currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
+      if (frameNo && typeof frameNo === "number") {
+        currentFrame = frameNo;
+      }
+      this._currentFrame = currentFrame;
+      this.resetLiveFrame();
+      const currentFrameNo = Math.floor(this._currentFrame);
+      this.SetFrameAnimation(currentFrameNo);
+      if (this.playerLib.HaveUserData(currentFrameNo)) {
+        if (this.onUserDataCallback !== null) {
+          this.onUserDataCallback(this.playerLib.GetUserData(currentFrameNo));
+        }
+      }
+    }
+    Pause() {
+      this._isPausing = true;
+    }
+    Resume() {
+      this._isPausing = false;
+    }
+    Stop() {
+      this._isPlaying = false;
+    }
+    SetFrame(frame) {
+      this._currentFrame = frame;
+    }
+    NextFrame() {
+      const currentFrame = Math.floor(this._currentFrame);
+      const endFrame = this.endFrame;
+      if (currentFrame === endFrame) {
+        return;
+      }
+      this.SetFrame(currentFrame + 1);
+    }
+    PrevFrame() {
+      const currentFrame = Math.floor(this._currentFrame);
+      if (currentFrame === 0) {
+        return;
+      }
+      this.SetFrame(currentFrame - 1);
+    }
+    SetAlpha(alpha) {
+      this.parentAlpha = alpha;
+    }
+    ThrowError(_error) {
+    }
+    SetUserDataCalback(fn) {
+      this.onUserDataCallback = fn;
+    }
+    SetPlayEndCallback(fn) {
+      this.playEndCallback = fn;
+    }
+    GetPartsBlendMode() {
+      const animePacks = this.playerLib.animePackData;
+      const l = animePacks.partsLength();
+      let ret = [];
+      for (let i = 0; i < l; i++) {
+        const alphaBlendType = animePacks.parts(i).alphaBlendType();
+        let blendMode;
+        switch (alphaBlendType) {
+          case 0:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          case 1:
+            blendMode = constants.BLEND_MODES.MULTIPLY;
+            break;
+          case 2:
+            blendMode = constants.BLEND_MODES.ADD;
+            break;
+          case 3:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          case 4:
+            blendMode = constants.BLEND_MODES.MULTIPLY;
+            break;
+          case 5:
+            blendMode = constants.BLEND_MODES.SCREEN;
+            break;
+          case 6:
+            blendMode = constants.BLEND_MODES.EXCLUSION;
+            break;
+          case 7:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+          default:
+            blendMode = constants.BLEND_MODES.NORMAL;
+            break;
+        }
+        ret.push(blendMode);
+      }
+      return ret;
     }
     GetColorMatrixFilter(blendType, rate, argb32) {
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
@@ -3085,79 +3298,16 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       this.colorMatrixFilterCache[key] = colorMatrix;
       return colorMatrix;
     }
-    GetDefaultDataByIndex(id) {
-      const curDefaultData = this.defaultFrameMap[id];
-      return {
-        index: curDefaultData.index(),
-        lowflag: curDefaultData.lowflag(),
-        highflag: curDefaultData.highflag(),
-        priority: curDefaultData.priority(),
-        cellIndex: curDefaultData.cellIndex(),
-        opacity: curDefaultData.opacity(),
-        localopacity: curDefaultData.localopacity(),
-        masklimen: curDefaultData.masklimen(),
-        positionX: curDefaultData.positionX(),
-        positionY: curDefaultData.positionY(),
-        pivotX: curDefaultData.pivotX(),
-        pivotY: curDefaultData.pivotY(),
-        rotationX: curDefaultData.rotationX(),
-        rotationY: curDefaultData.rotationY(),
-        rotationZ: curDefaultData.rotationZ(),
-        scaleX: curDefaultData.scaleX(),
-        scaleY: curDefaultData.scaleY(),
-        localscaleX: curDefaultData.localscaleX(),
-        localscaleY: curDefaultData.localscaleY(),
-        size_X: curDefaultData.sizeX(),
-        size_Y: curDefaultData.sizeY(),
-        uv_move_X: curDefaultData.uvMoveX(),
-        uv_move_Y: curDefaultData.uvMoveY(),
-        uv_rotation: curDefaultData.uvRotation(),
-        uv_scale_X: curDefaultData.uvScaleX(),
-        uv_scale_Y: curDefaultData.uvScaleY(),
-        boundingRadius: curDefaultData.boundingRadius(),
-        instanceValue_curKeyframe: curDefaultData.instanceValueCurKeyframe(),
-        instanceValue_endFrame: curDefaultData.instanceValueEndFrame(),
-        instanceValue_startFrame: curDefaultData.instanceValueStartFrame(),
-        instanceValue_loopNum: curDefaultData.instanceValueLoopNum(),
-        instanceValue_speed: curDefaultData.instanceValueSpeed(),
-        instanceValue_loopflag: curDefaultData.instanceValueLoopflag(),
-        effectValue_curKeyframe: curDefaultData.effectValueCurKeyframe(),
-        effectValue_startTime: curDefaultData.effectValueStartTime(),
-        effectValue_speed: curDefaultData.effectValueSpeed(),
-        effectValue_loopflag: curDefaultData.effectValueLoopflag(),
-        f_hide: false,
-        f_flipH: false,
-        f_flipV: false,
-        f_mesh: false,
-        i_transformVerts: 0,
-        u00: 0,
-        v00: 0,
-        u01: 0,
-        v01: 0,
-        u10: 0,
-        v10: 0,
-        u11: 0,
-        v11: 0,
-        useColorMatrix: false,
-        colorMatrix: null,
-        meshIsBind: 0,
-        meshNum: 0,
-        meshDataPoint: 0,
-        flag1: 0,
-        flag2: 0,
-        partsColorARGB: 0
-      };
-    }
     SetFrameAnimation(frameNumber, ds = 0) {
-      const fd = this.GetFrameData(frameNumber);
+      const fd = this.playerLib.GetFrameData(frameNumber);
       this.removeChildren();
       const l = fd.length;
       for (let ii = 0; ii < l; ii = ii + 1 | 0) {
-        const i = this.prio2index[ii];
+        const i = this.playerLib.prio2index[ii];
         const data = fd[i];
         const cellID = data.cellIndex;
         let mesh = this.prevMesh[i];
-        const part = this.fbObj.animePacks(this.parts).parts(i);
+        const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
         let overWrite = this.substituteOverWrite[i] !== null ? this.substituteOverWrite[i] : false;
         let overWritekeyParam = this.substituteKeyParam[i];
@@ -3214,7 +3364,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
             this._instancePos[2] = 1;
             this._instancePos[3] = 1;
             this._instancePos[4] = 0;
-            this._instancePos = this.TransformPositionLocal(this._instancePos, data.index, frameNumber);
+            this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
             mesh.rotation = this._instancePos[4] * Math.PI / 180;
             mesh.position.set(this._instancePos[0], this._instancePos[1]);
             mesh.scale.set(this._instancePos[2], this._instancePos[3]);
@@ -3312,17 +3462,17 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           case SsPartType.Mesh:
           case SsPartType.Joint:
           case SsPartType.Mask: {
-            const cell = this.fbObj.cells(cellID);
+            const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
             if (partType === SsPartType.Mesh) {
               if (data.meshIsBind === 0) {
-                verts = this.TransformMeshVertsLocal(SS6Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+                verts = this.playerLib.TransformMeshVertsLocal(Player$1.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
               } else {
-                verts = SS6Player.GetMeshVerts(cell, data, mesh.vertices);
+                verts = Player$1.GetMeshVerts(cell, data, mesh.vertices);
               }
             } else {
               verts = partType === SsPartType.Joint ? new Float32Array(10) : mesh.vertices;
-              verts = this.TransformVertsLocal(SS6Player.GetVerts(cell, data, verts), data.index, frameNumber);
+              verts = this.playerLib.TransformVertsLocal(Player$1.GetVerts(cell, data, verts), data.index, frameNumber);
             }
             if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
               const vertexCoordinateLUx = verts[3 * 2 + 0];
@@ -3341,7 +3491,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
               const CoordinateLDRDy = (vertexCoordinateLDy + vertexCoordinateRDy) * 0.5;
               const CoordinateRURDx = (vertexCoordinateRUx + vertexCoordinateRDx) * 0.5;
               const CoordinateRURDy = (vertexCoordinateRUy + vertexCoordinateRDy) * 0.5;
-              const vec2 = SS6Player.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
+              const vec2 = Player$1.CoordinateGetDiagonalIntersection(verts[0], verts[1], CoordinateLURUx, CoordinateLURUy, CoordinateRURDx, CoordinateRURDy, CoordinateLULDx, CoordinateLULDy, CoordinateLDRDx, CoordinateLDRDy, this._CoordinateGetDiagonalIntersectionVec2);
               verts[0] = vec2[0];
               verts[1] = vec2[1];
             }
@@ -3394,15 +3544,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
             mesh.alpha = opacity * this.parentAlpha;
             mesh.visible = !data.f_hide;
             if (data.useColorMatrix) {
-              mesh.filters = [data.colorMatrix];
+              this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
             }
             if (data.tint) {
               mesh.tint = data.tint;
               const ca = ((data.partsColorARGB & 4278190080) >>> 24) / 255;
               mesh.alpha = mesh.alpha * ca;
-            }
-            if (data.tintRgb) {
-              mesh.tintRgb = data.tintRgb;
             }
             const blendMode = this.alphaBlendType[i];
             if (blendMode === constants.BLEND_MODES.MULTIPLY || blendMode === constants.BLEND_MODES.SCREEN) {
@@ -3413,9 +3560,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
             break;
           }
           case SsPartType.Nulltype: {
-            const opacity = this.InheritOpacity(1, data.index, frameNumber);
+            const opacity = this.playerLib.InheritOpacity(1, data.index, frameNumber);
             mesh.alpha = opacity * data.localopacity / 255;
-            const verts = this.TransformVerts(SS6Player.GetDummyVerts(), data.index, frameNumber);
+            const verts = this.playerLib.TransformVerts(Player$1.GetDummyVerts(), data.index, frameNumber);
             const px = verts[0];
             const py = verts[1];
             mesh.position.set(px, py);
@@ -3430,8 +3577,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     }
     ChangeInstanceAnime(partName, animePackName, animeName, overWrite, keyParam = null) {
       let rc = false;
-      if (this.curAnimePackName !== null && this.curAnimation !== null) {
-        let packData = this.curAnimePackData;
+      if (this.animePackName !== null && this.animeName !== null) {
+        let packData = this.playerLib.animePackData;
         let partsLength = packData.partsLength();
         for (let index = 0; index < partsLength; index++) {
           let partData = packData.parts(index);
@@ -3460,148 +3607,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       }
       return rc;
     }
-    InheritOpacity(opacity, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      opacity = data.opacity / 255;
-      if (this.parentIndex[id] >= 0) {
-        opacity = this.InheritOpacity(opacity, this.parentIndex[id], frameNumber);
-      }
-      return opacity;
-    }
-    TransformVertsLocal(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        if (data.i_transformVerts & 1 && i === 1) {
-          x += data.u00;
-          y -= data.v00;
-        }
-        if (data.i_transformVerts & 2 && i === 2) {
-          x += data.u01;
-          y -= data.v01;
-        }
-        if (data.i_transformVerts & 4 && i === 3) {
-          x += data.u10;
-          y -= data.v10;
-        }
-        if (data.i_transformVerts & 8 && i === 4) {
-          x += data.u11;
-          y -= data.v11;
-        }
-        x *= data.scaleX * data.localscaleX;
-        y *= data.scaleY * data.localscaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-        if (data.f_flipH) {
-          verts[i * 2] = verts[0] * 2 - verts[i * 2];
-        }
-        if (data.f_flipV) {
-          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-        }
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformMeshVertsLocal(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        x *= data.scaleX * data.localscaleX;
-        y *= data.scaleY * data.localscaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformPositionLocal(pos, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      pos[4] += -data.rotationZ;
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      const x = pos[0] * data.scaleX * data.localscaleX;
-      const y = pos[1] * data.scaleY * data.localscaleY;
-      pos[2] *= data.scaleX * data.localscaleX;
-      pos[3] *= data.scaleY * data.localscaleY;
-      pos[0] = cos * x - sin * y + data.positionX;
-      pos[1] = sin * x + cos * y - data.positionY;
-      if (this.parentIndex[id] >= 0) {
-        pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-      }
-      return pos;
-    }
-    static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
-      const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
-      const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
-      const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
-      if (c3 <= 0 && c3 >= 0)
-        return vec2;
-      const ca = c1 / c3;
-      const cb = c2 / c3;
-      if (0 <= ca && 1 >= ca && (0 <= cb && 1 >= cb)) {
-        cx = LUx + ca * (RDx - LUx);
-        cy = LUy + ca * (RDy - LUy);
-      }
-      vec2[0] = cx;
-      vec2[1] = cy;
-      return vec2;
-    }
-    TransformVerts(verts, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      for (let i = 0; i < verts.length / 2; i++) {
-        let x = verts[i * 2];
-        let y = verts[i * 2 + 1];
-        x *= data.scaleX;
-        y *= data.scaleY;
-        verts[i * 2] = cos * x - sin * y + data.positionX;
-        verts[i * 2 + 1] = sin * x + cos * y - data.positionY;
-        if (data.f_flipH) {
-          verts[i * 2] = verts[0] * 2 - verts[i * 2];
-        }
-        if (data.f_flipV) {
-          verts[i * 2 + 1] = verts[1] * 2 - verts[i * 2 + 1];
-        }
-      }
-      if (this.parentIndex[id] >= 0) {
-        verts = this.TransformVerts(verts, this.parentIndex[id], frameNumber);
-      }
-      return verts;
-    }
-    TransformPosition(pos, id, frameNumber) {
-      const data = this.GetFrameData(frameNumber)[id];
-      pos[4] += -data.rotationZ;
-      const rz = -data.rotationZ * Math.PI / 180;
-      const cos = Math.cos(rz);
-      const sin = Math.sin(rz);
-      const x = pos[0] * data.scaleX;
-      const y = pos[1] * data.scaleY;
-      pos[2] *= data.scaleX;
-      pos[3] *= data.scaleY;
-      pos[0] = cos * x - sin * y + data.positionX;
-      pos[1] = sin * x + cos * y - data.positionY;
-      if (this.parentIndex[id] >= 0) {
-        pos = this.TransformPosition(pos, this.parentIndex[id], frameNumber);
-      }
-      return pos;
-    }
     MakeCellMesh(id) {
-      const cell = this.fbObj.cells(id);
+      const cell = this.playerLib.fbObj.cells(id);
       const u1 = cell.u1();
       const u2 = cell.u2();
       const v1 = cell.v1();
@@ -3611,10 +3618,10 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
       const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      return new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+      return new meshExtras.SimpleMesh(assets.Assets.get(cell.cellMap().name()), verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
     }
     MakeMeshCellMesh(partID, cellID) {
-      const meshsDataUV = this.curAnimation.meshsDataUV(partID);
+      const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
       const uvLength = meshsDataUV.uvLength();
       if (uvLength > 0) {
         const uvs = new Float32Array(uvLength - 2);
@@ -3622,14 +3629,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         for (let idx = 2; idx < uvLength; idx++) {
           uvs[idx - 2] = meshsDataUV.uv(idx);
         }
-        const meshsDataIndices = this.curAnimation.meshsDataIndices(partID);
+        const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
         const indicesLength = meshsDataIndices.indicesLength();
         const indices = new Uint16Array(indicesLength - 1);
         for (let idx = 1; idx < indicesLength; idx++) {
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        return new meshExtras.SimpleMesh(this.resources[this.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+        return new meshExtras.SimpleMesh(assets.Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()), verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
       }
       return null;
     }
@@ -3640,26 +3647,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       ssp.Play(refStart);
       return ssp;
     }
-    static GetVerts(cell, data, verts) {
-      const w = data.size_X / 2;
-      const h = data.size_Y / 2;
-      const px = data.size_X * -(data.pivotX + cell.pivotX());
-      const py = data.size_Y * (data.pivotY + cell.pivotY());
-      verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
-      return verts;
-    }
-    static GetMeshVerts(cell, data, verts) {
-      for (let idx = 0; idx < data.meshNum; idx++) {
-        verts[idx * 2] = data.meshDataPoint[idx * 3];
-        verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
-      }
-      return verts;
-    }
-    static GetDummyVerts() {
-      return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
-    }
     resetLiveFrame() {
-      const layers = this.curAnimation.defaultDataLength();
+      const layers = this.playerLib.animationData.defaultDataLength();
       for (let i = 0; i < layers; i++) {
         this.liveFrame[i] = 0;
       }
@@ -3698,7 +3687,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       return this.currentAnimationFrameDataMap;
     }
     setupCurrentAnimationFrameDataMap() {
-      const currentAnimation = this.curAnimation;
+      const currentAnimation = this.playerLib.animationData;
       let frameDataMap = {};
       const userDataLength = currentAnimation.userDataLength();
       for (let i = 0; i < userDataLength; i++) {
@@ -3708,13 +3697,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
         if (frameData == null) {
           frameData = {};
         }
-        const data = this.GetUserData(frameIndex);
+        const data = this.playerLib.GetUserData(frameIndex);
         let frameUserDataMap = {};
         const dataLength = data.length;
         for (let dataIndex = 0; dataIndex < dataLength; dataIndex++) {
           const dataArray = data[dataIndex];
           const partsArrayIndex = dataArray[0];
-          const parts = this.curAnimePackData.parts(partsArrayIndex);
+          const parts = this.playerLib.animePackData.parts(partsArrayIndex);
           const partsName = parts.name();
           dataArray[2];
           dataArray[3];
@@ -3780,7 +3769,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   /*!
 
-  JSZip v3.10.0 - A JavaScript class for generating and reading zip files
+  JSZip v3.10.1 - A JavaScript class for generating and reading zip files
   <http://stuartk.com/jszip>
 
   (c) 2009-2016 Stuart Knightley <stuart [at] stuartk.com>
@@ -3792,8 +3781,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   (function (module, exports) {
   	(function(f){{module.exports=f();}})(function(){return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r);}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-  	var utils = require('./utils');
-  	var support = require('./support');
+  	var utils = require("./utils");
+  	var support = require("./support");
   	// private property
   	var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
@@ -3848,7 +3837,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        throw new Error("Invalid base64 input, it looks like a data url.");
   	    }
 
-  	    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+  	    input = input.replace(/[^A-Za-z0-9+/=]/g, "");
 
   	    var totalLength = input.length * 3 / 4;
   	    if(input.charAt(input.length - 1) === _keyStr.charAt(64)) {
@@ -3901,9 +3890,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	},{"./support":30,"./utils":32}],2:[function(require,module,exports){
 
   	var external = require("./external");
-  	var DataWorker = require('./stream/DataWorker');
-  	var Crc32Probe = require('./stream/Crc32Probe');
-  	var DataLengthProbe = require('./stream/DataLengthProbe');
+  	var DataWorker = require("./stream/DataWorker");
+  	var Crc32Probe = require("./stream/Crc32Probe");
+  	var DataLengthProbe = require("./stream/DataLengthProbe");
 
   	/**
   	 * Represent a compressed object, with everything needed to decompress it.
@@ -3934,7 +3923,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	        var that = this;
   	        worker.on("end", function () {
-  	            if (this.streamInfo['data_length'] !== that.uncompressedSize) {
+  	            if (this.streamInfo["data_length"] !== that.uncompressedSize) {
   	                throw new Error("Bug : uncompressed data size mismatch");
   	            }
   	        });
@@ -3950,7 +3939,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            .withStreamInfo("uncompressedSize", this.uncompressedSize)
   	            .withStreamInfo("crc32", this.crc32)
   	            .withStreamInfo("compression", this.compression)
-  	            ;
+  	        ;
   	    }
   	};
 
@@ -3979,18 +3968,18 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	exports.STORE = {
   	    magic: "\x00\x00",
-  	    compressWorker : function (compressionOptions) {
+  	    compressWorker : function () {
   	        return new GenericWorker("STORE compression");
   	    },
   	    uncompressWorker : function () {
   	        return new GenericWorker("STORE decompression");
   	    }
   	};
-  	exports.DEFLATE = require('./flate');
+  	exports.DEFLATE = require("./flate");
 
   	},{"./flate":7,"./stream/GenericWorker":28}],4:[function(require,module,exports){
 
-  	var utils = require('./utils');
+  	var utils = require("./utils");
 
   	/**
   	 * The following functions come from pako, from pako/lib/zlib/crc32.js
@@ -4098,7 +4087,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	};
 
   	},{"lie":37}],7:[function(require,module,exports){
-  	var USE_TYPEDARRAY = (typeof Uint8Array !== 'undefined') && (typeof Uint16Array !== 'undefined') && (typeof Uint32Array !== 'undefined');
+  	var USE_TYPEDARRAY = (typeof Uint8Array !== "undefined") && (typeof Uint16Array !== "undefined") && (typeof Uint32Array !== "undefined");
 
   	var pako = require("pako");
   	var utils = require("./utils");
@@ -4185,11 +4174,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"./stream/GenericWorker":28,"./utils":32,"pako":38}],8:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var GenericWorker = require('../stream/GenericWorker');
-  	var utf8 = require('../utf8');
-  	var crc32 = require('../crc32');
-  	var signature = require('../signature');
+  	var utils = require("../utils");
+  	var GenericWorker = require("../stream/GenericWorker");
+  	var utf8 = require("../utf8");
+  	var crc32 = require("../crc32");
+  	var signature = require("../signature");
 
   	/**
   	 * Transform an integer into a string in hexadecimal.
@@ -4247,8 +4236,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * Bit 4     Directory
   	 * Bit 5     Archive
   	 */
-  	var generateDosExternalFileAttr = function (dosPermissions, isDir) {
-
+  	var generateDosExternalFileAttr = function (dosPermissions) {
   	    // the dir flag is already set for compatibility
   	    return (dosPermissions || 0)  & 0x3F;
   	};
@@ -4264,23 +4252,23 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * @return {Object} the zip parts.
   	 */
   	var generateZipParts = function(streamInfo, streamedContent, streamingEnded, offset, platform, encodeFileName) {
-  	    var file = streamInfo['file'],
-  	    compression = streamInfo['compression'],
-  	    useCustomEncoding = encodeFileName !== utf8.utf8encode,
-  	    encodedFileName = utils.transformTo("string", encodeFileName(file.name)),
-  	    utfEncodedFileName = utils.transformTo("string", utf8.utf8encode(file.name)),
-  	    comment = file.comment,
-  	    encodedComment = utils.transformTo("string", encodeFileName(comment)),
-  	    utfEncodedComment = utils.transformTo("string", utf8.utf8encode(comment)),
-  	    useUTF8ForFileName = utfEncodedFileName.length !== file.name.length,
-  	    useUTF8ForComment = utfEncodedComment.length !== comment.length,
-  	    dosTime,
-  	    dosDate,
-  	    extraFields = "",
-  	    unicodePathExtraField = "",
-  	    unicodeCommentExtraField = "",
-  	    dir = file.dir,
-  	    date = file.date;
+  	    var file = streamInfo["file"],
+  	        compression = streamInfo["compression"],
+  	        useCustomEncoding = encodeFileName !== utf8.utf8encode,
+  	        encodedFileName = utils.transformTo("string", encodeFileName(file.name)),
+  	        utfEncodedFileName = utils.transformTo("string", utf8.utf8encode(file.name)),
+  	        comment = file.comment,
+  	        encodedComment = utils.transformTo("string", encodeFileName(comment)),
+  	        utfEncodedComment = utils.transformTo("string", utf8.utf8encode(comment)),
+  	        useUTF8ForFileName = utfEncodedFileName.length !== file.name.length,
+  	        useUTF8ForComment = utfEncodedComment.length !== comment.length,
+  	        dosTime,
+  	        dosDate,
+  	        extraFields = "",
+  	        unicodePathExtraField = "",
+  	        unicodeCommentExtraField = "",
+  	        dir = file.dir,
+  	        date = file.date;
 
 
   	    var dataInfo = {
@@ -4292,9 +4280,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    // if the content is streamed, the sizes/crc32 are only available AFTER
   	    // the end of the stream.
   	    if (!streamedContent || streamingEnded) {
-  	        dataInfo.crc32 = streamInfo['crc32'];
-  	        dataInfo.compressedSize = streamInfo['compressedSize'];
-  	        dataInfo.uncompressedSize = streamInfo['uncompressedSize'];
+  	        dataInfo.crc32 = streamInfo["crc32"];
+  	        dataInfo.compressedSize = streamInfo["compressedSize"];
+  	        dataInfo.uncompressedSize = streamInfo["uncompressedSize"];
   	    }
 
   	    var bitflag = 0;
@@ -4486,11 +4474,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    var descriptor = "";
   	    descriptor = signature.DATA_DESCRIPTOR +
   	        // crc-32                          4 bytes
-  	        decToHex(streamInfo['crc32'], 4) +
+  	        decToHex(streamInfo["crc32"], 4) +
   	        // compressed size                 4 bytes
-  	        decToHex(streamInfo['compressedSize'], 4) +
+  	        decToHex(streamInfo["compressedSize"], 4) +
   	        // uncompressed size               4 bytes
-  	        decToHex(streamInfo['uncompressedSize'], 4);
+  	        decToHex(streamInfo["uncompressedSize"], 4);
 
   	    return descriptor;
   	};
@@ -4569,9 +4557,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 */
   	ZipFileWorker.prototype.openedSource = function (streamInfo) {
   	    this.currentSourceOffset = this.bytesWritten;
-  	    this.currentFile = streamInfo['file'].name;
+  	    this.currentFile = streamInfo["file"].name;
 
-  	    var streamedContent = this.streamFiles && !streamInfo['file'].dir;
+  	    var streamedContent = this.streamFiles && !streamInfo["file"].dir;
 
   	    // don't stream folders (because they don't have any content)
   	    if(streamedContent) {
@@ -4592,7 +4580,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 */
   	ZipFileWorker.prototype.closedSource = function (streamInfo) {
   	    this.accumulate = false;
-  	    var streamedContent = this.streamFiles && !streamInfo['file'].dir;
+  	    var streamedContent = this.streamFiles && !streamInfo["file"].dir;
   	    var record = generateZipParts(streamInfo, streamedContent, true, this.currentSourceOffset, this.zipPlatform, this.encodeFileName);
 
   	    this.dirRecords.push(record.dirRecord);
@@ -4658,10 +4646,10 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    this._sources.push(previous);
   	    var self = this;
 
-  	    previous.on('data', function (chunk) {
+  	    previous.on("data", function (chunk) {
   	        self.processChunk(chunk);
   	    });
-  	    previous.on('end', function () {
+  	    previous.on("end", function () {
   	        self.closedSource(self.previous.streamInfo);
   	        if(self._sources.length) {
   	            self.prepareNextSource();
@@ -4669,7 +4657,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            self.end();
   	        }
   	    });
-  	    previous.on('error', function (e) {
+  	    previous.on("error", function (e) {
   	        self.error(e);
   	    });
   	    return this;
@@ -4726,8 +4714,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../crc32":4,"../signature":23,"../stream/GenericWorker":28,"../utf8":31,"../utils":32}],9:[function(require,module,exports){
 
-  	var compressions = require('../compressions');
-  	var ZipFileWorker = require('./ZipFileWorker');
+  	var compressions = require("../compressions");
+  	var ZipFileWorker = require("./ZipFileWorker");
 
   	/**
   	 * Find the compression to use.
@@ -4764,15 +4752,15 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            var dir = file.dir, date = file.date;
 
   	            file._compressWorker(compression, compressionOptions)
-  	            .withStreamInfo("file", {
-  	                name : relativePath,
-  	                dir : dir,
-  	                date : date,
-  	                comment : file.comment || "",
-  	                unixPermissions : file.unixPermissions,
-  	                dosPermissions : file.dosPermissions
-  	            })
-  	            .pipe(zipFileWorker);
+  	                .withStreamInfo("file", {
+  	                    name : relativePath,
+  	                    dir : dir,
+  	                    date : date,
+  	                    comment : file.comment || "",
+  	                    unixPermissions : file.unixPermissions,
+  	                    dosPermissions : file.dosPermissions
+  	                })
+  	                .pipe(zipFileWorker);
   	        });
   	        zipFileWorker.entriesCount = entriesCount;
   	    } catch (e) {
@@ -4789,7 +4777,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * @constructor
   	 */
   	function JSZip() {
-  	    // if this constructor is used without `new`, it adds `new` before itself:
+  	    // if this constructor is used without `new`, it adds `new` before itself:
   	    if(!(this instanceof JSZip)) {
   	        return new JSZip();
   	    }
@@ -4822,14 +4810,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        return newObj;
   	    };
   	}
-  	JSZip.prototype = require('./object');
-  	JSZip.prototype.loadAsync = require('./load');
-  	JSZip.support = require('./support');
-  	JSZip.defaults = require('./defaults');
+  	JSZip.prototype = require("./object");
+  	JSZip.prototype.loadAsync = require("./load");
+  	JSZip.support = require("./support");
+  	JSZip.defaults = require("./defaults");
 
   	// TODO find a better way to handle this version,
   	// a require('package.json').version doesn't work with webpack, see #327
-  	JSZip.version = "3.10.0";
+  	JSZip.version = "3.10.1";
 
   	JSZip.loadAsync = function (content, options) {
   	    return new JSZip().loadAsync(content, options);
@@ -4839,11 +4827,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	module.exports = JSZip;
 
   	},{"./defaults":5,"./external":6,"./load":11,"./object":15,"./support":30}],11:[function(require,module,exports){
-  	var utils = require('./utils');
+  	var utils = require("./utils");
   	var external = require("./external");
-  	var utf8 = require('./utf8');
-  	var ZipEntries = require('./zipEntries');
-  	var Crc32Probe = require('./stream/Crc32Probe');
+  	var utf8 = require("./utf8");
+  	var ZipEntries = require("./zipEntries");
+  	var Crc32Probe = require("./stream/Crc32Probe");
   	var nodejsUtils = require("./nodejsUtils");
 
   	/**
@@ -4929,8 +4917,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"./external":6,"./nodejsUtils":14,"./stream/Crc32Probe":25,"./utf8":31,"./utils":32,"./zipEntries":33}],12:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var GenericWorker = require('../stream/GenericWorker');
+  	var utils = require("../utils");
+  	var GenericWorker = require("../stream/GenericWorker");
 
   	/**
   	 * A worker that use a nodejs stream as source.
@@ -4956,28 +4944,28 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    this._stream = stream;
   	    stream.pause();
   	    stream
-  	    .on("data", function (chunk) {
-  	        self.push({
-  	            data: chunk,
-  	            meta : {
-  	                percent : 0
+  	        .on("data", function (chunk) {
+  	            self.push({
+  	                data: chunk,
+  	                meta : {
+  	                    percent : 0
+  	                }
+  	            });
+  	        })
+  	        .on("error", function (e) {
+  	            if(self.isPaused) {
+  	                this.generatedError = e;
+  	            } else {
+  	                self.error(e);
+  	            }
+  	        })
+  	        .on("end", function () {
+  	            if(self.isPaused) {
+  	                self._upstreamEnded = true;
+  	            } else {
+  	                self.end();
   	            }
   	        });
-  	    })
-  	    .on("error", function (e) {
-  	        if(self.isPaused) {
-  	            this.generatedError = e;
-  	        } else {
-  	            self.error(e);
-  	        }
-  	    })
-  	    .on("end", function () {
-  	        if(self.isPaused) {
-  	            self._upstreamEnded = true;
-  	        } else {
-  	            self.end();
-  	        }
-  	    });
   	};
   	NodejsStreamInputAdapter.prototype.pause = function () {
   	    if(!GenericWorker.prototype.pause.call(this)) {
@@ -5004,9 +4992,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../stream/GenericWorker":28,"../utils":32}],13:[function(require,module,exports){
 
-  	var Readable = require('readable-stream').Readable;
+  	var Readable = require("readable-stream").Readable;
 
-  	var utils = require('../utils');
+  	var utils = require("../utils");
   	utils.inherits(NodejsStreamOutputAdapter, Readable);
 
   	/**
@@ -5030,12 +5018,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            updateCb(meta);
   	        }
   	    })
-  	    .on("error", function(e) {
-  	        self.emit('error', e);
-  	    })
-  	    .on("end", function () {
-  	        self.push(null);
-  	    });
+  	        .on("error", function(e) {
+  	            self.emit("error", e);
+  	        })
+  	        .on("end", function () {
+  	            self.push(null);
+  	        });
   	}
 
 
@@ -5104,13 +5092,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	};
 
   	},{}],15:[function(require,module,exports){
-  	var utf8 = require('./utf8');
-  	var utils = require('./utils');
-  	var GenericWorker = require('./stream/GenericWorker');
-  	var StreamHelper = require('./stream/StreamHelper');
-  	var defaults = require('./defaults');
-  	var CompressedObject = require('./compressedObject');
-  	var ZipObject = require('./zipObject');
+  	var utf8 = require("./utf8");
+  	var utils = require("./utils");
+  	var GenericWorker = require("./stream/GenericWorker");
+  	var StreamHelper = require("./stream/StreamHelper");
+  	var defaults = require("./defaults");
+  	var CompressedObject = require("./compressedObject");
+  	var ZipObject = require("./zipObject");
   	var generate = require("./generate");
   	var nodejsUtils = require("./nodejsUtils");
   	var NodejsStreamInputAdapter = require("./nodejs/NodejsStreamInputAdapter");
@@ -5212,10 +5200,10 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * @return {string} the parent folder, or ""
   	 */
   	var parentFolder = function (path) {
-  	    if (path.slice(-1) === '/') {
+  	    if (path.slice(-1) === "/") {
   	        path = path.substring(0, path.length - 1);
   	    }
-  	    var lastSlash = path.lastIndexOf('/');
+  	    var lastSlash = path.lastIndexOf("/");
   	    return (lastSlash > 0) ? path.substring(0, lastSlash) : "";
   	};
 
@@ -5242,7 +5230,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * @return {Object} the new folder.
   	 */
   	var folderAdd = function(name, createFolders) {
-  	    createFolders = (typeof createFolders !== 'undefined') ? createFolders : defaults.createFolders;
+  	    createFolders = (typeof createFolders !== "undefined") ? createFolders : defaults.createFolders;
 
   	    name = forceTrailingSlash(name);
 
@@ -5284,8 +5272,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     */
   	    forEach: function(cb) {
   	        var filename, relativePath, file;
-  	        /* jshint ignore:start */
   	        // ignore warning about unwanted properties because this.files is a null prototype object
+  	        /* eslint-disable-next-line guard-for-in */
   	        for (filename in this.files) {
   	            file = this.files[filename];
   	            relativePath = filename.slice(this.root.length, filename.length);
@@ -5293,7 +5281,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	                cb(relativePath, file); // TODO reverse the parameters ? need to be clean AND consistent with the filter search fn...
   	            }
   	        }
-  	        /* jshint ignore:end */
   	    },
 
   	    /**
@@ -5406,13 +5393,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    },
 
   	    /**
-  	     * Generate the complete zip file
-  	     * @param {Object} options the options to generate the zip file :
-  	     * - compression, "STORE" by default.
-  	     * - type, "base64" by default. Values are : string, base64, uint8array, arraybuffer, blob.
-  	     * @return {String|Uint8Array|ArrayBuffer|Buffer|Blob} the zip file
+  	     * @deprecated This method has been removed in JSZip 3.0, please check the upgrade guide.
   	     */
-  	    generate: function(options) {
+  	    generate: function() {
   	        throw new Error("This method has been removed in JSZip 3.0, please check the upgrade guide.");
   	    },
 
@@ -5424,53 +5407,53 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * @return {StreamHelper} the streamed zip file.
   	     */
   	    generateInternalStream: function(options) {
-  	      var worker, opts = {};
-  	      try {
-  	          opts = utils.extend(options || {}, {
-  	              streamFiles: false,
-  	              compression: "STORE",
-  	              compressionOptions : null,
-  	              type: "",
-  	              platform: "DOS",
-  	              comment: null,
-  	              mimeType: 'application/zip',
-  	              encodeFileName: utf8.utf8encode
-  	          });
+  	        var worker, opts = {};
+  	        try {
+  	            opts = utils.extend(options || {}, {
+  	                streamFiles: false,
+  	                compression: "STORE",
+  	                compressionOptions : null,
+  	                type: "",
+  	                platform: "DOS",
+  	                comment: null,
+  	                mimeType: "application/zip",
+  	                encodeFileName: utf8.utf8encode
+  	            });
 
-  	          opts.type = opts.type.toLowerCase();
-  	          opts.compression = opts.compression.toUpperCase();
+  	            opts.type = opts.type.toLowerCase();
+  	            opts.compression = opts.compression.toUpperCase();
 
-  	          // "binarystring" is preferred but the internals use "string".
-  	          if(opts.type === "binarystring") {
-  	            opts.type = "string";
-  	          }
+  	            // "binarystring" is preferred but the internals use "string".
+  	            if(opts.type === "binarystring") {
+  	                opts.type = "string";
+  	            }
 
-  	          if (!opts.type) {
-  	            throw new Error("No output type specified.");
-  	          }
+  	            if (!opts.type) {
+  	                throw new Error("No output type specified.");
+  	            }
 
-  	          utils.checkSupport(opts.type);
+  	            utils.checkSupport(opts.type);
 
-  	          // accept nodejs `process.platform`
-  	          if(
-  	              opts.platform === 'darwin' ||
-  	              opts.platform === 'freebsd' ||
-  	              opts.platform === 'linux' ||
-  	              opts.platform === 'sunos'
-  	          ) {
-  	              opts.platform = "UNIX";
-  	          }
-  	          if (opts.platform === 'win32') {
-  	              opts.platform = "DOS";
-  	          }
+  	            // accept nodejs `process.platform`
+  	            if(
+  	                opts.platform === "darwin" ||
+  	                opts.platform === "freebsd" ||
+  	                opts.platform === "linux" ||
+  	                opts.platform === "sunos"
+  	            ) {
+  	                opts.platform = "UNIX";
+  	            }
+  	            if (opts.platform === "win32") {
+  	                opts.platform = "DOS";
+  	            }
 
-  	          var comment = opts.comment || this.comment || "";
-  	          worker = generate.generateWorker(this, opts, comment);
-  	      } catch (e) {
-  	        worker = new GenericWorker("error");
-  	        worker.error(e);
-  	      }
-  	      return new StreamHelper(worker, opts.type || "string", opts.mimeType);
+  	            var comment = opts.comment || this.comment || "";
+  	            worker = generate.generateWorker(this, opts, comment);
+  	        } catch (e) {
+  	            worker = new GenericWorker("error");
+  	            worker.error(e);
+  	        }
+  	        return new StreamHelper(worker, opts.type || "string", opts.mimeType);
   	    },
   	    /**
   	     * Generate the complete zip file asynchronously.
@@ -5505,14 +5488,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	module.exports = require("stream");
 
   	},{"stream":undefined}],17:[function(require,module,exports){
-  	var DataReader = require('./DataReader');
-  	var utils = require('../utils');
+  	var DataReader = require("./DataReader");
+  	var utils = require("../utils");
 
   	function ArrayReader(data) {
   	    DataReader.call(this, data);
-  		for(var i = 0; i < this.data.length; i++) {
-  			data[i] = data[i] & 0xFF;
-  		}
+  	    for(var i = 0; i < this.data.length; i++) {
+  	        data[i] = data[i] & 0xFF;
+  	    }
   	}
   	utils.inherits(ArrayReader, DataReader);
   	/**
@@ -5563,7 +5546,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	module.exports = ArrayReader;
 
   	},{"../utils":32,"./DataReader":18}],18:[function(require,module,exports){
-  	var utils = require('../utils');
+  	var utils = require("../utils");
 
   	function DataReader(data) {
   	    this.data = data; // type : see implementation
@@ -5612,7 +5595,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * @param {number} i the index to use.
   	     * @return {number} a byte.
   	     */
-  	    byteAt: function(i) {
+  	    byteAt: function() {
   	        // see implementations
   	    },
   	    /**
@@ -5643,7 +5626,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * @param {number} size the number of bytes to read.
   	     * @return {Object} the raw data, implementation specific.
   	     */
-  	    readData: function(size) {
+  	    readData: function() {
   	        // see implementations
   	    },
   	    /**
@@ -5651,7 +5634,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * @param {string} sig the signature to find.
   	     * @return {number} the index of the last occurrence, -1 if not found.
   	     */
-  	    lastIndexOfSignature: function(sig) {
+  	    lastIndexOfSignature: function() {
   	        // see implementations
   	    },
   	    /**
@@ -5659,7 +5642,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * @param {string} sig the expected signature
   	     * @return {boolean} true if the signature matches, false otherwise.
   	     */
-  	    readAndCheckSignature: function(sig) {
+  	    readAndCheckSignature: function() {
   	        // see implementations
   	    },
   	    /**
@@ -5669,19 +5652,19 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    readDate: function() {
   	        var dostime = this.readInt(4);
   	        return new Date(Date.UTC(
-  	        ((dostime >> 25) & 0x7f) + 1980, // year
-  	        ((dostime >> 21) & 0x0f) - 1, // month
-  	        (dostime >> 16) & 0x1f, // day
-  	        (dostime >> 11) & 0x1f, // hour
-  	        (dostime >> 5) & 0x3f, // minute
-  	        (dostime & 0x1f) << 1)); // second
+  	            ((dostime >> 25) & 0x7f) + 1980, // year
+  	            ((dostime >> 21) & 0x0f) - 1, // month
+  	            (dostime >> 16) & 0x1f, // day
+  	            (dostime >> 11) & 0x1f, // hour
+  	            (dostime >> 5) & 0x3f, // minute
+  	            (dostime & 0x1f) << 1)); // second
   	    }
   	};
   	module.exports = DataReader;
 
   	},{"../utils":32}],19:[function(require,module,exports){
-  	var Uint8ArrayReader = require('./Uint8ArrayReader');
-  	var utils = require('../utils');
+  	var Uint8ArrayReader = require("./Uint8ArrayReader");
+  	var utils = require("../utils");
 
   	function NodeBufferReader(data) {
   	    Uint8ArrayReader.call(this, data);
@@ -5700,8 +5683,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	module.exports = NodeBufferReader;
 
   	},{"../utils":32,"./Uint8ArrayReader":21}],20:[function(require,module,exports){
-  	var DataReader = require('./DataReader');
-  	var utils = require('../utils');
+  	var DataReader = require("./DataReader");
+  	var utils = require("../utils");
 
   	function StringReader(data) {
   	    DataReader.call(this, data);
@@ -5739,8 +5722,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	module.exports = StringReader;
 
   	},{"../utils":32,"./DataReader":18}],21:[function(require,module,exports){
-  	var ArrayReader = require('./ArrayReader');
-  	var utils = require('../utils');
+  	var ArrayReader = require("./ArrayReader");
+  	var utils = require("../utils");
 
   	function Uint8ArrayReader(data) {
   	    ArrayReader.call(this, data);
@@ -5763,12 +5746,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../utils":32,"./ArrayReader":17}],22:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var support = require('../support');
-  	var ArrayReader = require('./ArrayReader');
-  	var StringReader = require('./StringReader');
-  	var NodeBufferReader = require('./NodeBufferReader');
-  	var Uint8ArrayReader = require('./Uint8ArrayReader');
+  	var utils = require("../utils");
+  	var support = require("../support");
+  	var ArrayReader = require("./ArrayReader");
+  	var StringReader = require("./StringReader");
+  	var NodeBufferReader = require("./NodeBufferReader");
+  	var Uint8ArrayReader = require("./Uint8ArrayReader");
 
   	/**
   	 * Create a reader adapted to the data.
@@ -5800,8 +5783,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{}],24:[function(require,module,exports){
 
-  	var GenericWorker = require('./GenericWorker');
-  	var utils = require('../utils');
+  	var GenericWorker = require("./GenericWorker");
+  	var utils = require("../utils");
 
   	/**
   	 * A worker which convert chunks to a specified type.
@@ -5827,9 +5810,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../utils":32,"./GenericWorker":28}],25:[function(require,module,exports){
 
-  	var GenericWorker = require('./GenericWorker');
-  	var crc32 = require('../crc32');
-  	var utils = require('../utils');
+  	var GenericWorker = require("./GenericWorker");
+  	var crc32 = require("../crc32");
+  	var utils = require("../utils");
 
   	/**
   	 * A worker which calculate the crc32 of the data flowing through.
@@ -5852,8 +5835,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../crc32":4,"../utils":32,"./GenericWorker":28}],26:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var GenericWorker = require('./GenericWorker');
+  	var utils = require("../utils");
+  	var GenericWorker = require("./GenericWorker");
 
   	/**
   	 * A worker which calculate the total length of the data flowing through.
@@ -5882,8 +5865,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"../utils":32,"./GenericWorker":28}],27:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var GenericWorker = require('./GenericWorker');
+  	var utils = require("../utils");
+  	var GenericWorker = require("./GenericWorker");
 
   	// the size of the generated chunks
   	// TODO expose this as a public variable
@@ -5974,15 +5957,15 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        return this.end();
   	    } else {
   	        switch(this.type) {
-  	            case "string":
-  	                data = this.data.substring(this.index, nextIndex);
+  	        case "string":
+  	            data = this.data.substring(this.index, nextIndex);
   	            break;
-  	            case "uint8array":
-  	                data = this.data.subarray(this.index, nextIndex);
+  	        case "uint8array":
+  	            data = this.data.subarray(this.index, nextIndex);
   	            break;
-  	            case "array":
-  	            case "nodebuffer":
-  	                data = this.data.slice(this.index, nextIndex);
+  	        case "array":
+  	        case "nodebuffer":
+  	            data = this.data.slice(this.index, nextIndex);
   	            break;
   	        }
   	        this.index = nextIndex;
@@ -6030,9 +6013,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    this.isLocked = false;
   	    // the event listeners
   	    this._listeners = {
-  	        'data':[],
-  	        'end':[],
-  	        'error':[]
+  	        "data":[],
+  	        "end":[],
+  	        "error":[]
   	    };
   	    // the previous worker, if any
   	    this.previous = null;
@@ -6149,13 +6132,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        this.mergeStreamInfo();
   	        this.previous =  previous;
   	        var self = this;
-  	        previous.on('data', function (chunk) {
+  	        previous.on("data", function (chunk) {
   	            self.processChunk(chunk);
   	        });
-  	        previous.on('end', function () {
+  	        previous.on("end", function () {
   	            self.end();
   	        });
-  	        previous.on('error', function (e) {
+  	        previous.on("error", function (e) {
   	            self.error(e);
   	        });
   	        return this;
@@ -6224,7 +6207,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     */
   	    mergeStreamInfo : function () {
   	        for(var key in this.extraStreamInfo) {
-  	            if (!this.extraStreamInfo.hasOwnProperty(key)) {
+  	            if (!Object.prototype.hasOwnProperty.call(this.extraStreamInfo, key)) {
   	                continue;
   	            }
   	            this.streamInfo[key] = this.extraStreamInfo[key];
@@ -6263,18 +6246,20 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{}],29:[function(require,module,exports){
 
-  	var utils = require('../utils');
-  	var ConvertWorker = require('./ConvertWorker');
-  	var GenericWorker = require('./GenericWorker');
-  	var base64 = require('../base64');
+  	var utils = require("../utils");
+  	var ConvertWorker = require("./ConvertWorker");
+  	var GenericWorker = require("./GenericWorker");
+  	var base64 = require("../base64");
   	var support = require("../support");
   	var external = require("../external");
 
   	var NodejsStreamOutputAdapter = null;
   	if (support.nodestream) {
   	    try {
-  	        NodejsStreamOutputAdapter = require('../nodejs/NodejsStreamOutputAdapter');
-  	    } catch(e) {}
+  	        NodejsStreamOutputAdapter = require("../nodejs/NodejsStreamOutputAdapter");
+  	    } catch(e) {
+  	        // ignore
+  	    }
   	}
 
   	/**
@@ -6288,12 +6273,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 */
   	function transformZipOutput(type, content, mimeType) {
   	    switch(type) {
-  	        case "blob" :
-  	            return utils.newBlob(utils.transformTo("arraybuffer", content), mimeType);
-  	        case "base64" :
-  	            return base64.encode(content);
-  	        default :
-  	            return utils.transformTo(type, content);
+  	    case "blob" :
+  	        return utils.newBlob(utils.transformTo("arraybuffer", content), mimeType);
+  	    case "base64" :
+  	        return base64.encode(content);
+  	    default :
+  	        return utils.transformTo(type, content);
   	    }
   	}
 
@@ -6310,21 +6295,21 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        totalLength += dataArray[i].length;
   	    }
   	    switch(type) {
-  	        case "string":
-  	            return dataArray.join("");
-  	          case "array":
-  	            return Array.prototype.concat.apply([], dataArray);
-  	        case "uint8array":
-  	            res = new Uint8Array(totalLength);
-  	            for(i = 0; i < dataArray.length; i++) {
-  	                res.set(dataArray[i], index);
-  	                index += dataArray[i].length;
-  	            }
-  	            return res;
-  	        case "nodebuffer":
-  	            return Buffer.concat(dataArray);
-  	        default:
-  	            throw new Error("concat : unsupported type '"  + type + "'");
+  	    case "string":
+  	        return dataArray.join("");
+  	    case "array":
+  	        return Array.prototype.concat.apply([], dataArray);
+  	    case "uint8array":
+  	        res = new Uint8Array(totalLength);
+  	        for(i = 0; i < dataArray.length; i++) {
+  	            res.set(dataArray[i], index);
+  	            index += dataArray[i].length;
+  	        }
+  	        return res;
+  	    case "nodebuffer":
+  	        return Buffer.concat(dataArray);
+  	    default:
+  	        throw new Error("concat : unsupported type '"  + type + "'");
   	    }
   	}
 
@@ -6344,26 +6329,26 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            resultType = helper._outputType,
   	            mimeType = helper._mimeType;
   	        helper
-  	        .on('data', function (data, meta) {
-  	            dataArray.push(data);
-  	            if(updateCallback) {
-  	                updateCallback(meta);
-  	            }
-  	        })
-  	        .on('error', function(err) {
-  	            dataArray = [];
-  	            reject(err);
-  	        })
-  	        .on('end', function (){
-  	            try {
-  	                var result = transformZipOutput(resultType, concat(chunkType, dataArray), mimeType);
-  	                resolve(result);
-  	            } catch (e) {
-  	                reject(e);
-  	            }
-  	            dataArray = [];
-  	        })
-  	        .resume();
+  	            .on("data", function (data, meta) {
+  	                dataArray.push(data);
+  	                if(updateCallback) {
+  	                    updateCallback(meta);
+  	                }
+  	            })
+  	            .on("error", function(err) {
+  	                dataArray = [];
+  	                reject(err);
+  	            })
+  	            .on("end", function (){
+  	                try {
+  	                    var result = transformZipOutput(resultType, concat(chunkType, dataArray), mimeType);
+  	                    resolve(result);
+  	                } catch (e) {
+  	                    reject(e);
+  	                }
+  	                dataArray = [];
+  	            })
+  	            .resume();
   	    });
   	}
 
@@ -6377,12 +6362,12 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	function StreamHelper(worker, outputType, mimeType) {
   	    var internalType = outputType;
   	    switch(outputType) {
-  	        case "blob":
-  	        case "arraybuffer":
-  	            internalType = "uint8array";
+  	    case "blob":
+  	    case "arraybuffer":
+  	        internalType = "uint8array";
   	        break;
-  	        case "base64":
-  	            internalType = "string";
+  	    case "base64":
+  	        internalType = "string";
   	        break;
   	    }
 
@@ -6499,7 +6484,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	            var Builder = self.BlobBuilder || self.WebKitBlobBuilder || self.MozBlobBuilder || self.MSBlobBuilder;
   	            var builder = new Builder();
   	            builder.append(buffer);
-  	            exports.blob = builder.getBlob('application/zip').size === 0;
+  	            exports.blob = builder.getBlob("application/zip").size === 0;
   	        }
   	        catch (e) {
   	            exports.blob = false;
@@ -6508,17 +6493,17 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	}
 
   	try {
-  	    exports.nodestream = !!require('readable-stream').Readable;
+  	    exports.nodestream = !!require("readable-stream").Readable;
   	} catch(e) {
   	    exports.nodestream = false;
   	}
 
   	},{"readable-stream":16}],31:[function(require,module,exports){
 
-  	var utils = require('./utils');
-  	var support = require('./support');
-  	var nodejsUtils = require('./nodejsUtils');
-  	var GenericWorker = require('./stream/GenericWorker');
+  	var utils = require("./utils");
+  	var support = require("./support");
+  	var nodejsUtils = require("./nodejsUtils");
+  	var GenericWorker = require("./stream/GenericWorker");
 
   	/**
   	 * The following functions come from pako, from pako/lib/utils/strings
@@ -6530,7 +6515,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	// because max possible codepoint is 0x10ffff
   	var _utf8len = new Array(256);
   	for (var i=0; i<256; i++) {
-  	  _utf8len[i] = (i >= 252 ? 6 : i >= 248 ? 5 : i >= 240 ? 4 : i >= 224 ? 3 : i >= 192 ? 2 : 1);
+  	    _utf8len[i] = (i >= 252 ? 6 : i >= 248 ? 5 : i >= 240 ? 4 : i >= 224 ? 3 : i >= 192 ? 2 : 1);
   	}
   	_utf8len[254]=_utf8len[254]=1; // Invalid sequence start
 
@@ -6791,11 +6776,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"./nodejsUtils":14,"./stream/GenericWorker":28,"./support":30,"./utils":32}],32:[function(require,module,exports){
 
-  	var support = require('./support');
-  	var base64 = require('./base64');
-  	var nodejsUtils = require('./nodejsUtils');
+  	var support = require("./support");
+  	var base64 = require("./base64");
+  	var nodejsUtils = require("./nodejsUtils");
   	var external = require("./external");
-  	require('setimmediate');
+  	require("setimmediate");
 
 
   	/**
@@ -6808,9 +6793,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	function string2binary(str) {
   	    var result = null;
   	    if (support.uint8array) {
-  	      result = new Uint8Array(str.length);
+  	        result = new Uint8Array(str.length);
   	    } else {
-  	      result = new Array(str.length);
+  	        result = new Array(str.length);
   	    }
   	    return stringToArrayLike(str, result);
   	}
@@ -7178,11 +7163,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 * @return {string} a pretty string.
   	 */
   	exports.pretty = function(str) {
-  	    var res = '',
+  	    var res = "",
   	        code, i;
   	    for (i = 0; i < (str || "").length; i++) {
   	        code = str.charCodeAt(i);
-  	        res += '\\x' + (code < 16 ? "0" : "") + code.toString(16).toUpperCase();
+  	        res += "\\x" + (code < 16 ? "0" : "") + code.toString(16).toUpperCase();
   	    }
   	    return res;
   	};
@@ -7220,7 +7205,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    var result = {}, i, attr;
   	    for (i = 0; i < arguments.length; i++) { // arguments is not enumerable in some browsers
   	        for (attr in arguments[i]) {
-  	            if (arguments[i].hasOwnProperty(attr) && typeof result[attr] === "undefined") {
+  	            if (Object.prototype.hasOwnProperty.call(arguments[i], attr) && typeof result[attr] === "undefined") {
   	                result[attr] = arguments[i][attr];
   	            }
   	        }
@@ -7243,7 +7228,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	    var promise = external.Promise.resolve(inputData).then(function(data) {
 
 
-  	        var isBlob = support.blob && (data instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(data)) !== -1);
+  	        var isBlob = support.blob && (data instanceof Blob || ["[object File]", "[object Blob]"].indexOf(Object.prototype.toString.call(data)) !== -1);
 
   	        if (isBlob && typeof FileReader !== "undefined") {
   	            return new external.Promise(function (resolve, reject) {
@@ -7292,12 +7277,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	};
 
   	},{"./base64":1,"./external":6,"./nodejsUtils":14,"./support":30,"setimmediate":54}],33:[function(require,module,exports){
-  	var readerFor = require('./reader/readerFor');
-  	var utils = require('./utils');
-  	var sig = require('./signature');
-  	var ZipEntry = require('./zipEntry');
-  	require('./utf8');
-  	var support = require('./support');
+  	var readerFor = require("./reader/readerFor");
+  	var utils = require("./utils");
+  	var sig = require("./signature");
+  	var ZipEntry = require("./zipEntry");
+  	var support = require("./support");
   	//  class ZipEntries {{{
   	/**
   	 * All the entries in the zip file.
@@ -7547,14 +7531,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	// }}} end of ZipEntries
   	module.exports = ZipEntries;
 
-  	},{"./reader/readerFor":22,"./signature":23,"./support":30,"./utf8":31,"./utils":32,"./zipEntry":34}],34:[function(require,module,exports){
-  	var readerFor = require('./reader/readerFor');
-  	var utils = require('./utils');
-  	var CompressedObject = require('./compressedObject');
-  	var crc32fn = require('./crc32');
-  	var utf8 = require('./utf8');
-  	var compressions = require('./compressions');
-  	var support = require('./support');
+  	},{"./reader/readerFor":22,"./signature":23,"./support":30,"./utils":32,"./zipEntry":34}],34:[function(require,module,exports){
+  	var readerFor = require("./reader/readerFor");
+  	var utils = require("./utils");
+  	var CompressedObject = require("./compressedObject");
+  	var crc32fn = require("./crc32");
+  	var utf8 = require("./utf8");
+  	var compressions = require("./compressions");
+  	var support = require("./support");
 
   	var MADE_BY_DOS = 0x00;
   	var MADE_BY_UNIX = 0x03;
@@ -7566,7 +7550,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	 */
   	var findCompression = function(compressionMethod) {
   	    for (var method in compressions) {
-  	        if (!compressions.hasOwnProperty(method)) {
+  	        if (!Object.prototype.hasOwnProperty.call(compressions, method)) {
   	            continue;
   	        }
   	        if (compressions[method].magic === compressionMethod) {
@@ -7702,7 +7686,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	        }
 
   	        // fail safe : if the name ends with a / it probably means a folder
-  	        if (!this.dir && this.fileNameStr.slice(-1) === '/') {
+  	        if (!this.dir && this.fileNameStr.slice(-1) === "/") {
   	            this.dir = true;
   	        }
   	    },
@@ -7711,8 +7695,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   	     * Parse the ZIP64 extra field and merge the info in the current ZipEntry.
   	     * @param {DataReader} reader the reader to use.
   	     */
-  	    parseZIP64ExtraField: function(reader) {
-
+  	    parseZIP64ExtraField: function() {
   	        if (!this.extraFields[0x0001]) {
   	            return;
   	        }
@@ -7844,11 +7827,11 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
 
   	},{"./compressedObject":2,"./compressions":3,"./crc32":4,"./reader/readerFor":22,"./support":30,"./utf8":31,"./utils":32}],35:[function(require,module,exports){
 
-  	var StreamHelper = require('./stream/StreamHelper');
-  	var DataWorker = require('./stream/DataWorker');
-  	var utf8 = require('./utf8');
-  	var CompressedObject = require('./compressedObject');
-  	var GenericWorker = require('./stream/GenericWorker');
+  	var StreamHelper = require("./stream/StreamHelper");
+  	var DataWorker = require("./stream/DataWorker");
+  	var utf8 = require("./utf8");
+  	var CompressedObject = require("./compressedObject");
+  	var GenericWorker = require("./stream/GenericWorker");
 
   	/**
   	 * A simple object representing a file in the zip file.
@@ -15309,16 +15292,14 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           return Promise.reject(new Error(response.statusText));
         }
       }).then(JSZip.loadAsync).then(async function(zipFile) {
-        console.log(zipFile);
         let ssfbFilePath = null;
         const imageBinaryMap = {};
         for (let fileName in zipFile.files) {
-          const file = zipFile.files[fileName];
+          zipFile.files[fileName];
           const fileExtension = fileName.split(".").pop();
-          console.log(fileName, file, fileExtension);
           if (fileExtension === "ssfb") {
             if (ssfbFilePath !== null) {
-              onFinishCallback(null, null, new Error("already exist ssfb file"));
+              onFinishCallback(null, null, null, new Error("already exist ssfb file"));
               return;
             }
             ssfbFilePath = fileName;
@@ -15328,10 +15309,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
           }
         }
         let ssfbBinary = await zipFile.file(ssfbFilePath).async("uint8array");
-        onFinishCallback(ssfbBinary, imageBinaryMap, null);
+        onFinishCallback(ssfbFilePath, ssfbBinary, imageBinaryMap, null);
       }, function error(e) {
-        console.log(e);
-        onFinishCallback(null, null, e);
+        onFinishCallback(null, null, null, e);
       });
     }
   }
@@ -15367,7 +15347,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
   const PREVIEW_POSITION_MARGIN = 30;
   class Player {
     constructor(canvasWrapperElement) {
-      this.textureMap = null;
       this.animePackMap = null;
       this.infinityFlag = true;
       this.pixiApplication = null;
@@ -15384,7 +15363,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
       this.frameDataMap = null;
       this.canvasWidth = canvasWrapperElement.clientWidth;
       this.canvasHeight = canvasWrapperElement.clientHeight;
-      const pixiApplication = new app.Application({ width: this.canvasWidth, height: this.canvasHeight, transparent: true });
+      const pixiApplication = new app.Application({ width: this.canvasWidth, height: this.canvasHeight, backgroundAlpha: 0 });
       const canvasElement = pixiApplication.view;
       canvasWrapperElement.appendChild(canvasElement);
       const mainContainer = new MainContainer();
@@ -15416,22 +15395,17 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, loaders, meshE
     loadSspkg(url) {
       const self = this;
       let sspkgLoader = new SspkgLoader();
-      sspkgLoader.load(url, (ssfbFileData, imageBinaryMap, error) => {
+      sspkgLoader.load(url, (ssfbFileName, ssfbFileData, imageBinaryMap, error) => {
         if (error !== null) {
           return;
         }
-        let ss6Project = new SS6Project(ssfbFileData, imageBinaryMap, () => {
+        let ss6Project = new SS6Project(ssfbFileName, ssfbFileData, imageBinaryMap, () => {
           self.setupForLoadComplete(ss6Project);
         });
       });
     }
     setupForLoadComplete(ss6Project) {
       this.projectData = ss6Project;
-      this.textureMap = {};
-      for (let imageName in ss6Project.resources) {
-        const resource = ss6Project.resources[imageName];
-        this.textureMap[imageName] = resource.texture;
-      }
       this.animePackMap = SsfbDataUtil.createAnimePackMap(this.projectData);
       if (this.onComplete !== null) {
         this.onComplete();

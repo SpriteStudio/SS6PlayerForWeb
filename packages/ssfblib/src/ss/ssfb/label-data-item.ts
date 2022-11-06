@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class labelDataItem {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):labelDataItem {
+  __init(i:number, bb:flatbuffers.ByteBuffer):labelDataItem {
   this.bb_pos = i;
   this.bb = bb;
   return this;

@@ -5,17 +5,17 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementRotationTrans {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotationTrans {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRotationTrans {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-RotationFactor():number {
+rotationFactor():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-EndLifeTimePer():number {
+endLifeTimePer():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 

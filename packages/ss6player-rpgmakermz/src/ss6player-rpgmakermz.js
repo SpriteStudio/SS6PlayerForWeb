@@ -1,4 +1,4 @@
-import {SS6Player, SS6Project} from 'ss6player-pixi';
+import {SS6Player, SS6Project} from 'ss6player-pixi6';
 import {PluginParameters} from "./PluginParameters";
 import {SS6ProjectManager} from './SS6ProjectManager';
 

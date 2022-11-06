@@ -2,13 +2,13 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { partState } from '../../ss/ssfb/part-state';
+import { partState } from '../../ss/ssfb/part-state.js';
 
 
 export class frameDataIndex {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):frameDataIndex {
+  __init(i:number, bb:flatbuffers.ByteBuffer):frameDataIndex {
   this.bb_pos = i;
   this.bb = bb;
   return this;

@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class userDataPoint {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataPoint {
+  __init(i:number, bb:flatbuffers.ByteBuffer):userDataPoint {
   this.bb_pos = i;
   this.bb = bb;
   return this;

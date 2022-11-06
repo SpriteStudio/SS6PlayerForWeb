@@ -2,13 +2,13 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EffectNodeBehavior, unionToEffectNodeBehavior, unionListToEffectNodeBehavior } from '../../ss/ssfb/effect-node-behavior';
+import { EffectNodeBehavior, unionToEffectNodeBehavior, unionListToEffectNodeBehavior } from '../../ss/ssfb/effect-node-behavior.js';
 
 
 export class EffectNode {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectNode {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectNode {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -53,27 +53,27 @@ numBehavior():number {
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 }
 
-BehaviorType(index: number):EffectNodeBehavior|null {
+behaviorType(index: number):EffectNodeBehavior|null {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
-BehaviorTypeLength():number {
+behaviorTypeLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-BehaviorTypeArray():Uint8Array|null {
+behaviorTypeArray():Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-Behavior(index: number, obj:any):any|null {
+behavior(index: number, obj:any):any|null {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
 }
 
-BehaviorLength():number {
+behaviorLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
@@ -106,8 +106,8 @@ static addNumBehavior(builder:flatbuffers.Builder, numBehavior:number) {
   builder.addFieldInt16(5, numBehavior, 0);
 }
 
-static addBehaviorType(builder:flatbuffers.Builder, BehaviorTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, BehaviorTypeOffset, 0);
+static addBehaviorType(builder:flatbuffers.Builder, behaviorTypeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, behaviorTypeOffset, 0);
 }
 
 static createBehaviorTypeVector(builder:flatbuffers.Builder, data:EffectNodeBehavior[]):flatbuffers.Offset {
@@ -122,8 +122,8 @@ static startBehaviorTypeVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(1, numElems, 1);
 }
 
-static addBehavior(builder:flatbuffers.Builder, BehaviorOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, BehaviorOffset, 0);
+static addBehavior(builder:flatbuffers.Builder, behaviorOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, behaviorOffset, 0);
 }
 
 static createBehaviorVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -143,7 +143,7 @@ static endEffectNode(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createEffectNode(builder:flatbuffers.Builder, arrayIndex:number, parentIndex:number, type:number, cellIndex:number, blendType:number, numBehavior:number, BehaviorTypeOffset:flatbuffers.Offset, BehaviorOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createEffectNode(builder:flatbuffers.Builder, arrayIndex:number, parentIndex:number, type:number, cellIndex:number, blendType:number, numBehavior:number, behaviorTypeOffset:flatbuffers.Offset, behaviorOffset:flatbuffers.Offset):flatbuffers.Offset {
   EffectNode.startEffectNode(builder);
   EffectNode.addArrayIndex(builder, arrayIndex);
   EffectNode.addParentIndex(builder, parentIndex);
@@ -151,8 +151,8 @@ static createEffectNode(builder:flatbuffers.Builder, arrayIndex:number, parentIn
   EffectNode.addCellIndex(builder, cellIndex);
   EffectNode.addBlendType(builder, blendType);
   EffectNode.addNumBehavior(builder, numBehavior);
-  EffectNode.addBehaviorType(builder, BehaviorTypeOffset);
-  EffectNode.addBehavior(builder, BehaviorOffset);
+  EffectNode.addBehaviorType(builder, behaviorTypeOffset);
+  EffectNode.addBehavior(builder, behaviorOffset);
   return EffectNode.endEffectNode(builder);
 }
 }

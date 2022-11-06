@@ -5,17 +5,17 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementTangentialAcceleration {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTangentialAcceleration {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementTangentialAcceleration {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-AccelerationMinValue():number {
+accelerationMinValue():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-AccelerationMaxValue():number {
+accelerationMaxValue():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 

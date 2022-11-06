@@ -5,13 +5,13 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementRndSeedChange {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRndSeedChange {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementRndSeedChange {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-Seed():number {
+seed():number {
   return this.bb!.readInt32(this.bb_pos);
 }
 

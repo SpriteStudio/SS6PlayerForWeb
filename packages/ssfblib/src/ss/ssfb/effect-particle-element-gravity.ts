@@ -5,17 +5,17 @@ import * as flatbuffers from 'flatbuffers';
 export class EffectParticleElementGravity {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementGravity {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EffectParticleElementGravity {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-GravityX():number {
+gravityX():number {
   return this.bb!.readFloat32(this.bb_pos);
 }
 
-GravityY():number {
+gravityY():number {
   return this.bb!.readFloat32(this.bb_pos + 4);
 }
 

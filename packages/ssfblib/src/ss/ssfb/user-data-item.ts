@@ -2,13 +2,13 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { userDataValue, unionTouserDataValue, unionListTouserDataValue } from '../../ss/ssfb/user-data-value';
+import { userDataValue, unionTouserDataValue, unionListTouserDataValue } from '../../ss/ssfb/user-data-value.js';
 
 
 export class userDataItem {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):userDataItem {
+  __init(i:number, bb:flatbuffers.ByteBuffer):userDataItem {
   this.bb_pos = i;
   this.bb = bb;
   return this;

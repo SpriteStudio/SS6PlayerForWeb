@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class AnimationInitialData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):AnimationInitialData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):AnimationInitialData {
   this.bb_pos = i;
   this.bb = bb;
   return this;
