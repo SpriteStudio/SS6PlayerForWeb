@@ -46,14 +46,14 @@
       const previewElement = playerElement.querySelector('.preview');
 
       const sspkgUrl = getQueryParameterValue('sspkgUrl');
-      console.log('sspkgUrl', sspkgUrl);
+      // console.log('sspkgUrl', sspkgUrl);
 
       if (sspkgUrl != null) {
         this.ssWebPlayer.loadSspkg(sspkgUrl);
       } else {
         // ssfb の読み込み
         const ssfbUrl = getQueryParameterValue('ssfbUrl');
-        console.log('ssfbUrl', ssfbUrl);
+        // console.log('ssfbUrl', ssfbUrl);
         this.ssWebPlayer.loadSsfb(ssfbUrl);
       }
 
@@ -90,7 +90,7 @@
 
       // ユーザーデータの表示
       const frameDataMap = ssWebPlayer.getFrameDataMap();
-      console.log('frameDataMap', frameDataMap);
+      // console.log('frameDataMap', frameDataMap);
 
       const frameInformationTableElement = playerElement.querySelector('.frame-information-table');
       const frameInformationTableTBodyElement = frameInformationTableElement.querySelector('tbody');
@@ -133,7 +133,7 @@
             const userDataTBodyElement = userDataTableElement.querySelector('tbody');
             for(let partsName in userData){
               const data = userData[partsName];
-              console.log('userData.data', partsName, data);
+              // console.log('userData.data', partsName, data);
               const userDataTrElement = document.createElement('tr');
 
               // パーツ名

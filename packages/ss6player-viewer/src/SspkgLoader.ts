@@ -14,7 +14,7 @@ export class SspkgLoader {
       })
       .then(JSZip.loadAsync)
       .then(async function (zipFile: JSZip) {
-        console.log(zipFile);
+        // console.log(zipFile);
 
         let ssfbFilePath = null;
         const imageBinaryMap = {};
@@ -22,7 +22,7 @@ export class SspkgLoader {
         for (let fileName in zipFile.files) {
           const file = zipFile.files[fileName];
           const fileExtension = fileName.split('.').pop();
-          console.log(fileName, file, fileExtension);
+          // console.log(fileName, file, fileExtension);
 
           if (fileExtension === 'ssfb') {
             if (ssfbFilePath !== null) {
@@ -42,7 +42,7 @@ export class SspkgLoader {
         let ssfbBinary = await zipFile.file(ssfbFilePath).async('uint8array');
         onFinishCallback(ssfbFilePath, ssfbBinary, imageBinaryMap, null);
       }, function error(e) {
-        console.log(e);
+        // console.log(e);
         onFinishCallback(null,null, null, e);
       });
   }

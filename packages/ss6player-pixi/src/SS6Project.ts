@@ -14,10 +14,26 @@ export class SS6Project {
   public ssfbFile: string;
   public fbObj: ProjectData;
   public status: RESOURCE_PROGRESS;
-  public declare onComplete: onCompleteCallback;
+  public onComplete: onCompleteCallback;
 
+  public getBundle(): string {
+    return this.ssfbFile;
+  }
+
+  /**
+   * SS6Project (used for several SS6Player(s))
+   * @param ssfbPath - ssfb file path
+   * @param onComplete - result callback
+   */
   public constructor(ssfbPath: string,
                      onComplete?: onCompleteCallback)
+  /**
+   * SS6Project (used for several SS6Player(s))
+   * @param ssfbName - ssfb file name
+   * @param bytes - ssfb file data
+   * @param imageBinaryMap - Image file data
+   * @param onComplete - result callback
+   */
   public constructor(ssfbName: string,
                      bytes: Uint8Array,
                      imageBinaryMap: { [key: string]: Uint8Array; },
@@ -92,10 +108,10 @@ export class SS6Project {
         sspjMap[name] = this.rootPath + cellMap.imagePath();
       }
     }
-    Assets.addBundle(this.ssfbFile, sspjMap);
+    Assets.addBundle(this.getBundle(), sspjMap);
 
     const self = this;
-    Assets.loadBundle(this.ssfbFile).then(() => {
+    Assets.loadBundle(this.getBundle()).then(() => {
       self.status = RESOURCE_PROGRESS.READY;
       if (self.onComplete !== null) {
         self.onComplete(this, null);
@@ -112,22 +128,20 @@ export class SS6Project {
 
     let assetMap = {};
     for (let imageName in imageBinaryMap) {
-      const binary = imageBinaryMap[imageName];
+      const binary: Uint8Array = imageBinaryMap[imageName];
 
-      // const base64 = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, binary));
-
-      let b = '';
+      let b: string = '';
       const len = binary.byteLength;
       for (let i = 0; i < len; i++) {
         b += String.fromCharCode(binary[i]);
       }
 
-      assetMap[imageName] = 'data:image/png;base64,' + window.btoa(b);
+      assetMap[imageName] = 'data:image/png;base64,' + btoa(b);
     }
-    Assets.addBundle(this.ssfbFile, assetMap);
+    Assets.addBundle(this.getBundle(), assetMap);
 
     const self = this;
-    Assets.loadBundle(this.ssfbFile).then(() => {
+    Assets.loadBundle(this.getBundle()).then(() => {
       self.status = RESOURCE_PROGRESS.READY;
 
       if (self.onComplete !== null) {
