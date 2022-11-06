@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.7.9
+ * SS6Player For RPG Maker MZ v0.8.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -13,7 +13,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.7.9
+ * @version 0.8.0
  * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -163,15 +163,15 @@ Imported.SS6PlayerRPGMakerMZ = true;
   const SIZEOF_INT = 4;
   const FILE_IDENTIFIER_LENGTH = 4;
   const SIZE_PREFIX_LENGTH = 4;
-  const int32$1 = new Int32Array(2);
-  const float32 = new Float32Array(int32$1.buffer);
-  const float64 = new Float64Array(int32$1.buffer);
+  const int32 = new Int32Array(2);
+  const float32 = new Float32Array(int32.buffer);
+  const float64 = new Float64Array(int32.buffer);
   const isLittleEndian = new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  var Encoding$1;
+  var Encoding;
   (function(Encoding2) {
     Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
     Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
-  })(Encoding$1 || (Encoding$1 = {}));
+  })(Encoding || (Encoding = {}));
   class ByteBuffer {
     constructor(bytes_) {
       this.bytes_ = bytes_;
@@ -221,12 +221,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return BigInt.asUintN(64, BigInt(this.readUint32(offset)) + (BigInt(this.readUint32(offset + 4)) << BigInt(32)));
     }
     readFloat32(offset) {
-      int32$1[0] = this.readInt32(offset);
+      int32[0] = this.readInt32(offset);
       return float32[0];
     }
     readFloat64(offset) {
-      int32$1[isLittleEndian ? 0 : 1] = this.readInt32(offset);
-      int32$1[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
+      int32[isLittleEndian ? 0 : 1] = this.readInt32(offset);
+      int32[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
       return float64[0];
     }
     writeInt8(offset, value) {
@@ -265,12 +265,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
     }
     writeFloat32(offset, value) {
       float32[0] = value;
-      this.writeInt32(offset, int32$1[0]);
+      this.writeInt32(offset, int32[0]);
     }
     writeFloat64(offset, value) {
       float64[0] = value;
-      this.writeInt32(offset, int32$1[isLittleEndian ? 0 : 1]);
-      this.writeInt32(offset + 4, int32$1[isLittleEndian ? 1 : 0]);
+      this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
+      this.writeInt32(offset + 4, int32[isLittleEndian ? 1 : 0]);
     }
     getBufferIdentifier() {
       if (this.bytes_.length < this.position_ + SIZEOF_INT + FILE_IDENTIFIER_LENGTH) {
@@ -296,7 +296,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const length = this.readInt32(offset);
       offset += SIZEOF_INT;
       const utf8bytes = this.bytes_.subarray(offset, offset + length);
-      if (opt_encoding === Encoding$1.UTF8_BYTES)
+      if (opt_encoding === Encoding.UTF8_BYTES)
         return utf8bytes;
       else
         return this.text_decoder_.decode(utf8bytes);
@@ -1359,7 +1359,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimationData.endAnimationData(builder);
     }
   }
-  var SsPartType$1 = /* @__PURE__ */ ((SsPartType2) => {
+  var SsPartType = /* @__PURE__ */ ((SsPartType2) => {
     SsPartType2[SsPartType2["Invalid"] = -1] = "Invalid";
     SsPartType2[SsPartType2["Nulltype"] = 0] = "Nulltype";
     SsPartType2[SsPartType2["Normal"] = 1] = "Normal";
@@ -1374,7 +1374,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     SsPartType2[SsPartType2["Joint"] = 10] = "Joint";
     SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
     return SsPartType2;
-  })(SsPartType$1 || {});
+  })(SsPartType || {});
   class PartData {
     constructor() {
       this.bb = null;
@@ -1406,7 +1406,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     }
     type() {
       const offset = this.bb.__offset(this.bb_pos, 10);
-      return offset ? this.bb.readInt8(this.bb_pos + offset) : SsPartType$1.Nulltype;
+      return offset ? this.bb.readInt8(this.bb_pos + offset) : SsPartType.Nulltype;
     }
     boundsType() {
       const offset = this.bb.__offset(this.bb_pos, 12);
@@ -1445,7 +1445,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       builder.addFieldInt16(2, parentIndex, 0);
     }
     static addType(builder, type) {
-      builder.addFieldInt8(3, type, SsPartType$1.Nulltype);
+      builder.addFieldInt8(3, type, SsPartType.Nulltype);
     }
     static addBoundsType(builder, boundsType) {
       builder.addFieldInt16(4, boundsType, 0);
@@ -1982,45 +1982,6 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return EffectFile.endEffectFile(builder);
     }
   }
-  var PART_FLAG$1 = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
-    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
-    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
-    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
-    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
-    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
-    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
-    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
-    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
-    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
-    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
-    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
-    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
-    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
-    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
-    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
-    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
-    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
-    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
-    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
-    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
-    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
-    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-    return PART_FLAG22;
-  })(PART_FLAG$1 || {});
-  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
-    return PART_FLAG22;
-  })(PART_FLAG2 || {});
   class ProjectData {
     constructor() {
       this.bb = null;
@@ -2308,6 +2269,45 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataString.enduserDataString(builder);
     }
   }
+  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
+    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
+    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
+    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
+    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
+    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
+    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
+    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
+    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
+    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
+    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
+    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
+    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
+    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
+    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
+    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
+    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
+    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
+    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
+    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
+    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
+    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
+    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    return PART_FLAG22;
+  })(PART_FLAG || {});
+  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
+    return PART_FLAG22;
+  })(PART_FLAG2 || {});
   class Utils$1 {
     static getProjectData(bytes) {
       const buf = new ByteBuffer(bytes);
@@ -2495,63 +2495,63 @@ Imported.SS6PlayerRPGMakerMZ = true;
         fd.flag1 = f1;
         fd.flag2 = f2;
         let id = 0;
-        if (f1 & PART_FLAG$1.INVISIBLE)
+        if (f1 & PART_FLAG.INVISIBLE)
           fd.f_hide = true;
-        if (f1 & PART_FLAG$1.FLIP_H)
+        if (f1 & PART_FLAG.FLIP_H)
           fd.f_flipH = true;
-        if (f1 & PART_FLAG$1.FLIP_V)
+        if (f1 & PART_FLAG.FLIP_V)
           fd.f_flipV = true;
-        if (f1 & PART_FLAG$1.CELL_INDEX)
+        if (f1 & PART_FLAG.CELL_INDEX)
           fd.cellIndex = curPartState.data(id++);
-        if (f1 & PART_FLAG$1.POSITION_X)
+        if (f1 & PART_FLAG.POSITION_X)
           fd.positionX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.POSITION_Y)
+        if (f1 & PART_FLAG.POSITION_Y)
           fd.positionY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.POSITION_Z)
+        if (f1 & PART_FLAG.POSITION_Z)
           id++;
-        if (f1 & PART_FLAG$1.PIVOT_X)
+        if (f1 & PART_FLAG.PIVOT_X)
           fd.pivotX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.PIVOT_Y)
+        if (f1 & PART_FLAG.PIVOT_Y)
           fd.pivotY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.ROTATIONX)
+        if (f1 & PART_FLAG.ROTATIONX)
           id++;
-        if (f1 & PART_FLAG$1.ROTATIONY)
+        if (f1 & PART_FLAG.ROTATIONY)
           id++;
-        if (f1 & PART_FLAG$1.ROTATIONZ)
+        if (f1 & PART_FLAG.ROTATIONZ)
           fd.rotationZ = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.SCALE_X)
+        if (f1 & PART_FLAG.SCALE_X)
           fd.scaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.SCALE_Y)
+        if (f1 & PART_FLAG.SCALE_Y)
           fd.scaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.LOCALSCALE_X)
+        if (f1 & PART_FLAG.LOCALSCALE_X)
           fd.localscaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.LOCALSCALE_Y)
+        if (f1 & PART_FLAG.LOCALSCALE_Y)
           fd.localscaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.OPACITY)
+        if (f1 & PART_FLAG.OPACITY)
           fd.opacity = curPartState.data(id++);
-        if (f1 & PART_FLAG$1.LOCALOPACITY)
+        if (f1 & PART_FLAG.LOCALOPACITY)
           fd.localopacity = curPartState.data(id++);
-        if (f1 & PART_FLAG$1.SIZE_X)
+        if (f1 & PART_FLAG.SIZE_X)
           fd.size_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.SIZE_Y)
+        if (f1 & PART_FLAG.SIZE_Y)
           fd.size_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.U_MOVE)
+        if (f1 & PART_FLAG.U_MOVE)
           fd.uv_move_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.V_MOVE)
+        if (f1 & PART_FLAG.V_MOVE)
           fd.uv_move_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.UV_ROTATION)
+        if (f1 & PART_FLAG.UV_ROTATION)
           fd.uv_rotation = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.U_SCALE)
+        if (f1 & PART_FLAG.U_SCALE)
           fd.uv_scale_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.V_SCALE)
+        if (f1 & PART_FLAG.V_SCALE)
           fd.uv_scale_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG$1.BOUNDINGRADIUS)
+        if (f1 & PART_FLAG.BOUNDINGRADIUS)
           id++;
-        if (f1 & PART_FLAG$1.MASK)
+        if (f1 & PART_FLAG.MASK)
           fd.masklimen = curPartState.data(id++);
-        if (f1 & PART_FLAG$1.PRIORITY)
+        if (f1 & PART_FLAG.PRIORITY)
           fd.priority = curPartState.data(id++);
-        if (f1 & PART_FLAG$1.INSTANCE_KEYFRAME) {
+        if (f1 & PART_FLAG.INSTANCE_KEYFRAME) {
           fd.instanceValue_curKeyframe = curPartState.data(id++);
           fd.instanceValue_startFrame = curPartState.data(id++);
           fd.instanceValue_endFrame = curPartState.data(id++);
@@ -2559,13 +2559,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
           fd.instanceValue_speed = this.I2F(curPartState.data(id++));
           fd.instanceValue_loopflag = curPartState.data(id++);
         }
-        if (f1 & PART_FLAG$1.EFFECT_KEYFRAME) {
+        if (f1 & PART_FLAG.EFFECT_KEYFRAME) {
           fd.effectValue_curKeyframe = curPartState.data(id++);
           fd.effectValue_startTime = curPartState.data(id++);
           fd.effectValue_speed = this.I2F(curPartState.data(id++));
           fd.effectValue_loopflag = curPartState.data(id++);
         }
-        if (f1 & PART_FLAG$1.VERTEX_TRANSFORM) {
+        if (f1 & PART_FLAG.VERTEX_TRANSFORM) {
           fd.f_mesh = true;
           const f = fd.i_transformVerts = curPartState.data(id++);
           if (f & 1) {
@@ -2585,7 +2585,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
             fd.v11 = this.I2F(curPartState.data(id++));
           }
         }
-        if (f1 & PART_FLAG$1.PARTS_COLOR) {
+        if (f1 & PART_FLAG.PARTS_COLOR) {
           const f = curPartState.data(id++);
           fd.colorBlendType = f & 255;
           fd.useColorMatrix = fd.colorBlendType !== 1;
@@ -2956,66 +2956,6 @@ Imported.SS6PlayerRPGMakerMZ = true;
       });
     }
   }
-  const int32 = new Int32Array(2);
-  new Float32Array(int32.buffer);
-  new Float64Array(int32.buffer);
-  new Uint16Array(new Uint8Array([1, 0]).buffer)[0] === 1;
-  var Encoding;
-  (function(Encoding2) {
-    Encoding2[Encoding2["UTF8_BYTES"] = 1] = "UTF8_BYTES";
-    Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
-  })(Encoding || (Encoding = {}));
-  var SsPartType = /* @__PURE__ */ ((SsPartType2) => {
-    SsPartType2[SsPartType2["Invalid"] = -1] = "Invalid";
-    SsPartType2[SsPartType2["Nulltype"] = 0] = "Nulltype";
-    SsPartType2[SsPartType2["Normal"] = 1] = "Normal";
-    SsPartType2[SsPartType2["Text"] = 2] = "Text";
-    SsPartType2[SsPartType2["Instance"] = 3] = "Instance";
-    SsPartType2[SsPartType2["Armature"] = 4] = "Armature";
-    SsPartType2[SsPartType2["Effect"] = 5] = "Effect";
-    SsPartType2[SsPartType2["Mesh"] = 6] = "Mesh";
-    SsPartType2[SsPartType2["Movenode"] = 7] = "Movenode";
-    SsPartType2[SsPartType2["Constraint"] = 8] = "Constraint";
-    SsPartType2[SsPartType2["Mask"] = 9] = "Mask";
-    SsPartType2[SsPartType2["Joint"] = 10] = "Joint";
-    SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
-    return SsPartType2;
-  })(SsPartType || {});
-  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
-    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
-    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
-    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
-    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
-    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
-    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
-    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
-    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
-    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
-    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
-    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
-    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
-    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
-    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
-    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
-    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
-    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
-    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
-    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
-    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
-    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
-    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-    return PART_FLAG22;
-  })(PART_FLAG || {});
   class SS6PlayerInstanceKeyParam {
     constructor() {
       this.refStartframe = 0;
