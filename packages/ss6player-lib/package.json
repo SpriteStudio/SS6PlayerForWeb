@@ -36,7 +36,7 @@
     "docs": "typedoc --out ../../docs/ss6player_lib_api src/ss6player-lib.ts"
   },
   "dependencies": {
-    "ssfblib": "1.1.2"
+    "ssfblib": "1.2.0"
   },
   "devDependencies": {
     "flatbuffers": "^22.10.26",
