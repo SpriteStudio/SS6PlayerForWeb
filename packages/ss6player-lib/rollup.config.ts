@@ -28,7 +28,7 @@ export default {
     json(),
     // Compile TypeScript files
     // typescript({ useTsconfigDeclarationDir: true }),
-    esbuild({sourceMap: !production}),
+    esbuild.default({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
     commonjs(),
     // Allow node_modules resolution, so you can use 'external' to control
