@@ -57,7 +57,7 @@
     "@rollup/plugin-json": "^5.0.1",
     "rollup-plugin-license": "^3.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "rollup-plugin-esbuild": "^4.10.2",
+    "rollup-plugin-esbuild": "^5.0.0",
     "esbuild": "^0.15.13",
     "@types/offscreencanvas": "^2019.7.0",
     "pixi.js": "^5.3.12",
