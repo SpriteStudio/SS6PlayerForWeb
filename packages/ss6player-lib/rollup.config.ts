@@ -11,6 +11,14 @@ const pkg = require('./package.json');
 
 const libraryName = 'ss6player-lib';
 
+const licenseBannerOptions = `-----------------------------------------------------------
+ ss6player-lib v<%= pkg.version %>
+
+ Copyright(C) <%= pkg.author.name %>
+ <%= pkg.author.url %>
+-----------------------------------------------------------
+`;
+
 export default {
   input: `src/${libraryName}.ts`,
   output: [
@@ -35,14 +43,6 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    license({
-      banner: `-----------------------------------------------------------
- ss6player-lib v<%= pkg.version %>
-
- Copyright(C) <%= pkg.author.name %>
- <%= pkg.author.url %>
------------------------------------------------------------
-`
-    })
+    license({ banner: licenseBannerOptions })
   ]
 };

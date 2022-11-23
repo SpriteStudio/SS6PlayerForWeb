@@ -24,11 +24,19 @@ const pixiGlobals = {
   '@pixi/graphics': 'PIXI'
 };
 
+const licenseBannerOptions = `-----------------------------------------------------------
+ SS6Player For Viewer v<%= pkg.version %>
+
+ Copyright(C) <%= pkg.author.name %>
+ <%= pkg.author.url %>
+-----------------------------------------------------------
+`;
+
 export default {
   input: `src/${libraryName}.ts`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals },
-    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, plugins: [ minify() ] },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, plugins: [ minify(), license({ banner: licenseBannerOptions }) ] },
     { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
@@ -49,14 +57,6 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    license({
-      banner: `-----------------------------------------------------------
- SS6Player For Viewer v<%= pkg.version %>
-
- Copyright(C) <%= pkg.author.name %>
- <%= pkg.author.url %>
------------------------------------------------------------
-`
-    })
+    license({ banner: licenseBannerOptions })
   ]
 };
