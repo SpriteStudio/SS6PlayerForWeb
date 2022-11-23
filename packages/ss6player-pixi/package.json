@@ -44,23 +44,23 @@
     "clean": "rimraf dist"
   },
   "peerDependencies": {
-    "@pixi/assets": "^7.0.3",
-    "@pixi/display": "^7.0.3",
-    "@pixi/mesh-extras": "^7.0.3",
-    "@pixi/ticker": "^7.0.3",
-    "@pixi/filter-color-matrix": "^7.0.3",
-    "@pixi/core": "^7.0.3",
-    "@pixi/constants": "^7.0.3"
+    "@pixi/assets": "^7.0.4",
+    "@pixi/display": "^7.0.4",
+    "@pixi/mesh-extras": "^7.0.4",
+    "@pixi/ticker": "^7.0.4",
+    "@pixi/filter-color-matrix": "^7.0.4",
+    "@pixi/core": "^7.0.4",
+    "@pixi/constants": "^7.0.4"
   },
   "dependencies": {
     "ss6player-lib": "1.0.0"
   },
   "devDependencies": {
-    "typescript": "^4.8.4",
-    "typedoc": "^0.23.20",
+    "typescript": "^4.9.3",
+    "typedoc": "^0.23.21",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^3.2.5",
+    "rollup": "^3.4.0",
     "@rollup/plugin-typescript": "^9.0.2",
     "@rollup/plugin-commonjs": "^23.0.2",
     "rollup-plugin-includepaths": "^0.2.4",
@@ -68,10 +68,10 @@
     "rollup-plugin-license": "^3.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "rollup-plugin-esbuild": "^5.0.0",
-    "esbuild": "^0.15.13",
+    "esbuild": "^0.15.15",
     "@types/offscreencanvas": "^2019.7.0",
-    "pixi.js": "^7.0.3",
-    "concurrently": "^7.5.0",
+    "pixi.js": "^7.0.4",
+    "concurrently": "^7.6.0",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
     "tslint": "^6.1.3",
