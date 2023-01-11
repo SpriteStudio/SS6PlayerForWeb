@@ -994,8 +994,7 @@ export class SS6Player extends Container {
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    return new SimpleMesh(Assets.get(cell.cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
-    return null;
+    return new SimpleMesh(Assets.get(cell.cellMap().name()), verts, uvs, indices, DRAW_MODES.TRIANGLES);
   }
 
   /**
@@ -1028,7 +1027,7 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      return new SimpleMesh(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+      return new SimpleMesh(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()), verts, uvs, indices, DRAW_MODES.TRIANGLES);
     }
 
     return null;
