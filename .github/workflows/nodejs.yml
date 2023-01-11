@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        node-version: [17.x, 18.x]
+        node-version: [18.x, 19.x]
 
     env:
       CI: true
