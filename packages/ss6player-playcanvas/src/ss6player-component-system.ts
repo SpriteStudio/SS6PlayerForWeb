@@ -1,13 +1,13 @@
-import * as pc from 'playcanvas';
 import {SS6PlayerComponent, SS6PlayerComponentProperties} from './ss6player-component';
 import {SS6playerComponentData} from './ss6player-component-data';
+import {AppBase, Component, ComponentSystem} from 'playcanvas';
 
-export class SS6PlayerComponentSystem extends pc.ComponentSystem {
+export class SS6PlayerComponentSystem extends ComponentSystem {
   id: string;
   ComponentType: typeof SS6PlayerComponent;
   DataType: typeof SS6playerComponentData;
 
-  constructor(app: pc.AppBase) {
+  constructor(app: AppBase) {
     super(app);
 
     this.id = 'ss6player';
@@ -21,7 +21,7 @@ export class SS6PlayerComponentSystem extends pc.ComponentSystem {
     app.systems.on('update', this.onUpdate, this);
   }
 
-  initializeComponentData(component: pc.Component, data: object, properties: Array<string | { name: string; type: string }>) {
+  initializeComponentData(component: Component, data: object, properties: Array<string | { name: string; type: string }>) {
     console.log('initializeComponentData');
     super.initializeComponentData(component, data, SS6PlayerComponentProperties);
   }

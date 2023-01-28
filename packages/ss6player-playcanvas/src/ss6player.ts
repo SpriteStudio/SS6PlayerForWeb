@@ -174,6 +174,7 @@ export class SS6Player {
   }
 
   update(dt: number) {
+    console.log('update: ' + dt);
     if (this._hidden) {
       return;
     }

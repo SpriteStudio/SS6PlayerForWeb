@@ -1,6 +1,5 @@
-import * as pc from 'playcanvas';
 import {SS6Player} from './ss6player';
-import {Application, Asset, AssetRegistry, GraphNode, Model} from 'playcanvas';
+import {Application, Asset, AssetRegistry, Component, ComponentSystem, Entity, GraphNode, Model} from 'playcanvas';
 
 export const SS6PlayerComponentProperties = [
   'enabled',
@@ -13,7 +12,7 @@ export const SS6PlayerComponentProperties = [
   'textures'
 ];
 
-export class SS6PlayerComponent extends pc.Component {
+export class SS6PlayerComponent extends Component {
   // enabled: boolean = true;
 
   /*
@@ -84,7 +83,7 @@ export class SS6PlayerComponent extends pc.Component {
   }
    */
 
-  constructor(system: pc.ComponentSystem, entity: pc.Entity) {
+  constructor(system: ComponentSystem, entity: Entity) {
     super(system, entity);
 
     this.on('set_ssfbAsset', this.onSetAsset, this);
@@ -108,13 +107,13 @@ export class SS6PlayerComponent extends pc.Component {
     let i;
     let n;
     for (i = 0, n = this.data.textureAssets.length; i < n; i++) {
-      const assetId = this.data.textureAssets[i] instanceof pc.Asset ? this.data.textureAssets[i].id : this.data.textureAssets[i];
+      const assetId = this.data.textureAssets[i] instanceof Asset ? this.data.textureAssets[i].id : this.data.textureAssets[i];
       const asset = this.system.app.assets.get(assetId);
       console.log(asset);
       let path = asset.name ? asset.name : asset.file ? asset.file.filename : null;
       // Fallback if filename doesn't exist
       if (!path) {
-        path = pc.path.getBasename(asset.file.url);
+        path = path.getBasename(asset.file.url);
       }
       let query = path.indexOf('?');
       if (query !== -1) {
@@ -211,7 +210,7 @@ export class SS6PlayerComponent extends pc.Component {
 
     if (newValue) {
       let id = newValue;
-      if (newValue instanceof pc.Asset) {
+      if (newValue instanceof Asset) {
         id = newValue.id;
         this.data[name] = id;
       }
@@ -258,7 +257,7 @@ export class SS6PlayerComponent extends pc.Component {
 
     if (newValue && newValue.length) {
       let ids: number[] = newValue.map(function (v) {
-        if (v instanceof pc.Asset) {
+        if (v instanceof Asset) {
           return v.id;
         }
         return v;
@@ -299,5 +298,3 @@ export class SS6PlayerComponent extends pc.Component {
     }
   }
 }
-
-
