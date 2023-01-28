@@ -118,7 +118,9 @@ export class SS6Player {
 
     this.playerLib = new Player(ssfbData, animePackName, animeName);
 
-    this.setup(animePackName, animeName);
+    if (animePackName !== null && animeName !== null) {
+      this.setup(animePackName, animeName);
+    }
   }
 
   destroy() {
