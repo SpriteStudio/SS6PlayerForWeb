@@ -36,6 +36,7 @@ export class SS6PlayerComponentSystem extends ComponentSystem {
   }
 
   onUpdate(dt: number): void {
+    // console.log('onUpdate: ' + dt.toString());
     const components = this.store;
 
     for (const id in components) {
@@ -45,7 +46,7 @@ export class SS6PlayerComponentSystem extends ComponentSystem {
         if (component.entity.enabled) {
           if (componentData.ss6player) {
             componentData.ss6player.setPosition(component.entity.getPosition());
-            componentData.ss6player.update(componentData.speed * dt);
+            componentData.ss6player.update(dt);
           }
         }
       }

@@ -122,7 +122,7 @@ export class SS6PlayerComponent extends Component {
       textureData[path] = asset.resource;
     }
     console.log(textureData);
-    this.data.ss6player = new SS6Player(this.system.app, this.data.ssfbData, textureData);
+    this.data.ss6player = new SS6Player(this.system.app, this.data.ssfbData, textureData, this.data.animePackName, this.data.animeName);
     this.entity.addChild(this.data.ss6player._node);
   }
 
@@ -226,9 +226,11 @@ export class SS6PlayerComponent extends Component {
   }
 
   onAnimePackName(name: string, oldValue: number | Asset, newValue: number | Asset): void {
+    console.log('onAnimePackName: ' + this.data.animePackName);
   }
 
   onSetAnimeName(name: string, oldValue: number | Asset, newValue: number | Asset): void {
+    console.log('onSetAnimeName: ' + this.data.animeName);
   }
 
   private onSetResource() {

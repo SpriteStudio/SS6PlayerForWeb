@@ -176,13 +176,13 @@ export class SS6Player {
   }
 
   update(dt: number) {
-    console.log('update: ' + dt);
     if (this._hidden) {
       return;
     }
+
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (/*toNextFrame &&*/ this.updateInterval !== 0) {
-      this.nextFrameTime += dt;
+      this.nextFrameTime += (dt * 1000);
       if (this.nextFrameTime >= this.updateInterval) {
         let playEndFlag = false;
 
@@ -192,6 +192,7 @@ export class SS6Player {
         let s = (this.skipEnabled ? step * this.playDirection : this.playDirection);
         let next = this._currentFrame + s;
         let nextFrameNo = Math.floor(next);
+        console.log('nextFrameNo: ' + nextFrameNo);
         let nextFrameDecimal = next - nextFrameNo;
         let currentFrameNo = Math.floor(this._currentFrame);
 
@@ -209,6 +210,7 @@ export class SS6Player {
                 this._isPlaying = false;
                 // stop playing the animation
                 // incFrameNo = (rewindAfterReachingEndFrame) ? this._startFrame : this._endFrame; // TODO:
+                incFrameNo = this._endFrame;
                 break;
               } else {
                 // continue to play the animation
@@ -229,6 +231,16 @@ export class SS6Player {
           }
          */
         }
+        this._currentFrame = currentFrameNo + nextFrameDecimal;
+
+        /*
+        if (playEndFlag) {
+          if (this.playEndCallback !== null) {
+            this.playEndCallback(this);
+          }
+        }
+         */
+        this.setFrameAnimation(Math.floor(this._currentFrame), step);
       }
     } else {
       this.setFrameAnimation(Math.floor(this._currentFrame));
