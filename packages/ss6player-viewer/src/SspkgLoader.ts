@@ -1,7 +1,7 @@
 import JSZip from 'jszip/dist/jszip'; // for avoding rollup error (https://github.com/Stuk/jszip/issues/673)
 
 export class SspkgLoader {
-  load(url: string, onFinishCallback: (ssfbFileName: string, ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }, error: any) => void) {
+  load(url: string, onFinishCallback: (ssfbFileName: string, ssfbFileData: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array }, error: any) => void) {
     const self = this;
 
     fetch(url)

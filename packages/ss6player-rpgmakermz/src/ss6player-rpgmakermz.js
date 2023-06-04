@@ -1,16 +1,16 @@
 import {SS6Player, SS6Project} from 'ss6player-pixi6';
-import {PluginParameters} from "./PluginParameters";
+import {PluginParameters} from './PluginParameters';
 import {SS6ProjectManager} from './SS6ProjectManager';
 
-const PLUGIN_NAME = "ss6player-rpgmakermz";
-const SS6PROJECT_LOAD_WAIT_MODE = "ss6projectLoadWait";
-const SS6PLAYER_WAIT_MODE = "ss6playerPlayWaitMode";
+const PLUGIN_NAME = 'ss6player-rpgmakermz';
+const SS6PROJECT_LOAD_WAIT_MODE = 'ss6projectLoadWait';
+const SS6PLAYER_WAIT_MODE = 'ss6playerPlayWaitMode';
 let g_ss6playerPlayWaitingStatus = false; // boolean
 let g_passSS6PlayerToSpritePicture = null; // SS6Player
 let g_pictureSS6PlayerPrependCallback = null; // function (ss6player) {};
 let g_pictureSS6PlayerAppendCallback = null; // function (ss6player) {};
 
-PluginManager.registerCommand(PLUGIN_NAME, "loadSsfb", function(args) {
+PluginManager.registerCommand(PLUGIN_NAME, 'loadSsfb', function(args) {
   const ssfbId = Number(args.ssfbId);
   const ssfbFile = args.ssfbFile;
   const ssfbPath = PluginParameters.getInstance().animationDir + ssfbFile;
@@ -33,14 +33,14 @@ PluginManager.registerCommand(PLUGIN_NAME, "loadSsfb", function(args) {
       throw httpObj;
     },
     (ssfbPath, timeout, retry, httpObj) => {
-      console.log("timeout download ssfb file: " + ssfbPath);
+      console.log('timeout download ssfb file: ' + ssfbPath);
       this.setWaitMode('');
       throw httpObj;
     },
     null);
 });
 
-PluginManager.registerCommand(PLUGIN_NAME, "setAsPicture", function(args) {
+PluginManager.registerCommand(PLUGIN_NAME, 'setAsPicture', function(args) {
   const ssfbId = Number(args.ssfbId);
   const animePackName = args.animePackName;
   const animeName = args.animeName;
@@ -50,7 +50,7 @@ PluginManager.registerCommand(PLUGIN_NAME, "setAsPicture", function(args) {
 
   let project = SS6ProjectManager.getInstance().get(ssfbId);
   if (project === null) {
-    const err = "not found ssfbId: " + ssfbId;
+    const err = 'not found ssfbId: ' + ssfbId;
     console.error(err);
     throw err;
   }
@@ -62,7 +62,7 @@ PluginManager.registerCommand(PLUGIN_NAME, "setAsPicture", function(args) {
   g_passSS6PlayerToSpritePicture = player;
 });
 
-PluginManager.registerCommand(PLUGIN_NAME, "waitForPicture", function(args) {
+PluginManager.registerCommand(PLUGIN_NAME, 'waitForPicture', function(args) {
   const pictureId = Number(args.pictureId) || 1;
   const picture = $gameScreen.picture(pictureId);
   if (picture && picture.mzkpSS6Player) {
@@ -78,11 +78,11 @@ PluginManager.registerCommand(PLUGIN_NAME, "waitForPicture", function(args) {
           }
         }
       } else {
-        console.warn("pictureId: " + pictureId + " can not wait SS6Player because setting infinity loop.");
+        console.warn('pictureId: ' + pictureId + ' can not wait SS6Player because setting infinity loop.');
       }
     }
   } else {
-    console.warn("pictureId: " + pictureId + " not have SS6Player");
+    console.warn('pictureId: ' + pictureId + ' not have SS6Player');
   }
 });
 
@@ -103,7 +103,7 @@ Game_Interpreter.prototype.updateWaitMode = function() {
 const _Game_Picture_show = Game_Picture.prototype.show;
 Game_Picture.prototype.show = function() {
   _Game_Picture_show.apply(this, arguments);
-  if (this._name === "" && g_passSS6PlayerToSpritePicture !== null) {
+  if (this._name === '' && g_passSS6PlayerToSpritePicture !== null) {
     this.mzkpSS6Player = g_passSS6PlayerToSpritePicture;
     this.mzkpSS6PlayerChanged = true;
     g_passSS6PlayerToSpritePicture = null;
@@ -166,7 +166,7 @@ Scene_Base.prototype.terminate = function() {
 const _Sprite_Picture_updateBitmap = Sprite_Picture.prototype.updateBitmap;
 Sprite_Picture.prototype.updateBitmap = function() {
   _Sprite_Picture_updateBitmap.apply(this, arguments);
-  if (this.visible && this._pictureName === "") {
+  if (this.visible && this._pictureName === '') {
     const picture = this.picture();
     const player = picture ? picture.mzkpSS6Player || null : null;
     const playerChanged = picture && picture.mzkpSS6PlayerChanged;
@@ -280,8 +280,6 @@ SceneManager.updateScene = function() {
         });
       }
 
-
-
       // execute to suspend all SS6Player instance of SV Enemy
       if ($gameTroop && $gameTroop.members()) {
         $gameTroop.members().forEach((enemy, index, enemies) => {
@@ -313,14 +311,14 @@ DataManager.isDatabaseLoaded = function() {
   }
 }
 
-const SV_ENEMY_TAG = "SS6SVEnemy";
-const SV_ENEMY_ATTRIBUTE_FILE = "file";
-const SV_ENEMY_ATTRIBUTE_ANIMATIONPACK = "animationPackName";
-const SV_ENEMY_ATTRIBUTE_ANIMATIONNAME = "animationName";
-const SV_ENEMY_ATTRIBUTE_SCALE_X = "scaleX";
-const SV_ENEMY_ATTRIBUTE_SCALE_Y = "scaleY";
-const SV_ENEMY_ATTRIBUTE_OFFSET_X = "offsetX";
-const SV_ENEMY_ATTRIBUTE_OFFSET_Y = "offsetY";
+const SV_ENEMY_TAG = 'SS6SVEnemy';
+const SV_ENEMY_ATTRIBUTE_FILE = 'file';
+const SV_ENEMY_ATTRIBUTE_ANIMATIONPACK = 'animationPackName';
+const SV_ENEMY_ATTRIBUTE_ANIMATIONNAME = 'animationName';
+const SV_ENEMY_ATTRIBUTE_SCALE_X = 'scaleX';
+const SV_ENEMY_ATTRIBUTE_SCALE_Y = 'scaleY';
+const SV_ENEMY_ATTRIBUTE_OFFSET_X = 'offsetX';
+const SV_ENEMY_ATTRIBUTE_OFFSET_Y = 'offsetY';
 DataManager.loadEnemyNoteTags = function() {
   const regex = new RegExp('<' + SV_ENEMY_TAG + ' ' + '(.*):(.*)>', 'i');
   $dataEnemies.forEach((enemy, idx, enemies) => {
@@ -369,13 +367,13 @@ DataManager.loadEnemyNoteTags = function() {
 //
 //
 Sprite_Actor.svActorSsfbId = function (actorId) {
-  return "sv_actor_" + actorId;
+  return 'sv_actor_' + actorId;
 }
 Sprite_Actor.svActorSsfbDir = function(actorId) {
-  return PluginParameters.getInstance().svActorDir + String(actorId) + "/";
+  return PluginParameters.getInstance().svActorDir + String(actorId) + '/';
 }
 Sprite_Actor.svActorSsfbPath = function (actorId) {
-  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + ".ssfb";
+  return Sprite_Actor.svActorSsfbDir(actorId) + String(actorId) + '.ssfb';
 }
 
 let notFoundSvActorSsfbMap = new Map();
@@ -391,8 +389,8 @@ Sprite_Actor.prototype.setBattler = function (battler) {
       if (Imported.VisuMZ_0_CoreEngine && Imported.VisuMZ_1_BattleCore && this instanceof Sprite_SvEnemy) {
         // TODO: impl Sprite_SvEnemy for VisuStella
         actorId = this._actor.enemyId();
-        ssfbId = "sv_enemy_" + actorId;
-        ssfbPath = PluginParameters.getInstance().svActorDir + "svenemy" + String(actorId) + "/" + String(actorId) + ".ssfb";
+        ssfbId = 'sv_enemy_' + actorId;
+        ssfbPath = PluginParameters.getInstance().svActorDir + 'svenemy' + String(actorId) + '/' + String(actorId) + '.ssfb';
       } else {
         actorId = this._actor.actorId();
         ssfbId = Sprite_Actor.svActorSsfbId(actorId);
@@ -453,16 +451,16 @@ Sprite_Actor.prototype.updateBitmap = function () {
 };
 
 Sprite_Actor.prototype.updateSS6Player = function () {
-  let motionName = "";
+  let motionName = '';
   for (let key in Sprite_Actor.MOTIONS) {
     const motion = Sprite_Actor.MOTIONS[key];
     if (this._motion === motion) {
       motionName = key;
     }
   }
-  if (motionName === "") {
+  if (motionName === '') {
     // not found motion
-    motionName = "walk";
+    motionName = 'walk';
   }
 
   if (this._actor._svActorSS6Player === null || this._actor._svActorSS6Player.animeName !== motionName) {
@@ -513,13 +511,13 @@ Sprite_Actor.prototype.setupWeaponAnimation = function () {
 //
 //
 Sprite_Enemy.svEnemySsfbId = function (enemyId) {
-  return "sv_enemy_" + enemyId;
+  return 'sv_enemy_' + enemyId;
 }
 Sprite_Enemy.svEnemySsfbDir = function(enemyId) {
-  return PluginParameters.getInstance().svEnemyDir + String(enemyId) + "/";
+  return PluginParameters.getInstance().svEnemyDir + String(enemyId) + '/';
 }
 Sprite_Enemy.svEnemySsfbPath = function (enemyId) {
-  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + ".ssfb";
+  return Sprite_Enemy.svEnemySsfbDir(enemyId) + String(enemyId) + '.ssfb';
 }
 
 let notFoundSvEnemySsfbMap = new Map();
@@ -668,7 +666,7 @@ Sprite_Enemy.prototype.updateFrame = function() {
         width = player.width;
         height = player.height;
       }
-      if (this._effectType === "bossCollapse") {
+      if (this._effectType === 'bossCollapse') {
         this.setFrame(0, 0, width, this._effectDuration);
       } else {
         this.setFrame(0, 0, width, height);

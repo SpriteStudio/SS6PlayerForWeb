@@ -7,6 +7,7 @@
  * -----------------------------------------------------------
  */
 
+// eslint-disable-next-line
 var Imported = Imported || {};
 Imported.SS6PlayerRPGMakerMZ = true;
 

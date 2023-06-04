@@ -36,7 +36,7 @@ export class SS6Project {
    */
   public constructor(ssfbName: string,
                      bytes: Uint8Array,
-                     imageBinaryMap: { [key: string]: Uint8Array; },
+                     imageBinaryMap: { [key: string]: Uint8Array },
                      onComplete?: onCompleteCallback);
   public constructor(arg1: any,
                      arg2: any,
@@ -61,7 +61,7 @@ export class SS6Project {
       this.ssfbFile = arg1;
 
       let ssfbByte: Uint8Array = arg2;
-      let imageBinaryMap: { [key: string]: Uint8Array; } = arg3;
+      let imageBinaryMap: { [key: string]: Uint8Array } = arg3;
       this.onComplete = (arg4 === undefined) ? null : arg4;
       this.load(ssfbByte, imageBinaryMap);
     }
@@ -123,7 +123,7 @@ export class SS6Project {
     });
   }
 
-  private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
+  private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array }) {
     this.fbObj = playerLibUtils.getProjectData(bytes);
 
     let assetMap = {};

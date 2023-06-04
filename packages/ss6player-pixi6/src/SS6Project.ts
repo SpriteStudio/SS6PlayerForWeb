@@ -19,7 +19,7 @@ export class SS6Project {
    * @param onComplete - callback result
    */
   public constructor(bytes: Uint8Array,
-                     imageBinaryMap: { [key: string]: Uint8Array; },
+                     imageBinaryMap: { [key: string]: Uint8Array },
                      onComplete: () => void);
   /**
    * SS6Project (used for several SS6Player(s))
@@ -72,7 +72,7 @@ export class SS6Project {
       this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
     } else if (typeof arg1 === 'object' && arg1.constructor === Uint8Array) { // get ssfb data from argument
       let ssfbByte: Uint8Array = arg1;
-      let imageBinaryMap: { [key: string]: Uint8Array; } = arg2;
+      let imageBinaryMap: { [key: string]: Uint8Array } = arg2;
       this.onComplete = (arg3 !== undefined) ? arg3 : null;
 
       this.load(ssfbByte, imageBinaryMap);
@@ -153,7 +153,7 @@ export class SS6Project {
     });
   }
 
-  private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array; }) {
+  private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array }) {
     this.fbObj = playerLibUtils.getProjectData(bytes);
 
     const loader = new Loader();

@@ -1,4 +1,6 @@
-
+/**
+ * FrameData
+ */
 export class FrameData {
   index: number;
   lowflag: number;
@@ -38,14 +40,14 @@ export class FrameData {
   effectValue_speed: number;
   effectValue_loopflag: number;
 
-  // Add visiblity
+  /// Add visiblity
   f_hide: boolean;
-  // Add flip
+  /// Add flip
   f_flipH: boolean;
   f_flipV: boolean;
-  // Add mesh
+  /// Add mesh
   f_mesh: boolean;
-  // Add vert data
+  /// Add vert data
   i_transformVerts: number;
   u00: number;
   v00: number;
