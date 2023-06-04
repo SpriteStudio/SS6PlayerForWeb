@@ -320,9 +320,6 @@ export class SS6Player extends Container {
   /**
    * アニメーション再生を開始する
    */
-  public Play();
-  // tslint:disable-next-line:unified-signatures
-  public Play(frameNo: number);
   public Play(frameNo?: number): void {
     this._isPlaying = true;
     this._isPausing = false;

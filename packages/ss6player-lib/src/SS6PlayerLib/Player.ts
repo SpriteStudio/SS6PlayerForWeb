@@ -753,7 +753,7 @@ export class Player {
   public static GetMeshVerts(cell: Cell, data: FrameData, verts: Float32Array): Float32Array {
     // フレームデータからメッシュデータを取得しvertsを作成する
     for (let idx: number = 0; idx < data.meshNum; idx++) {
-      verts[idx * 2 /*+ 0*/] = data.meshDataPoint[idx * 3 /*+ 0*/];
+      verts[idx * 2 /*+ 0*/] = data.meshDataPoint[idx * 3 /* + 0 */ ];
       verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
     }
     return verts;
