@@ -47,7 +47,7 @@
     "rollup-plugin-license": "^3.0.1",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "rollup-plugin-esbuild": "^5.0.0",
-    "esbuild": "^0.17.19"
+    "esbuild": "^0.18.8"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
