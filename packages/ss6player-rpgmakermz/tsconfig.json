@@ -10,7 +10,6 @@
       "dist/types",
       "node_modules/@types"
     ],
-    "types": ["pixi.js"]
   },
   "include": [
     "src"
