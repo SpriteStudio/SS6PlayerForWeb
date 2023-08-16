@@ -39,15 +39,15 @@
     "typedoc": "^0.24.8",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^5.0.1",
-    "rollup": "^3.26.2",
+    "rollup": "^3.28.0",
     "@rollup/plugin-typescript": "^11.1.2",
-    "@rollup/plugin-commonjs": "^25.0.2",
+    "@rollup/plugin-commonjs": "^25.0.4",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^6.0.0",
     "rollup-plugin-license": "^3.0.1",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "rollup-plugin-esbuild": "^5.0.0",
-    "esbuild": "^0.18.11"
+    "esbuild": "^0.19.2"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
