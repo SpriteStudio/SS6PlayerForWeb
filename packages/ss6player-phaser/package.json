@@ -35,7 +35,6 @@
       "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
       "prebuild": "npm run clean",
       "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
-      "deploy": "npm run build && npx ncp dist/ss6player-phaser.umd.js Player/ss6player-phaser.umd.js",
       "docs": "typedoc --out ../../docs/ss6player_phaser_api src/ss6player-phaser.ts",
       "watch": "rollup -c rollup.config.ts -w",
       "dist": "npm run docs && npm run build",

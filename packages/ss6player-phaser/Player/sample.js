@@ -16,35 +16,37 @@
 const testVersion = "sampleAnimation3";
 
 class GameScene extends Phaser.Scene {
-	constructor() {
-		super('game-scene')
-	}
+  constructor() {
+    super('game-scene')
+  }
 
-	preload() {
-    console.log("preload")
-	}
+  preload() {
+    this.load.ss6playerSsfb(testVersion, "../../../TestData/MeshBone/Knight.ssfb");
+    // this.load.ss6playerSsfb("B", "http://localhost:8090/TestData/MeshBone/Knight.ssfb");
+  }
 
-	create() {
+  create() {
     console.log("create")
-	}
+  }
 
   update(time, delta) {
     // console.log("update: " + time + " " + delta)
   }
 }
 
-const config = {
-	type: Phaser.AUTO,
-	width: 1270,
-	height: 740,
+const game = new Phaser.Game({
+  type: Phaser.AUTO,
+  width: 1270,
+  height: 740,
   backgroundColor: "#606060",
   plugins: {
     scene: [
-      {key: "ss6PlayerPhaser.SS6PlayerPlugin", plugin: ss6PlayerPhaser.SS6PlayerPlugin, mapping: "ss6player"}
+      {
+        key: "ss6PlayerPhaser.SS6PlayerPlugin",
+        plugin: ss6PlayerPhaser.SS6PlayerPlugin,
+        mapping: "ss6player"
+      }
     ]
   },
-	scene: [GameScene]
-}
-
-const game = new Phaser.Game(config)
-
+  scene: [GameScene]
+});
