@@ -7,6 +7,7 @@
  * -----------------------------------------------------------
  */
 
+// eslint-disable-next-line
 var Imported = Imported || {};
 Imported.SS6PlayerRPGMakerMZ = true;
 
@@ -158,7 +159,76 @@ Imported.SS6PlayerRPGMakerMZ = true;
 (function (loaders, display, meshExtras, ticker, filterColorMatrix, constants) {
   'use strict';
 
+  var __defProp$6 = Object.defineProperty;
+  var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$6 = (obj, key, value) => {
+    __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class FrameData {
+    constructor() {
+      __publicField$6(this, "index");
+      __publicField$6(this, "lowflag");
+      __publicField$6(this, "highflag");
+      __publicField$6(this, "priority");
+      __publicField$6(this, "cellIndex");
+      __publicField$6(this, "opacity");
+      __publicField$6(this, "localopacity");
+      __publicField$6(this, "masklimen");
+      __publicField$6(this, "positionX");
+      __publicField$6(this, "positionY");
+      __publicField$6(this, "pivotX");
+      __publicField$6(this, "pivotY");
+      __publicField$6(this, "rotationX");
+      __publicField$6(this, "rotationY");
+      __publicField$6(this, "rotationZ");
+      __publicField$6(this, "scaleX");
+      __publicField$6(this, "scaleY");
+      __publicField$6(this, "localscaleX");
+      __publicField$6(this, "localscaleY");
+      __publicField$6(this, "size_X");
+      __publicField$6(this, "size_Y");
+      __publicField$6(this, "uv_move_X");
+      __publicField$6(this, "uv_move_Y");
+      __publicField$6(this, "uv_rotation");
+      __publicField$6(this, "uv_scale_X");
+      __publicField$6(this, "uv_scale_Y");
+      __publicField$6(this, "boundingRadius");
+      __publicField$6(this, "instanceValue_curKeyframe");
+      __publicField$6(this, "instanceValue_endFrame");
+      __publicField$6(this, "instanceValue_startFrame");
+      __publicField$6(this, "instanceValue_loopNum");
+      __publicField$6(this, "instanceValue_speed");
+      __publicField$6(this, "instanceValue_loopflag");
+      __publicField$6(this, "effectValue_curKeyframe");
+      __publicField$6(this, "effectValue_startTime");
+      __publicField$6(this, "effectValue_speed");
+      __publicField$6(this, "effectValue_loopflag");
+      __publicField$6(this, "f_hide");
+      __publicField$6(this, "f_flipH");
+      __publicField$6(this, "f_flipV");
+      __publicField$6(this, "f_mesh");
+      __publicField$6(this, "i_transformVerts");
+      __publicField$6(this, "u00");
+      __publicField$6(this, "v00");
+      __publicField$6(this, "u01");
+      __publicField$6(this, "v01");
+      __publicField$6(this, "u10");
+      __publicField$6(this, "v10");
+      __publicField$6(this, "u11");
+      __publicField$6(this, "v11");
+      __publicField$6(this, "useColorMatrix");
+      __publicField$6(this, "colorBlendType");
+      __publicField$6(this, "colorRate");
+      __publicField$6(this, "colorArgb32");
+      __publicField$6(this, "meshIsBind");
+      __publicField$6(this, "meshNum");
+      __publicField$6(this, "meshDataPoint");
+      __publicField$6(this, "flag1");
+      __publicField$6(this, "flag2");
+      __publicField$6(this, "partsColorARGB");
+      __publicField$6(this, "tint");
+    }
   }
   const SIZEOF_INT = 4;
   const FILE_IDENTIFIER_LENGTH = 4;
@@ -173,26 +243,44 @@ Imported.SS6PlayerRPGMakerMZ = true;
     Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
   })(Encoding || (Encoding = {}));
   class ByteBuffer {
+    /**
+     * Create a new ByteBuffer with a given array of bytes (`Uint8Array`)
+     */
     constructor(bytes_) {
       this.bytes_ = bytes_;
       this.position_ = 0;
       this.text_decoder_ = new TextDecoder();
     }
+    /**
+     * Create and allocate a new ByteBuffer with a given size.
+     */
     static allocate(byte_size) {
       return new ByteBuffer(new Uint8Array(byte_size));
     }
     clear() {
       this.position_ = 0;
     }
+    /**
+     * Get the underlying `Uint8Array`.
+     */
     bytes() {
       return this.bytes_;
     }
+    /**
+     * Get the buffer's position.
+     */
     position() {
       return this.position_;
     }
+    /**
+     * Set the buffer's position.
+     */
     setPosition(position) {
       this.position_ = position;
     }
+    /**
+     * Get the buffer's capacity.
+     */
     capacity() {
       return this.bytes_.length;
     }
@@ -272,6 +360,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
       this.writeInt32(offset + 4, int32[isLittleEndian ? 1 : 0]);
     }
+    /**
+     * Return the file identifier.   Behavior is undefined for FlatBuffers whose
+     * schema does not include a file_identifier (likely points at padding or the
+     * start of a the root vtable).
+     */
     getBufferIdentifier() {
       if (this.bytes_.length < this.position_ + SIZEOF_INT + FILE_IDENTIFIER_LENGTH) {
         throw new Error("FlatBuffers: ByteBuffer is too short to contain an identifier.");
@@ -282,15 +375,33 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return result;
     }
+    /**
+     * Look up a field in the vtable, return an offset into the object, or 0 if the
+     * field is not present.
+     */
     __offset(bb_pos, vtable_offset) {
       const vtable = bb_pos - this.readInt32(bb_pos);
       return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
     }
+    /**
+     * Initialize any Table-derived type to point to the union at the given offset.
+     */
     __union(t, offset) {
       t.bb_pos = offset + this.readInt32(offset);
       t.bb = this;
       return t;
     }
+    /**
+     * Create a JavaScript string from UTF-8 data stored inside the FlatBuffer.
+     * This allocates a new string and converts to wide chars upon each access.
+     *
+     * To avoid the conversion to string, pass Encoding.UTF8_BYTES as the
+     * "optionalEncoding" argument. This is useful for avoiding conversion when
+     * the data will just be packaged back up in another FlatBuffer later on.
+     *
+     * @param offset
+     * @param opt_encoding Defaults to UTF16_STRING
+     */
     __string(offset, opt_encoding) {
       offset += this.readInt32(offset);
       const length = this.readInt32(offset);
@@ -301,18 +412,34 @@ Imported.SS6PlayerRPGMakerMZ = true;
       else
         return this.text_decoder_.decode(utf8bytes);
     }
+    /**
+     * Handle unions that can contain string as its member, if a Table-derived type then initialize it,
+     * if a string then return a new one
+     *
+     * WARNING: strings are immutable in JS so we can't change the string that the user gave us, this
+     * makes the behaviour of __union_with_string different compared to __union
+     */
     __union_with_string(o, offset) {
       if (typeof o === "string") {
         return this.__string(offset);
       }
       return this.__union(o, offset);
     }
+    /**
+     * Retrieve the relative offset stored at "offset"
+     */
     __indirect(offset) {
       return offset + this.readInt32(offset);
     }
+    /**
+     * Get the start of data of a vector whose offset is stored at "offset" in this object.
+     */
     __vector(offset) {
       return offset + this.readInt32(offset) + SIZEOF_INT;
     }
+    /**
+     * Get the length of a vector whose offset is stored at "offset" in this object.
+     */
     __vector_len(offset) {
       return this.readInt32(offset + this.readInt32(offset));
     }
@@ -327,6 +454,9 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return true;
     }
+    /**
+     * A helper function for generating list for obj api
+     */
     createScalarList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
@@ -337,6 +467,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return ret;
     }
+    /**
+     * A helper function for generating list for obj api
+     * @param listAccessor function that accepts an index and return data at that index
+     * @param listLength listLength
+     * @param res result list
+     */
     createObjList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
@@ -348,10 +484,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return ret;
     }
   }
+  var __defProp$A = Object.defineProperty;
+  var __defNormalProp$A = (obj, key, value) => key in obj ? __defProp$A(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$A = (obj, key, value) => {
+    __defNormalProp$A(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class AnimationInitialData {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$A(this, "bb", null);
+      __publicField$A(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -681,10 +823,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimationInitialData.endAnimationInitialData(builder);
     }
   }
+  var __defProp$z = Object.defineProperty;
+  var __defNormalProp$z = (obj, key, value) => key in obj ? __defProp$z(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$z = (obj, key, value) => {
+    __defNormalProp$z(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class partState {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$z(this, "bb", null);
+      __publicField$z(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -760,10 +908,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return partState.endpartState(builder);
     }
   }
+  var __defProp$y = Object.defineProperty;
+  var __defNormalProp$y = (obj, key, value) => key in obj ? __defProp$y(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$y = (obj, key, value) => {
+    __defNormalProp$y(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class frameDataIndex {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$y(this, "bb", null);
+      __publicField$y(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -811,10 +965,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return frameDataIndex.endframeDataIndex(builder);
     }
   }
+  var __defProp$x = Object.defineProperty;
+  var __defNormalProp$x = (obj, key, value) => key in obj ? __defProp$x(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$x = (obj, key, value) => {
+    __defNormalProp$x(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class labelDataItem {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$x(this, "bb", null);
+      __publicField$x(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -856,10 +1016,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return labelDataItem.endlabelDataItem(builder);
     }
   }
+  var __defProp$w = Object.defineProperty;
+  var __defNormalProp$w = (obj, key, value) => key in obj ? __defProp$w(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$w = (obj, key, value) => {
+    __defNormalProp$w(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class meshDataIndices {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$w(this, "bb", null);
+      __publicField$w(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -911,10 +1077,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return meshDataIndices.endmeshDataIndices(builder);
     }
   }
+  var __defProp$v = Object.defineProperty;
+  var __defNormalProp$v = (obj, key, value) => key in obj ? __defProp$v(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$v = (obj, key, value) => {
+    __defNormalProp$v(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class meshDataUV {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$v(this, "bb", null);
+      __publicField$v(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -966,10 +1138,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return meshDataUV.endmeshDataUV(builder);
     }
   }
+  var __defProp$u = Object.defineProperty;
+  var __defNormalProp$u = (obj, key, value) => key in obj ? __defProp$u(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$u = (obj, key, value) => {
+    __defNormalProp$u(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataItem {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$u(this, "bb", null);
+      __publicField$u(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1059,10 +1237,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataItem.enduserDataItem(builder);
     }
   }
+  var __defProp$t = Object.defineProperty;
+  var __defNormalProp$t = (obj, key, value) => key in obj ? __defProp$t(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$t = (obj, key, value) => {
+    __defNormalProp$t(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataPerFrame {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$t(this, "bb", null);
+      __publicField$t(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1118,10 +1302,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataPerFrame.enduserDataPerFrame(builder);
     }
   }
+  var __defProp$s = Object.defineProperty;
+  var __defNormalProp$s = (obj, key, value) => key in obj ? __defProp$s(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$s = (obj, key, value) => {
+    __defNormalProp$s(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class AnimationData {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$s(this, "bb", null);
+      __publicField$s(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1375,10 +1565,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
     SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
     return SsPartType2;
   })(SsPartType || {});
+  var __defProp$r = Object.defineProperty;
+  var __defNormalProp$r = (obj, key, value) => key in obj ? __defProp$r(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$r = (obj, key, value) => {
+    __defNormalProp$r(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class PartData {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$r(this, "bb", null);
+      __publicField$r(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1484,10 +1680,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return PartData.endPartData(builder);
     }
   }
+  var __defProp$q = Object.defineProperty;
+  var __defNormalProp$q = (obj, key, value) => key in obj ? __defProp$q(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$q = (obj, key, value) => {
+    __defNormalProp$q(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class AnimePackData {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$q(this, "bb", null);
+      __publicField$q(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1565,10 +1767,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimePackData.endAnimePackData(builder);
     }
   }
+  var __defProp$p = Object.defineProperty;
+  var __defNormalProp$p = (obj, key, value) => key in obj ? __defProp$p(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$p = (obj, key, value) => {
+    __defNormalProp$p(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class CellMap {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$p(this, "bb", null);
+      __publicField$p(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1634,10 +1842,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return CellMap.endCellMap(builder);
     }
   }
+  var __defProp$o = Object.defineProperty;
+  var __defNormalProp$o = (obj, key, value) => key in obj ? __defProp$o(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$o = (obj, key, value) => {
+    __defNormalProp$o(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class Cell {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$o(this, "bb", null);
+      __publicField$o(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1750,10 +1964,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return offset;
     }
   }
+  var __defProp$n = Object.defineProperty;
+  var __defNormalProp$n = (obj, key, value) => key in obj ? __defProp$n(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$n = (obj, key, value) => {
+    __defNormalProp$n(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class EffectNode {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$n(this, "bb", null);
+      __publicField$n(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1875,10 +2095,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return EffectNode.endEffectNode(builder);
     }
   }
+  var __defProp$m = Object.defineProperty;
+  var __defNormalProp$m = (obj, key, value) => key in obj ? __defProp$m(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$m = (obj, key, value) => {
+    __defNormalProp$m(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class EffectFile {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$m(this, "bb", null);
+      __publicField$m(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1982,10 +2208,55 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return EffectFile.endEffectFile(builder);
     }
   }
+  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
+    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
+    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
+    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
+    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
+    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
+    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
+    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
+    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
+    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
+    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
+    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
+    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
+    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
+    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
+    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
+    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
+    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
+    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
+    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
+    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
+    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
+    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    return PART_FLAG22;
+  })(PART_FLAG || {});
+  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
+    return PART_FLAG22;
+  })(PART_FLAG2 || {});
+  var __defProp$4 = Object.defineProperty;
+  var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$4 = (obj, key, value) => {
+    __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class ProjectData {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$4(this, "bb", null);
+      __publicField$4(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2142,10 +2413,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return ProjectData.endProjectData(builder);
     }
   }
+  var __defProp$3 = Object.defineProperty;
+  var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$3 = (obj, key, value) => {
+    __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataInteger {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$3(this, "bb", null);
+      __publicField$3(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2164,10 +2441,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
+  var __defProp$2$1 = Object.defineProperty;
+  var __defNormalProp$2$1 = (obj, key, value) => key in obj ? __defProp$2$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$2$1 = (obj, key, value) => {
+    __defNormalProp$2$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataPoint {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$2$1(this, "bb", null);
+      __publicField$2$1(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2190,10 +2473,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
+  var __defProp$1$1 = Object.defineProperty;
+  var __defNormalProp$1$1 = (obj, key, value) => key in obj ? __defProp$1$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$1$1 = (obj, key, value) => {
+    __defNormalProp$1$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataRect {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$1$1(this, "bb", null);
+      __publicField$1$1(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2224,10 +2513,16 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
+  var __defProp$5 = Object.defineProperty;
+  var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$5 = (obj, key, value) => {
+    __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class userDataString {
     constructor() {
-      this.bb = null;
-      this.bb_pos = 0;
+      __publicField$5(this, "bb", null);
+      __publicField$5(this, "bb_pos", 0);
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2269,75 +2564,43 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataString.enduserDataString(builder);
     }
   }
-  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
-    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
-    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
-    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
-    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
-    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
-    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
-    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
-    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
-    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
-    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
-    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
-    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
-    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
-    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
-    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
-    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
-    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
-    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
-    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
-    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
-    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
-    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-    return PART_FLAG22;
-  })(PART_FLAG || {});
-  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
-    return PART_FLAG22;
-  })(PART_FLAG2 || {});
-  class Utils$1 {
+  let Utils$1 = class Utils {
     static getProjectData(bytes) {
       const buf = new ByteBuffer(bytes);
       return ProjectData.getRootAsProjectData(buf);
     }
-  }
-  class Utils {
+  };
+  class Utils2 {
     static getProjectData(bytes) {
       return Utils$1.getProjectData(bytes);
     }
   }
+  var __defProp$7 = Object.defineProperty;
+  var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$7 = (obj, key, value) => {
+    __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class Player {
     constructor(ssfbData, animePackName = null, animeName = null) {
-      this.curAnimePackName = null;
-      this.curAnimeName = null;
-      this.curAnimation = null;
-      this.curAnimePackData = null;
-      this._animePackIdx = -1;
-      this._parentIndex = [];
-      this._prio2index = [];
-      this.userData = [];
-      this.frameDataCache = null;
-      this.currentCachedFrameNumber = -1;
-      this.defaultFrameMap = [];
-      this._uint32 = new Uint32Array(1);
-      this._float32 = new Float32Array(this._uint32.buffer);
+      __publicField$7(this, "_fbObj");
+      __publicField$7(this, "curAnimePackName", null);
+      __publicField$7(this, "curAnimeName", null);
+      __publicField$7(this, "curAnimation", null);
+      __publicField$7(this, "curAnimePackData", null);
+      __publicField$7(this, "_animePackIdx", -1);
+      __publicField$7(this, "_parentIndex", []);
+      __publicField$7(this, "_prio2index", []);
+      __publicField$7(this, "userData", []);
+      __publicField$7(this, "frameDataCache", null);
+      __publicField$7(this, "currentCachedFrameNumber", -1);
+      __publicField$7(this, "defaultFrameMap", []);
+      __publicField$7(this, "_uint32", new Uint32Array(1));
+      __publicField$7(this, "_float32", new Float32Array(this._uint32.buffer));
       if (ssfbData.hasOwnProperty("bb")) {
         this._fbObj = ssfbData;
       } else {
-        this._fbObj = Utils.getProjectData(ssfbData);
+        this._fbObj = Utils2.getProjectData(ssfbData);
       }
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
@@ -2367,6 +2630,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
     get prio2index() {
       return this._prio2index;
     }
+    /**
+     * Setup
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     Setup(animePackName, animeName) {
       this.clearCaches();
       const animePacksLength = this._fbObj.animePacksLength();
@@ -2413,6 +2681,32 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.currentCachedFrameNumber = -1;
       this.defaultFrameMap = [];
     }
+    /**
+     * ユーザーデータコールバックの設定
+     * @param fn
+     * @constructor
+     *
+     * ユーザーデータのフォーマット
+     * data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
+     * data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
+     * d0 : パーツ（レイヤー）番号
+     * d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
+     * d2 : int(int)
+     * d3 : rect0(int)
+     * d4 : rect1(int)
+     * d5 : rect2(int)
+     * d6 : rect3(int)
+     * d7 : pos0(int)
+     * d8 : pos1(int)
+     * d9 : string.length(int)
+     * d10: string(string)
+     *
+     */
+    /**
+     * ユーザーデータの存在チェック
+     * @param {number} frameNumber - フレーム番号
+     * @return {boolean} - 存在するかどうか
+     */
     HaveUserData(frameNumber) {
       if (this.userData[frameNumber] === null) {
         return false;
@@ -2429,6 +2723,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.userData[frameNumber] = null;
       return false;
     }
+    /**
+     * ユーザーデータの取得
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - ユーザーデータ
+     */
     GetUserData(frameNumber) {
       if (this.HaveUserData(frameNumber) === false) {
         return;
@@ -2474,10 +2773,19 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return data;
     }
+    /**
+     * int型からfloat型に変換する
+     * @return {floatView[0]} - float型に変換したデータ
+     */
     I2F(i) {
       this._uint32[0] = i;
       return this._float32[0];
     }
+    /**
+     * １フレーム分のデータを取得する（未設定項目はデフォルト）
+     * [注意]現verでは未対応項目があると正常動作しない可能性があります
+     * @param {number} frameNumber - フレーム番号
+     */
     GetFrameData(frameNumber) {
       if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
         return this.frameDataCache;
@@ -2625,6 +2933,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.currentCachedFrameNumber = frameNumber;
       return frameData;
     }
+    /**
+     * デフォルトデータを取得する
+     * @param {number} id - パーツ（レイヤー）ID
+     * @return {array} - データ
+     */
     GetDefaultDataByIndex(id) {
       const curDefaultData = this.defaultFrameMap[id];
       let dfd = new FrameData();
@@ -2690,6 +3003,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       dfd.partsColorARGB = 0;
       return dfd;
     }
+    /**
+     * 親を遡って不透明度を継承する
+     * @param {number} opacity - 透明度
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {number} - 透明度
+     */
     InheritOpacity(opacity, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       opacity = data.opacity / 255;
@@ -2698,6 +3018,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return opacity;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} verts - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformVertsLocal(verts, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2738,6 +3065,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} verts - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformMeshVertsLocal(verts, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2756,6 +3090,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} pos - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformPositionLocal(pos, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       pos[4] += -data.rotationZ;
@@ -2773,6 +3114,21 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return pos;
     }
+    /**
+     * 5頂点の中間点を求める
+     * @param {number} cx - 元の中心点
+     * @param {number} cy - 元の中心点
+     * @param {number} LUx - 左上座標
+     * @param {number} LUy - 左上座標
+     * @param {number} RUx - 右上座標
+     * @param {number} RUy - 右上座標
+     * @param {number} LDx - 左下座標
+     * @param {number} LDy - 左下座標
+     * @param {number} RDx - 右下座標
+     * @param {number} RDy - 右下座標
+     * @param vec2
+     * @return {array} vec2 - 4頂点から算出した中心点の座標
+     */
     static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
       const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
       const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
@@ -2789,6 +3145,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       vec2[1] = cy;
       return vec2;
     }
+    /**
+     * 親を遡って座標変換する
+     * @param {array} verts - 頂点情報配列
+     * @param {number} id - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformVerts(verts, id, frameNumber) {
       const data = this.GetFrameData(frameNumber)[id];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2813,6 +3176,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する
+     * @param {array} pos - 頂点情報配列
+     * @param {number} id - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformPosition(pos, id, frameNumber) {
       const data = this.GetFrameData(frameNumber)[id];
       pos[4] += -data.rotationZ;
@@ -2830,6 +3200,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return pos;
     }
+    /**
+     * 矩形セルメッシュの頂点情報のみ取得
+     * @param {ssfblib.Cell} cell - セル
+     * @param {array} data - アニメーションフレームデータ
+     * @param verts
+     * @return {array} - 頂点情報配列
+     */
     static GetVerts(cell, data, verts) {
       const w = data.size_X / 2;
       const h = data.size_Y / 2;
@@ -2838,9 +3215,22 @@ Imported.SS6PlayerRPGMakerMZ = true;
       verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
       return verts;
     }
+    /**
+     * 矩形セルメッシュの頂点情報のみ取得
+     * @param {ssfblib.Cell} cell - セル
+     * @param {array} data - アニメーションフレームデータ
+     * @param verts
+     * @return {array} - 頂点情報配列
+     */
     static GetMeshVerts(cell, data, verts) {
       for (let idx = 0; idx < data.meshNum; idx++) {
-        verts[idx * 2] = data.meshDataPoint[idx * 3];
+        verts[
+          idx * 2
+          /*+ 0*/
+        ] = data.meshDataPoint[
+          idx * 3
+          /* + 0 */
+        ];
         verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
       }
       return verts;
@@ -2849,8 +3239,23 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     }
   }
+  var __defProp$2 = Object.defineProperty;
+  var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$2 = (obj, key, value) => {
+    __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class SS6Project {
     constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+      __publicField$2(this, "ssfbPath");
+      __publicField$2(this, "rootPath");
+      __publicField$2(this, "fbObj");
+      __publicField$2(this, "resources");
+      __publicField$2(this, "status");
+      __publicField$2(this, "onComplete");
+      __publicField$2(this, "onError");
+      __publicField$2(this, "onTimeout");
+      __publicField$2(this, "onRetry");
       if (typeof arg1 === "string") {
         let ssfbPath = arg1;
         let onComplete = arg2;
@@ -2875,6 +3280,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
         this.load(ssfbByte, imageBinaryMap);
       }
     }
+    /**
+     * Load json and parse (then, load textures)
+     * @param {string} ssfbPath - FlatBuffers file path
+     * @param timeout
+     * @param retry
+     */
     LoadFlatBuffersProject(ssfbPath, timeout = 0, retry = 0) {
       const self = this;
       const httpObj = new XMLHttpRequest();
@@ -2891,7 +3302,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
         }
         const arrayBuffer = this.response;
         const bytes = new Uint8Array(arrayBuffer);
-        self.fbObj = Utils.getProjectData(bytes);
+        self.fbObj = Utils2.getProjectData(bytes);
         self.LoadCellResources();
       };
       httpObj.ontimeout = function() {
@@ -2913,6 +3324,9 @@ Imported.SS6PlayerRPGMakerMZ = true;
       };
       httpObj.send(null);
     }
+    /**
+     * Load textures
+     */
     LoadCellResources() {
       const self = this;
       let loader = new loaders.Loader();
@@ -2934,7 +3348,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       });
     }
     load(bytes, imageBinaryMap) {
-      this.fbObj = Utils.getProjectData(bytes);
+      this.fbObj = Utils2.getProjectData(bytes);
       const loader = new loaders.Loader();
       for (let imageName in imageBinaryMap) {
         const binary = imageBinaryMap[imageName];
@@ -2956,32 +3370,66 @@ Imported.SS6PlayerRPGMakerMZ = true;
       });
     }
   }
+  var __defProp$1$2 = Object.defineProperty;
+  var __defNormalProp$1$2 = (obj, key, value) => key in obj ? __defProp$1$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$1$2 = (obj, key, value) => {
+    __defNormalProp$1$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class SS6PlayerInstanceKeyParam {
     constructor() {
-      this.refStartframe = 0;
-      this.refEndframe = 0;
-      this.refSpeed = 1;
-      this.refloopNum = 0;
-      this.infinity = false;
-      this.reverse = false;
-      this.pingpong = false;
-      this.independent = false;
+      __publicField$1$2(this, "refStartframe", 0);
+      __publicField$1$2(this, "refEndframe", 0);
+      __publicField$1$2(this, "refSpeed", 1);
+      __publicField$1$2(this, "refloopNum", 0);
+      __publicField$1$2(this, "infinity", false);
+      __publicField$1$2(this, "reverse", false);
+      __publicField$1$2(this, "pingpong", false);
+      __publicField$1$2(this, "independent", false);
     }
   }
+  var __defProp$8 = Object.defineProperty;
+  var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$8 = (obj, key, value) => {
+    __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
   class SS6Player extends display.Container {
+    /**
+     * SS6Player (extends PIXI.Container)
+     * @constructor
+     * @param {SS6Project} ss6project - SS6Project that contains animations.
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     constructor(ss6project, animePackName = null, animeName = null) {
       super();
-      this.liveFrame = [];
-      this.colorMatrixFilterCache = [];
-      this.parentAlpha = 1;
-      this.prevCellID = [];
-      this.prevMesh = [];
-      this.substituteOverWrite = [];
-      this.substituteKeyParam = [];
-      this.alphaBlendType = [];
-      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
-      this._instancePos = new Float32Array(5);
-      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
+      __publicField$8(this, "playerLib");
+      __publicField$8(this, "ss6project");
+      __publicField$8(this, "resources");
+      __publicField$8(this, "liveFrame", []);
+      __publicField$8(this, "colorMatrixFilterCache", []);
+      __publicField$8(this, "parentAlpha", 1);
+      __publicField$8(this, "prevCellID", []);
+      __publicField$8(this, "prevMesh", []);
+      __publicField$8(this, "substituteOverWrite", []);
+      __publicField$8(this, "substituteKeyParam", []);
+      __publicField$8(this, "alphaBlendType", []);
+      __publicField$8(this, "_isPlaying");
+      __publicField$8(this, "_isPausing");
+      __publicField$8(this, "_startFrame");
+      __publicField$8(this, "_endFrame");
+      __publicField$8(this, "_currentFrame");
+      __publicField$8(this, "nextFrameTime");
+      __publicField$8(this, "_loops");
+      __publicField$8(this, "skipEnabled");
+      __publicField$8(this, "updateInterval");
+      __publicField$8(this, "playDirection");
+      __publicField$8(this, "onUserDataCallback");
+      __publicField$8(this, "playEndCallback");
+      __publicField$8(this, "defaultColorFilter", new filterColorMatrix.ColorMatrixFilter());
+      __publicField$8(this, "_instancePos", new Float32Array(5));
+      __publicField$8(this, "_CoordinateGetDiagonalIntersectionVec2", new Float32Array(2));
       this.ss6project = ss6project;
       this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
       this.resources = this.ss6project.resources;
@@ -3029,6 +3477,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
     get animeName() {
       return this.playerLib.animeName;
     }
+    /**
+     * Setup
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     Setup(animePackName, animeName) {
       this.playerLib.Setup(animePackName, animeName);
       this.clearCaches();
@@ -3067,6 +3520,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
     Update(delta) {
       this.UpdateInternal(delta);
     }
+    /**
+     * Update is called PIXI.ticker
+     * @param {number} delta - expected 1
+     */
     UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
       const elapsedTime = ticker.Ticker.shared.elapsedMS;
       const toNextFrame = this._isPlaying && !this._isPausing;
@@ -3149,12 +3606,22 @@ Imported.SS6PlayerRPGMakerMZ = true;
         this.SetFrameAnimation(Math.floor(this._currentFrame));
       }
     }
+    /**
+     * アニメーションの速度を設定する (deprecated この関数は削除される可能性があります)
+     * @param {number} fps - アニメーション速度(frame per sec.)
+     * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
+     */
     SetAnimationFramerate(fps, _skipEnabled = true) {
       if (fps <= 0)
         return;
       this.updateInterval = 1e3 / fps;
       this.skipEnabled = _skipEnabled;
     }
+    /**
+     * アニメーションの速度を設定する
+     * @param {number} fpsRate - アニメーション速度(設定値に対する乗率)負数設定で逆再生
+     * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
+     */
     SetAnimationSpeed(fpsRate, _skipEnabled = true) {
       if (fpsRate === 0)
         return;
@@ -3162,6 +3629,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.updateInterval = 1e3 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
       this.skipEnabled = _skipEnabled;
     }
+    /**
+     * アニメーション再生設定
+     * @param {number} _startframe - 開始フレーム番号（マイナス設定でデフォルト値を変更しない）
+     * @param {number} _endframe - 終了フレーム番号（マイナス設定でデフォルト値を変更しない）
+     * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
+     */
     SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
       if (_startframe >= 0 && _startframe < this.playerLib.animationData.totalFrames()) {
         this._startFrame = _startframe;
@@ -3176,6 +3649,9 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
     }
+    /**
+     * アニメーション再生を開始する
+     */
     Play(frameNo) {
       this._isPlaying = true;
       this._isPausing = false;
@@ -3193,15 +3669,28 @@ Imported.SS6PlayerRPGMakerMZ = true;
         }
       }
     }
+    /**
+     * アニメーション再生を一時停止する
+     */
     Pause() {
       this._isPausing = true;
     }
+    /**
+     * アニメーション再生を再開する
+     */
     Resume() {
       this._isPausing = false;
     }
+    /**
+     * アニメーションを停止する
+     * @constructor
+     */
     Stop() {
       this._isPlaying = false;
     }
+    /**
+     * アニメーション再生を位置（フレーム）を設定する
+     */
     SetFrame(frame) {
       this._currentFrame = frame;
     }
@@ -3220,17 +3709,58 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       this.SetFrame(currentFrame - 1);
     }
+    /**
+     * アニメーションの透明度を設定する
+     */
     SetAlpha(alpha) {
       this.parentAlpha = alpha;
     }
+    /**
+     * エラー処理
+     * @param {any} _error - エラー
+     */
     ThrowError(_error) {
     }
+    /**
+     * ユーザーデータコールバックの設定
+     * @param fn
+     * @constructor
+     *
+     * ユーザーデータのフォーマット
+     * data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
+     * data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
+     * d0 : パーツ（レイヤー）番号
+     * d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
+     * d2 : int(int)
+     * d3 : rect0(int)
+     * d4 : rect1(int)
+     * d5 : rect2(int)
+     * d6 : rect3(int)
+     * d7 : pos0(int)
+     * d8 : pos1(int)
+     * d9 : string.length(int)
+     * d10: string(string)
+     *
+     */
     SetUserDataCalback(fn) {
       this.onUserDataCallback = fn;
     }
+    /**
+     * 再生終了時に呼び出されるコールバックを設定します.
+     * @param fn
+     * @constructor
+     *
+     * ループ回数分再生した後に呼び出される点に注意してください。
+     * 無限ループで再生している場合はコールバックが発生しません。
+     *
+     */
     SetPlayEndCallback(fn) {
       this.playEndCallback = fn;
     }
+    /**
+     * パーツの描画モードを取得する
+     * @return {array} - 全パーツの描画モード
+     */
     GetPartsBlendMode() {
       const animePacks = this.playerLib.animePackData;
       const l = animePacks.partsLength();
@@ -3271,6 +3801,13 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return ret;
     }
+    /**
+     * パーツカラーのブレンド用カラーマトリクス
+     * @param {number} blendType - ブレンド方法（0:mix, 1:multiply, 2:add, 3:sub)
+     * @param {number} rate - ミックス時の混色レート
+     * @param {number} argb32 - パーツカラー（単色）
+     * @return {PIXI.filters.ColorMatrixFilter} - カラーマトリクス
+     */
     GetColorMatrixFilter(blendType, rate, argb32) {
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
       if (this.colorMatrixFilterCache[key])
@@ -3377,6 +3914,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.colorMatrixFilterCache[key] = colorMatrix;
       return colorMatrix;
     }
+    /**
+     * １フレーム分のアニメーション描画
+     * @param {number} frameNumber - フレーム番号
+     * @param {number} ds - delta step
+     */
     SetFrameAnimation(frameNumber, ds = 0) {
       const fd = this.playerLib.GetFrameData(frameNumber);
       this.removeChildren();
@@ -3655,6 +4197,27 @@ Imported.SS6PlayerRPGMakerMZ = true;
         }
       }
     }
+    /**
+     *
+     * 名前を指定してパーツの再生するインスタンスアニメを変更します。
+     * 指定したパーツがインスタンスパーツでない場合、falseを返します.
+     * インスタンスパーツ名はディフォルトでは「ssae名:モーション名」とつけられています。
+     * 再生するアニメの名前は アニメパック名 と アニメ名 で指定してください。
+     * 現在再生しているアニメを指定することは入れ子となり無限ループとなるためできません。
+     *
+     * 変更するアニメーションは同じ ssfb に含まれる必要があります。
+     * インスタンスパーツが再生するアニメを変更します
+     *
+     * インスタンスキーは
+     *
+     * @param partName SS上のパーツ名
+     * @param animePackName 参照するアニメパック名
+     * @param animeName 参照するアニメ名
+     * @param overWrite インスタンスキーの上書きフラグ
+     * @param keyParam インスタンスキー
+     *
+     * @constructor
+     */
     ChangeInstanceAnime(partName, animePackName, animeName, overWrite, keyParam = null) {
       let rc = false;
       if (this.animePackName !== null && this.animeName !== null) {
@@ -3687,6 +4250,11 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return rc;
     }
+    /**
+     * 矩形セルをメッシュ（5verts4Tri）で作成
+     * @param {number} id - セルID
+     * @return {PIXI.SimpleMesh} - メッシュ
+     */
     MakeCellMesh(id) {
       const cell = this.playerLib.fbObj.cells(id);
       const u1 = cell.u1();
@@ -3700,6 +4268,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
       const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
       return new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
     }
+    /**
+     * メッシュセルからメッシュを作成
+     * @param {number} partID - パーツID
+     * @param {number} cellID - セルID
+     * @return {PIXI.SimpleMesh} - メッシュ
+     */
     MakeMeshCellMesh(partID, cellID) {
       const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
       const uvLength = meshsDataUV.uvLength();
@@ -3720,6 +4294,12 @@ Imported.SS6PlayerRPGMakerMZ = true;
       }
       return null;
     }
+    /**
+     * セルをインスタンスで作成
+     * @param {String} refname 参照アニメ名
+     * @param {number or undefined} refStart
+     * @return {SS6Player} - インスタンス
+     */
     MakeCellPlayer(refname, refStart = void 0) {
       const split = refname.split("/");
       const ssp = new SS6Player(this.ss6project);
@@ -3741,17 +4321,25 @@ Imported.SS6PlayerRPGMakerMZ = true;
     __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
     return value;
   };
-  const _PluginParameters = class {
+  const _PluginParameters = class _PluginParameters {
+    // string
     constructor() {
       __publicField$1(this, "pluginParameters");
       __publicField$1(this, "animationDir");
       __publicField$1(this, "replaceSVActorSpriteFlag");
+      // boolean
       __publicField$1(this, "svActorDir");
+      // string
       __publicField$1(this, "svActorAnimationPack");
+      // string
       __publicField$1(this, "svActorHideWeaponGraphics");
+      // boolean
       __publicField$1(this, "replaceSVEnemySpriteFlag");
+      // boolean
       __publicField$1(this, "svEnemyDir");
+      // string
       __publicField$1(this, "svEnemyAnimationPack");
+      // string
       __publicField$1(this, "svEnemyAnimationName");
       this.pluginParameters = PluginManager.parameters("ss6player-rpgmakermz");
       this.animationDir = String(this.pluginParameters["animationDir"] || "img/ssfb") + "/";
@@ -3772,8 +4360,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return _PluginParameters.instance;
     }
   };
+  __publicField$1(_PluginParameters, "instance");
   let PluginParameters = _PluginParameters;
-  __publicField$1(PluginParameters, "instance");
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -3781,7 +4369,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
     __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
     return value;
   };
-  const _SS6ProjectManager = class {
+  const _SS6ProjectManager = class _SS6ProjectManager {
     constructor() {
       __publicField(this, "ssprojectMap");
       __publicField(this, "_isLoading");
@@ -3816,8 +4404,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return _SS6ProjectManager.instance;
     }
   };
+  __publicField(_SS6ProjectManager, "instance");
   let SS6ProjectManager = _SS6ProjectManager;
-  __publicField(SS6ProjectManager, "instance");
 
   const PLUGIN_NAME = "ss6player-rpgmakermz";
   const SS6PROJECT_LOAD_WAIT_MODE = "ss6projectLoadWait";
