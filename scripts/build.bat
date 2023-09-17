@@ -7,6 +7,6 @@ set BASEDIR=%CURDIR%..
 pushd "%BASEDIR%"
 npm install || exit 1
 npm run clean || exit 1
-npm run bootstrap || exit 1
+npm install || exit 1
 npm run build || exit 1
 popd

@@ -9,7 +9,7 @@
       "dist/types",
       "node_modules/@types"
     ],
-    "types": ["offscreencanvas"]
+    "types": []
   },
   "include": [
     "src"

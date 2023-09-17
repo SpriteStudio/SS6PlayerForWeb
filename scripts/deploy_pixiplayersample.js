@@ -21,7 +21,7 @@ const pixiVersion = pixiPackageJsonObject.devDependencies["pixi.js"].replace('^'
 const cdnURL = `https://cdnjs.cloudflare.com/ajax/libs/pixi.js/${pixiVersion}/pixi.min.js`;
 let indexHtmlPath = path.join(dstDir, 'index.html');
 let indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
-indexHtml = indexHtml.replace('../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
+indexHtml = indexHtml.replace('../../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
 indexHtml = indexHtml.replace('../dist/ss6player-pixi.umd.js', './ss6player-pixi.min.js');
 fs.writeFileSync(indexHtmlPath, indexHtml, 'utf-8');
 
@@ -43,6 +43,6 @@ fs.cpSync(srcDir, dstDir, {recursive: true});
 // update index.html
 indexHtmlPath = path.join(docsDir, 'ui-examples', 'index.html');
 indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
-indexHtml = indexHtml.replace('../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
+indexHtml = indexHtml.replace('../../../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
 indexHtml = indexHtml.replace('../../dist/ss6player-pixi.umd.js', './ss6player-pixi.min.js');
 fs.writeFileSync(indexHtmlPath, indexHtml, 'utf-8');
