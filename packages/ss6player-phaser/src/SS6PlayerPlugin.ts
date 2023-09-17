@@ -2,13 +2,23 @@ import * as Phaser from 'phaser';
 import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
 import {SS6PlayerGameObjectConfig} from './SS6PlayerGameObjectConfig';
 import {SS6PlayerGameObject} from './SS6PlayerGameObject';
-import {SS6PLAYER_GAME_OBJECT_TYPE, SS6PLAYER_SSFB_DATA_FILE_TYPE} from './keys';
+import {
+  SS6PLAYER_CONTAINER_TYPE,
+  SS6PLAYER_GAME_OBJECT_TYPE,
+  SS6PLAYER_SSFB_DATA_FILE_TYPE, SS6PLAYER_SSFB_FILE_CACHE_KEY
+} from './keys';
+import {SS6PlayerPhaserUtils} from './SS6PlayerPhaserUtils';
+import {SS6Project} from './SS6Project';
 
 export class SS6PlayerPlugin extends Phaser.Plugins.ScenePlugin {
+	game: Phaser.Game;
+	private projectDataCache: Phaser.Cache.BaseCache;
 
   constructor(scene: Phaser.Scene, pluginManager: Phaser.Plugins.PluginManager, pluginKey: string) {
     super(scene, pluginManager, pluginKey);
-    console.log('SS6PlayerPlugin.constructor()')
+
+    this.game = pluginManager.game;
+    this.projectDataCache = this.game.cache.addCustom(SS6PLAYER_SSFB_FILE_CACHE_KEY);
 
     let ss6playerSsfbFileCallback = function (this: any, key: string,
                                               url: string,
@@ -53,15 +63,47 @@ export class SS6PlayerPlugin extends Phaser.Plugins.ScenePlugin {
   }
 
   shutdown() {
-    console.log('SS6PlayerPlugin.shutdown()');
+    this.systems!.events.off('shutdown', this.shutdown, this);
   }
 
   gameDestroy() {
-    console.log('SS6PlayerPlugin.gameDestroy()');
+    this.pluginManager.removeGameObject(SS6PLAYER_GAME_OBJECT_TYPE, true, true);
+		this.pluginManager.removeGameObject(SS6PLAYER_CONTAINER_TYPE, true, true);
+  }
+
+  getSS6Project(dataKey: string): SS6Project {
+    const projectData = this.getProjectData(dataKey);
+    if (projectData !== null) {
+      const ss6project = new SS6Project(projectData);
+
+      // TODO: load texture (is it necessary logic?)
+
+      return ss6project;
+    } else {
+      return null;
+    }
+  }
+
+  getProjectData(dataKey: string): ProjectData {
+    let projectData: ProjectData;
+    if(this.projectDataCache.exists(dataKey)) {
+      projectData = this.projectDataCache.get(dataKey);
+    } else {
+      let binaryFile = this.game.cache.binary.get(dataKey) as ArrayBuffer;
+      projectData = playerLibUtils.getProjectData(new Uint8Array(binaryFile));
+    }
+    this.projectDataCache.add(dataKey, projectData);
+    return projectData;
+  }
+
+  getSsfbImage(dataKey: string, imageKey: string): Phaser.Textures.Texture {
+    const key = SS6PlayerPhaserUtils.generateKeyOfSsfbImage(dataKey, imageKey);
+    return this.game.textures.get(key);
   }
 }
 
 class SS6PlayerSsfbDataFile extends Phaser.Loader.MultiFile {
+
   constructor(loader: Phaser.Loader.LoaderPlugin, key: string, url: string, xhrSettings: Phaser.Types.Loader.XHRSettingsObject) {
     super(loader, SS6PLAYER_SSFB_DATA_FILE_TYPE, key, [
       new Phaser.Loader.FileTypes.BinaryFile(loader, {
@@ -79,16 +121,15 @@ class SS6PlayerSsfbDataFile extends Phaser.Loader.MultiFile {
 
       if (file.type === 'binary') {
         const urlString = file.url.toString()
-        const index = urlString.lastIndexOf('/');
-        const rootPath = urlString.substring(0, index) + '/';
+        const rootPath = SS6PlayerPhaserUtils.getRootPath(urlString);
 
         // console.log(file.data);
-        let fbObj: ProjectData = playerLibUtils.getProjectData(new Uint8Array(file.data));
+        let projectData = playerLibUtils.getProjectData(new Uint8Array(file.data));
 
         let ids: any = [];
         let sspjMap = {};
-        for (let i = 0; i < fbObj.cellsLength(); i++) {
-          const cellMap = fbObj.cells(i).cellMap();
+        for (let i = 0; i < projectData.cellsLength(); i++) {
+          const cellMap = projectData.cells(i).cellMap();
           const cellMapIndex = cellMap.index();
           // console.log("id: " + cellMap.index() + " imagePath: " + cellMap.imagePath());
 
@@ -103,9 +144,9 @@ class SS6PlayerSsfbDataFile extends Phaser.Loader.MultiFile {
 
         for (let sspjKey in sspjMap) {
           const url = sspjMap[sspjKey];
-          const key = file.key + '!' + sspjMap[sspjKey];
+          const key = SS6PlayerPhaserUtils.generateKeyOfSsfbImage(file.key, sspjMap[sspjKey])
           const image = new Phaser.Loader.FileTypes.ImageFile(this.loader, key, url);
-          console.log(image);
+          // console.log(image);
 
           if (!this.loader.keyExists(image)) {
             this.addToMultiFile(image);

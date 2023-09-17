@@ -26,7 +26,7 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    console.log("create")
+    const ssAnime = this.add.ss6player(200, 500, testVersion, "Knight_bomb", "Balloon");
   }
 
   update(time, delta) {
