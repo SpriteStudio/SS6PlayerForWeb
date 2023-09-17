@@ -24,7 +24,6 @@
     "clean:artifacts": "npx lerna run clean",
     "clean:packages": "npx lerna clean --yes",
     "clean:root": "npx rimraf node_modules",
-    "bootstrap": "npx lerna bootstrap",
     "lint": "npx lerna run lint --stream",
     "test": "npx lerna run test --stream",
     "docs": "npx lerna run docs --stream",

@@ -52,7 +52,6 @@ ss6player-pixi6 の API リファレンスは[こちら](https://spritestudio.gi
 ```bash
 cd SS6PlayerForWeb
 npm i
-npm run bootstrap
 npm run build
 ```
 

@@ -49,7 +49,6 @@ ss6player-viewer の API リファレンスは[こちら](https://spritestudio.g
 ```bash
 cd SS6PlayerForWeb
 npm i
-npm run bootstrap
 npm run build
 ```
 
