@@ -1,4 +1,4 @@
-import * as Phaser from 'phaser';
+// import * as Phaser from 'phaser';
 
 export interface SS6PlayerGameObjectConfig extends Phaser.Types.GameObjects.GameObjectConfig {
 	x?: number

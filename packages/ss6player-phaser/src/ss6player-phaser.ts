@@ -1,8 +1,11 @@
+export * from './SS6PlayerPlugin';
+export * from './SS6PlayerGameObject';
+export * from './SS6PlayerGameObjectConfig';
+export * from "./mixins"
 import {SS6PlayerPlugin} from './SS6PlayerPlugin';
-import {SS6PlayerGameObject} from './SS6PlayerGameObject';
 import {SS6PlayerGameObjectConfig} from './SS6PlayerGameObjectConfig';
 
-export {SS6PlayerPlugin, SS6PlayerGameObject};
+import {SS6PlayerGameObject} from './SS6PlayerGameObject';
 
 declare global {
   namespace Phaser {

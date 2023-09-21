@@ -1,10 +1,37 @@
-import * as Phaser from 'phaser';
+// import Phaser from 'phaser';
 import {SS6PlayerPlugin} from './SS6PlayerPlugin';
 import {SS6PLAYER_GAME_OBJECT_TYPE} from './keys';
+import {
+	ComputedSizeMixin,
+	DepthMixin,
+	FlipMixin,
+	ScrollFactorMixin,
+	TransformMixin,
+	VisibleMixin,
+	AlphaMixin,
+	OriginMixin,
+} from "./mixins";
 import {Player, AnimePackData, PART_FLAG, PartData, SsPartType, ProjectData} from 'ss6player-lib';
 import {SS6Project} from './SS6Project';
 
-export class SS6PlayerGameObject extends Phaser.GameObjects.Container {
+class BaseSS6PlayerGameObject extends Phaser.GameObjects.GameObject {
+	constructor (scene: Phaser.Scene, type: string) {
+		super(scene, type);
+	}
+}
+
+export class SS6PlayerGameObject extends DepthMixin(
+	OriginMixin(
+		ComputedSizeMixin(
+			FlipMixin(
+				ScrollFactorMixin(
+					TransformMixin(VisibleMixin(AlphaMixin(BaseSS6PlayerGameObject)))
+				)
+			)
+		)
+	)
+) {
+  blendMode = -1;
 
   protected playerLib: Player;
 
@@ -41,8 +68,9 @@ export class SS6PlayerGameObject extends Phaser.GameObjects.Container {
 
 
   constructor (scene: Phaser.Scene, private plugin: SS6PlayerPlugin, x: number, y: number, ssfbKey: string, animePackName: string, animeName: string) {
-    super(scene, x, y);
-    this.type = SS6PLAYER_GAME_OBJECT_TYPE;
+    super(scene, SS6PLAYER_GAME_OBJECT_TYPE);
+    this.x = x;
+    this.y = y;
 
     this.ss6project = this.plugin.getSS6Project(ssfbKey);
 
@@ -101,19 +129,49 @@ export class SS6PlayerGameObject extends Phaser.GameObjects.Container {
     this.colorMatrixFilterCache = [];
   }
 
+  updateSize() {
+    console.log("updateSize");
+  }
+
   preUpdate(time: number, delta: number) {
     this.UpdateInternal(delta);
   }
 
-	preDestroy () {
+	preDestroy() {
     console.log("preDestroy");
 	}
+
+  willRender(camera: Phaser.Cameras.Scene2D.Camera): boolean {
+		let GameObjectRenderMask = 0xf;
+		let result = !this.ss6project || !(GameObjectRenderMask !== this.renderFlags || (this.cameraFilter !== 0 && this.cameraFilter & camera.id));
+		if (!this.visible) result = false;
+
+		return result;
+  }
+
+	renderWebGL(
+		renderer: Phaser.Renderer.WebGL.WebGLRenderer,
+		src: SS6PlayerGameObject,
+		camera: Phaser.Cameras.Scene2D.Camera,
+		parentMatrix: Phaser.GameObjects.Components.TransformMatrix
+	) {
+    console.log("renderWebGL")
+  }
+
+	renderCanvas(
+		renderer: Phaser.Renderer.Canvas.CanvasRenderer,
+		src: SS6PlayerGameObject,
+		camera: Phaser.Cameras.Scene2D.Camera,
+		parentMatrix: Phaser.GameObjects.Components.TransformMatrix
+	) {
+    console.log("renderCanvas")
+  }
 
   protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
-      this.nextFrameTime += delta; // もっとうまいやり方がありそうなんだけど…
-      console.log("this.nextFrameTime: " + this.nextFrameTime + " this.updateInterval: " + this.updateInterval);
+      this.nextFrameTime += delta;
+      // console.log("this.nextFrameTime: " + this.nextFrameTime + " this.updateInterval: " + this.updateInterval);
       if (this.nextFrameTime >= this.updateInterval) {
         let playEndFlag = false;
 
@@ -205,7 +263,7 @@ export class SS6PlayerGameObject extends Phaser.GameObjects.Container {
   }
 
   protected SetFrameAnimation(frameNumber: number, ds: number = 0.0): void {
-    console.log("frameNumber: " + frameNumber)
+    // console.log("frameNumber: " + frameNumber)
   }
 
 }

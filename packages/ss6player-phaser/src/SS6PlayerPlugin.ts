@@ -1,4 +1,4 @@
-import * as Phaser from 'phaser';
+// import Phaser from 'phaser';
 import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
 import {SS6PlayerGameObjectConfig} from './SS6PlayerGameObjectConfig';
 import {SS6PlayerGameObject} from './SS6PlayerGameObject';
