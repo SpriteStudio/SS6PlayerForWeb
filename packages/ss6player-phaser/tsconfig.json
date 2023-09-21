@@ -4,10 +4,11 @@
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "typeRoots": [
-      "dist/types",
-      "node_modules/@types"
+      "../../node_modules/phaser/types"
     ],
-    "types": []
+    "types": [
+      "Phaser"
+    ]
   },
   "include": [
     "src"

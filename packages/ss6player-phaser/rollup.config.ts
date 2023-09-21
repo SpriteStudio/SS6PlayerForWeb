@@ -11,6 +11,10 @@ const pkg = require('./package.json');
 
 const libraryName = 'ss6player-phaser';
 
+const phaserGlobals = {
+  'phaser': 'Phaser'
+};
+
 const licenseBannerOptions = `-----------------------------------------------------------
  SS6Player For Phaser v<%= pkg.version %>
 
@@ -22,9 +26,9 @@ const licenseBannerOptions = `--------------------------------------------------
 export default {
   input: `src/${libraryName}.ts`,
   output: [
-    { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, plugins: [ minify(), license({ banner: licenseBannerOptions }) ] },
-    { file: pkg.module, format: 'es', sourcemap: true },
+    { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true, globals: phaserGlobals },
+    { file: `dist/${libraryName}.min.js`, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: phaserGlobals, plugins: [ minify(), license({ banner: licenseBannerOptions }) ] },
+    { file: pkg.module, format: 'es', sourcemap: true, globals: phaserGlobals },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
