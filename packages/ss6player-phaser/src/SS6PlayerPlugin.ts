@@ -63,7 +63,7 @@ export class SS6PlayerPlugin extends Phaser.Plugins.ScenePlugin {
   }
 
   shutdown() {
-    this.systems!.events.off('shutdown', this.shutdown, this);
+    this.systems.events.off('shutdown', this.shutdown, this);
   }
 
   gameDestroy() {
@@ -86,7 +86,7 @@ export class SS6PlayerPlugin extends Phaser.Plugins.ScenePlugin {
 
   getProjectData(dataKey: string): ProjectData {
     let projectData: ProjectData;
-    if(this.projectDataCache.exists(dataKey)) {
+    if (this.projectDataCache.exists(dataKey)) {
       projectData = this.projectDataCache.get(dataKey);
     } else {
       let binaryFile = this.game.cache.binary.get(dataKey) as ArrayBuffer;
@@ -144,7 +144,7 @@ class SS6PlayerSsfbDataFile extends Phaser.Loader.MultiFile {
 
         for (let sspjKey in sspjMap) {
           const url = sspjMap[sspjKey];
-          const key = SS6PlayerPhaserUtils.generateKeyOfSsfbImage(file.key, sspjMap[sspjKey])
+          const key = SS6PlayerPhaserUtils.generateKeyOfSsfbImage(file.key, sspjKey);
           const image = new Phaser.Loader.FileTypes.ImageFile(this.loader, key, url);
           // console.log(image);
 

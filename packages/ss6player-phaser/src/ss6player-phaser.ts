@@ -1,7 +1,7 @@
 export * from './SS6PlayerPlugin';
 export * from './SS6PlayerGameObject';
 export * from './SS6PlayerGameObjectConfig';
-export * from "./mixins"
+export * from './mixins';
 import {SS6PlayerPlugin} from './SS6PlayerPlugin';
 import {SS6PlayerGameObjectConfig} from './SS6PlayerGameObjectConfig';
 

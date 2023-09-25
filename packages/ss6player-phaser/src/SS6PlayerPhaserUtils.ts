@@ -1,6 +1,6 @@
 export class SS6PlayerPhaserUtils {
   static generateKeyOfSsfbImage(dataKey: string, image: string) {
-    return dataKey + "!" + image;
+    return dataKey + '!' + image;
   }
 
   static getRootPath(url: string): string {

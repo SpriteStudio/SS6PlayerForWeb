@@ -34,51 +34,37 @@ export const Visible = components.Visible;
 export const Origin = components.Origin;
 export const Alpha = components.Alpha;
 
-export interface Type<
-	T,
-	P extends any[] = any[]
-	> extends Function {
-	new(...args: P): T;
-}
+export interface Type<T, P extends any[] = any[]> extends Function { new(...args: P): T }
 
-export type Mixin<GameObjectComponent, GameObjectConstraint extends Phaser.GameObjects.GameObject> = <
-	GameObjectType extends Type<GameObjectConstraint>
-	>(
-	BaseGameObject: GameObjectType
-) => GameObjectType & Type<GameObjectComponent>;
+export type Mixin<GameObjectComponent, GameObjectConstraint extends Phaser.GameObjects.GameObject> = <GameObjectType extends Type<GameObjectConstraint>>(BaseGameObject: GameObjectType) => GameObjectType & Type<GameObjectComponent>;
 
-export function createMixin<
-	GameObjectComponent,
-	GameObjectConstraint extends Phaser.GameObjects.GameObject = Phaser.GameObjects.GameObject
-> (
-	...component: GameObjectComponent[]
-): Mixin<GameObjectComponent, GameObjectConstraint> {
-	return (BaseGameObject) => {
-		(Phaser as any).Class.mixin(BaseGameObject, component);
+export function createMixin<GameObjectComponent, GameObjectConstraint extends Phaser.GameObjects.GameObject = Phaser.GameObjects.GameObject> (...component: GameObjectComponent[]): Mixin<GameObjectComponent, GameObjectConstraint> {
+  return (BaseGameObject) => {
+    (Phaser as any).Class.mixin(BaseGameObject, component);
 		return BaseGameObject as any;
 	};
 }
 
 type ComputedSizeMixin = Mixin<Phaser.GameObjects.Components.Transform, Phaser.GameObjects.GameObject>;
-export const ComputedSizeMixin: ComputedSizeMixin = createMixin<Phaser.GameObjects.Components.ComputedSize>(ComputedSize);
+export const ComputedSizeMixin: ComputedSizeMixin = createMixin<Phaser.GameObjects.Components.ComputedSize>(ComputedSize); // eslint-disable-line
 
 type DepthMixin = Mixin<Phaser.GameObjects.Components.Depth, Phaser.GameObjects.GameObject>;
-export const DepthMixin: DepthMixin = createMixin<Phaser.GameObjects.Components.Depth>(Depth);
+export const DepthMixin: DepthMixin = createMixin<Phaser.GameObjects.Components.Depth>(Depth); // eslint-disable-line
 
 type FlipMixin = Mixin<Phaser.GameObjects.Components.Flip, Phaser.GameObjects.GameObject>;
-export const FlipMixin: FlipMixin = createMixin<Phaser.GameObjects.Components.Flip>(Flip);
+export const FlipMixin: FlipMixin = createMixin<Phaser.GameObjects.Components.Flip>(Flip); // eslint-disable-line
 
 type ScrollFactorMixin = Mixin<Phaser.GameObjects.Components.ScrollFactor, Phaser.GameObjects.GameObject>;
-export const ScrollFactorMixin: ScrollFactorMixin = createMixin<Phaser.GameObjects.Components.ScrollFactor>(ScrollFactor);
+export const ScrollFactorMixin: ScrollFactorMixin = createMixin<Phaser.GameObjects.Components.ScrollFactor>(ScrollFactor); // eslint-disable-line
 
 type TransformMixin = Mixin<Phaser.GameObjects.Components.Transform, Phaser.GameObjects.GameObject>;
-export const TransformMixin: TransformMixin = createMixin<Phaser.GameObjects.Components.Transform>(Transform);
+export const TransformMixin: TransformMixin = createMixin<Phaser.GameObjects.Components.Transform>(Transform); // eslint-disable-line
 
 type VisibleMixin = Mixin<Phaser.GameObjects.Components.Visible, Phaser.GameObjects.GameObject>;
-export const VisibleMixin: VisibleMixin = createMixin<Phaser.GameObjects.Components.Visible>(Visible);
+export const VisibleMixin: VisibleMixin = createMixin<Phaser.GameObjects.Components.Visible>(Visible); // eslint-disable-line
 
 type OriginMixin = Mixin<Phaser.GameObjects.Components.Origin, Phaser.GameObjects.GameObject>;
-export const OriginMixin: OriginMixin = createMixin<Phaser.GameObjects.Components.Origin>(Origin);
+export const OriginMixin: OriginMixin = createMixin<Phaser.GameObjects.Components.Origin>(Origin); // eslint-disable-line
 
 type AlphaMixin = Mixin<Phaser.GameObjects.Components.Alpha, Phaser.GameObjects.GameObject>;
-export const AlphaMixin: AlphaMixin = createMixin<Phaser.GameObjects.Components.Alpha>(Alpha);
+export const AlphaMixin: AlphaMixin = createMixin<Phaser.GameObjects.Components.Alpha>(Alpha); // eslint-disable-line
