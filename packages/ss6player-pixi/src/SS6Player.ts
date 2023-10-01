@@ -1,9 +1,9 @@
 import { Assets } from '@pixi/assets';
 import { Container } from '@pixi/display';
-import { SimpleMesh } from '@pixi/mesh-extras';
+import { Mesh, MeshGeometry, MeshMaterial } from '@pixi/mesh';
 import { Ticker } from '@pixi/ticker';
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import {Filter, Texture} from '@pixi/core';
+import { Filter } from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
 
 import {Player, AnimePackData, PART_FLAG, PartData, SsPartType} from 'ss6player-lib';
@@ -24,7 +24,7 @@ export class SS6Player extends Container {
   //
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
-  private prevMesh: (SS6Player | SimpleMesh)[] = [];
+  private prevMesh: (SS6Player | Mesh)[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -767,13 +767,13 @@ export class SS6Player extends Container {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.geometry.getBuffer('aVertexPosition').data), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = Player.GetMeshVerts(cell, data, mesh.vertices);
+              verts = Player.GetMeshVerts(cell, data, mesh.geometry.getBuffer('aVertexPosition').data);
             }
           } else {
-            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.vertices;
+            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.geometry.getBuffer('aVertexPosition').data;
             verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
@@ -809,7 +809,7 @@ export class SS6Player extends Container {
             verts[j * 2] -= px;
             verts[j * 2 + 1] -= py;
           }
-          mesh.vertices = verts;
+          mesh.geometry.getBuffer('aVertexPosition').data = verts;
           if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const u1 = cell.u1() + data.uv_move_X;
@@ -978,9 +978,9 @@ export class SS6Player extends Container {
   /**
    * 矩形セルをメッシュ（5verts4Tri）で作成
    * @param {number} id - セルID
-   * @return {PIXI.SimpleMesh} - メッシュ
+   * @return {PIXI.Mesh} - メッシュ
    */
-  private MakeCellMesh(id: number): SimpleMesh {
+  private MakeCellMesh(id: number): Mesh {
     const cell = this.playerLib.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
@@ -988,19 +988,23 @@ export class SS6Player extends Container {
     const v2 = cell.v2();
     const w = cell.width() / 2;
     const h = cell.height() / 2;
+
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    return new SimpleMesh(Assets.get(cell.cellMap().name()), verts, uvs, indices, DRAW_MODES.TRIANGLES);
+
+    const geometry = new MeshGeometry(verts, uvs, indices);
+    const meshMaterial = new MeshMaterial(Assets.get(cell.cellMap().name()));
+    return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
   }
 
   /**
    * メッシュセルからメッシュを作成
    * @param {number} partID - パーツID
    * @param {number} cellID - セルID
-   * @return {PIXI.SimpleMesh} - メッシュ
+   * @return {PIXI.Mesh} - メッシュ
    */
-  private MakeMeshCellMesh(partID: number, cellID: number): SimpleMesh {
+  private MakeMeshCellMesh(partID: number, cellID: number): Mesh {
     const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
     const uvLength = meshsDataUV.uvLength();
 
@@ -1024,7 +1028,9 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      return new SimpleMesh(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()), verts, uvs, indices, DRAW_MODES.TRIANGLES);
+      const geometry = new MeshGeometry(verts, uvs, indices);
+      const meshMaterial = new MeshMaterial(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
+      return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
     }
 
     return null;
