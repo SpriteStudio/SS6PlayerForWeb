@@ -17,7 +17,7 @@ const pixiGlobals = {
   '@pixi/display': 'PIXI',
   '@pixi/mesh': 'PIXI',
   '@pixi/ticker': 'PIXI',
-  '@pixi/filter-color-matrix': 'PIXI.filters',
+  '@pixi/filter-color-matrix': 'PIXI',
   '@pixi/core': 'PIXI',
   '@pixi/constants': 'PIXI'
 };
