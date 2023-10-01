@@ -15,7 +15,7 @@ const libraryName = 'ss6player-pixi';
 const pixiGlobals = {
   '@pixi/assets': 'PIXI',
   '@pixi/display': 'PIXI',
-  '@pixi/mesh-extras': 'PIXI',
+  '@pixi/mesh': 'PIXI',
   '@pixi/ticker': 'PIXI',
   '@pixi/filter-color-matrix': 'PIXI.filters',
   '@pixi/core': 'PIXI',
