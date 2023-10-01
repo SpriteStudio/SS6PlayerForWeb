@@ -69,6 +69,7 @@
     "@pixi/filter-color-matrix": "^7.3.1",
     "@pixi/core": "^7.3.1",
     "@pixi/constants": "^7.3.1",
+    "@pixi/mixin-get-child-by-name": "^7.3.1",
     "concurrently": "^8.2.1",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",

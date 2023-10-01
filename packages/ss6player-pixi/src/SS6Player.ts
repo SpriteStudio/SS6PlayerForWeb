@@ -5,6 +5,7 @@ import { Ticker } from '@pixi/ticker';
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
 import { Filter } from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
+import '@pixi/mixin-get-child-by-name';
 
 import {Player, AnimePackData, PART_FLAG, PartData, SsPartType} from 'ss6player-lib';
 import { SS6Project } from './SS6Project';
@@ -17,14 +18,14 @@ export class SS6Player extends Container {
   // Properties
   private readonly ss6project: SS6Project;
   private liveFrame: any[] = [];
-  private colorMatrixFilterCache: any[] = [];
+  private colorMatrixFilterCache: ColorMatrixFilter[] = [];
 
   private parentAlpha: number = 1.0;
 
   //
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
-  private prevMesh: (SS6Player | Mesh)[] = [];
+  private prevPartObject: (SS6Player | Mesh | Container)[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -130,7 +131,7 @@ export class SS6Player extends Container {
 
     // cell再利用
     this.prevCellID = new Array(partsLength);
-    this.prevMesh = new Array(partsLength);
+    this.prevPartObject = new Array(partsLength);
     this.substituteOverWrite = new Array(partsLength);
     this.substituteKeyParam = new Array(partsLength);
 
@@ -139,7 +140,7 @@ export class SS6Player extends Container {
 
       // cell再利用
       this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-      this.prevMesh[index] = null;
+      this.prevPartObject[index] = null;
       this.substituteOverWrite[index] = null;
       this.substituteKeyParam[index] = null;
     }
@@ -562,7 +563,7 @@ export class SS6Player extends Container {
       const cellID = data.cellIndex;
 
       // cell再利用
-      let mesh: any = this.prevMesh[i];
+      let partObject: (SS6Player | Mesh | Container) = this.prevPartObject[i];
       const part: PartData = this.playerLib.animePackData.parts(i);
       const partType = part.type();
       let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
@@ -571,53 +572,55 @@ export class SS6Player extends Container {
       // 処理分岐処理
       switch (partType) {
         case SsPartType.Instance:
-          if (mesh == null) {
-            mesh = this.MakeCellPlayer(part.refname());
-            mesh.name = part.name();
+          if (partObject == null) {
+            partObject = this.MakeCellPlayer(part.refname());
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Normal:
         case SsPartType.Mask:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeCellMesh(cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Nulltype:
         case SsPartType.Joint:
           if (this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = new Container();
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = new Container();
+            partObject.name = part.name();
           }
           break;
         default:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             // 小西 - デストロイ処理
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeCellMesh(cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
       }
 
       // 初期化が行われなかった場合(あるの？)
-      if (mesh == null) continue;
+      if (partObject == null) continue;
 
       this.prevCellID[i] = cellID;
-      this.prevMesh[i] = mesh;
+      this.prevPartObject[i] = partObject;
 
       // 描画関係処理
       switch (partType) {
         case SsPartType.Instance: {
+          const instance = partObject as SS6Player;
+
           // インスタンスパーツのアップデート
           // let pos = new Float32Array(5);
           this._instancePos[0] = 0; // pos x
@@ -627,17 +630,17 @@ export class SS6Player extends Container {
           this._instancePos[4] = 0; // rot
           this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
 
-          mesh.rotation = (this._instancePos[4] * Math.PI) / 180;
-          mesh.position.set(this._instancePos[0], this._instancePos[1]);
-          mesh.scale.set(this._instancePos[2], this._instancePos[3]);
+          instance.rotation = (this._instancePos[4] * Math.PI) / 180;
+          instance.position.set(this._instancePos[0], this._instancePos[1]);
+          instance.scale.set(this._instancePos[2], this._instancePos[3]);
 
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
           if (data.localopacity < 255) {
             // ローカル不透明度が使われている場合は255以下の値になるので、255以下の場合にローカル不透明度で上書き
             opacity = data.localopacity / 255.0;
           }
-          mesh.SetAlpha(opacity * this.parentAlpha);
-          mesh.visible = !data.f_hide;
+          instance.SetAlpha(opacity * this.parentAlpha);
+          instance.visible = !data.f_hide;
 
           // 描画
           let refKeyframe = data.instanceValue_curKeyframe;
@@ -684,8 +687,8 @@ export class SS6Player extends Container {
             independent = overWritekeyParam.independent;
           }
 
-          if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
-            mesh.SetAnimationSection(refStartframe, refEndframe);
+          if (instance._startFrame !== refStartframe || instance._endFrame !== refEndframe) {
+            instance.SetAnimationSection(refStartframe, refEndframe);
           }
 
           // タイムライン上の時間 （絶対時間）
@@ -751,9 +754,9 @@ export class SS6Player extends Container {
 
           // インスタンスパラメータを設定
           // インスタンス用SSPlayerに再生フレームを設定する
-          mesh.SetFrame(Math.floor(_time));
+          instance.SetFrame(Math.floor(_time));
           // mesh.Pause();
-          this.addChild(mesh);
+          this.addChild(instance);
           break;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
@@ -761,19 +764,21 @@ export class SS6Player extends Container {
         case SsPartType.Mesh:
         case SsPartType.Joint:
         case SsPartType.Mask: {
+          const mesh = partObject as Mesh;
+          let meshVertex = mesh.geometry.getBuffer('aVertexPosition').data as Float32Array;
           const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.geometry.getBuffer('aVertexPosition').data), data.index, frameNumber);
+              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, meshVertex), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = Player.GetMeshVerts(cell, data, mesh.geometry.getBuffer('aVertexPosition').data);
+              verts = Player.GetMeshVerts(cell, data, meshVertex);
             }
           } else {
-            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.geometry.getBuffer('aVertexPosition').data;
+            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : meshVertex;
             verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
@@ -809,7 +814,7 @@ export class SS6Player extends Container {
             verts[j * 2] -= px;
             verts[j * 2 + 1] -= py;
           }
-          mesh.geometry.getBuffer('aVertexPosition').data = verts;
+          meshVertex = verts;
           if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const u1 = cell.u1() + data.uv_move_X;
@@ -851,7 +856,8 @@ export class SS6Player extends Container {
                 mesh.uvs[idx * 2 + 1] = cy + tmpY;
               }
             }
-            mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
+            mesh.sortDirty = true;
+            // partObject.dirty++; // 更新回数？をカウントアップすると更新されるようになる
           }
 
           //
@@ -900,17 +906,19 @@ export class SS6Player extends Container {
           break;
         }
         case SsPartType.Nulltype: {
+          const container = partObject as Container;
+
           // NULLパーツのOpacity/Transform設定
           const opacity = this.playerLib.InheritOpacity(1.0, data.index, frameNumber);
-          mesh.alpha = (opacity * data.localopacity) / 255.0;
+          container.alpha = (opacity * data.localopacity) / 255.0;
           const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
           const px = verts[0];
           const py = verts[1];
-          mesh.position.set(px, py);
+          container.position.set(px, py);
           const ax = Math.atan2(verts[5] - verts[3], verts[4] - verts[2]);
           const ay = Math.atan2(verts[7] - verts[3], verts[6] - verts[2]);
-          mesh.rotation = ax;
-          mesh.skew.x = ay - ax - Math.PI / 2;
+          container.rotation = ax;
+          container.skew.x = ay - ax - Math.PI / 2;
           break;
         }
       }
@@ -948,7 +956,7 @@ export class SS6Player extends Container {
 
         let partData = packData.parts(index);
         if (partData.name() === partName) {
-          let mesh: any = this.prevMesh[index];
+          let mesh: any = this.prevPartObject[index];
           if (mesh === null || mesh instanceof SS6Player) {
             this.substituteOverWrite[index] = overWrite;
 
@@ -963,7 +971,7 @@ export class SS6Player extends Container {
               keyParamAsSubstitute.refEndframe = (mesh as SS6Player).endFrame;
             }
             mesh.name = partData.name();
-            this.prevMesh[index] = mesh;
+            this.prevPartObject[index] = mesh;
             this.substituteKeyParam[index] = keyParamAsSubstitute;
 
             rc = true;
