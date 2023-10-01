@@ -765,7 +765,8 @@ export class SS6Player extends Container {
         case SsPartType.Joint:
         case SsPartType.Mask: {
           const mesh = partObject as Mesh;
-          let meshVertex = mesh.geometry.getBuffer('aVertexPosition').data as Float32Array;
+          const meshVertexBuffer = mesh.geometry.getBuffer('aVertexPosition');
+          let meshVertex = meshVertexBuffer.data as Float32Array;
           const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === SsPartType.Mesh) {
@@ -815,6 +816,7 @@ export class SS6Player extends Container {
             verts[j * 2 + 1] -= py;
           }
           meshVertex = verts;
+          meshVertexBuffer.update();
           if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const u1 = cell.u1() + data.uv_move_X;
@@ -828,23 +830,26 @@ export class SS6Player extends Container {
             const uvw = ((u2 - u1) / 2) * data.uv_scale_X;
             const uvh = ((v2 - v1) / 2) * data.uv_scale_Y;
 
+            const meshUvsBuffer = mesh.uvBuffer;
+            let meshUvs = meshUvsBuffer.data;
+
             // UV回転
-            mesh.uvs[0] = cx;
-            mesh.uvs[1] = cy;
-            mesh.uvs[2] = cx - uvw;
-            mesh.uvs[3] = cy - uvh;
-            mesh.uvs[4] = cx + uvw;
-            mesh.uvs[5] = cy - uvh;
-            mesh.uvs[6] = cx - uvw;
-            mesh.uvs[7] = cy + uvh;
-            mesh.uvs[8] = cx + uvw;
-            mesh.uvs[9] = cy + uvh;
+            meshUvs[0] = cx;
+            meshUvs[1] = cy;
+            meshUvs[2] = cx - uvw;
+            meshUvs[3] = cy - uvh;
+            meshUvs[4] = cx + uvw;
+            meshUvs[5] = cy - uvh;
+            meshUvs[6] = cx - uvw;
+            meshUvs[7] = cy + uvh;
+            meshUvs[8] = cx + uvw;
+            meshUvs[9] = cy + uvh;
 
             if (data.flag1 & PART_FLAG.UV_ROTATION) {
               const rot = (data.uv_rotation * Math.PI) / 180;
               for (let idx = 0; idx < 5; idx++) {
-                const dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
-                const dy = mesh.uvs[idx * 2 + 1] - cy; // 中心からの距離(Y)
+                const dx = meshUvs[idx * 2 + 0] - cx; // 中心からの距離(X)
+                const dy = meshUvs[idx * 2 + 1] - cy; // 中心からの距離(Y)
 
                 const cos = Math.cos(rot);
                 const sin = Math.sin(rot);
@@ -852,12 +857,11 @@ export class SS6Player extends Container {
                 const tmpX = cos * dx - sin * dy; // 回転
                 const tmpY = sin * dx + cos * dy;
 
-                mesh.uvs[idx * 2 + 0] = cx + tmpX; // 元の座標にオフセットする
-                mesh.uvs[idx * 2 + 1] = cy + tmpY;
+                meshUvs[idx * 2 + 0] = cx + tmpX; // 元の座標にオフセットする
+                meshUvs[idx * 2 + 1] = cy + tmpY;
               }
             }
-            mesh.sortDirty = true;
-            // partObject.dirty++; // 更新回数？をカウントアップすると更新されるようになる
+            meshUvsBuffer.update();
           }
 
           //
