@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v2.0.0
+ * SS6Player For pixi.js v2.0.1
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -8,10 +8,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/assets'), require('@pixi/display'), require('@pixi/mesh-extras'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@pixi/assets', '@pixi/display', '@pixi/mesh-extras', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi = {}, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI.filters, global.PIXI));
-})(this, (function (exports, assets, display, meshExtras, ticker, filterColorMatrix, constants) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/assets'), require('@pixi/display'), require('@pixi/mesh'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants'), require('@pixi/mixin-get-child-by-name')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@pixi/assets', '@pixi/display', '@pixi/mesh', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants', '@pixi/mixin-get-child-by-name'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi = {}, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI));
+})(this, (function (exports, assets, display, mesh, ticker, filterColorMatrix, constants) { 'use strict';
 
   class FrameData {
   }
@@ -28,26 +28,44 @@
     Encoding2[Encoding2["UTF16_STRING"] = 2] = "UTF16_STRING";
   })(Encoding || (Encoding = {}));
   class ByteBuffer {
+    /**
+     * Create a new ByteBuffer with a given array of bytes (`Uint8Array`)
+     */
     constructor(bytes_) {
       this.bytes_ = bytes_;
       this.position_ = 0;
       this.text_decoder_ = new TextDecoder();
     }
+    /**
+     * Create and allocate a new ByteBuffer with a given size.
+     */
     static allocate(byte_size) {
       return new ByteBuffer(new Uint8Array(byte_size));
     }
     clear() {
       this.position_ = 0;
     }
+    /**
+     * Get the underlying `Uint8Array`.
+     */
     bytes() {
       return this.bytes_;
     }
+    /**
+     * Get the buffer's position.
+     */
     position() {
       return this.position_;
     }
+    /**
+     * Set the buffer's position.
+     */
     setPosition(position) {
       this.position_ = position;
     }
+    /**
+     * Get the buffer's capacity.
+     */
     capacity() {
       return this.bytes_.length;
     }
@@ -127,6 +145,11 @@
       this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
       this.writeInt32(offset + 4, int32[isLittleEndian ? 1 : 0]);
     }
+    /**
+     * Return the file identifier.   Behavior is undefined for FlatBuffers whose
+     * schema does not include a file_identifier (likely points at padding or the
+     * start of a the root vtable).
+     */
     getBufferIdentifier() {
       if (this.bytes_.length < this.position_ + SIZEOF_INT + FILE_IDENTIFIER_LENGTH) {
         throw new Error("FlatBuffers: ByteBuffer is too short to contain an identifier.");
@@ -137,15 +160,33 @@
       }
       return result;
     }
+    /**
+     * Look up a field in the vtable, return an offset into the object, or 0 if the
+     * field is not present.
+     */
     __offset(bb_pos, vtable_offset) {
       const vtable = bb_pos - this.readInt32(bb_pos);
       return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
     }
+    /**
+     * Initialize any Table-derived type to point to the union at the given offset.
+     */
     __union(t, offset) {
       t.bb_pos = offset + this.readInt32(offset);
       t.bb = this;
       return t;
     }
+    /**
+     * Create a JavaScript string from UTF-8 data stored inside the FlatBuffer.
+     * This allocates a new string and converts to wide chars upon each access.
+     *
+     * To avoid the conversion to string, pass Encoding.UTF8_BYTES as the
+     * "optionalEncoding" argument. This is useful for avoiding conversion when
+     * the data will just be packaged back up in another FlatBuffer later on.
+     *
+     * @param offset
+     * @param opt_encoding Defaults to UTF16_STRING
+     */
     __string(offset, opt_encoding) {
       offset += this.readInt32(offset);
       const length = this.readInt32(offset);
@@ -156,18 +197,34 @@
       else
         return this.text_decoder_.decode(utf8bytes);
     }
+    /**
+     * Handle unions that can contain string as its member, if a Table-derived type then initialize it,
+     * if a string then return a new one
+     *
+     * WARNING: strings are immutable in JS so we can't change the string that the user gave us, this
+     * makes the behaviour of __union_with_string different compared to __union
+     */
     __union_with_string(o, offset) {
       if (typeof o === "string") {
         return this.__string(offset);
       }
       return this.__union(o, offset);
     }
+    /**
+     * Retrieve the relative offset stored at "offset"
+     */
     __indirect(offset) {
       return offset + this.readInt32(offset);
     }
+    /**
+     * Get the start of data of a vector whose offset is stored at "offset" in this object.
+     */
     __vector(offset) {
       return offset + this.readInt32(offset) + SIZEOF_INT;
     }
+    /**
+     * Get the length of a vector whose offset is stored at "offset" in this object.
+     */
     __vector_len(offset) {
       return this.readInt32(offset + this.readInt32(offset));
     }
@@ -182,6 +239,9 @@
       }
       return true;
     }
+    /**
+     * A helper function for generating list for obj api
+     */
     createScalarList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
@@ -192,6 +252,12 @@
       }
       return ret;
     }
+    /**
+     * A helper function for generating list for obj api
+     * @param listAccessor function that accepts an index and return data at that index
+     * @param listLength listLength
+     * @param res result list
+     */
     createObjList(listAccessor, listLength) {
       const ret = [];
       for (let i = 0; i < listLength; ++i) {
@@ -1837,6 +1903,45 @@
       return EffectFile.endEffectFile(builder);
     }
   }
+  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
+    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
+    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
+    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
+    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
+    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
+    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
+    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
+    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
+    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
+    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
+    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
+    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
+    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
+    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
+    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
+    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
+    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
+    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
+    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
+    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
+    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
+    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
+    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
+    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
+    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
+    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
+    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
+    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
+    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
+    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
+    return PART_FLAG22;
+  })(PART_FLAG || {});
+  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
+    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
+    return PART_FLAG22;
+  })(PART_FLAG2 || {});
   class ProjectData {
     constructor() {
       this.bb = null;
@@ -2124,52 +2229,13 @@
       return userDataString.enduserDataString(builder);
     }
   }
-  var PART_FLAG = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["INVISIBLE"] = 1] = "INVISIBLE";
-    PART_FLAG22[PART_FLAG22["FLIP_H"] = 2] = "FLIP_H";
-    PART_FLAG22[PART_FLAG22["FLIP_V"] = 4] = "FLIP_V";
-    PART_FLAG22[PART_FLAG22["CELL_INDEX"] = 8] = "CELL_INDEX";
-    PART_FLAG22[PART_FLAG22["POSITION_X"] = 16] = "POSITION_X";
-    PART_FLAG22[PART_FLAG22["POSITION_Y"] = 32] = "POSITION_Y";
-    PART_FLAG22[PART_FLAG22["POSITION_Z"] = 64] = "POSITION_Z";
-    PART_FLAG22[PART_FLAG22["PIVOT_X"] = 128] = "PIVOT_X";
-    PART_FLAG22[PART_FLAG22["PIVOT_Y"] = 256] = "PIVOT_Y";
-    PART_FLAG22[PART_FLAG22["ROTATIONX"] = 512] = "ROTATIONX";
-    PART_FLAG22[PART_FLAG22["ROTATIONY"] = 1024] = "ROTATIONY";
-    PART_FLAG22[PART_FLAG22["ROTATIONZ"] = 2048] = "ROTATIONZ";
-    PART_FLAG22[PART_FLAG22["SCALE_X"] = 4096] = "SCALE_X";
-    PART_FLAG22[PART_FLAG22["SCALE_Y"] = 8192] = "SCALE_Y";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_X"] = 16384] = "LOCALSCALE_X";
-    PART_FLAG22[PART_FLAG22["LOCALSCALE_Y"] = 32768] = "LOCALSCALE_Y";
-    PART_FLAG22[PART_FLAG22["OPACITY"] = 65536] = "OPACITY";
-    PART_FLAG22[PART_FLAG22["LOCALOPACITY"] = 131072] = "LOCALOPACITY";
-    PART_FLAG22[PART_FLAG22["PARTS_COLOR"] = 262144] = "PARTS_COLOR";
-    PART_FLAG22[PART_FLAG22["VERTEX_TRANSFORM"] = 524288] = "VERTEX_TRANSFORM";
-    PART_FLAG22[PART_FLAG22["SIZE_X"] = 1048576] = "SIZE_X";
-    PART_FLAG22[PART_FLAG22["SIZE_Y"] = 2097152] = "SIZE_Y";
-    PART_FLAG22[PART_FLAG22["U_MOVE"] = 4194304] = "U_MOVE";
-    PART_FLAG22[PART_FLAG22["V_MOVE"] = 8388608] = "V_MOVE";
-    PART_FLAG22[PART_FLAG22["UV_ROTATION"] = 16777216] = "UV_ROTATION";
-    PART_FLAG22[PART_FLAG22["U_SCALE"] = 33554432] = "U_SCALE";
-    PART_FLAG22[PART_FLAG22["V_SCALE"] = 67108864] = "V_SCALE";
-    PART_FLAG22[PART_FLAG22["BOUNDINGRADIUS"] = 134217728] = "BOUNDINGRADIUS";
-    PART_FLAG22[PART_FLAG22["MASK"] = 268435456] = "MASK";
-    PART_FLAG22[PART_FLAG22["PRIORITY"] = 536870912] = "PRIORITY";
-    PART_FLAG22[PART_FLAG22["INSTANCE_KEYFRAME"] = 1073741824] = "INSTANCE_KEYFRAME";
-    PART_FLAG22[PART_FLAG22["EFFECT_KEYFRAME"] = 2147483648] = "EFFECT_KEYFRAME";
-    return PART_FLAG22;
-  })(PART_FLAG || {});
-  var PART_FLAG2 = /* @__PURE__ */ ((PART_FLAG22) => {
-    PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
-    return PART_FLAG22;
-  })(PART_FLAG2 || {});
-  class Utils$1 {
+  let Utils$1 = class Utils {
     static getProjectData(bytes) {
       const buf = new ByteBuffer(bytes);
       return ProjectData.getRootAsProjectData(buf);
     }
-  }
-  class Utils {
+  };
+  class Utils2 {
     static getProjectData(bytes) {
       return Utils$1.getProjectData(bytes);
     }
@@ -2192,7 +2258,7 @@
       if (ssfbData.hasOwnProperty("bb")) {
         this._fbObj = ssfbData;
       } else {
-        this._fbObj = Utils.getProjectData(ssfbData);
+        this._fbObj = Utils2.getProjectData(ssfbData);
       }
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
@@ -2222,6 +2288,11 @@
     get prio2index() {
       return this._prio2index;
     }
+    /**
+     * Setup
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     Setup(animePackName, animeName) {
       this.clearCaches();
       const animePacksLength = this._fbObj.animePacksLength();
@@ -2268,6 +2339,32 @@
       this.currentCachedFrameNumber = -1;
       this.defaultFrameMap = [];
     }
+    /**
+     * ユーザーデータコールバックの設定
+     * @param fn
+     * @constructor
+     *
+     * ユーザーデータのフォーマット
+     * data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
+     * data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
+     * d0 : パーツ（レイヤー）番号
+     * d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
+     * d2 : int(int)
+     * d3 : rect0(int)
+     * d4 : rect1(int)
+     * d5 : rect2(int)
+     * d6 : rect3(int)
+     * d7 : pos0(int)
+     * d8 : pos1(int)
+     * d9 : string.length(int)
+     * d10: string(string)
+     *
+     */
+    /**
+     * ユーザーデータの存在チェック
+     * @param {number} frameNumber - フレーム番号
+     * @return {boolean} - 存在するかどうか
+     */
     HaveUserData(frameNumber) {
       if (this.userData[frameNumber] === null) {
         return false;
@@ -2284,6 +2381,11 @@
       this.userData[frameNumber] = null;
       return false;
     }
+    /**
+     * ユーザーデータの取得
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - ユーザーデータ
+     */
     GetUserData(frameNumber) {
       if (this.HaveUserData(frameNumber) === false) {
         return;
@@ -2329,10 +2431,19 @@
       }
       return data;
     }
+    /**
+     * int型からfloat型に変換する
+     * @return {floatView[0]} - float型に変換したデータ
+     */
     I2F(i) {
       this._uint32[0] = i;
       return this._float32[0];
     }
+    /**
+     * １フレーム分のデータを取得する（未設定項目はデフォルト）
+     * [注意]現verでは未対応項目があると正常動作しない可能性があります
+     * @param {number} frameNumber - フレーム番号
+     */
     GetFrameData(frameNumber) {
       if (this.currentCachedFrameNumber === frameNumber && this.frameDataCache) {
         return this.frameDataCache;
@@ -2480,6 +2591,11 @@
       this.currentCachedFrameNumber = frameNumber;
       return frameData;
     }
+    /**
+     * デフォルトデータを取得する
+     * @param {number} id - パーツ（レイヤー）ID
+     * @return {array} - データ
+     */
     GetDefaultDataByIndex(id) {
       const curDefaultData = this.defaultFrameMap[id];
       let dfd = new FrameData();
@@ -2545,6 +2661,13 @@
       dfd.partsColorARGB = 0;
       return dfd;
     }
+    /**
+     * 親を遡って不透明度を継承する
+     * @param {number} opacity - 透明度
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {number} - 透明度
+     */
     InheritOpacity(opacity, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       opacity = data.opacity / 255;
@@ -2553,6 +2676,13 @@
       }
       return opacity;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} verts - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformVertsLocal(verts, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2593,6 +2723,13 @@
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} verts - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformMeshVertsLocal(verts, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2611,6 +2748,13 @@
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する（ローカルアトリビュート適用）
+     * @param {array} pos - 頂点情報配列
+     * @param {number} partId - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformPositionLocal(pos, partId, frameNumber) {
       const data = this.GetFrameData(frameNumber)[partId];
       pos[4] += -data.rotationZ;
@@ -2628,6 +2772,21 @@
       }
       return pos;
     }
+    /**
+     * 5頂点の中間点を求める
+     * @param {number} cx - 元の中心点
+     * @param {number} cy - 元の中心点
+     * @param {number} LUx - 左上座標
+     * @param {number} LUy - 左上座標
+     * @param {number} RUx - 右上座標
+     * @param {number} RUy - 右上座標
+     * @param {number} LDx - 左下座標
+     * @param {number} LDy - 左下座標
+     * @param {number} RDx - 右下座標
+     * @param {number} RDy - 右下座標
+     * @param vec2
+     * @return {array} vec2 - 4頂点から算出した中心点の座標
+     */
     static CoordinateGetDiagonalIntersection(cx, cy, LUx, LUy, RUx, RUy, LDx, LDy, RDx, RDy, vec2) {
       const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
       const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
@@ -2644,6 +2803,13 @@
       vec2[1] = cy;
       return vec2;
     }
+    /**
+     * 親を遡って座標変換する
+     * @param {array} verts - 頂点情報配列
+     * @param {number} id - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformVerts(verts, id, frameNumber) {
       const data = this.GetFrameData(frameNumber)[id];
       const rz = -data.rotationZ * Math.PI / 180;
@@ -2668,6 +2834,13 @@
       }
       return verts;
     }
+    /**
+     * 親を遡って座標変換する
+     * @param {array} pos - 頂点情報配列
+     * @param {number} id - パーツ（レイヤー）ID
+     * @param {number} frameNumber - フレーム番号
+     * @return {array} - 変換された頂点座標配列
+     */
     TransformPosition(pos, id, frameNumber) {
       const data = this.GetFrameData(frameNumber)[id];
       pos[4] += -data.rotationZ;
@@ -2685,6 +2858,13 @@
       }
       return pos;
     }
+    /**
+     * 矩形セルメッシュの頂点情報のみ取得
+     * @param {ssfblib.Cell} cell - セル
+     * @param {array} data - アニメーションフレームデータ
+     * @param verts
+     * @return {array} - 頂点情報配列
+     */
     static GetVerts(cell, data, verts) {
       const w = data.size_X / 2;
       const h = data.size_Y / 2;
@@ -2693,9 +2873,22 @@
       verts.set([px, py, px - w, py - h, px + w, py - h, px - w, py + h, px + w, py + h]);
       return verts;
     }
+    /**
+     * 矩形セルメッシュの頂点情報のみ取得
+     * @param {ssfblib.Cell} cell - セル
+     * @param {array} data - アニメーションフレームデータ
+     * @param verts
+     * @return {array} - 頂点情報配列
+     */
     static GetMeshVerts(cell, data, verts) {
       for (let idx = 0; idx < data.meshNum; idx++) {
-        verts[idx * 2] = data.meshDataPoint[idx * 3];
+        verts[
+          idx * 2
+          /*+ 0*/
+        ] = data.meshDataPoint[
+          idx * 3
+          /* + 0 */
+        ];
         verts[idx * 2 + 1] = -data.meshDataPoint[idx * 3 + 1];
       }
       return verts;
@@ -2729,6 +2922,9 @@
         this.load(ssfbByte, imageBinaryMap);
       }
     }
+    /**
+     * Load json and parse (then, load textures)
+     */
     LoadFlatBuffersProject() {
       const self = this;
       fetch(this.ssfbPath, { method: "get" }).then((response) => {
@@ -2738,7 +2934,7 @@
           return Promise.reject(new Error(response.statusText));
         }
       }).then((a) => {
-        self.fbObj = Utils.getProjectData(new Uint8Array(a));
+        self.fbObj = Utils2.getProjectData(new Uint8Array(a));
         self.LoadCellResources();
       }).catch((error) => {
         if (this.onComplete !== null) {
@@ -2746,6 +2942,9 @@
         }
       });
     }
+    /**
+     * Load textures
+     */
     LoadCellResources() {
       let ids = [];
       let sspjMap = {};
@@ -2774,7 +2973,7 @@
       });
     }
     load(bytes, imageBinaryMap) {
-      this.fbObj = Utils.getProjectData(bytes);
+      this.fbObj = Utils2.getProjectData(bytes);
       let assetMap = {};
       for (let imageName in imageBinaryMap) {
         const binary = imageBinaryMap[imageName];
@@ -2814,13 +3013,24 @@
   }
 
   class SS6Player extends display.Container {
+    /**
+     * SS6Player (extends PIXI.Container)
+     * @constructor
+     * @param {SS6Project} ss6project - SS6Project that contains animations.
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     constructor(ss6project, animePackName = null, animeName = null) {
       super();
       this.liveFrame = [];
       this.colorMatrixFilterCache = [];
       this.parentAlpha = 1;
+      //
+      // cell再利用
       this.prevCellID = [];
-      this.prevMesh = [];
+      // 各パーツ（レイヤー）で前回使用したセルID
+      this.prevPartObject = [];
+      // for change instance
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
       this.alphaBlendType = [];
@@ -2873,19 +3083,24 @@
     get animeName() {
       return this.playerLib.animeName;
     }
+    /**
+     * Setup
+     * @param {string} animePackName - The name of animePack(SSAE).
+     * @param {string} animeName - The name of animation.
+     */
     Setup(animePackName, animeName) {
       this.playerLib.Setup(animePackName, animeName);
       this.clearCaches();
       const animePackData = this.playerLib.animePackData;
       const partsLength = animePackData.partsLength();
       this.prevCellID = new Array(partsLength);
-      this.prevMesh = new Array(partsLength);
+      this.prevPartObject = new Array(partsLength);
       this.substituteOverWrite = new Array(partsLength);
       this.substituteKeyParam = new Array(partsLength);
       for (let j = 0; j < partsLength; j++) {
         const index = animePackData.parts(j).index();
         this.prevCellID[index] = -1;
-        this.prevMesh[index] = null;
+        this.prevPartObject[index] = null;
         this.substituteOverWrite[index] = null;
         this.substituteKeyParam[index] = null;
       }
@@ -2911,6 +3126,10 @@
     Update(delta) {
       this.UpdateInternal(delta);
     }
+    /**
+     * Update is called PIXI.ticker
+     * @param {number} delta - expected 1
+     */
     UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
       const elapsedTime = ticker.Ticker.shared.elapsedMS;
       const toNextFrame = this._isPlaying && !this._isPausing;
@@ -2993,12 +3212,22 @@
         this.SetFrameAnimation(Math.floor(this._currentFrame));
       }
     }
+    /**
+     * アニメーションの速度を設定する (deprecated この関数は削除される可能性があります)
+     * @param {number} fps - アニメーション速度(frame per sec.)
+     * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
+     */
     SetAnimationFramerate(fps, _skipEnabled = true) {
       if (fps <= 0)
         return;
       this.updateInterval = 1e3 / fps;
       this.skipEnabled = _skipEnabled;
     }
+    /**
+     * アニメーションの速度を設定する
+     * @param {number} fpsRate - アニメーション速度(設定値に対する乗率)負数設定で逆再生
+     * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
+     */
     SetAnimationSpeed(fpsRate, _skipEnabled = true) {
       if (fpsRate === 0)
         return;
@@ -3006,6 +3235,12 @@
       this.updateInterval = 1e3 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
       this.skipEnabled = _skipEnabled;
     }
+    /**
+     * アニメーション再生設定
+     * @param {number} _startframe - 開始フレーム番号（マイナス設定でデフォルト値を変更しない）
+     * @param {number} _endframe - 終了フレーム番号（マイナス設定でデフォルト値を変更しない）
+     * @param {number} _loops - ループ回数（ゼロもしくはマイナス設定で無限ループ）
+     */
     SetAnimationSection(_startframe = -1, _endframe = -1, _loops = -1) {
       if (_startframe >= 0 && _startframe < this.playerLib.animationData.totalFrames()) {
         this._startFrame = _startframe;
@@ -3020,6 +3255,9 @@
       }
       this._currentFrame = this.playDirection > 0 ? this._startFrame : this._endFrame;
     }
+    /**
+     * アニメーション再生を開始する
+     */
     Play(frameNo) {
       this._isPlaying = true;
       this._isPausing = false;
@@ -3037,15 +3275,28 @@
         }
       }
     }
+    /**
+     * アニメーション再生を一時停止する
+     */
     Pause() {
       this._isPausing = true;
     }
+    /**
+     * アニメーション再生を再開する
+     */
     Resume() {
       this._isPausing = false;
     }
+    /**
+     * アニメーションを停止する
+     * @constructor
+     */
     Stop() {
       this._isPlaying = false;
     }
+    /**
+     * アニメーション再生を位置（フレーム）を設定する
+     */
     SetFrame(frame) {
       this._currentFrame = frame;
     }
@@ -3064,17 +3315,58 @@
       }
       this.SetFrame(currentFrame - 1);
     }
+    /**
+     * アニメーションの透明度を設定する
+     */
     SetAlpha(alpha) {
       this.parentAlpha = alpha;
     }
+    /**
+     * エラー処理
+     * @param {any} _error - エラー
+     */
     ThrowError(_error) {
     }
+    /**
+     * ユーザーデータコールバックの設定
+     * @param fn
+     * @constructor
+     *
+     * ユーザーデータのフォーマット
+     * data = [[d0,d1,...,d10],[da0,da1,...,da10],...])
+     * data.length : 当該フレームでユーザーデータの存在するパーツ（レイヤー）数
+     * d0 : パーツ（レイヤー）番号
+     * d1 : 有効データビット（&1:int, &2:rect(int*4), &4:pos(int*2), &8:string）
+     * d2 : int(int)
+     * d3 : rect0(int)
+     * d4 : rect1(int)
+     * d5 : rect2(int)
+     * d6 : rect3(int)
+     * d7 : pos0(int)
+     * d8 : pos1(int)
+     * d9 : string.length(int)
+     * d10: string(string)
+     *
+     */
     SetUserDataCalback(fn) {
       this.onUserDataCallback = fn;
     }
+    /**
+     * 再生終了時に呼び出されるコールバックを設定します.
+     * @param fn
+     * @constructor
+     *
+     * ループ回数分再生した後に呼び出される点に注意してください。
+     * 無限ループで再生している場合はコールバックが発生しません。
+     *
+     */
     SetPlayEndCallback(fn) {
       this.playEndCallback = fn;
     }
+    /**
+     * パーツの描画モードを取得する
+     * @return {array} - 全パーツの描画モード
+     */
     GetPartsBlendMode() {
       const animePacks = this.playerLib.animePackData;
       const l = animePacks.partsLength();
@@ -3115,6 +3407,13 @@
       }
       return ret;
     }
+    /**
+     * パーツカラーのブレンド用カラーマトリクス
+     * @param {number} blendType - ブレンド方法（0:mix, 1:multiply, 2:add, 3:sub)
+     * @param {number} rate - ミックス時の混色レート
+     * @param {number} argb32 - パーツカラー（単色）
+     * @return {PIXI.filters.ColorMatrixFilter} - カラーマトリクス
+     */
     GetColorMatrixFilter(blendType, rate, argb32) {
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
       if (this.colorMatrixFilterCache[key])
@@ -3221,6 +3520,11 @@
       this.colorMatrixFilterCache[key] = colorMatrix;
       return colorMatrix;
     }
+    /**
+     * １フレーム分のアニメーション描画
+     * @param {number} frameNumber - フレーム番号
+     * @param {number} ds - delta step
+     */
     SetFrameAnimation(frameNumber, ds = 0) {
       const fd = this.playerLib.GetFrameData(frameNumber);
       this.removeChildren();
@@ -3229,74 +3533,75 @@
         const i = this.playerLib.prio2index[ii];
         const data = fd[i];
         const cellID = data.cellIndex;
-        let mesh = this.prevMesh[i];
+        let partObject = this.prevPartObject[i];
         const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
         let overWrite = this.substituteOverWrite[i] !== null ? this.substituteOverWrite[i] : false;
         let overWritekeyParam = this.substituteKeyParam[i];
         switch (partType) {
           case SsPartType.Instance:
-            if (mesh == null) {
-              mesh = this.MakeCellPlayer(part.refname());
-              mesh.name = part.name();
+            if (partObject == null) {
+              partObject = this.MakeCellPlayer(part.refname());
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Normal:
           case SsPartType.Mask:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeCellMesh(cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeCellMesh(cellID);
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Mesh:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeMeshCellMesh(i, cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeMeshCellMesh(i, cellID);
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Nulltype:
           case SsPartType.Joint:
             if (this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = new display.Container();
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = new display.Container();
+              partObject.name = part.name();
             }
             break;
           default:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeCellMesh(cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeCellMesh(cellID);
+              partObject.name = part.name();
             }
             break;
         }
-        if (mesh == null)
+        if (partObject == null)
           continue;
         this.prevCellID[i] = cellID;
-        this.prevMesh[i] = mesh;
+        this.prevPartObject[i] = partObject;
         switch (partType) {
           case SsPartType.Instance: {
+            const instance = partObject;
             this._instancePos[0] = 0;
             this._instancePos[1] = 0;
             this._instancePos[2] = 1;
             this._instancePos[3] = 1;
             this._instancePos[4] = 0;
             this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
-            mesh.rotation = this._instancePos[4] * Math.PI / 180;
-            mesh.position.set(this._instancePos[0], this._instancePos[1]);
-            mesh.scale.set(this._instancePos[2], this._instancePos[3]);
+            instance.rotation = this._instancePos[4] * Math.PI / 180;
+            instance.position.set(this._instancePos[0], this._instancePos[1]);
+            instance.scale.set(this._instancePos[2], this._instancePos[3]);
             let opacity = data.opacity / 255;
             if (data.localopacity < 255) {
               opacity = data.localopacity / 255;
             }
-            mesh.SetAlpha(opacity * this.parentAlpha);
-            mesh.visible = !data.f_hide;
+            instance.SetAlpha(opacity * this.parentAlpha);
+            instance.visible = !data.f_hide;
             let refKeyframe = data.instanceValue_curKeyframe;
             let refStartframe = data.instanceValue_startFrame;
             let refEndframe = data.instanceValue_endFrame;
@@ -3333,8 +3638,8 @@
               pingpong = overWritekeyParam.pingpong;
               independent = overWritekeyParam.independent;
             }
-            if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
-              mesh.SetAnimationSection(refStartframe, refEndframe);
+            if (instance._startFrame !== refStartframe || instance._endFrame !== refEndframe) {
+              instance.SetAnimationSection(refStartframe, refEndframe);
             }
             let time = frameNumber;
             if (independent === true) {
@@ -3377,24 +3682,27 @@
             } else {
               _time = temp_frame + refStartframe;
             }
-            mesh.SetFrame(Math.floor(_time));
-            this.addChild(mesh);
+            instance.SetFrame(Math.floor(_time));
+            this.addChild(instance);
             break;
           }
           case SsPartType.Normal:
           case SsPartType.Mesh:
           case SsPartType.Joint:
           case SsPartType.Mask: {
+            const mesh = partObject;
+            const meshVertexBuffer = mesh.geometry.getBuffer("aVertexPosition");
+            let meshVertex = meshVertexBuffer.data;
             const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
             if (partType === SsPartType.Mesh) {
               if (data.meshIsBind === 0) {
-                verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+                verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, meshVertex), data.index, frameNumber);
               } else {
-                verts = Player.GetMeshVerts(cell, data, mesh.vertices);
+                verts = Player.GetMeshVerts(cell, data, meshVertex);
               }
             } else {
-              verts = partType === SsPartType.Joint ? new Float32Array(10) : mesh.vertices;
+              verts = partType === SsPartType.Joint ? new Float32Array(10) : meshVertex;
               verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
             }
             if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
@@ -3424,7 +3732,8 @@
               verts[j * 2] -= px;
               verts[j * 2 + 1] -= py;
             }
-            mesh.vertices = verts;
+            meshVertex = verts;
+            meshVertexBuffer.update();
             if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
               const u1 = cell.u1() + data.uv_move_X;
               const u2 = cell.u2() + data.uv_move_X;
@@ -3434,30 +3743,32 @@
               const cy = (v2 + v1) / 2;
               const uvw = (u2 - u1) / 2 * data.uv_scale_X;
               const uvh = (v2 - v1) / 2 * data.uv_scale_Y;
-              mesh.uvs[0] = cx;
-              mesh.uvs[1] = cy;
-              mesh.uvs[2] = cx - uvw;
-              mesh.uvs[3] = cy - uvh;
-              mesh.uvs[4] = cx + uvw;
-              mesh.uvs[5] = cy - uvh;
-              mesh.uvs[6] = cx - uvw;
-              mesh.uvs[7] = cy + uvh;
-              mesh.uvs[8] = cx + uvw;
-              mesh.uvs[9] = cy + uvh;
+              const meshUvsBuffer = mesh.uvBuffer;
+              let meshUvs = meshUvsBuffer.data;
+              meshUvs[0] = cx;
+              meshUvs[1] = cy;
+              meshUvs[2] = cx - uvw;
+              meshUvs[3] = cy - uvh;
+              meshUvs[4] = cx + uvw;
+              meshUvs[5] = cy - uvh;
+              meshUvs[6] = cx - uvw;
+              meshUvs[7] = cy + uvh;
+              meshUvs[8] = cx + uvw;
+              meshUvs[9] = cy + uvh;
               if (data.flag1 & PART_FLAG.UV_ROTATION) {
                 const rot = data.uv_rotation * Math.PI / 180;
                 for (let idx = 0; idx < 5; idx++) {
-                  const dx = mesh.uvs[idx * 2 + 0] - cx;
-                  const dy = mesh.uvs[idx * 2 + 1] - cy;
+                  const dx = meshUvs[idx * 2 + 0] - cx;
+                  const dy = meshUvs[idx * 2 + 1] - cy;
                   const cos = Math.cos(rot);
                   const sin = Math.sin(rot);
                   const tmpX = cos * dx - sin * dy;
                   const tmpY = sin * dx + cos * dy;
-                  mesh.uvs[idx * 2 + 0] = cx + tmpX;
-                  mesh.uvs[idx * 2 + 1] = cy + tmpY;
+                  meshUvs[idx * 2 + 0] = cx + tmpX;
+                  meshUvs[idx * 2 + 1] = cy + tmpY;
                 }
               }
-              mesh.dirty++;
+              meshUvsBuffer.update();
             }
             mesh.position.set(px, py);
             let opacity = data.opacity / 255;
@@ -3483,21 +3794,43 @@
             break;
           }
           case SsPartType.Nulltype: {
+            const container = partObject;
             const opacity = this.playerLib.InheritOpacity(1, data.index, frameNumber);
-            mesh.alpha = opacity * data.localopacity / 255;
+            container.alpha = opacity * data.localopacity / 255;
             const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
             const px = verts[0];
             const py = verts[1];
-            mesh.position.set(px, py);
+            container.position.set(px, py);
             const ax = Math.atan2(verts[5] - verts[3], verts[4] - verts[2]);
             const ay = Math.atan2(verts[7] - verts[3], verts[6] - verts[2]);
-            mesh.rotation = ax;
-            mesh.skew.x = ay - ax - Math.PI / 2;
+            container.rotation = ax;
+            container.skew.x = ay - ax - Math.PI / 2;
             break;
           }
         }
       }
     }
+    /**
+     *
+     * 名前を指定してパーツの再生するインスタンスアニメを変更します。
+     * 指定したパーツがインスタンスパーツでない場合、falseを返します.
+     * インスタンスパーツ名はディフォルトでは「ssae名:モーション名」とつけられています。
+     * 再生するアニメの名前は アニメパック名 と アニメ名 で指定してください。
+     * 現在再生しているアニメを指定することは入れ子となり無限ループとなるためできません。
+     *
+     * 変更するアニメーションは同じ ssfb に含まれる必要があります。
+     * インスタンスパーツが再生するアニメを変更します
+     *
+     * インスタンスキーは
+     *
+     * @param partName SS上のパーツ名
+     * @param animePackName 参照するアニメパック名
+     * @param animeName 参照するアニメ名
+     * @param overWrite インスタンスキーの上書きフラグ
+     * @param keyParam インスタンスキー
+     *
+     * @constructor
+     */
     ChangeInstanceAnime(partName, animePackName, animeName, overWrite, keyParam = null) {
       let rc = false;
       if (this.animePackName !== null && this.animeName !== null) {
@@ -3506,7 +3839,7 @@
         for (let index = 0; index < partsLength; index++) {
           let partData = packData.parts(index);
           if (partData.name() === partName) {
-            let mesh = this.prevMesh[index];
+            let mesh = this.prevPartObject[index];
             if (mesh === null || mesh instanceof SS6Player) {
               this.substituteOverWrite[index] = overWrite;
               let keyParamAsSubstitute;
@@ -3520,7 +3853,7 @@
                 keyParamAsSubstitute.refEndframe = mesh.endFrame;
               }
               mesh.name = partData.name();
-              this.prevMesh[index] = mesh;
+              this.prevPartObject[index] = mesh;
               this.substituteKeyParam[index] = keyParamAsSubstitute;
               rc = true;
               break;
@@ -3530,6 +3863,11 @@
       }
       return rc;
     }
+    /**
+     * 矩形セルをメッシュ（5verts4Tri）で作成
+     * @param {number} id - セルID
+     * @return {PIXI.Mesh} - メッシュ
+     */
     MakeCellMesh(id) {
       const cell = this.playerLib.fbObj.cells(id);
       const u1 = cell.u1();
@@ -3541,8 +3879,16 @@
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
       const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      return new meshExtras.SimpleMesh(assets.Assets.get(cell.cellMap().name()), verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+      const geometry = new mesh.MeshGeometry(verts, uvs, indices);
+      const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(cell.cellMap().name()));
+      return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
     }
+    /**
+     * メッシュセルからメッシュを作成
+     * @param {number} partID - パーツID
+     * @param {number} cellID - セルID
+     * @return {PIXI.Mesh} - メッシュ
+     */
     MakeMeshCellMesh(partID, cellID) {
       const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
       const uvLength = meshsDataUV.uvLength();
@@ -3559,10 +3905,18 @@
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        return new meshExtras.SimpleMesh(assets.Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()), verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+        const geometry = new mesh.MeshGeometry(verts, uvs, indices);
+        const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
+        return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
       }
       return null;
     }
+    /**
+     * セルをインスタンスで作成
+     * @param {String} refname 参照アニメ名
+     * @param {number or undefined} refStart
+     * @return {SS6Player} - インスタンス
+     */
     MakeCellPlayer(refname, refStart = void 0) {
       const split = refname.split("/");
       const ssp = new SS6Player(this.ss6project);
@@ -3581,8 +3935,6 @@
   exports.SS6Player = SS6Player;
   exports.SS6PlayerInstanceKeyParam = SS6PlayerInstanceKeyParam;
   exports.SS6Project = SS6Project;
-
-  Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
 //# sourceMappingURL=ss6player-pixi.umd.js.map

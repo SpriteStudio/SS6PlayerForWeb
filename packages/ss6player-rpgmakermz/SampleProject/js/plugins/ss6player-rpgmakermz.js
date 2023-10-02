@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.8.0
+ * SS6Player For RPG Maker MZ v0.8.1
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -14,7 +14,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.8.0
+ * @version 0.8.1
  * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -159,76 +159,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 (function (loaders, display, meshExtras, ticker, filterColorMatrix, constants) {
   'use strict';
 
-  var __defProp$6 = Object.defineProperty;
-  var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$6 = (obj, key, value) => {
-    __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class FrameData {
-    constructor() {
-      __publicField$6(this, "index");
-      __publicField$6(this, "lowflag");
-      __publicField$6(this, "highflag");
-      __publicField$6(this, "priority");
-      __publicField$6(this, "cellIndex");
-      __publicField$6(this, "opacity");
-      __publicField$6(this, "localopacity");
-      __publicField$6(this, "masklimen");
-      __publicField$6(this, "positionX");
-      __publicField$6(this, "positionY");
-      __publicField$6(this, "pivotX");
-      __publicField$6(this, "pivotY");
-      __publicField$6(this, "rotationX");
-      __publicField$6(this, "rotationY");
-      __publicField$6(this, "rotationZ");
-      __publicField$6(this, "scaleX");
-      __publicField$6(this, "scaleY");
-      __publicField$6(this, "localscaleX");
-      __publicField$6(this, "localscaleY");
-      __publicField$6(this, "size_X");
-      __publicField$6(this, "size_Y");
-      __publicField$6(this, "uv_move_X");
-      __publicField$6(this, "uv_move_Y");
-      __publicField$6(this, "uv_rotation");
-      __publicField$6(this, "uv_scale_X");
-      __publicField$6(this, "uv_scale_Y");
-      __publicField$6(this, "boundingRadius");
-      __publicField$6(this, "instanceValue_curKeyframe");
-      __publicField$6(this, "instanceValue_endFrame");
-      __publicField$6(this, "instanceValue_startFrame");
-      __publicField$6(this, "instanceValue_loopNum");
-      __publicField$6(this, "instanceValue_speed");
-      __publicField$6(this, "instanceValue_loopflag");
-      __publicField$6(this, "effectValue_curKeyframe");
-      __publicField$6(this, "effectValue_startTime");
-      __publicField$6(this, "effectValue_speed");
-      __publicField$6(this, "effectValue_loopflag");
-      __publicField$6(this, "f_hide");
-      __publicField$6(this, "f_flipH");
-      __publicField$6(this, "f_flipV");
-      __publicField$6(this, "f_mesh");
-      __publicField$6(this, "i_transformVerts");
-      __publicField$6(this, "u00");
-      __publicField$6(this, "v00");
-      __publicField$6(this, "u01");
-      __publicField$6(this, "v01");
-      __publicField$6(this, "u10");
-      __publicField$6(this, "v10");
-      __publicField$6(this, "u11");
-      __publicField$6(this, "v11");
-      __publicField$6(this, "useColorMatrix");
-      __publicField$6(this, "colorBlendType");
-      __publicField$6(this, "colorRate");
-      __publicField$6(this, "colorArgb32");
-      __publicField$6(this, "meshIsBind");
-      __publicField$6(this, "meshNum");
-      __publicField$6(this, "meshDataPoint");
-      __publicField$6(this, "flag1");
-      __publicField$6(this, "flag2");
-      __publicField$6(this, "partsColorARGB");
-      __publicField$6(this, "tint");
-    }
   }
   const SIZEOF_INT = 4;
   const FILE_IDENTIFIER_LENGTH = 4;
@@ -484,16 +415,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return ret;
     }
   }
-  var __defProp$A = Object.defineProperty;
-  var __defNormalProp$A = (obj, key, value) => key in obj ? __defProp$A(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$A = (obj, key, value) => {
-    __defNormalProp$A(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class AnimationInitialData {
     constructor() {
-      __publicField$A(this, "bb", null);
-      __publicField$A(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -823,16 +748,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimationInitialData.endAnimationInitialData(builder);
     }
   }
-  var __defProp$z = Object.defineProperty;
-  var __defNormalProp$z = (obj, key, value) => key in obj ? __defProp$z(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$z = (obj, key, value) => {
-    __defNormalProp$z(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class partState {
     constructor() {
-      __publicField$z(this, "bb", null);
-      __publicField$z(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -908,16 +827,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return partState.endpartState(builder);
     }
   }
-  var __defProp$y = Object.defineProperty;
-  var __defNormalProp$y = (obj, key, value) => key in obj ? __defProp$y(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$y = (obj, key, value) => {
-    __defNormalProp$y(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class frameDataIndex {
     constructor() {
-      __publicField$y(this, "bb", null);
-      __publicField$y(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -965,16 +878,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return frameDataIndex.endframeDataIndex(builder);
     }
   }
-  var __defProp$x = Object.defineProperty;
-  var __defNormalProp$x = (obj, key, value) => key in obj ? __defProp$x(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$x = (obj, key, value) => {
-    __defNormalProp$x(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class labelDataItem {
     constructor() {
-      __publicField$x(this, "bb", null);
-      __publicField$x(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1016,16 +923,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return labelDataItem.endlabelDataItem(builder);
     }
   }
-  var __defProp$w = Object.defineProperty;
-  var __defNormalProp$w = (obj, key, value) => key in obj ? __defProp$w(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$w = (obj, key, value) => {
-    __defNormalProp$w(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class meshDataIndices {
     constructor() {
-      __publicField$w(this, "bb", null);
-      __publicField$w(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1077,16 +978,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return meshDataIndices.endmeshDataIndices(builder);
     }
   }
-  var __defProp$v = Object.defineProperty;
-  var __defNormalProp$v = (obj, key, value) => key in obj ? __defProp$v(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$v = (obj, key, value) => {
-    __defNormalProp$v(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class meshDataUV {
     constructor() {
-      __publicField$v(this, "bb", null);
-      __publicField$v(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1138,16 +1033,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return meshDataUV.endmeshDataUV(builder);
     }
   }
-  var __defProp$u = Object.defineProperty;
-  var __defNormalProp$u = (obj, key, value) => key in obj ? __defProp$u(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$u = (obj, key, value) => {
-    __defNormalProp$u(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataItem {
     constructor() {
-      __publicField$u(this, "bb", null);
-      __publicField$u(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1237,16 +1126,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataItem.enduserDataItem(builder);
     }
   }
-  var __defProp$t = Object.defineProperty;
-  var __defNormalProp$t = (obj, key, value) => key in obj ? __defProp$t(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$t = (obj, key, value) => {
-    __defNormalProp$t(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataPerFrame {
     constructor() {
-      __publicField$t(this, "bb", null);
-      __publicField$t(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1302,16 +1185,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return userDataPerFrame.enduserDataPerFrame(builder);
     }
   }
-  var __defProp$s = Object.defineProperty;
-  var __defNormalProp$s = (obj, key, value) => key in obj ? __defProp$s(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$s = (obj, key, value) => {
-    __defNormalProp$s(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class AnimationData {
     constructor() {
-      __publicField$s(this, "bb", null);
-      __publicField$s(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1565,16 +1442,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
     SsPartType2[SsPartType2["Bonepoint"] = 11] = "Bonepoint";
     return SsPartType2;
   })(SsPartType || {});
-  var __defProp$r = Object.defineProperty;
-  var __defNormalProp$r = (obj, key, value) => key in obj ? __defProp$r(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$r = (obj, key, value) => {
-    __defNormalProp$r(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class PartData {
     constructor() {
-      __publicField$r(this, "bb", null);
-      __publicField$r(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1680,16 +1551,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return PartData.endPartData(builder);
     }
   }
-  var __defProp$q = Object.defineProperty;
-  var __defNormalProp$q = (obj, key, value) => key in obj ? __defProp$q(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$q = (obj, key, value) => {
-    __defNormalProp$q(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class AnimePackData {
     constructor() {
-      __publicField$q(this, "bb", null);
-      __publicField$q(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1767,16 +1632,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return AnimePackData.endAnimePackData(builder);
     }
   }
-  var __defProp$p = Object.defineProperty;
-  var __defNormalProp$p = (obj, key, value) => key in obj ? __defProp$p(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$p = (obj, key, value) => {
-    __defNormalProp$p(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class CellMap {
     constructor() {
-      __publicField$p(this, "bb", null);
-      __publicField$p(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1842,16 +1701,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return CellMap.endCellMap(builder);
     }
   }
-  var __defProp$o = Object.defineProperty;
-  var __defNormalProp$o = (obj, key, value) => key in obj ? __defProp$o(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$o = (obj, key, value) => {
-    __defNormalProp$o(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class Cell {
     constructor() {
-      __publicField$o(this, "bb", null);
-      __publicField$o(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -1964,16 +1817,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return offset;
     }
   }
-  var __defProp$n = Object.defineProperty;
-  var __defNormalProp$n = (obj, key, value) => key in obj ? __defProp$n(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$n = (obj, key, value) => {
-    __defNormalProp$n(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class EffectNode {
     constructor() {
-      __publicField$n(this, "bb", null);
-      __publicField$n(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2095,16 +1942,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return EffectNode.endEffectNode(builder);
     }
   }
-  var __defProp$m = Object.defineProperty;
-  var __defNormalProp$m = (obj, key, value) => key in obj ? __defProp$m(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$m = (obj, key, value) => {
-    __defNormalProp$m(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class EffectFile {
     constructor() {
-      __publicField$m(this, "bb", null);
-      __publicField$m(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2247,16 +2088,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
     PART_FLAG22[PART_FLAG22["MESHDATA"] = 1] = "MESHDATA";
     return PART_FLAG22;
   })(PART_FLAG2 || {});
-  var __defProp$4 = Object.defineProperty;
-  var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$4 = (obj, key, value) => {
-    __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class ProjectData {
     constructor() {
-      __publicField$4(this, "bb", null);
-      __publicField$4(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2413,16 +2248,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return ProjectData.endProjectData(builder);
     }
   }
-  var __defProp$3 = Object.defineProperty;
-  var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$3 = (obj, key, value) => {
-    __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataInteger {
     constructor() {
-      __publicField$3(this, "bb", null);
-      __publicField$3(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2441,16 +2270,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
-  var __defProp$2$1 = Object.defineProperty;
-  var __defNormalProp$2$1 = (obj, key, value) => key in obj ? __defProp$2$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$2$1 = (obj, key, value) => {
-    __defNormalProp$2$1(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataPoint {
     constructor() {
-      __publicField$2$1(this, "bb", null);
-      __publicField$2$1(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2473,16 +2296,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
-  var __defProp$1$1 = Object.defineProperty;
-  var __defNormalProp$1$1 = (obj, key, value) => key in obj ? __defProp$1$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$1$1 = (obj, key, value) => {
-    __defNormalProp$1$1(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataRect {
     constructor() {
-      __publicField$1$1(this, "bb", null);
-      __publicField$1$1(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2513,16 +2330,10 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return builder.offset();
     }
   }
-  var __defProp$5 = Object.defineProperty;
-  var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$5 = (obj, key, value) => {
-    __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class userDataString {
     constructor() {
-      __publicField$5(this, "bb", null);
-      __publicField$5(this, "bb_pos", 0);
+      this.bb = null;
+      this.bb_pos = 0;
     }
     __init(i, bb) {
       this.bb_pos = i;
@@ -2575,28 +2386,21 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return Utils$1.getProjectData(bytes);
     }
   }
-  var __defProp$7 = Object.defineProperty;
-  var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$7 = (obj, key, value) => {
-    __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class Player {
     constructor(ssfbData, animePackName = null, animeName = null) {
-      __publicField$7(this, "_fbObj");
-      __publicField$7(this, "curAnimePackName", null);
-      __publicField$7(this, "curAnimeName", null);
-      __publicField$7(this, "curAnimation", null);
-      __publicField$7(this, "curAnimePackData", null);
-      __publicField$7(this, "_animePackIdx", -1);
-      __publicField$7(this, "_parentIndex", []);
-      __publicField$7(this, "_prio2index", []);
-      __publicField$7(this, "userData", []);
-      __publicField$7(this, "frameDataCache", null);
-      __publicField$7(this, "currentCachedFrameNumber", -1);
-      __publicField$7(this, "defaultFrameMap", []);
-      __publicField$7(this, "_uint32", new Uint32Array(1));
-      __publicField$7(this, "_float32", new Float32Array(this._uint32.buffer));
+      this.curAnimePackName = null;
+      this.curAnimeName = null;
+      this.curAnimation = null;
+      this.curAnimePackData = null;
+      this._animePackIdx = -1;
+      this._parentIndex = [];
+      this._prio2index = [];
+      this.userData = [];
+      this.frameDataCache = null;
+      this.currentCachedFrameNumber = -1;
+      this.defaultFrameMap = [];
+      this._uint32 = new Uint32Array(1);
+      this._float32 = new Float32Array(this._uint32.buffer);
       if (ssfbData.hasOwnProperty("bb")) {
         this._fbObj = ssfbData;
       } else {
@@ -3239,23 +3043,8 @@ Imported.SS6PlayerRPGMakerMZ = true;
       return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     }
   }
-  var __defProp$2 = Object.defineProperty;
-  var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$2 = (obj, key, value) => {
-    __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class SS6Project {
     constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
-      __publicField$2(this, "ssfbPath");
-      __publicField$2(this, "rootPath");
-      __publicField$2(this, "fbObj");
-      __publicField$2(this, "resources");
-      __publicField$2(this, "status");
-      __publicField$2(this, "onComplete");
-      __publicField$2(this, "onError");
-      __publicField$2(this, "onTimeout");
-      __publicField$2(this, "onRetry");
       if (typeof arg1 === "string") {
         let ssfbPath = arg1;
         let onComplete = arg2;
@@ -3370,30 +3159,18 @@ Imported.SS6PlayerRPGMakerMZ = true;
       });
     }
   }
-  var __defProp$1$2 = Object.defineProperty;
-  var __defNormalProp$1$2 = (obj, key, value) => key in obj ? __defProp$1$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$1$2 = (obj, key, value) => {
-    __defNormalProp$1$2(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class SS6PlayerInstanceKeyParam {
     constructor() {
-      __publicField$1$2(this, "refStartframe", 0);
-      __publicField$1$2(this, "refEndframe", 0);
-      __publicField$1$2(this, "refSpeed", 1);
-      __publicField$1$2(this, "refloopNum", 0);
-      __publicField$1$2(this, "infinity", false);
-      __publicField$1$2(this, "reverse", false);
-      __publicField$1$2(this, "pingpong", false);
-      __publicField$1$2(this, "independent", false);
+      this.refStartframe = 0;
+      this.refEndframe = 0;
+      this.refSpeed = 1;
+      this.refloopNum = 0;
+      this.infinity = false;
+      this.reverse = false;
+      this.pingpong = false;
+      this.independent = false;
     }
   }
-  var __defProp$8 = Object.defineProperty;
-  var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField$8 = (obj, key, value) => {
-    __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
   class SS6Player extends display.Container {
     /**
      * SS6Player (extends PIXI.Container)
@@ -3404,32 +3181,17 @@ Imported.SS6PlayerRPGMakerMZ = true;
      */
     constructor(ss6project, animePackName = null, animeName = null) {
       super();
-      __publicField$8(this, "playerLib");
-      __publicField$8(this, "ss6project");
-      __publicField$8(this, "resources");
-      __publicField$8(this, "liveFrame", []);
-      __publicField$8(this, "colorMatrixFilterCache", []);
-      __publicField$8(this, "parentAlpha", 1);
-      __publicField$8(this, "prevCellID", []);
-      __publicField$8(this, "prevMesh", []);
-      __publicField$8(this, "substituteOverWrite", []);
-      __publicField$8(this, "substituteKeyParam", []);
-      __publicField$8(this, "alphaBlendType", []);
-      __publicField$8(this, "_isPlaying");
-      __publicField$8(this, "_isPausing");
-      __publicField$8(this, "_startFrame");
-      __publicField$8(this, "_endFrame");
-      __publicField$8(this, "_currentFrame");
-      __publicField$8(this, "nextFrameTime");
-      __publicField$8(this, "_loops");
-      __publicField$8(this, "skipEnabled");
-      __publicField$8(this, "updateInterval");
-      __publicField$8(this, "playDirection");
-      __publicField$8(this, "onUserDataCallback");
-      __publicField$8(this, "playEndCallback");
-      __publicField$8(this, "defaultColorFilter", new filterColorMatrix.ColorMatrixFilter());
-      __publicField$8(this, "_instancePos", new Float32Array(5));
-      __publicField$8(this, "_CoordinateGetDiagonalIntersectionVec2", new Float32Array(2));
+      this.liveFrame = [];
+      this.colorMatrixFilterCache = [];
+      this.parentAlpha = 1;
+      this.prevCellID = [];
+      this.prevMesh = [];
+      this.substituteOverWrite = [];
+      this.substituteKeyParam = [];
+      this.alphaBlendType = [];
+      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this._instancePos = new Float32Array(5);
+      this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
       this.ss6project = ss6project;
       this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
       this.resources = this.ss6project.resources;
