@@ -8,6 +8,6 @@ BASEDIR=`cd ${BASEDIR} && pwd -P`
 pushd ${BASEDIR} > /dev/null
 npm install
 npm run clean
-npm run bootstrap
+npm install
 npm run build
 popd > /dev/null

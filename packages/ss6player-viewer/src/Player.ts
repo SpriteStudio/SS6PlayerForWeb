@@ -12,7 +12,7 @@ export class Player {
 
   public onComplete: () => void;
 
-  private animePackMap: { [key: string]: any; } = null;
+  private animePackMap: { [key: string]: any } = null;
 
   public infinityFlag: boolean = true;
 

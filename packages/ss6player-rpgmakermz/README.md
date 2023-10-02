@@ -262,7 +262,6 @@ e.g. 上に 100 移動する場合は下記のように指定してください�
 ```
 cd SS6PlayerForWeb
 npm i
-npm run bootstrap
 npm run build
 ```
 

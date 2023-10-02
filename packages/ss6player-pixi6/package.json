@@ -1,7 +1,7 @@
 {
   "name": "ss6player-pixi6",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -33,50 +33,52 @@
   "license": "SEE LICENSE",
   "scripts": {
     "start": "npm run watch",
-    "lint": "npx tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
     "prebuild": "npm run clean",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
     "docs": "typedoc --out ../../docs/ss6player_pixi6_api src/ss6player-pixi6.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
     "view": "concurrently \"http-server -c-1 -p 8086 ../../\" \"opener http://localhost:8086/packages/ss6player-pixi6/Player/index.html\"",
     "clean": "rimraf dist"
   },
-  "peerDependencies": {
-    "@pixi/loaders": "^6.5.8",
-    "@pixi/display": "^6.5.8",
-    "@pixi/mesh-extras": "^6.5.8",
-    "@pixi/ticker": "^6.5.8",
-    "@pixi/filter-color-matrix": "^6.5.8",
-    "@pixi/core": "^6.5.8",
-    "@pixi/constants": "^6.5.8"
-  },
   "dependencies": {
-    "ss6player-lib": "1.0.0"
+    "ss6player-lib": "1.0.1"
   },
   "devDependencies": {
-    "typescript": "^4.8.4",
-    "typedoc": "^0.23.19",
+    "typescript": "^5.2.2",
+    "typedoc": "^0.25.0",
     "lodash.camelcase": "^4.3.0",
-    "rimraf": "^3.0.2",
-    "rollup": "2.79.1",
-    "@rollup/plugin-typescript": "^9.0.1",
-    "@rollup/plugin-commonjs": "^23.0.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^3.29.4",
+    "@rollup/plugin-typescript": "^11.1.4",
+    "@rollup/plugin-commonjs": "^25.0.4",
     "rollup-plugin-includepaths": "^0.2.4",
-    "@rollup/plugin-json": "^5.0.0",
-    "rollup-plugin-license": "^2.8.2",
-    "@rollup/plugin-node-resolve": "^15.0.0",
-    "rollup-plugin-esbuild": "^4.10.1",
-    "esbuild": "^0.15.12",
-    "@types/offscreencanvas": "^2019.7.0",
-    "pixi.js": "^6.5.8",
-    "concurrently": "^7.5.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "rollup-plugin-license": "^3.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "rollup-plugin-esbuild": "^6.0.2",
+    "esbuild": "^0.19.4",
+    "pixi.js": "^6.5.10",
+    "@pixi/loaders": "^6.5.10",
+    "@pixi/display": "^6.5.10",
+    "@pixi/mesh-extras": "^6.5.10",
+    "@pixi/ticker": "^6.5.10",
+    "@pixi/filter-color-matrix": "^6.5.10",
+    "@pixi/core": "^6.5.10",
+    "@pixi/constants": "^6.5.10",
+    "concurrently": "^8.2.1",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "tslint": "^6.1.3",
-    "tslint-config-standard": "^9.0.0"
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "@typescript-eslint/eslint-plugin-tslint": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jsdoc": "^46.8.2",
+    "eslint-config-prettier": "^9.0.0"
   },
   "optionalDependencies": {
-    "fsevents": "^2.3.2"
+    "fsevents": "^2.3.3"
   }
 }

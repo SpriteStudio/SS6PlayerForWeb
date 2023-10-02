@@ -33,7 +33,6 @@ FlatBuffers の [TypeScript 利用ガイド](https://google.github.io/flatbuffer
 ```
 cd SS6PlayerForWeb
 npm i
-npm run bootstrap
 npm run build
 ```
 

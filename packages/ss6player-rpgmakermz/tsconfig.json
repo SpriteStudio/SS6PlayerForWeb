@@ -6,11 +6,10 @@
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "typeRoots": [
-      "node_modules/pixi.js/pixi.js.d.ts",
       "dist/types",
-      "node_modules/@types"
+      "node_modules/pixi.js/pixi.js.d.ts",
+      "../../node_modules/@types"
     ],
-    "types": ["pixi.js"]
   },
   "include": [
     "src"

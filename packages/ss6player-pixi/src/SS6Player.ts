@@ -1,10 +1,11 @@
 import { Assets } from '@pixi/assets';
 import { Container } from '@pixi/display';
-import { SimpleMesh } from '@pixi/mesh-extras';
+import { Mesh, MeshGeometry, MeshMaterial } from '@pixi/mesh';
 import { Ticker } from '@pixi/ticker';
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import {Filter, Texture} from '@pixi/core';
+import { Filter } from '@pixi/core';
 import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
+import '@pixi/mixin-get-child-by-name';
 
 import {Player, AnimePackData, PART_FLAG, PartData, SsPartType} from 'ss6player-lib';
 import { SS6Project } from './SS6Project';
@@ -17,14 +18,14 @@ export class SS6Player extends Container {
   // Properties
   private readonly ss6project: SS6Project;
   private liveFrame: any[] = [];
-  private colorMatrixFilterCache: any[] = [];
+  private colorMatrixFilterCache: ColorMatrixFilter[] = [];
 
   private parentAlpha: number = 1.0;
 
   //
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
-  private prevMesh: (SS6Player | SimpleMesh)[] = [];
+  private prevPartObject: (SS6Player | Mesh | Container)[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -130,7 +131,7 @@ export class SS6Player extends Container {
 
     // cell再利用
     this.prevCellID = new Array(partsLength);
-    this.prevMesh = new Array(partsLength);
+    this.prevPartObject = new Array(partsLength);
     this.substituteOverWrite = new Array(partsLength);
     this.substituteKeyParam = new Array(partsLength);
 
@@ -139,7 +140,7 @@ export class SS6Player extends Container {
 
       // cell再利用
       this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
-      this.prevMesh[index] = null;
+      this.prevPartObject[index] = null;
       this.substituteOverWrite[index] = null;
       this.substituteKeyParam[index] = null;
     }
@@ -318,9 +319,6 @@ export class SS6Player extends Container {
   /**
    * アニメーション再生を開始する
    */
-  public Play();
-  // tslint:disable-next-line:unified-signatures
-  public Play(frameNo: number);
   public Play(frameNo?: number): void {
     this._isPlaying = true;
     this._isPausing = false;
@@ -565,7 +563,7 @@ export class SS6Player extends Container {
       const cellID = data.cellIndex;
 
       // cell再利用
-      let mesh: any = this.prevMesh[i];
+      let partObject: (SS6Player | Mesh | Container) = this.prevPartObject[i];
       const part: PartData = this.playerLib.animePackData.parts(i);
       const partType = part.type();
       let overWrite: boolean = (this.substituteOverWrite[i] !== null) ? this.substituteOverWrite[i] : false;
@@ -574,53 +572,55 @@ export class SS6Player extends Container {
       // 処理分岐処理
       switch (partType) {
         case SsPartType.Instance:
-          if (mesh == null) {
-            mesh = this.MakeCellPlayer(part.refname());
-            mesh.name = part.name();
+          if (partObject == null) {
+            partObject = this.MakeCellPlayer(part.refname());
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Normal:
         case SsPartType.Mask:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeCellMesh(cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
         case SsPartType.Nulltype:
         case SsPartType.Joint:
           if (this.prevCellID[i] !== cellID) {
-            if (mesh != null) mesh.destroy();
-            mesh = new Container();
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = new Container();
+            partObject.name = part.name();
           }
           break;
         default:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             // 小西 - デストロイ処理
-            if (mesh != null) mesh.destroy();
-            mesh = this.MakeCellMesh(cellID); // (cellID, i)?
-            mesh.name = part.name();
+            if (partObject != null) partObject.destroy();
+            partObject = this.MakeCellMesh(cellID); // (cellID, i)?
+            partObject.name = part.name();
           }
           break;
       }
 
       // 初期化が行われなかった場合(あるの？)
-      if (mesh == null) continue;
+      if (partObject == null) continue;
 
       this.prevCellID[i] = cellID;
-      this.prevMesh[i] = mesh;
+      this.prevPartObject[i] = partObject;
 
       // 描画関係処理
       switch (partType) {
         case SsPartType.Instance: {
+          const instance = partObject as SS6Player;
+
           // インスタンスパーツのアップデート
           // let pos = new Float32Array(5);
           this._instancePos[0] = 0; // pos x
@@ -630,17 +630,17 @@ export class SS6Player extends Container {
           this._instancePos[4] = 0; // rot
           this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
 
-          mesh.rotation = (this._instancePos[4] * Math.PI) / 180;
-          mesh.position.set(this._instancePos[0], this._instancePos[1]);
-          mesh.scale.set(this._instancePos[2], this._instancePos[3]);
+          instance.rotation = (this._instancePos[4] * Math.PI) / 180;
+          instance.position.set(this._instancePos[0], this._instancePos[1]);
+          instance.scale.set(this._instancePos[2], this._instancePos[3]);
 
           let opacity = data.opacity / 255.0; // fdには継承後の不透明度が反映されているのでそのまま使用する
           if (data.localopacity < 255) {
             // ローカル不透明度が使われている場合は255以下の値になるので、255以下の場合にローカル不透明度で上書き
             opacity = data.localopacity / 255.0;
           }
-          mesh.SetAlpha(opacity * this.parentAlpha);
-          mesh.visible = !data.f_hide;
+          instance.SetAlpha(opacity * this.parentAlpha);
+          instance.visible = !data.f_hide;
 
           // 描画
           let refKeyframe = data.instanceValue_curKeyframe;
@@ -687,8 +687,8 @@ export class SS6Player extends Container {
             independent = overWritekeyParam.independent;
           }
 
-          if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
-            mesh.SetAnimationSection(refStartframe, refEndframe);
+          if (instance._startFrame !== refStartframe || instance._endFrame !== refEndframe) {
+            instance.SetAnimationSection(refStartframe, refEndframe);
           }
 
           // タイムライン上の時間 （絶対時間）
@@ -754,9 +754,9 @@ export class SS6Player extends Container {
 
           // インスタンスパラメータを設定
           // インスタンス用SSPlayerに再生フレームを設定する
-          mesh.SetFrame(Math.floor(_time));
+          instance.SetFrame(Math.floor(_time));
           // mesh.Pause();
-          this.addChild(mesh);
+          this.addChild(instance);
           break;
         }
         //  Instance以外の通常のMeshと空のContainerで処理分岐
@@ -764,19 +764,22 @@ export class SS6Player extends Container {
         case SsPartType.Mesh:
         case SsPartType.Joint:
         case SsPartType.Mask: {
+          const mesh = partObject as Mesh;
+          const meshVertexBuffer = mesh.geometry.getBuffer('aVertexPosition');
+          let meshVertex = meshVertexBuffer.data as Float32Array;
           const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === SsPartType.Mesh) {
             // ボーンとのバインドの有無によって、TRSの継承行うかが決まる。
             if (data.meshIsBind === 0) {
               // バインドがない場合は親からのTRSを継承する
-              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+              verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, meshVertex), data.index, frameNumber);
             } else {
               // バインドがある場合は変形後の結果が出力されているので、そのままの値を使用する
-              verts = Player.GetMeshVerts(cell, data, mesh.vertices);
+              verts = Player.GetMeshVerts(cell, data, meshVertex);
             }
           } else {
-            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : mesh.vertices;
+            verts = (partType === SsPartType.Joint) ? new Float32Array(10) /* dummy */ : meshVertex;
             verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
           }
           // 頂点変形、パーツカラーのアトリビュートがある場合のみ行うようにしたい
@@ -812,7 +815,8 @@ export class SS6Player extends Container {
             verts[j * 2] -= px;
             verts[j * 2 + 1] -= py;
           }
-          mesh.vertices = verts;
+          meshVertex = verts;
+          meshVertexBuffer.update();
           if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
             // uv X/Y移動
             const u1 = cell.u1() + data.uv_move_X;
@@ -826,23 +830,26 @@ export class SS6Player extends Container {
             const uvw = ((u2 - u1) / 2) * data.uv_scale_X;
             const uvh = ((v2 - v1) / 2) * data.uv_scale_Y;
 
+            const meshUvsBuffer = mesh.uvBuffer;
+            let meshUvs = meshUvsBuffer.data;
+
             // UV回転
-            mesh.uvs[0] = cx;
-            mesh.uvs[1] = cy;
-            mesh.uvs[2] = cx - uvw;
-            mesh.uvs[3] = cy - uvh;
-            mesh.uvs[4] = cx + uvw;
-            mesh.uvs[5] = cy - uvh;
-            mesh.uvs[6] = cx - uvw;
-            mesh.uvs[7] = cy + uvh;
-            mesh.uvs[8] = cx + uvw;
-            mesh.uvs[9] = cy + uvh;
+            meshUvs[0] = cx;
+            meshUvs[1] = cy;
+            meshUvs[2] = cx - uvw;
+            meshUvs[3] = cy - uvh;
+            meshUvs[4] = cx + uvw;
+            meshUvs[5] = cy - uvh;
+            meshUvs[6] = cx - uvw;
+            meshUvs[7] = cy + uvh;
+            meshUvs[8] = cx + uvw;
+            meshUvs[9] = cy + uvh;
 
             if (data.flag1 & PART_FLAG.UV_ROTATION) {
               const rot = (data.uv_rotation * Math.PI) / 180;
               for (let idx = 0; idx < 5; idx++) {
-                const dx = mesh.uvs[idx * 2 + 0] - cx; // 中心からの距離(X)
-                const dy = mesh.uvs[idx * 2 + 1] - cy; // 中心からの距離(Y)
+                const dx = meshUvs[idx * 2 + 0] - cx; // 中心からの距離(X)
+                const dy = meshUvs[idx * 2 + 1] - cy; // 中心からの距離(Y)
 
                 const cos = Math.cos(rot);
                 const sin = Math.sin(rot);
@@ -850,11 +857,11 @@ export class SS6Player extends Container {
                 const tmpX = cos * dx - sin * dy; // 回転
                 const tmpY = sin * dx + cos * dy;
 
-                mesh.uvs[idx * 2 + 0] = cx + tmpX; // 元の座標にオフセットする
-                mesh.uvs[idx * 2 + 1] = cy + tmpY;
+                meshUvs[idx * 2 + 0] = cx + tmpX; // 元の座標にオフセットする
+                meshUvs[idx * 2 + 1] = cy + tmpY;
               }
             }
-            mesh.dirty++; // 更新回数？をカウントアップすると更新されるようになる
+            meshUvsBuffer.update();
           }
 
           //
@@ -903,17 +910,19 @@ export class SS6Player extends Container {
           break;
         }
         case SsPartType.Nulltype: {
+          const container = partObject as Container;
+
           // NULLパーツのOpacity/Transform設定
           const opacity = this.playerLib.InheritOpacity(1.0, data.index, frameNumber);
-          mesh.alpha = (opacity * data.localopacity) / 255.0;
+          container.alpha = (opacity * data.localopacity) / 255.0;
           const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
           const px = verts[0];
           const py = verts[1];
-          mesh.position.set(px, py);
+          container.position.set(px, py);
           const ax = Math.atan2(verts[5] - verts[3], verts[4] - verts[2]);
           const ay = Math.atan2(verts[7] - verts[3], verts[6] - verts[2]);
-          mesh.rotation = ax;
-          mesh.skew.x = ay - ax - Math.PI / 2;
+          container.rotation = ax;
+          container.skew.x = ay - ax - Math.PI / 2;
           break;
         }
       }
@@ -951,7 +960,7 @@ export class SS6Player extends Container {
 
         let partData = packData.parts(index);
         if (partData.name() === partName) {
-          let mesh: any = this.prevMesh[index];
+          let mesh: any = this.prevPartObject[index];
           if (mesh === null || mesh instanceof SS6Player) {
             this.substituteOverWrite[index] = overWrite;
 
@@ -966,7 +975,7 @@ export class SS6Player extends Container {
               keyParamAsSubstitute.refEndframe = (mesh as SS6Player).endFrame;
             }
             mesh.name = partData.name();
-            this.prevMesh[index] = mesh;
+            this.prevPartObject[index] = mesh;
             this.substituteKeyParam[index] = keyParamAsSubstitute;
 
             rc = true;
@@ -981,9 +990,9 @@ export class SS6Player extends Container {
   /**
    * 矩形セルをメッシュ（5verts4Tri）で作成
    * @param {number} id - セルID
-   * @return {PIXI.SimpleMesh} - メッシュ
+   * @return {PIXI.Mesh} - メッシュ
    */
-  private MakeCellMesh(id: number): SimpleMesh {
+  private MakeCellMesh(id: number): Mesh {
     const cell = this.playerLib.fbObj.cells(id);
     const u1 = cell.u1();
     const u2 = cell.u2();
@@ -991,20 +1000,23 @@ export class SS6Player extends Container {
     const v2 = cell.v2();
     const w = cell.width() / 2;
     const h = cell.height() / 2;
+
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
-    return new SimpleMesh(Assets.get(cell.cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
-    return null;
+
+    const geometry = new MeshGeometry(verts, uvs, indices);
+    const meshMaterial = new MeshMaterial(Assets.get(cell.cellMap().name()));
+    return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
   }
 
   /**
    * メッシュセルからメッシュを作成
    * @param {number} partID - パーツID
    * @param {number} cellID - セルID
-   * @return {PIXI.SimpleMesh} - メッシュ
+   * @return {PIXI.Mesh} - メッシュ
    */
-  private MakeMeshCellMesh(partID: number, cellID: number): SimpleMesh {
+  private MakeMeshCellMesh(partID: number, cellID: number): Mesh {
     const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
     const uvLength = meshsDataUV.uvLength();
 
@@ -1028,7 +1040,9 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      return new SimpleMesh(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()) as Texture, verts, uvs, indices, DRAW_MODES.TRIANGLES);
+      const geometry = new MeshGeometry(verts, uvs, indices);
+      const meshMaterial = new MeshMaterial(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
+      return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
     }
 
     return null;

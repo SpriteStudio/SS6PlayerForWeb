@@ -5,9 +5,10 @@
     "outDir": "dist/lib",
     "typeRoots": [
       "dist/types",
-      "node_modules/@types"
+      "node_modules/@pixi",
+      "../../node_modules/@types"
     ],
-    "types": ["offscreencanvas"]
+    "types": []
   },
   "include": [
     "src"

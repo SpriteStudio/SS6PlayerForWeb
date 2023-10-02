@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_scenes.js v1.5.0
+// rmmz_scenes.js v1.7.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -327,6 +327,10 @@ Scene_Boot.prototype.start = function() {
     } else if (DataManager.isEventTest()) {
         DataManager.setupEventTest();
         SceneManager.goto(Scene_Map);
+    } else if (DataManager.isTitleSkip()) {
+        this.checkPlayerLocation();
+        DataManager.setupNewGame();
+        SceneManager.goto(Scene_Map);
     } else {
         this.startNormalGame();
     }
@@ -345,6 +349,7 @@ Scene_Boot.prototype.resizeScreen = function() {
     const screenWidth = $dataSystem.advanced.screenWidth;
     const screenHeight = $dataSystem.advanced.screenHeight;
     Graphics.resize(screenWidth, screenHeight);
+    Graphics.defaultScale = this.screenScale();
     this.adjustBoxSize();
     this.adjustWindow();
 };
@@ -359,10 +364,19 @@ Scene_Boot.prototype.adjustBoxSize = function() {
 
 Scene_Boot.prototype.adjustWindow = function() {
     if (Utils.isNwjs()) {
-        const xDelta = Graphics.width - window.innerWidth;
-        const yDelta = Graphics.height - window.innerHeight;
+        const scale = this.screenScale();
+        const xDelta = Graphics.width * scale - window.innerWidth;
+        const yDelta = Graphics.height * scale - window.innerHeight;
         window.moveBy(-xDelta / 2, -yDelta / 2);
         window.resizeBy(xDelta, yDelta);
+    }
+};
+
+Scene_Boot.prototype.screenScale = function() {
+    if ("screenScale" in $dataSystem.advanced) {
+        return $dataSystem.advanced.screenScale;
+    } else {
+        return 1;
     }
 };
 

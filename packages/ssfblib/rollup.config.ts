@@ -11,6 +11,14 @@ const pkg = require('./package.json');
 
 const libraryName = 'ssfblib';
 
+const licenseBannerOptions = `-----------------------------------------------------------
+ ssfblib v<%= pkg.version %>
+
+ Copyright(C) <%= pkg.author.name %>
+ <%= pkg.author.url %>
+-----------------------------------------------------------
+`;
+
 export default {
   input: `src/${libraryName}.ts`,
   output: [
@@ -28,21 +36,13 @@ export default {
     json(),
     // Compile TypeScript files
     // typescript({ useTsconfigDeclarationDir: true }),
-    esbuild({sourceMap: !production}),
+    esbuild.default({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
     commonjs(),
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve(),
-    license({
-      banner: `-----------------------------------------------------------
- ssfblib v<%= pkg.version %>
-
- Copyright(C) <%= pkg.author.name %>
- <%= pkg.author.url %>
------------------------------------------------------------
-`
-    })
+    license({ banner: licenseBannerOptions })
   ]
 };

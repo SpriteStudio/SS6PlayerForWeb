@@ -26,7 +26,6 @@ ss6player-lib の API リファレンスは[こちら](https://spritestudio.gith
 ```
 cd SS6PlayerForWeb
 npm i
-npm run bootstrap
 npm run build
 ```
 
