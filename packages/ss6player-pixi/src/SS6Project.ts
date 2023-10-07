@@ -16,6 +16,8 @@ export class SS6Project {
   public status: RESOURCE_PROGRESS;
   public onComplete: onCompleteCallback;
 
+  private sspjMap: { [key: string]: string } = {};
+
   public getBundle(): string {
     return this.ssfbFile;
   }
@@ -67,6 +69,14 @@ export class SS6Project {
     }
   }
 
+  dispose(callback: () => void = null) {
+    Assets.unloadBundle(this.getBundle()).then(() => {
+      if (callback !== null) {
+        callback();
+      }
+    }).catch((error) => {});
+  }
+
   /**
    * Load json and parse (then, load textures)
    */
@@ -96,7 +106,7 @@ export class SS6Project {
     // Load textures for all cell at once.
     let ids: any = [];
 
-    let sspjMap = {};
+    this.sspjMap = {};
     for (let i = 0; i < this.fbObj.cellsLength(); i++) {
       const cellMap = this.fbObj.cells(i).cellMap();
       const cellMapIndex = cellMap.index();
@@ -105,10 +115,10 @@ export class SS6Project {
       })) {
         ids.push(cellMapIndex);
         const name = cellMap.name();
-        sspjMap[name] = this.rootPath + cellMap.imagePath();
+        this.sspjMap[name] = this.rootPath + cellMap.imagePath();
       }
     }
-    Assets.addBundle(this.getBundle(), sspjMap);
+    Assets.addBundle(this.getBundle(), this.sspjMap);
 
     const self = this;
     Assets.loadBundle(this.getBundle()).then(() => {
