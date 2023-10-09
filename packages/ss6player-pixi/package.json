@@ -59,6 +59,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "rollup-plugin-license": "^3.1.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "rollup-plugin-tsconfig-paths": "^1.5.1",
     "rollup-plugin-esbuild": "^6.0.2",
     "esbuild": "^0.19.4",
     "pixi.js": "^7.3.1",

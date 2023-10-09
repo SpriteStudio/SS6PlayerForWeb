@@ -8,9 +8,14 @@
       "node_modules/@pixi",
       "../../node_modules/@types"
     ],
-    "types": []
+    "types": [],
+    "paths": {
+      "@resourceLoader/*": ["./src/loaders/*"]
+    }
   },
   "include": [
-    "src"
+    "./src",
+    "../ss6player-pixi/src/*.ts",
+    "../ss6player-pixi/src/loaders/PixiResourceLoader.ts",
   ]
 }

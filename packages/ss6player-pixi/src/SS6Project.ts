@@ -1,5 +1,6 @@
-import { Assets } from '@pixi/assets';
 import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
+import {SS6ProjectResourceLoader} from './SS6ProjectResourceLoader';
+import {Texture} from '@pixi/core';
 
 export enum RESOURCE_PROGRESS {
   NOT_READY,
@@ -17,9 +18,14 @@ export class SS6Project {
   public onComplete: onCompleteCallback;
 
   private sspjMap: { [key: string]: string } = {};
+  private resourceLoader: SS6ProjectResourceLoader;
 
   public getBundle(): string {
     return this.ssfbFile;
+  }
+
+  public getTexture(key: string): Texture {
+    return this.resourceLoader.texture(key);
   }
 
   /**
@@ -44,6 +50,7 @@ export class SS6Project {
                      arg2: any,
                      arg3?: any,
                      arg4?: any) {
+    this.resourceLoader = new SS6ProjectResourceLoader();
     if (typeof arg1 === 'string' && arg3 === undefined) {  // get ssfb data via http protocol
       let ssfbPath: string = arg1;
 
@@ -70,11 +77,11 @@ export class SS6Project {
   }
 
   dispose(callback: () => void = null) {
-    Assets.unloadBundle(this.getBundle()).then(() => {
+    this.resourceLoader.unload(this.getBundle(), this.sspjMap, (error: any) => {
       if (callback !== null) {
         callback();
       }
-    }).catch((error) => {});
+    });
   }
 
   /**
@@ -118,17 +125,18 @@ export class SS6Project {
         this.sspjMap[name] = this.rootPath + cellMap.imagePath();
       }
     }
-    Assets.addBundle(this.getBundle(), this.sspjMap);
 
     const self = this;
-    Assets.loadBundle(this.getBundle()).then(() => {
-      self.status = RESOURCE_PROGRESS.READY;
-      if (self.onComplete !== null) {
-        self.onComplete(this, null);
-      }
-    }).catch((e: any) => {
-      if (this.onComplete !== null) {
-        this.onComplete(null, e);
+    this.resourceLoader.load(this.getBundle(), this.sspjMap, (error: any) => {
+      if (error === null) {
+        self.status = RESOURCE_PROGRESS.READY;
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      } else {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
+        }
       }
     });
   }
@@ -148,18 +156,19 @@ export class SS6Project {
 
       assetMap[imageName] = 'data:image/png;base64,' + btoa(b);
     }
-    Assets.addBundle(this.getBundle(), assetMap);
 
     const self = this;
-    Assets.loadBundle(this.getBundle()).then(() => {
-      self.status = RESOURCE_PROGRESS.READY;
+    this.resourceLoader.load(this.getBundle(), assetMap, (error: any) => {
+      if (error === null) {
+        self.status = RESOURCE_PROGRESS.READY;
 
-      if (self.onComplete !== null) {
-        self.onComplete(this, null);
-      }
-    }).catch((e: any) => {
-      if (this.onComplete !== null) {
-        this.onComplete(null, e);
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      } else {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
+        }
       }
     });
   }

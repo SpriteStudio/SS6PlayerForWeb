@@ -1,4 +1,3 @@
-import { Assets } from '@pixi/assets';
 import { Container } from '@pixi/display';
 import { Mesh, MeshGeometry, MeshMaterial } from '@pixi/mesh';
 import { Ticker } from '@pixi/ticker';
@@ -1006,7 +1005,7 @@ export class SS6Player extends Container {
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
 
     const geometry = new MeshGeometry(verts, uvs, indices);
-    const meshMaterial = new MeshMaterial(Assets.get(cell.cellMap().name()));
+    const meshMaterial = new MeshMaterial(this.ss6project.getTexture(cell.cellMap().name()));
     return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
   }
 
@@ -1041,7 +1040,7 @@ export class SS6Player extends Container {
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
       const geometry = new MeshGeometry(verts, uvs, indices);
-      const meshMaterial = new MeshMaterial(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
+      const meshMaterial = new MeshMaterial(this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()));
       return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
     }
 
