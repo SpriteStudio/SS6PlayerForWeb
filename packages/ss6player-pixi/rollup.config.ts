@@ -1,3 +1,4 @@
+import tsConfigPaths from "rollup-plugin-tsconfig-paths";
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import camelCase from 'lodash.camelcase';
@@ -47,6 +48,8 @@ export default {
   plugins: [
     // Allow json resolution
     json(),
+    //
+    tsConfigPaths(),
     // Compile TypeScript files
     esbuild.default({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)

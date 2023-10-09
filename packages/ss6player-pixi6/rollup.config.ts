@@ -1,3 +1,4 @@
+import tsConfigPaths from "rollup-plugin-tsconfig-paths";
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import camelCase from 'lodash.camelcase';
@@ -15,7 +16,7 @@ const libraryName = 'ss6player-pixi6';
 const pixiGlobals = {
   '@pixi/loaders': 'PIXI',
   '@pixi/display': 'PIXI',
-  '@pixi/mesh-extras': 'PIXI',
+  '@pixi/mesh': 'PIXI',
   '@pixi/ticker': 'PIXI',
   '@pixi/filter-color-matrix': 'PIXI.filters',
   '@pixi/core': 'PIXI',
@@ -47,6 +48,8 @@ export default {
   plugins: [
     // Allow json resolution
     json(),
+    //
+    tsConfigPaths(),
     // Compile TypeScript files
     esbuild.default({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
