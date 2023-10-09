@@ -882,7 +882,7 @@ export class SS6Player extends Container {
           if (data.useColorMatrix) {
             // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
             const colorMatrix: Filter = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
-            // mesh.filters = [colorMatrix];
+            mesh.filters = [colorMatrix];
           }
 
           // 小西 - tintデータがあれば適用
