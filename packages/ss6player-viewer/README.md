@@ -52,7 +52,7 @@ npm i
 npm run build
 ```
 
-ビルドが成功すると `ss6player-viewer.umd.js` と `ss6player-viewer.min.js` と `ss6player-viewer.es5.js` が `SS6PlayerForWeb/packages/ss6player-viewer/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ss6player-viewer.umd.js` と `ss6player-viewer.min.js` と `ss6player-viewer.es6.js` が `SS6PlayerForWeb/packages/ss6player-viewer/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 

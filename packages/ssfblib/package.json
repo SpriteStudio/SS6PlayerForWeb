@@ -6,7 +6,7 @@
     "SpriteStudio"
   ],
   "main": "dist/ssfblib.umd.js",
-  "module": "dist/ssfblib.es5.js",
+  "module": "dist/ssfblib.es6.js",
   "typings": "dist/types/ssfblib.d.ts",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"

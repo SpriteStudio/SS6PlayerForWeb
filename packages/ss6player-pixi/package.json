@@ -13,7 +13,7 @@
     "pixi"
   ],
   "main": "dist/ss6player-pixi.umd.js",
-  "module": "dist/ss6player-pixi.es5.js",
+  "module": "dist/ss6player-pixi.es6.js",
   "typings": "dist/types/ss6player-pixi.d.ts",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"

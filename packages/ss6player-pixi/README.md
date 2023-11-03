@@ -55,7 +55,7 @@ npm i
 npm run build
 ```
 
-ビルドが成功すると `ss6player-pixi.umd.js` と `ss6player-pixi.es5.js` が `SS6PlayerForWeb/packages/ss6player-pixi/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ss6player-pixi.umd.js` と `ss6player-pixi.es6.js` が `SS6PlayerForWeb/packages/ss6player-pixi/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 
