@@ -27,6 +27,6 @@ const pixiVersion = pixiPackageJsonObject.devDependencies["pixi.js"].replace('^'
 const cdnURL = `https://cdnjs.cloudflare.com/ajax/libs/pixi.js/${pixiVersion}/pixi.min.js`;
 const playerHtmlPath = path.join(docsDir, 'ViewerPlayer', 'player.html');
 let playerHtml = fs.readFileSync(playerHtmlPath, 'utf8');
-playerHtml = playerHtml.replace('../../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
+playerHtml = playerHtml.replace('../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
 playerHtml = playerHtml.replace('../dist/ss6player-viewer.umd.js', './ss6player-viewer.min.js');
 fs.writeFileSync(playerHtmlPath, playerHtml, 'utf-8');
