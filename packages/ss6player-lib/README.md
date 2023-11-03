@@ -29,7 +29,7 @@ npm i
 npm run build
 ```
 
-ビルドが成功すると `ss6player-lib.umd.js` と `ss6player-lib.es5.js` が `SS6PlayerForWeb/packages/ss6player-lib/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ss6player-lib.umd.js` と `ss6player-lib.es6.js` が `SS6PlayerForWeb/packages/ss6player-lib/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 
