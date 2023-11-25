@@ -287,3 +287,5 @@ $RECYCLE.BIN/
 *.lnk
 
 
+
+.nx/cache

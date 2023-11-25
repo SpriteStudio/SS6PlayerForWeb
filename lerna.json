@@ -13,5 +13,6 @@
       "allowBranch": "master",
       "message": "ss6playerforweb(release): publish %s"
     }
-  }
+  },
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
