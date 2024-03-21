@@ -13,15 +13,7 @@ const libraryName = 'ss6player-viewer';
 
 // reference: @pixi-build-tools/globals
 const pixiGlobals = {
-  '@pixi/assets': 'PIXI',
-  '@pixi/display': 'PIXI',
-  '@pixi/mesh': 'PIXI',
-  '@pixi/ticker': 'PIXI',
-  '@pixi/filter-color-matrix': 'PIXI',
-  '@pixi/core': 'PIXI',
-  '@pixi/constants': 'PIXI',
-  '@pixi/app': 'PIXI',
-  '@pixi/graphics': 'PIXI'
+  'pixi.js': 'PIXI'
 };
 
 const licenseBannerOptions = `-----------------------------------------------------------
@@ -41,7 +33,8 @@ export default {
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
-    /@pixi\/.*/
+    /@pixi\/.*/,
+    'pixi.js'
   ],
   watch: {
     include: 'src/**'

@@ -1,6 +1,6 @@
-import {PixiResourceLoader} from './loaders/PixiResourceLoader';
+import {PixiResourceLoader} from '../../ss6player-pixi/src/loaders/PixiResourceLoader';
 import {PixiResourceLoaderImpl} from '@resourceLoader/PixiResourceLoaderImpl';
-import {Texture} from 'pixi.js';
+import {Texture} from '@pixi/core';
 
 export class SS6ProjectResourceLoader {
 

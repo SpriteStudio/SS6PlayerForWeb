@@ -1,6 +1,6 @@
 import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
 import {SS6ProjectResourceLoader} from './SS6ProjectResourceLoader';
-import {Texture} from 'pixi.js';
+import {Texture} from '@pixi/core';
 
 export enum RESOURCE_PROGRESS {
   NOT_READY,
