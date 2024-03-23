@@ -1,5 +1,4 @@
-import { Container } from '@pixi/display';
-import { Graphics } from '@pixi/graphics';
+import { Container, Graphics } from 'pixi.js';
 const ZOOM_ARRAY: number[] = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
 
 /**

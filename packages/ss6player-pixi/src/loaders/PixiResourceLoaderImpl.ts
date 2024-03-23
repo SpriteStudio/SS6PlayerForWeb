@@ -1,4 +1,4 @@
-import {Assets} from '@pixi/assets';
+import {Assets} from 'pixi.js';
 import {PixiResourceLoader} from './PixiResourceLoader';
 
 export class PixiResourceLoaderImpl implements PixiResourceLoader {
