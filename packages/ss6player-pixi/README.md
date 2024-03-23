@@ -1,6 +1,6 @@
 # SS6Player for pixi.js
 
-[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v7 で再生するライブラリです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v8 で再生するライブラリです。
 
 ## ライブラリ
 
