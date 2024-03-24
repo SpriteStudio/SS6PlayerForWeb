@@ -59,6 +59,7 @@ export class Player {
     this.canvasHeight = canvasWrapperElement.clientHeight;
     const pixiApplication = new Application();
     await pixiApplication.init({
+      preference: 'webgpu',
       width: this.canvasWidth,
       height: this.canvasHeight,
       backgroundAlpha: 0

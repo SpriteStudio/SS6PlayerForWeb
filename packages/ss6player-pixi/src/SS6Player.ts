@@ -91,6 +91,7 @@ export class SS6Player extends Container {
    */
   public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
+    this.isRenderGroup = true;
 
     this.ss6project = ss6project;
     this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
