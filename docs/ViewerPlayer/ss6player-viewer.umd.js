@@ -1,17 +1,17 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.4.1
+ * SS6Player For Viewer v1.5.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
  * -----------------------------------------------------------
  */
 
-var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, ticker, filterColorMatrix, constants) {
+var ss6PlayerViewer = (function (exports, pixi_js) {
   'use strict';
 
   const ZOOM_ARRAY = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 300, 400, 800];
-  class MainContainer extends display.Container {
+  class MainContainer extends pixi_js.Container {
     constructor() {
       super();
       this.rootLineGraphics = null;
@@ -19,8 +19,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       this.defaultScaleRatio = null;
       this.zoomPercent = null;
       this.isDisplayGrid = false;
-      const rootLineGraphics = new graphics.Graphics();
-      const gridGraphics = new graphics.Graphics();
+      const rootLineGraphics = new pixi_js.Graphics();
+      const gridGraphics = new pixi_js.Graphics();
       this.addChild(rootLineGraphics);
       this.addChild(gridGraphics);
       this.rootLineGraphics = rootLineGraphics;
@@ -2977,11 +2977,54 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       return new Float32Array([0, 0, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]);
     }
   };
-  class SS6Project {
-    getBundle() {
-      return this.ssfbFile;
+  class PixiResourceLoaderImpl {
+    constructor() {
     }
+    load(sspjfile, sspjMap, onComplete) {
+      pixi_js.Assets.addBundle(sspjfile, sspjMap);
+      pixi_js.Assets.loadBundle(sspjfile).then(() => {
+        if (onComplete !== null) {
+          onComplete(null);
+        }
+      }).catch((e) => {
+        if (onComplete !== null) {
+          onComplete(e);
+        }
+      });
+    }
+    unload(sspjfile, sspjMap, onComplete) {
+      pixi_js.Assets.unloadBundle(sspjfile).then(() => {
+        if (onComplete !== null) {
+          onComplete(null);
+        }
+      }).catch((error) => {
+        if (onComplete !== null) {
+          onComplete(error);
+        }
+      });
+    }
+    texture(key) {
+      return pixi_js.Assets.get(key);
+    }
+  }
+  class SS6ProjectResourceLoader {
+    constructor() {
+      this.loader = new PixiResourceLoaderImpl();
+    }
+    load(sspjfile, sspjMap, onComplete) {
+      return this.loader.load(sspjfile, sspjMap, onComplete);
+    }
+    unload(sspjfile, sspjMap, onComplete = null) {
+      return this.loader.unload(sspjfile, sspjMap, onComplete);
+    }
+    texture(key) {
+      return this.loader.texture(key);
+    }
+  }
+  class SS6Project {
     constructor(arg1, arg2, arg3, arg4) {
+      this.sspjMap = {};
+      this.resourceLoader = new SS6ProjectResourceLoader();
       if (typeof arg1 === "string" && arg3 === void 0) {
         let ssfbPath = arg1;
         this.ssfbPath = ssfbPath;
@@ -3000,6 +3043,19 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         this.onComplete = arg4 === void 0 ? null : arg4;
         this.load(ssfbByte, imageBinaryMap);
       }
+    }
+    getBundle() {
+      return this.ssfbFile;
+    }
+    getTexture(key) {
+      return this.resourceLoader.texture(key);
+    }
+    dispose(callback = null) {
+      this.resourceLoader.unload(this.getBundle(), this.sspjMap, (error) => {
+        if (callback !== null) {
+          callback();
+        }
+      });
     }
     /**
      * Load json and parse (then, load textures)
@@ -3026,7 +3082,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
      */
     LoadCellResources() {
       let ids = [];
-      let sspjMap = {};
+      this.sspjMap = {};
       for (let i = 0; i < this.fbObj.cellsLength(); i++) {
         const cellMap = this.fbObj.cells(i).cellMap();
         const cellMapIndex = cellMap.index();
@@ -3035,19 +3091,20 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         })) {
           ids.push(cellMapIndex);
           const name = cellMap.name();
-          sspjMap[name] = this.rootPath + cellMap.imagePath();
+          this.sspjMap[name] = this.rootPath + cellMap.imagePath();
         }
       }
-      assets.Assets.addBundle(this.getBundle(), sspjMap);
       const self = this;
-      assets.Assets.loadBundle(this.getBundle()).then(() => {
-        self.status = 1;
-        if (self.onComplete !== null) {
-          self.onComplete(this, null);
-        }
-      }).catch((e) => {
-        if (this.onComplete !== null) {
-          this.onComplete(null, e);
+      this.resourceLoader.load(this.getBundle(), this.sspjMap, (error) => {
+        if (error === null) {
+          self.status = 1;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
@@ -3063,16 +3120,17 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         }
         assetMap[imageName] = "data:image/png;base64," + btoa(b);
       }
-      assets.Assets.addBundle(this.getBundle(), assetMap);
       const self = this;
-      assets.Assets.loadBundle(this.getBundle()).then(() => {
-        self.status = 1;
-        if (self.onComplete !== null) {
-          self.onComplete(this, null);
-        }
-      }).catch((e) => {
-        if (this.onComplete !== null) {
-          this.onComplete(null, e);
+      this.resourceLoader.load(this.getBundle(), assetMap, (error) => {
+        if (error === null) {
+          self.status = 1;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
@@ -3089,7 +3147,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       this.independent = false;
     }
   }
-  class SS6Player extends display.Container {
+  class SS6Player extends pixi_js.Container {
     /**
      * SS6Player (extends PIXI.Container)
      * @constructor
@@ -3107,9 +3165,10 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
       this.alphaBlendType = [];
-      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this.defaultColorFilter = new pixi_js.ColorMatrixFilter();
       this._instancePos = new Float32Array(5);
       this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
+      this.isRenderGroup = true;
       this.ss6project = ss6project;
       this.playerLib = new Player$1(ss6project.fbObj, animePackName, animeName);
       this.parentAlpha = 1;
@@ -3117,10 +3176,10 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         this.Setup(animePackName, animeName);
       }
       this.on("added", (...args) => {
-        ticker.Ticker.shared.add(this.Update, this);
+        pixi_js.Ticker.shared.add(this.Update, this);
       }, this);
       this.on("removed", (...args) => {
-        ticker.Ticker.shared.remove(this.Update, this);
+        pixi_js.Ticker.shared.remove(this.Update, this);
       }, this);
     }
     get startFrame() {
@@ -3196,15 +3255,15 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       this.liveFrame = [];
       this.colorMatrixFilterCache = [];
     }
-    Update(delta) {
-      this.UpdateInternal(delta);
+    Update(ticker) {
+      this.UpdateInternal(ticker.deltaMS);
     }
     /**
      * Update is called PIXI.ticker
      * @param {number} delta - expected 1
      */
     UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
-      const elapsedTime = ticker.Ticker.shared.elapsedMS;
+      const elapsedTime = delta;
       const toNextFrame = this._isPlaying && !this._isPausing;
       if (toNextFrame && this.updateInterval !== 0) {
         this.nextFrameTime += elapsedTime;
@@ -3449,31 +3508,31 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         let blendMode;
         switch (alphaBlendType) {
           case 0:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "normal";
             break;
           case 1:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
+            blendMode = "multiply";
             break;
           case 2:
-            blendMode = constants.BLEND_MODES.ADD;
+            blendMode = "add";
             break;
           case 3:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "subtract";
             break;
           case 4:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
+            blendMode = "multiply";
             break;
           case 5:
-            blendMode = constants.BLEND_MODES.SCREEN;
+            blendMode = "screen";
             break;
           case 6:
-            blendMode = constants.BLEND_MODES.EXCLUSION;
+            blendMode = "exclusion";
             break;
           case 7:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "normal";
             break;
           default:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "subtract";
             break;
         }
         ret.push(blendMode);
@@ -3491,7 +3550,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
       if (this.colorMatrixFilterCache[key])
         return this.colorMatrixFilterCache[key];
-      const colorMatrix = new filterColorMatrix.ColorMatrixFilter();
+      const colorMatrix = new pixi_js.ColorMatrixFilter();
       const ca = ((argb32 & 4278190080) >>> 24) / 255;
       const cr = ((argb32 & 16711680) >>> 16) / 255;
       const cg = ((argb32 & 65280) >>> 8) / 255;
@@ -3615,7 +3674,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
           case SsPartType.Instance:
             if (partObject == null) {
               partObject = this.MakeCellPlayer(part.refname());
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Normal:
@@ -3624,7 +3683,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Mesh:
@@ -3632,7 +3691,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeMeshCellMesh(i, cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Nulltype:
@@ -3640,8 +3699,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
             if (this.prevCellID[i] !== cellID) {
               if (partObject != null)
                 partObject.destroy();
-              partObject = new display.Container();
-              partObject.name = part.name();
+              partObject = new pixi_js.Container();
+              partObject.label = part.name();
             }
             break;
           default:
@@ -3649,7 +3708,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
         }
@@ -3764,7 +3823,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
           case SsPartType.Joint:
           case SsPartType.Mask: {
             const mesh = partObject;
-            const meshVertexBuffer = mesh.geometry.getBuffer("aVertexPosition");
+            const meshVertexBuffer = mesh.geometry.attributes.aPosition.buffer;
             let meshVertex = meshVertexBuffer.data;
             const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
@@ -3816,8 +3875,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
               const cy = (v2 + v1) / 2;
               const uvw = (u2 - u1) / 2 * data.uv_scale_X;
               const uvh = (v2 - v1) / 2 * data.uv_scale_Y;
-              const meshUvsBuffer = mesh.uvBuffer;
-              let meshUvs = meshUvsBuffer.data;
+              const meshUvsBuffer = mesh.geometry.attributes.aUV.buffer;
+              let meshUvs = mesh.geometry.uvs;
               meshUvs[0] = cx;
               meshUvs[1] = cy;
               meshUvs[2] = cx - uvw;
@@ -3851,7 +3910,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
             mesh.alpha = opacity * this.parentAlpha;
             mesh.visible = !data.f_hide;
             if (data.useColorMatrix) {
-              this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+              const colorMatrix = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+              mesh.filters = [colorMatrix];
             }
             if (data.tint) {
               mesh.tint = data.tint;
@@ -3859,7 +3919,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
               mesh.alpha = mesh.alpha * ca;
             }
             const blendMode = this.alphaBlendType[i];
-            if (blendMode === constants.BLEND_MODES.MULTIPLY || blendMode === constants.BLEND_MODES.SCREEN) {
+            if (blendMode === "multiply" || blendMode === "screen") {
               mesh.alpha = 1;
             }
             if (partType !== SsPartType.Mask)
@@ -3925,7 +3985,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
                 keyParamAsSubstitute.refStartframe = mesh.startFrame;
                 keyParamAsSubstitute.refEndframe = mesh.endFrame;
               }
-              mesh.name = partData.name();
+              mesh.label = partData.name();
               this.prevPartObject[index] = mesh;
               this.substituteKeyParam[index] = keyParamAsSubstitute;
               rc = true;
@@ -3951,10 +4011,9 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       const h = cell.height() / 2;
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
-      const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      const geometry = new mesh.MeshGeometry(verts, uvs, indices);
-      const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(cell.cellMap().name()));
-      return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
+      const indices = new Uint32Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
+      const geometry = new pixi_js.MeshGeometry({ positions: verts, uvs, indices, topology: "triangle-list" });
+      return new pixi_js.Mesh({ geometry, texture: this.ss6project.getTexture(cell.cellMap().name()) });
     }
     /**
      * メッシュセルからメッシュを作成
@@ -3973,14 +4032,13 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         }
         const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
         const indicesLength = meshsDataIndices.indicesLength();
-        const indices = new Uint16Array(indicesLength - 1);
+        const indices = new Uint32Array(indicesLength - 1);
         for (let idx = 1; idx < indicesLength; idx++) {
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        const geometry = new mesh.MeshGeometry(verts, uvs, indices);
-        const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
-        return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
+        const geometry = new pixi_js.MeshGeometry({ positions: verts, uvs, indices, topology: "triangle-list" });
+        return new pixi_js.Mesh({ geometry, texture: this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()) });
       }
       return null;
     }
@@ -4092,8 +4150,8 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
         this.onPlayStateChangeCallback(this.isPlaying, this.isPausing);
       }
     }
-    Update(delta) {
-      this.UpdateInternal(delta, false);
+    Update(ticker) {
+      this.UpdateInternal(ticker.deltaMS, false);
       if (this.isPlaying && !this.isPausing) {
         if (this.onUpdateCallback !== null) {
           this.onUpdateCallback(this);
@@ -15701,7 +15759,7 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
 
   const PREVIEW_POSITION_MARGIN = 30;
   class Player {
-    constructor(canvasWrapperElement) {
+    constructor() {
       this.animePackMap = null;
       this.infinityFlag = true;
       this.pixiApplication = null;
@@ -15716,15 +15774,6 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
       this.onUpdateCallback = null;
       this.onPlayStateChangeCallback = null;
       this.frameDataMap = null;
-      this.canvasWidth = canvasWrapperElement.clientWidth;
-      this.canvasHeight = canvasWrapperElement.clientHeight;
-      const pixiApplication = new app.Application({ width: this.canvasWidth, height: this.canvasHeight, backgroundAlpha: 0 });
-      const canvasElement = pixiApplication.view;
-      canvasWrapperElement.appendChild(canvasElement);
-      const mainContainer = new MainContainer();
-      pixiApplication.stage.addChild(mainContainer);
-      this.mainContainer = mainContainer;
-      this.pixiApplication = pixiApplication;
     }
     getAnimePackMap() {
       return this.animePackMap;
@@ -15737,6 +15786,23 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
     }
     getFrameDataMap() {
       return this.frameDataMap;
+    }
+    async init(canvasWrapperElement) {
+      this.canvasWidth = canvasWrapperElement.clientWidth;
+      this.canvasHeight = canvasWrapperElement.clientHeight;
+      const pixiApplication = new pixi_js.Application();
+      await pixiApplication.init({
+        preference: "webgpu",
+        width: this.canvasWidth,
+        height: this.canvasHeight,
+        backgroundAlpha: 0
+      });
+      const canvasElement = pixiApplication.canvas;
+      canvasWrapperElement.appendChild(canvasElement);
+      const mainContainer = new MainContainer();
+      pixiApplication.stage.addChild(mainContainer);
+      this.mainContainer = mainContainer;
+      this.pixiApplication = pixiApplication;
     }
     getTextureContainer() {
       return this.textureContainer;
@@ -15929,4 +15995,4 @@ var ss6PlayerViewer = (function (exports, app, display, graphics, assets, mesh, 
 
   return exports;
 
-})({}, PIXI, PIXI, PIXI, PIXI, PIXI, PIXI, PIXI, PIXI);
+})({}, PIXI);

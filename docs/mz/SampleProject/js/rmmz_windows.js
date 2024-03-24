@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_windows.js v1.7.0
+// rmmz_windows.js v1.8.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -4675,6 +4675,7 @@ Window_EventItem.prototype.initialize = function(rect) {
     this.deactivate();
     this.setHandler("ok", this.onOk.bind(this));
     this.setHandler("cancel", this.onCancel.bind(this));
+    this._canRepeat = false;
 };
 
 Window_EventItem.prototype.setMessageWindow = function(messageWindow) {
@@ -4912,6 +4913,10 @@ Window_Message.prototype.updateWait = function() {
     } else {
         return false;
     }
+};
+
+Window_Message.prototype.cancelWait = function() {
+    this._waitCount = 0;
 };
 
 Window_Message.prototype.updateLoading = function() {

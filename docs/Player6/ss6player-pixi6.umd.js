@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v6 v1.0.1
+ * SS6Player For pixi.js v6 v1.0.2
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -8,10 +8,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/loaders'), require('@pixi/display'), require('@pixi/mesh-extras'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@pixi/loaders', '@pixi/display', '@pixi/mesh-extras', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/loaders'), require('@pixi/display'), require('@pixi/mesh'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants'), require('@pixi/mixin-get-child-by-name')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@pixi/loaders', '@pixi/display', '@pixi/mesh', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants', '@pixi/mixin-get-child-by-name'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi6 = {}, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI.filters, global.PIXI));
-})(this, (function (exports, loaders, display, meshExtras, ticker, filterColorMatrix, constants) { 'use strict';
+})(this, (function (exports, loaders, display, mesh, ticker, filterColorMatrix, constants) { 'use strict';
 
   class FrameData {
   }
@@ -2898,102 +2898,139 @@
     }
   }
 
+  class PixiResourceLoaderImpl {
+    constructor() {
+      this.loader = new loaders.Loader();
+    }
+    load(sspjfile, sspjMap, onComplete) {
+      for (let key in sspjMap) {
+        this.loader.add(key, sspjMap[key]);
+      }
+      const self = this;
+      this.loader.load((loader, resources) => {
+        self.resources = resources;
+        if (onComplete !== null) {
+          onComplete(null);
+        }
+      });
+    }
+    unload(sspjfile, sspjMap, onComplete) {
+      this.resources = null;
+      if (onComplete !== null) {
+        onComplete(null);
+      }
+    }
+    texture(key) {
+      console.log(this.resources);
+      return this.resources[key].texture;
+    }
+  }
+
+  class SS6ProjectResourceLoader {
+    constructor() {
+      this.loader = new PixiResourceLoaderImpl();
+    }
+    load(sspjfile, sspjMap, onComplete) {
+      return this.loader.load(sspjfile, sspjMap, onComplete);
+    }
+    unload(sspjfile, sspjMap, onComplete = null) {
+      return this.loader.unload(sspjfile, sspjMap, onComplete);
+    }
+    texture(key) {
+      return this.loader.texture(key);
+    }
+  }
+
   class SS6Project {
-    constructor(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
-      if (typeof arg1 === "string") {
+    constructor(arg1, arg2, arg3, arg4) {
+      this.sspjMap = {};
+      this.resourceLoader = new SS6ProjectResourceLoader();
+      if (typeof arg1 === "string" && arg3 === void 0) {
         let ssfbPath = arg1;
-        let onComplete = arg2;
-        let timeout = arg3 !== void 0 ? arg3 : 0;
-        let retry = arg4 !== void 0 ? arg4 : 0;
-        let onError = arg5 !== void 0 ? arg5 : null;
-        let onTimeout = arg6 !== void 0 ? arg6 : null;
-        let onRetry = arg7 !== void 0 ? arg7 : null;
         this.ssfbPath = ssfbPath;
         const index = ssfbPath.lastIndexOf("/");
         this.rootPath = ssfbPath.substring(0, index) + "/";
-        this.status = "not ready";
-        this.onComplete = onComplete;
-        this.onError = onError;
-        this.onTimeout = onTimeout;
-        this.onRetry = onRetry;
-        this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
-      } else if (typeof arg1 === "object" && arg1.constructor === Uint8Array) {
-        let ssfbByte = arg1;
-        let imageBinaryMap = arg2;
-        this.onComplete = arg3 !== void 0 ? arg3 : null;
+        this.ssfbFile = ssfbPath.substring(index + 1);
+        this.onComplete = arg2 === void 0 ? null : arg2;
+        this.status = 0 /* NOT_READY */;
+        this.LoadFlatBuffersProject();
+      } else if (typeof arg2 === "object" && arg2.constructor === Uint8Array) {
+        this.ssfbPath = null;
+        this.rootPath = null;
+        this.ssfbFile = arg1;
+        let ssfbByte = arg2;
+        let imageBinaryMap = arg3;
+        this.onComplete = arg4 === void 0 ? null : arg4;
         this.load(ssfbByte, imageBinaryMap);
       }
     }
+    getBundle() {
+      return this.ssfbFile;
+    }
+    getTexture(key) {
+      return this.resourceLoader.texture(key);
+    }
+    dispose(callback = null) {
+      this.resourceLoader.unload(this.getBundle(), this.sspjMap, (error) => {
+        if (callback !== null) {
+          callback();
+        }
+      });
+    }
     /**
      * Load json and parse (then, load textures)
-     * @param {string} ssfbPath - FlatBuffers file path
-     * @param timeout
-     * @param retry
      */
-    LoadFlatBuffersProject(ssfbPath, timeout = 0, retry = 0) {
+    LoadFlatBuffersProject() {
       const self = this;
-      const httpObj = new XMLHttpRequest();
-      const method = "GET";
-      httpObj.open(method, ssfbPath, true);
-      httpObj.responseType = "arraybuffer";
-      httpObj.timeout = timeout;
-      httpObj.onload = function() {
-        if (!(httpObj.status >= 200 && httpObj.status < 400)) {
-          if (self.onError !== null) {
-            self.onError(ssfbPath, timeout, retry, httpObj);
-          }
-          return;
-        }
-        const arrayBuffer = this.response;
-        const bytes = new Uint8Array(arrayBuffer);
-        self.fbObj = Utils2.getProjectData(bytes);
-        self.LoadCellResources();
-      };
-      httpObj.ontimeout = function() {
-        if (retry > 0) {
-          if (self.onRetry !== null) {
-            self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
-          }
-          self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
+      fetch(this.ssfbPath, { method: "get" }).then((response) => {
+        if (response.ok) {
+          return Promise.resolve(response.arrayBuffer());
         } else {
-          if (self.onTimeout !== null) {
-            self.onTimeout(ssfbPath, timeout, retry, httpObj);
-          }
+          return Promise.reject(new Error(response.statusText));
         }
-      };
-      httpObj.onerror = function() {
-        if (self.onError !== null) {
-          self.onError(ssfbPath, timeout, retry, httpObj);
+      }).then((a) => {
+        self.fbObj = Utils2.getProjectData(new Uint8Array(a));
+        self.LoadCellResources();
+      }).catch((error) => {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
         }
-      };
-      httpObj.send(null);
+      });
     }
     /**
      * Load textures
      */
     LoadCellResources() {
-      const self = this;
-      let loader = new loaders.Loader();
       let ids = [];
-      for (let i = 0; i < self.fbObj.cellsLength(); i++) {
+      this.sspjMap = {};
+      for (let i = 0; i < this.fbObj.cellsLength(); i++) {
+        const cellMap = this.fbObj.cells(i).cellMap();
+        const cellMapIndex = cellMap.index();
         if (!ids.some(function(id) {
-          return id === self.fbObj.cells(i).cellMap().index();
+          return id === cellMapIndex;
         })) {
-          ids.push(self.fbObj.cells(i).cellMap().index());
-          loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
+          ids.push(cellMapIndex);
+          const name = cellMap.name();
+          this.sspjMap[name] = this.rootPath + cellMap.imagePath();
         }
       }
-      loader.load(function(loader2, resources) {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
+      const self = this;
+      this.resourceLoader.load(this.getBundle(), this.sspjMap, (error) => {
+        if (error === null) {
+          self.status = 1 /* READY */;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
     load(bytes, imageBinaryMap) {
       this.fbObj = Utils2.getProjectData(bytes);
-      const loader = new loaders.Loader();
+      let assetMap = {};
       for (let imageName in imageBinaryMap) {
         const binary = imageBinaryMap[imageName];
         let b = "";
@@ -3001,15 +3038,19 @@
         for (let i = 0; i < len; i++) {
           b += String.fromCharCode(binary[i]);
         }
-        const base64 = "data:image/png;base64," + window.btoa(b);
-        loader.add(imageName, base64);
+        assetMap[imageName] = "data:image/png;base64," + btoa(b);
       }
       const self = this;
-      loader.load((loader2, resources) => {
-        self.resources = resources;
-        self.status = "ready";
-        if (self.onComplete !== null) {
-          self.onComplete();
+      this.resourceLoader.load(this.getBundle(), assetMap, (error) => {
+        if (error === null) {
+          self.status = 1 /* READY */;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
@@ -3045,7 +3086,7 @@
       // cell再利用
       this.prevCellID = [];
       // 各パーツ（レイヤー）で前回使用したセルID
-      this.prevMesh = [];
+      this.prevPartObject = [];
       // for change instance
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
@@ -3055,7 +3096,6 @@
       this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
       this.ss6project = ss6project;
       this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
-      this.resources = this.ss6project.resources;
       this.parentAlpha = 1;
       if (animePackName !== null && animeName !== null) {
         this.Setup(animePackName, animeName);
@@ -3111,13 +3151,13 @@
       const animePackData = this.playerLib.animePackData;
       const partsLength = animePackData.partsLength();
       this.prevCellID = new Array(partsLength);
-      this.prevMesh = new Array(partsLength);
+      this.prevPartObject = new Array(partsLength);
       this.substituteOverWrite = new Array(partsLength);
       this.substituteKeyParam = new Array(partsLength);
       for (let j = 0; j < partsLength; j++) {
         const index = animePackData.parts(j).index();
         this.prevCellID[index] = -1;
-        this.prevMesh[index] = null;
+        this.prevPartObject[index] = null;
         this.substituteOverWrite[index] = null;
         this.substituteKeyParam[index] = null;
       }
@@ -3550,74 +3590,75 @@
         const i = this.playerLib.prio2index[ii];
         const data = fd[i];
         const cellID = data.cellIndex;
-        let mesh = this.prevMesh[i];
+        let partObject = this.prevPartObject[i];
         const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
         let overWrite = this.substituteOverWrite[i] !== null ? this.substituteOverWrite[i] : false;
         let overWritekeyParam = this.substituteKeyParam[i];
         switch (partType) {
           case SsPartType.Instance:
-            if (mesh == null) {
-              mesh = this.MakeCellPlayer(part.refname());
-              mesh.name = part.name();
+            if (partObject == null) {
+              partObject = this.MakeCellPlayer(part.refname());
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Normal:
           case SsPartType.Mask:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeCellMesh(cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeCellMesh(cellID);
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Mesh:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeMeshCellMesh(i, cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeMeshCellMesh(i, cellID);
+              partObject.name = part.name();
             }
             break;
           case SsPartType.Nulltype:
           case SsPartType.Joint:
             if (this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = new display.Container();
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = new display.Container();
+              partObject.name = part.name();
             }
             break;
           default:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (mesh != null)
-                mesh.destroy();
-              mesh = this.MakeCellMesh(cellID);
-              mesh.name = part.name();
+              if (partObject != null)
+                partObject.destroy();
+              partObject = this.MakeCellMesh(cellID);
+              partObject.name = part.name();
             }
             break;
         }
-        if (mesh == null)
+        if (partObject == null)
           continue;
         this.prevCellID[i] = cellID;
-        this.prevMesh[i] = mesh;
+        this.prevPartObject[i] = partObject;
         switch (partType) {
           case SsPartType.Instance: {
+            const instance = partObject;
             this._instancePos[0] = 0;
             this._instancePos[1] = 0;
             this._instancePos[2] = 1;
             this._instancePos[3] = 1;
             this._instancePos[4] = 0;
             this._instancePos = this.playerLib.TransformPositionLocal(this._instancePos, data.index, frameNumber);
-            mesh.rotation = this._instancePos[4] * Math.PI / 180;
-            mesh.position.set(this._instancePos[0], this._instancePos[1]);
-            mesh.scale.set(this._instancePos[2], this._instancePos[3]);
+            instance.rotation = this._instancePos[4] * Math.PI / 180;
+            instance.position.set(this._instancePos[0], this._instancePos[1]);
+            instance.scale.set(this._instancePos[2], this._instancePos[3]);
             let opacity = data.opacity / 255;
             if (data.localopacity < 255) {
               opacity = data.localopacity / 255;
             }
-            mesh.SetAlpha(opacity * this.parentAlpha);
-            mesh.visible = !data.f_hide;
+            instance.SetAlpha(opacity * this.parentAlpha);
+            instance.visible = !data.f_hide;
             let refKeyframe = data.instanceValue_curKeyframe;
             let refStartframe = data.instanceValue_startFrame;
             let refEndframe = data.instanceValue_endFrame;
@@ -3654,8 +3695,8 @@
               pingpong = overWritekeyParam.pingpong;
               independent = overWritekeyParam.independent;
             }
-            if (mesh._startFrame !== refStartframe || mesh._endFrame !== refEndframe) {
-              mesh.SetAnimationSection(refStartframe, refEndframe);
+            if (instance._startFrame !== refStartframe || instance._endFrame !== refEndframe) {
+              instance.SetAnimationSection(refStartframe, refEndframe);
             }
             let time = frameNumber;
             if (independent === true) {
@@ -3698,24 +3739,27 @@
             } else {
               _time = temp_frame + refStartframe;
             }
-            mesh.SetFrame(Math.floor(_time));
-            this.addChild(mesh);
+            instance.SetFrame(Math.floor(_time));
+            this.addChild(instance);
             break;
           }
           case SsPartType.Normal:
           case SsPartType.Mesh:
           case SsPartType.Joint:
           case SsPartType.Mask: {
+            const mesh = partObject;
+            const meshVertexBuffer = mesh.geometry.getBuffer("aVertexPosition");
+            let meshVertex = meshVertexBuffer.data;
             const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
             if (partType === SsPartType.Mesh) {
               if (data.meshIsBind === 0) {
-                verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, mesh.vertices), data.index, frameNumber);
+                verts = this.playerLib.TransformMeshVertsLocal(Player.GetMeshVerts(cell, data, meshVertex), data.index, frameNumber);
               } else {
-                verts = Player.GetMeshVerts(cell, data, mesh.vertices);
+                verts = Player.GetMeshVerts(cell, data, meshVertex);
               }
             } else {
-              verts = partType === SsPartType.Joint ? new Float32Array(10) : mesh.vertices;
+              verts = partType === SsPartType.Joint ? new Float32Array(10) : meshVertex;
               verts = this.playerLib.TransformVertsLocal(Player.GetVerts(cell, data, verts), data.index, frameNumber);
             }
             if (data.flag1 & PART_FLAG.VERTEX_TRANSFORM) {
@@ -3745,7 +3789,8 @@
               verts[j * 2] -= px;
               verts[j * 2 + 1] -= py;
             }
-            mesh.vertices = verts;
+            meshVertex = verts;
+            meshVertexBuffer.update();
             if (data.flag1 & PART_FLAG.U_MOVE || data.flag1 & PART_FLAG.V_MOVE || data.flag1 & PART_FLAG.U_SCALE || data.flag1 & PART_FLAG.V_SCALE || data.flag1 & PART_FLAG.UV_ROTATION) {
               const u1 = cell.u1() + data.uv_move_X;
               const u2 = cell.u2() + data.uv_move_X;
@@ -3755,30 +3800,32 @@
               const cy = (v2 + v1) / 2;
               const uvw = (u2 - u1) / 2 * data.uv_scale_X;
               const uvh = (v2 - v1) / 2 * data.uv_scale_Y;
-              mesh.uvs[0] = cx;
-              mesh.uvs[1] = cy;
-              mesh.uvs[2] = cx - uvw;
-              mesh.uvs[3] = cy - uvh;
-              mesh.uvs[4] = cx + uvw;
-              mesh.uvs[5] = cy - uvh;
-              mesh.uvs[6] = cx - uvw;
-              mesh.uvs[7] = cy + uvh;
-              mesh.uvs[8] = cx + uvw;
-              mesh.uvs[9] = cy + uvh;
+              const meshUvsBuffer = mesh.uvBuffer;
+              let meshUvs = meshUvsBuffer.data;
+              meshUvs[0] = cx;
+              meshUvs[1] = cy;
+              meshUvs[2] = cx - uvw;
+              meshUvs[3] = cy - uvh;
+              meshUvs[4] = cx + uvw;
+              meshUvs[5] = cy - uvh;
+              meshUvs[6] = cx - uvw;
+              meshUvs[7] = cy + uvh;
+              meshUvs[8] = cx + uvw;
+              meshUvs[9] = cy + uvh;
               if (data.flag1 & PART_FLAG.UV_ROTATION) {
                 const rot = data.uv_rotation * Math.PI / 180;
                 for (let idx = 0; idx < 5; idx++) {
-                  const dx = mesh.uvs[idx * 2 + 0] - cx;
-                  const dy = mesh.uvs[idx * 2 + 1] - cy;
+                  const dx = meshUvs[idx * 2 + 0] - cx;
+                  const dy = meshUvs[idx * 2 + 1] - cy;
                   const cos = Math.cos(rot);
                   const sin = Math.sin(rot);
                   const tmpX = cos * dx - sin * dy;
                   const tmpY = sin * dx + cos * dy;
-                  mesh.uvs[idx * 2 + 0] = cx + tmpX;
-                  mesh.uvs[idx * 2 + 1] = cy + tmpY;
+                  meshUvs[idx * 2 + 0] = cx + tmpX;
+                  meshUvs[idx * 2 + 1] = cy + tmpY;
                 }
               }
-              mesh.dirty++;
+              meshUvsBuffer.update();
             }
             mesh.position.set(px, py);
             let opacity = data.opacity / 255;
@@ -3805,16 +3852,17 @@
             break;
           }
           case SsPartType.Nulltype: {
+            const container = partObject;
             const opacity = this.playerLib.InheritOpacity(1, data.index, frameNumber);
-            mesh.alpha = opacity * data.localopacity / 255;
+            container.alpha = opacity * data.localopacity / 255;
             const verts = this.playerLib.TransformVerts(Player.GetDummyVerts(), data.index, frameNumber);
             const px = verts[0];
             const py = verts[1];
-            mesh.position.set(px, py);
+            container.position.set(px, py);
             const ax = Math.atan2(verts[5] - verts[3], verts[4] - verts[2]);
             const ay = Math.atan2(verts[7] - verts[3], verts[6] - verts[2]);
-            mesh.rotation = ax;
-            mesh.skew.x = ay - ax - Math.PI / 2;
+            container.rotation = ax;
+            container.skew.x = ay - ax - Math.PI / 2;
             break;
           }
         }
@@ -3849,7 +3897,7 @@
         for (let index = 0; index < partsLength; index++) {
           let partData = packData.parts(index);
           if (partData.name() === partName) {
-            let mesh = this.prevMesh[index];
+            let mesh = this.prevPartObject[index];
             if (mesh === null || mesh instanceof SS6Player) {
               this.substituteOverWrite[index] = overWrite;
               let keyParamAsSubstitute;
@@ -3863,7 +3911,7 @@
                 keyParamAsSubstitute.refEndframe = mesh.endFrame;
               }
               mesh.name = partData.name();
-              this.prevMesh[index] = mesh;
+              this.prevPartObject[index] = mesh;
               this.substituteKeyParam[index] = keyParamAsSubstitute;
               rc = true;
               break;
@@ -3876,7 +3924,7 @@
     /**
      * 矩形セルをメッシュ（5verts4Tri）で作成
      * @param {number} id - セルID
-     * @return {PIXI.SimpleMesh} - メッシュ
+     * @return {PIXI.Mesh} - メッシュ
      */
     MakeCellMesh(id) {
       const cell = this.playerLib.fbObj.cells(id);
@@ -3889,13 +3937,15 @@
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
       const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      return new meshExtras.SimpleMesh(this.resources[cell.cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+      const geometry = new mesh.MeshGeometry(verts, uvs, indices);
+      const meshMaterial = new mesh.MeshMaterial(this.ss6project.getTexture(cell.cellMap().name()));
+      return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
     }
     /**
      * メッシュセルからメッシュを作成
      * @param {number} partID - パーツID
      * @param {number} cellID - セルID
-     * @return {PIXI.SimpleMesh} - メッシュ
+     * @return {PIXI.Mesh} - メッシュ
      */
     MakeMeshCellMesh(partID, cellID) {
       const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
@@ -3913,7 +3963,9 @@
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        return new meshExtras.SimpleMesh(this.resources[this.playerLib.fbObj.cells(cellID).cellMap().name()].texture, verts, uvs, indices, constants.DRAW_MODES.TRIANGLES);
+        const geometry = new mesh.MeshGeometry(verts, uvs, indices);
+        const meshMaterial = new mesh.MeshMaterial(this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()));
+        return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
       }
       return null;
     }
