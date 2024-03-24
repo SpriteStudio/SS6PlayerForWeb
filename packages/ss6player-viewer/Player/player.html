@@ -188,7 +188,7 @@
 
 
 
-    window.onload = function(){
+    window.onload = async function(){
 
       playerElement = document.querySelector('.player');
       previewElement = playerElement.querySelector('.preview');
@@ -344,7 +344,8 @@
       });
 
 
-      this.ssWebPlayer = createSpriteStudioWebPlayer(previewElement);
+      this.ssWebPlayer = createSpriteStudioWebPlayer();
+      await this.ssWebPlayer.init(previewElement)
 
       // URL の内容により、ロードを行う
       loadByUrlQueryParameter();

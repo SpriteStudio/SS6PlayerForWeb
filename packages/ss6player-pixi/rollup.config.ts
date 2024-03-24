@@ -1,3 +1,4 @@
+import tsConfigPaths from "rollup-plugin-tsconfig-paths";
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import camelCase from 'lodash.camelcase';
@@ -13,13 +14,7 @@ const libraryName = 'ss6player-pixi';
 
 // reference: @pixi-build-tools/globals
 const pixiGlobals = {
-  '@pixi/assets': 'PIXI',
-  '@pixi/display': 'PIXI',
-  '@pixi/mesh': 'PIXI',
-  '@pixi/ticker': 'PIXI',
-  '@pixi/filter-color-matrix': 'PIXI',
-  '@pixi/core': 'PIXI',
-  '@pixi/constants': 'PIXI'
+  'pixi.js': 'PIXI'
 };
 
 const licenseBannerOptions = `-----------------------------------------------------------
@@ -39,7 +34,8 @@ export default {
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [
-    /@pixi\/.*/
+    /@pixi\/.*/,
+    'pixi.js'
   ],
   watch: {
     include: 'src/**',
@@ -47,6 +43,8 @@ export default {
   plugins: [
     // Allow json resolution
     json(),
+    //
+    tsConfigPaths(),
     // Compile TypeScript files
     esbuild.default({sourceMap: !production}),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)

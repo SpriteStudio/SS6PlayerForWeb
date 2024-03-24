@@ -1,6 +1,6 @@
 # SS6Player for pixi.js
 
-[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v7 で再生するライブラリです。
+[OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v8 で再生するライブラリです。
 
 ## ライブラリ
 
@@ -55,7 +55,7 @@ npm i
 npm run build
 ```
 
-ビルドが成功すると `ss6player-pixi.umd.js` と `ss6player-pixi.es5.js` が `SS6PlayerForWeb/packages/ss6player-pixi/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ss6player-pixi.umd.js` と `ss6player-pixi.es6.js` が `SS6PlayerForWeb/packages/ss6player-pixi/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 

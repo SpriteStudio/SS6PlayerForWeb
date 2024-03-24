@@ -1,11 +1,4 @@
-import { Assets } from '@pixi/assets';
-import { Container } from '@pixi/display';
-import { Mesh, MeshGeometry, MeshMaterial } from '@pixi/mesh';
-import { Ticker } from '@pixi/ticker';
-import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import { Filter } from '@pixi/core';
-import { BLEND_MODES, DRAW_MODES } from '@pixi/constants';
-import '@pixi/mixin-get-child-by-name';
+import { Container, Mesh, MeshGeometry, Ticker, ColorMatrixFilter, Filter, BLEND_MODES } from 'pixi.js';
 
 import {Player, AnimePackData, PART_FLAG, PartData, SsPartType} from 'ss6player-lib';
 import { SS6Project } from './SS6Project';
@@ -98,6 +91,7 @@ export class SS6Player extends Container {
    */
   public constructor(ss6project: SS6Project, animePackName: string = null, animeName: string = null) {
     super();
+    this.isRenderGroup = true;
 
     this.ss6project = ss6project;
     this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
@@ -168,8 +162,8 @@ export class SS6Player extends Container {
     this.colorMatrixFilterCache = [];
   }
 
-  protected Update(delta: number): void {
-    this.UpdateInternal(delta);
+  protected Update(ticker: Ticker): void {
+    this.UpdateInternal(ticker.deltaMS);
   }
 
   /**
@@ -177,7 +171,7 @@ export class SS6Player extends Container {
    * @param {number} delta - expected 1
    */
   protected UpdateInternal(delta: number, rewindAfterReachingEndFrame: boolean = true): void {
-    const elapsedTime = Ticker.shared.elapsedMS;
+    const elapsedTime = delta;
     const toNextFrame = this._isPlaying && !this._isPausing;
     if (toNextFrame && this.updateInterval !== 0) {
       this.nextFrameTime += elapsedTime; // もっとうまいやり方がありそうなんだけど…
@@ -452,31 +446,31 @@ export class SS6Player extends Container {
       let blendMode: BLEND_MODES;
       switch (alphaBlendType) {
         case 0:
-          blendMode = BLEND_MODES.NORMAL;
+          blendMode = 'normal';
           break;
         case 1:
-          blendMode = BLEND_MODES.MULTIPLY; // not supported 不透明度が利いてしまう。
+          blendMode = 'multiply';
           break;
         case 2:
-          blendMode = BLEND_MODES.ADD;
+          blendMode = 'add';
           break;
         case 3:
-          blendMode = BLEND_MODES.NORMAL; // WebGL does not supported "SUB"
+          blendMode = 'subtract';
           break;
         case 4:
-          blendMode = BLEND_MODES.MULTIPLY; // WebGL does not supported "alpha multiply"
+          blendMode = 'multiply'; // WebGL does not supported "alpha multiply"
           break;
         case 5:
-          blendMode = BLEND_MODES.SCREEN; // not supported 不透明度が利いてしまう。
+          blendMode = 'screen';
           break;
         case 6:
-          blendMode = BLEND_MODES.EXCLUSION; // WebGL not supported "Exclusion"
+          blendMode = 'exclusion';
           break;
         case 7:
-          blendMode = BLEND_MODES.NORMAL; // WebGL not supported "reverse"
+          blendMode = 'normal'; // WebGL not supported "reverse"
           break;
         default:
-          blendMode = BLEND_MODES.NORMAL; // WebGL not supported "SUB"
+          blendMode = 'subtract';
           break;
       }
       ret.push(blendMode);
@@ -574,7 +568,7 @@ export class SS6Player extends Container {
         case SsPartType.Instance:
           if (partObject == null) {
             partObject = this.MakeCellPlayer(part.refname());
-            partObject.name = part.name();
+            partObject.label = part.name();
           }
           break;
         case SsPartType.Normal:
@@ -582,14 +576,14 @@ export class SS6Player extends Container {
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (partObject != null) partObject.destroy();
             partObject = this.MakeCellMesh(cellID); // (cellID, i)?
-            partObject.name = part.name();
+            partObject.label = part.name();
           }
           break;
         case SsPartType.Mesh:
           if (cellID >= 0 && this.prevCellID[i] !== cellID) {
             if (partObject != null) partObject.destroy();
             partObject = this.MakeMeshCellMesh(i, cellID); // (cellID, i)?
-            partObject.name = part.name();
+            partObject.label = part.name();
           }
           break;
         case SsPartType.Nulltype:
@@ -597,7 +591,7 @@ export class SS6Player extends Container {
           if (this.prevCellID[i] !== cellID) {
             if (partObject != null) partObject.destroy();
             partObject = new Container();
-            partObject.name = part.name();
+            partObject.label = part.name();
           }
           break;
         default:
@@ -605,7 +599,7 @@ export class SS6Player extends Container {
             // 小西 - デストロイ処理
             if (partObject != null) partObject.destroy();
             partObject = this.MakeCellMesh(cellID); // (cellID, i)?
-            partObject.name = part.name();
+            partObject.label = part.name();
           }
           break;
       }
@@ -765,7 +759,7 @@ export class SS6Player extends Container {
         case SsPartType.Joint:
         case SsPartType.Mask: {
           const mesh = partObject as Mesh;
-          const meshVertexBuffer = mesh.geometry.getBuffer('aVertexPosition');
+          const meshVertexBuffer = mesh.geometry.attributes.aPosition.buffer;
           let meshVertex = meshVertexBuffer.data as Float32Array;
           const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
@@ -830,8 +824,8 @@ export class SS6Player extends Container {
             const uvw = ((u2 - u1) / 2) * data.uv_scale_X;
             const uvh = ((v2 - v1) / 2) * data.uv_scale_Y;
 
-            const meshUvsBuffer = mesh.uvBuffer;
-            let meshUvs = meshUvsBuffer.data;
+            const meshUvsBuffer = mesh.geometry.attributes.aUV.buffer;
+            let meshUvs = mesh.geometry.uvs;
 
             // UV回転
             meshUvs[0] = cx;
@@ -883,7 +877,7 @@ export class SS6Player extends Container {
           if (data.useColorMatrix) {
             // 小西 - パーツカラーが乗算合成じゃないならフィルタで処理
             const colorMatrix: Filter = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
-            // mesh.filters = [colorMatrix];
+            mesh.filters = [colorMatrix];
           }
 
           // 小西 - tintデータがあれば適用
@@ -902,7 +896,7 @@ export class SS6Player extends Container {
            */
 
           const blendMode: BLEND_MODES = this.alphaBlendType[i];
-          if (blendMode === BLEND_MODES.MULTIPLY || blendMode === BLEND_MODES.SCREEN) {
+          if (blendMode === 'multiply' || blendMode === 'screen') {
             mesh.alpha = 1.0; // 不透明度を固定にする
           }
 
@@ -960,7 +954,7 @@ export class SS6Player extends Container {
 
         let partData = packData.parts(index);
         if (partData.name() === partName) {
-          let mesh: any = this.prevPartObject[index];
+          let mesh: (SS6Player | Mesh | Container) = this.prevPartObject[index];
           if (mesh === null || mesh instanceof SS6Player) {
             this.substituteOverWrite[index] = overWrite;
 
@@ -974,7 +968,7 @@ export class SS6Player extends Container {
               keyParamAsSubstitute.refStartframe = (mesh as SS6Player).startFrame;
               keyParamAsSubstitute.refEndframe = (mesh as SS6Player).endFrame;
             }
-            mesh.name = partData.name();
+            mesh.label = partData.name();
             this.prevPartObject[index] = mesh;
             this.substituteKeyParam[index] = keyParamAsSubstitute;
 
@@ -1003,11 +997,10 @@ export class SS6Player extends Container {
 
     const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
-    const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
+    const indices = new Uint32Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
 
-    const geometry = new MeshGeometry(verts, uvs, indices);
-    const meshMaterial = new MeshMaterial(Assets.get(cell.cellMap().name()));
-    return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
+    const geometry = new MeshGeometry({positions: verts, uvs: uvs, indices: indices, topology: 'triangle-list'});
+    return new Mesh({ geometry: geometry, texture: this.ss6project.getTexture(cell.cellMap().name()) });
   }
 
   /**
@@ -1033,16 +1026,16 @@ export class SS6Player extends Container {
       const indicesLength = meshsDataIndices.indicesLength();
 
       // 先頭の1データはヘッダになる
-      const indices = new Uint16Array(indicesLength - 1);
+      const indices = new Uint32Array(indicesLength - 1);
       for (let idx = 1; idx < indicesLength; idx++) {
         indices[idx - 1] = meshsDataIndices.indices(idx);
       }
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      const geometry = new MeshGeometry(verts, uvs, indices);
-      const meshMaterial = new MeshMaterial(Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
-      return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
+      const geometry = new MeshGeometry({positions: verts, uvs: uvs, indices: indices, topology: 'triangle-list'});
+      return new Mesh({ geometry: geometry, texture: this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()) });
+
     }
 
     return null;

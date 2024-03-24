@@ -1,4 +1,4 @@
-import { Application } from '@pixi/app';
+import { Application } from 'pixi.js';
 import { MainContainer } from './MainContainer';
 import { AnimationContainer } from './AnimationContainer';
 import { SS6Project } from 'ss6player-pixi';
@@ -51,12 +51,21 @@ export class Player {
     return this.frameDataMap;
   }
 
-  public constructor(canvasWrapperElement: any) {
+  public constructor() {
+  }
+
+  public async init(canvasWrapperElement: any) {
     this.canvasWidth = canvasWrapperElement.clientWidth;
     this.canvasHeight = canvasWrapperElement.clientHeight;
-    const pixiApplication = new Application({ width: this.canvasWidth, height: this.canvasHeight, backgroundAlpha: 0 });
+    const pixiApplication = new Application();
+    await pixiApplication.init({
+      preference: 'webgpu',
+      width: this.canvasWidth,
+      height: this.canvasHeight,
+      backgroundAlpha: 0
+    });
 
-    const canvasElement = pixiApplication.view;
+    const canvasElement = pixiApplication.canvas;
     canvasWrapperElement.appendChild(canvasElement);
 
     const mainContainer = new MainContainer();

@@ -16,7 +16,7 @@ const libraryName = 'ss6player-rpgmakermz';
 const pixiGlobals = {
   '@pixi/loaders': 'PIXI',
   '@pixi/display': 'PIXI',
-  '@pixi/mesh-extras': 'PIXI',
+  '@pixi/mesh': 'PIXI',
   '@pixi/ticker': 'PIXI',
   '@pixi/filter-color-matrix': 'PIXI.filters',
   '@pixi/core': 'PIXI',

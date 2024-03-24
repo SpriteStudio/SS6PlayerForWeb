@@ -1,154 +1,142 @@
-import { LoaderResource, Loader } from '@pixi/loaders';
 import { Utils as playerLibUtils, ProjectData } from 'ss6player-lib';
+import {SS6ProjectResourceLoader} from './SS6ProjectResourceLoader';
+import {Texture} from '@pixi/core';
+
+export enum RESOURCE_PROGRESS {
+  NOT_READY,
+  READY
+}
+
+export declare type onCompleteCallback = (ss6project: SS6Project, error: any) => void;
 
 export class SS6Project {
   public ssfbPath: string;
   public rootPath: string;
+  public ssfbFile: string;
   public fbObj: ProjectData;
-  public resources: Partial<Record<string, LoaderResource>>;
-  public status: string;
-  protected onComplete: () => void; // ()
-  protected onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
-  protected onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
-  protected onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void;
+  public status: RESOURCE_PROGRESS;
+  public onComplete: onCompleteCallback;
+
+  private sspjMap: { [key: string]: string } = {};
+  private resourceLoader: SS6ProjectResourceLoader;
+
+  public getBundle(): string {
+    return this.ssfbFile;
+  }
+
+  public getTexture(key: string): Texture {
+    return this.resourceLoader.texture(key);
+  }
 
   /**
    * SS6Project (used for several SS6Player(s))
-   * @param bytes - FlatBuffers file data
-   * @param imageBinaryMap - Image file data
-   * @param onComplete - callback result
+   * @param ssfbPath - ssfb file path
+   * @param onComplete - result callback
    */
-  public constructor(bytes: Uint8Array,
-                     imageBinaryMap: { [key: string]: Uint8Array },
-                     onComplete: () => void);
+  public constructor(ssfbPath: string,
+                     onComplete?: onCompleteCallback)
   /**
    * SS6Project (used for several SS6Player(s))
-   * @constructor
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param onComplete - callback on complete
-   * @param timeout
-   * @param retry
-   * @param onError - callback on error
-   * @param onTimeout - callback on timeout
-   * @param onRetry - callback on retry
+   * @param ssfbName - ssfb file name
+   * @param bytes - ssfb file data
+   * @param imageBinaryMap - Image file data
+   * @param onComplete - result callback
    */
-  public constructor(ssfbPath: string,
-                     onComplete: () => void,
-                     timeout: number,
-                     retry: number,
-                     onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void,
-                     onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void,
-                     onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void);
-  public constructor(ssfbPath: string,
-                     onComplete: () => void);
-  public constructor(arg1?: any,
-                     arg2?: any,
+  public constructor(ssfbName: string,
+                     bytes: Uint8Array,
+                     imageBinaryMap: { [key: string]: Uint8Array },
+                     onComplete?: onCompleteCallback);
+  public constructor(arg1: any,
+                     arg2: any,
                      arg3?: any,
-                     arg4?: any,
-                     arg5?: any,
-                     arg6?: any,
-                     arg7?: any) {
-    if (typeof arg1 === 'string') {  // get ssfb data via http protocol
+                     arg4?: any) {
+    this.resourceLoader = new SS6ProjectResourceLoader();
+    if (typeof arg1 === 'string' && arg3 === undefined) {  // get ssfb data via http protocol
       let ssfbPath: string = arg1;
-      let onComplete: () => void = arg2;
-      let timeout: number = (arg3 !== undefined) ? arg3 : 0;
-      let retry: number = (arg4 !== undefined) ? arg4 : 0;
-      let onError: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg5 !== undefined) ? arg5 : null;
-      let onTimeout: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg6 !== undefined) ? arg6 : null;
-      let onRetry: (ssfbPath: string, timeout: number, retry: number, httpObj: XMLHttpRequest) => void = (arg7 !== undefined) ? arg7 : null;
 
       // ssfb path
       this.ssfbPath = ssfbPath;
       const index = ssfbPath.lastIndexOf('/');
       this.rootPath = ssfbPath.substring(0, index) + '/';
+      this.ssfbFile = ssfbPath.substring(index + 1);
 
-      this.status = 'not ready'; // status
+      this.onComplete = (arg2 === undefined) ? null : arg2;
 
-      this.onComplete = onComplete;
-      this.onError = onError;
-      this.onTimeout = onTimeout;
-      this.onRetry = onRetry;
+      this.status = RESOURCE_PROGRESS.NOT_READY;
+      this.LoadFlatBuffersProject();
+    } else if (typeof arg2 === 'object' && arg2.constructor === Uint8Array) { // get ssfb data from argument
+      this.ssfbPath = null;
+      this.rootPath = null;
+      this.ssfbFile = arg1;
 
-      this.LoadFlatBuffersProject(ssfbPath, timeout, retry);
-    } else if (typeof arg1 === 'object' && arg1.constructor === Uint8Array) { // get ssfb data from argument
-      let ssfbByte: Uint8Array = arg1;
-      let imageBinaryMap: { [key: string]: Uint8Array } = arg2;
-      this.onComplete = (arg3 !== undefined) ? arg3 : null;
-
+      let ssfbByte: Uint8Array = arg2;
+      let imageBinaryMap: { [key: string]: Uint8Array } = arg3;
+      this.onComplete = (arg4 === undefined) ? null : arg4;
       this.load(ssfbByte, imageBinaryMap);
     }
   }
 
+  dispose(callback: () => void = null) {
+    this.resourceLoader.unload(this.getBundle(), this.sspjMap, (error: any) => {
+      if (callback !== null) {
+        callback();
+      }
+    });
+  }
+
   /**
    * Load json and parse (then, load textures)
-   * @param {string} ssfbPath - FlatBuffers file path
-   * @param timeout
-   * @param retry
    */
-  private LoadFlatBuffersProject(ssfbPath: string, timeout: number = 0, retry: number = 0) {
+  private LoadFlatBuffersProject() {
     const self = this;
-    const httpObj = new XMLHttpRequest();
-    const method = 'GET';
-    httpObj.open(method, ssfbPath, true);
-    httpObj.responseType = 'arraybuffer';
-    httpObj.timeout = timeout;
-    httpObj.onload = function () {
-      if (!(httpObj.status >= 200 && httpObj.status < 400)) {
-        if (self.onError !== null) {
-          self.onError(ssfbPath, timeout, retry, httpObj);
-        }
-        return;
-      }
-      const arrayBuffer = this.response;
-      const bytes = new Uint8Array(arrayBuffer);
-      self.fbObj = playerLibUtils.getProjectData(bytes);
-      self.LoadCellResources();
-    };
-    httpObj.ontimeout = function () {
-      if (retry > 0) {
-        if (self.onRetry !== null) {
-          self.onRetry(ssfbPath, timeout, retry - 1, httpObj);
-        }
-        self.LoadFlatBuffersProject(ssfbPath, timeout, retry - 1);
+
+    fetch(this.ssfbPath, {method: 'get'}).then((response: Response) => {
+      if (response.ok) {
+        return Promise.resolve(response.arrayBuffer());
       } else {
-        if (self.onTimeout !== null) {
-          self.onTimeout(ssfbPath, timeout, retry, httpObj);
-        }
+        return Promise.reject(new Error(response.statusText));
       }
-    };
-
-    httpObj.onerror = function () {
-      if (self.onError !== null) {
-        self.onError(ssfbPath, timeout, retry, httpObj);
+    }).then((a: ArrayBuffer) => {
+      self.fbObj = playerLibUtils.getProjectData(new Uint8Array(a));
+      self.LoadCellResources();
+    }).catch((error) => {
+      if (this.onComplete !== null) {
+        this.onComplete(null, error);
       }
-    };
-
-    httpObj.send(null);
+    });
   }
 
   /**
    * Load textures
    */
   private LoadCellResources() {
-    const self = this;
     // Load textures for all cell at once.
-    let loader = new Loader();
     let ids: any = [];
 
-    for (let i = 0; i < self.fbObj.cellsLength(); i++) {
+    this.sspjMap = {};
+    for (let i = 0; i < this.fbObj.cellsLength(); i++) {
+      const cellMap = this.fbObj.cells(i).cellMap();
+      const cellMapIndex = cellMap.index();
       if (!ids.some(function (id: number) {
-        return (id === self.fbObj.cells(i).cellMap().index());
+        return (id === cellMapIndex);
       })) {
-        ids.push(self.fbObj.cells(i).cellMap().index());
-        loader.add(self.fbObj.cells(i).cellMap().name(), self.rootPath + this.fbObj.cells(i).cellMap().imagePath());
+        ids.push(cellMapIndex);
+        const name = cellMap.name();
+        this.sspjMap[name] = this.rootPath + cellMap.imagePath();
       }
     }
-    loader.load(function (loader: Loader, resources: Partial<Record<string, LoaderResource>>) {
-      // SS6Project is ready.
-      self.resources = resources;
-      self.status = 'ready';
-      if (self.onComplete !== null) {
-        self.onComplete();
+
+    const self = this;
+    this.resourceLoader.load(this.getBundle(), this.sspjMap, (error: any) => {
+      if (error === null) {
+        self.status = RESOURCE_PROGRESS.READY;
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      } else {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
+        }
       }
     });
   }
@@ -156,32 +144,31 @@ export class SS6Project {
   private load(bytes: Uint8Array, imageBinaryMap: { [key: string]: Uint8Array }) {
     this.fbObj = playerLibUtils.getProjectData(bytes);
 
-    const loader = new Loader();
+    let assetMap = {};
     for (let imageName in imageBinaryMap) {
-      const binary = imageBinaryMap[imageName];
+      const binary: Uint8Array = imageBinaryMap[imageName];
 
-      // const base64 = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, binary));
-
-      let b = '';
+      let b: string = '';
       const len = binary.byteLength;
       for (let i = 0; i < len; i++) {
         b += String.fromCharCode(binary[i]);
       }
-      const base64 = 'data:image/png;base64,' + window.btoa(b);
-      // const blob = new Blob(binary, "image/png");
-      // const url = window.URL.createObjectURL(blob);
-      loader.add(imageName, base64);
-      // let texture = PIXI.Texture.fromBuffer(binary, 100, 100);
+
+      assetMap[imageName] = 'data:image/png;base64,' + btoa(b);
     }
 
     const self = this;
-    loader.load((loader: Loader, resources: Partial<Record<string, LoaderResource>>) => {
-      // SS6Project is ready.
-      self.resources = resources;
-      self.status = 'ready';
+    this.resourceLoader.load(this.getBundle(), assetMap, (error: any) => {
+      if (error === null) {
+        self.status = RESOURCE_PROGRESS.READY;
 
-      if (self.onComplete !== null) {
-        self.onComplete();
+        if (self.onComplete !== null) {
+          self.onComplete(this, null);
+        }
+      } else {
+        if (this.onComplete !== null) {
+          this.onComplete(null, error);
+        }
       }
     });
   }

@@ -36,7 +36,7 @@ npm i
 npm run build
 ```
 
-ビルドが成功すると `ssfblib.umd.js` と `ssfblib.es5.js` が `SS6PlayerForWeb/packages/ssfblib/dist` ディレクトリ以下に生成されます。
+ビルドが成功すると `ssfblib.umd.js` と `ssfblib.es6.js` が `SS6PlayerForWeb/packages/ssfblib/dist` ディレクトリ以下に生成されます。
 
 ### 単独ビルド
 

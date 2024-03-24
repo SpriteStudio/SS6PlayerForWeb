@@ -1,3 +1,4 @@
+import { Ticker } from 'pixi.js';
 import { SS6Player } from 'ss6player-pixi';
 import { Player } from './Player';
 
@@ -119,8 +120,8 @@ export class AnimationContainer extends SS6Player {
     }
   }
 
-  protected Update(delta: number) {
-    this.UpdateInternal(delta, false);
+  protected Update(ticker: Ticker) {
+    this.UpdateInternal(ticker.deltaMS, false);
     // 毎回実行されるコールバック
     if (this.isPlaying && !this.isPausing) {
       if (this.onUpdateCallback !== null) {

@@ -1,7 +1,7 @@
 {
   "name": "ss6player-pixi",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -13,7 +13,7 @@
     "pixi"
   ],
   "main": "dist/ss6player-pixi.umd.js",
-  "module": "dist/ss6player-pixi.es5.js",
+  "module": "dist/ss6player-pixi.es6.js",
   "typings": "dist/types/ss6player-pixi.d.ts",
   "bugs": {
     "url": "https://github.com/SpriteStudio/SS6PlayerForWeb/issues"
@@ -35,7 +35,7 @@
     "start": "npm run watch",
     "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
     "prebuild": "npm run clean",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs --strictDeprecations",
     "docs": "typedoc --out ../../docs/ss6player_pixi_api src/ss6player-pixi.ts",
     "watch": "rollup -c rollup.config.ts -w",
     "dist": "npm run docs && npm run build",
@@ -44,42 +44,35 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-lib": "1.0.1"
+    "ss6player-lib": "1.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "typedoc": "^0.25.1",
-    "flatbuffers": "^23.5.26",
+    "typescript": "^5.4.2",
+    "typedoc": "^0.25.12",
+    "flatbuffers": "^24.3.7",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^5.0.5",
-    "rollup": "^3.29.4",
-    "@rollup/plugin-typescript": "^11.1.4",
-    "@rollup/plugin-commonjs": "^25.0.4",
+    "rollup": "^4.13.0",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-commonjs": "^25.0.7",
     "rollup-plugin-includepaths": "^0.2.4",
-    "@rollup/plugin-json": "^6.0.0",
-    "rollup-plugin-license": "^3.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.1",
-    "rollup-plugin-esbuild": "^6.0.2",
-    "esbuild": "^0.19.4",
-    "pixi.js": "^7.3.1",
-    "@pixi/assets": "^7.3.1",
-    "@pixi/display": "^7.3.1",
-    "@pixi/mesh-extras": "^7.3.1",
-    "@pixi/ticker": "^7.3.1",
-    "@pixi/filter-color-matrix": "^7.3.1",
-    "@pixi/core": "^7.3.1",
-    "@pixi/constants": "^7.3.1",
-    "@pixi/mixin-get-child-by-name": "^7.3.1",
-    "concurrently": "^8.2.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "rollup-plugin-license": "^3.3.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup-plugin-tsconfig-paths": "^1.5.2",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "esbuild": "^0.20.2",
+    "pixi.js": "^8.0.2",
+    "concurrently": "^8.2.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "@typescript-eslint/eslint-plugin-tslint": "^6.7.3",
-    "eslint": "^8.50.0",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-jsdoc": "^46.8.2",
-    "eslint-config-prettier": "^9.0.0"
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsdoc": "^48.2.1",
+    "eslint-config-prettier": "^9.1.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"
