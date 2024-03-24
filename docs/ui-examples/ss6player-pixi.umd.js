@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v2.0.1
+ * SS6Player For pixi.js v2.1.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -8,10 +8,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@pixi/assets'), require('@pixi/display'), require('@pixi/mesh'), require('@pixi/ticker'), require('@pixi/filter-color-matrix'), require('@pixi/constants'), require('@pixi/mixin-get-child-by-name')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@pixi/assets', '@pixi/display', '@pixi/mesh', '@pixi/ticker', '@pixi/filter-color-matrix', '@pixi/constants', '@pixi/mixin-get-child-by-name'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi = {}, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI, global.PIXI));
-})(this, (function (exports, assets, display, mesh, ticker, filterColorMatrix, constants) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('pixi.js')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'pixi.js'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ss6PlayerPixi = {}, global.PIXI));
+})(this, (function (exports, pixi_js) { 'use strict';
 
   class FrameData {
   }
@@ -2898,11 +2898,56 @@
     }
   }
 
-  class SS6Project {
-    getBundle() {
-      return this.ssfbFile;
+  class PixiResourceLoaderImpl {
+    constructor() {
     }
+    load(sspjfile, sspjMap, onComplete) {
+      pixi_js.Assets.addBundle(sspjfile, sspjMap);
+      pixi_js.Assets.loadBundle(sspjfile).then(() => {
+        if (onComplete !== null) {
+          onComplete(null);
+        }
+      }).catch((e) => {
+        if (onComplete !== null) {
+          onComplete(e);
+        }
+      });
+    }
+    unload(sspjfile, sspjMap, onComplete) {
+      pixi_js.Assets.unloadBundle(sspjfile).then(() => {
+        if (onComplete !== null) {
+          onComplete(null);
+        }
+      }).catch((error) => {
+        if (onComplete !== null) {
+          onComplete(error);
+        }
+      });
+    }
+    texture(key) {
+      return pixi_js.Assets.get(key);
+    }
+  }
+
+  class SS6ProjectResourceLoader {
+    constructor() {
+      this.loader = new PixiResourceLoaderImpl();
+    }
+    load(sspjfile, sspjMap, onComplete) {
+      return this.loader.load(sspjfile, sspjMap, onComplete);
+    }
+    unload(sspjfile, sspjMap, onComplete = null) {
+      return this.loader.unload(sspjfile, sspjMap, onComplete);
+    }
+    texture(key) {
+      return this.loader.texture(key);
+    }
+  }
+
+  class SS6Project {
     constructor(arg1, arg2, arg3, arg4) {
+      this.sspjMap = {};
+      this.resourceLoader = new SS6ProjectResourceLoader();
       if (typeof arg1 === "string" && arg3 === void 0) {
         let ssfbPath = arg1;
         this.ssfbPath = ssfbPath;
@@ -2921,6 +2966,19 @@
         this.onComplete = arg4 === void 0 ? null : arg4;
         this.load(ssfbByte, imageBinaryMap);
       }
+    }
+    getBundle() {
+      return this.ssfbFile;
+    }
+    getTexture(key) {
+      return this.resourceLoader.texture(key);
+    }
+    dispose(callback = null) {
+      this.resourceLoader.unload(this.getBundle(), this.sspjMap, (error) => {
+        if (callback !== null) {
+          callback();
+        }
+      });
     }
     /**
      * Load json and parse (then, load textures)
@@ -2947,7 +3005,7 @@
      */
     LoadCellResources() {
       let ids = [];
-      let sspjMap = {};
+      this.sspjMap = {};
       for (let i = 0; i < this.fbObj.cellsLength(); i++) {
         const cellMap = this.fbObj.cells(i).cellMap();
         const cellMapIndex = cellMap.index();
@@ -2956,19 +3014,20 @@
         })) {
           ids.push(cellMapIndex);
           const name = cellMap.name();
-          sspjMap[name] = this.rootPath + cellMap.imagePath();
+          this.sspjMap[name] = this.rootPath + cellMap.imagePath();
         }
       }
-      assets.Assets.addBundle(this.getBundle(), sspjMap);
       const self = this;
-      assets.Assets.loadBundle(this.getBundle()).then(() => {
-        self.status = 1 /* READY */;
-        if (self.onComplete !== null) {
-          self.onComplete(this, null);
-        }
-      }).catch((e) => {
-        if (this.onComplete !== null) {
-          this.onComplete(null, e);
+      this.resourceLoader.load(this.getBundle(), this.sspjMap, (error) => {
+        if (error === null) {
+          self.status = 1 /* READY */;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
@@ -2984,16 +3043,17 @@
         }
         assetMap[imageName] = "data:image/png;base64," + btoa(b);
       }
-      assets.Assets.addBundle(this.getBundle(), assetMap);
       const self = this;
-      assets.Assets.loadBundle(this.getBundle()).then(() => {
-        self.status = 1 /* READY */;
-        if (self.onComplete !== null) {
-          self.onComplete(this, null);
-        }
-      }).catch((e) => {
-        if (this.onComplete !== null) {
-          this.onComplete(null, e);
+      this.resourceLoader.load(this.getBundle(), assetMap, (error) => {
+        if (error === null) {
+          self.status = 1 /* READY */;
+          if (self.onComplete !== null) {
+            self.onComplete(this, null);
+          }
+        } else {
+          if (this.onComplete !== null) {
+            this.onComplete(null, error);
+          }
         }
       });
     }
@@ -3012,7 +3072,7 @@
     }
   }
 
-  class SS6Player extends display.Container {
+  class SS6Player extends pixi_js.Container {
     /**
      * SS6Player (extends PIXI.Container)
      * @constructor
@@ -3034,9 +3094,10 @@
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
       this.alphaBlendType = [];
-      this.defaultColorFilter = new filterColorMatrix.ColorMatrixFilter();
+      this.defaultColorFilter = new pixi_js.ColorMatrixFilter();
       this._instancePos = new Float32Array(5);
       this._CoordinateGetDiagonalIntersectionVec2 = new Float32Array(2);
+      this.isRenderGroup = true;
       this.ss6project = ss6project;
       this.playerLib = new Player(ss6project.fbObj, animePackName, animeName);
       this.parentAlpha = 1;
@@ -3044,10 +3105,10 @@
         this.Setup(animePackName, animeName);
       }
       this.on("added", (...args) => {
-        ticker.Ticker.shared.add(this.Update, this);
+        pixi_js.Ticker.shared.add(this.Update, this);
       }, this);
       this.on("removed", (...args) => {
-        ticker.Ticker.shared.remove(this.Update, this);
+        pixi_js.Ticker.shared.remove(this.Update, this);
       }, this);
     }
     get startFrame() {
@@ -3123,15 +3184,15 @@
       this.liveFrame = [];
       this.colorMatrixFilterCache = [];
     }
-    Update(delta) {
-      this.UpdateInternal(delta);
+    Update(ticker) {
+      this.UpdateInternal(ticker.deltaMS);
     }
     /**
      * Update is called PIXI.ticker
      * @param {number} delta - expected 1
      */
     UpdateInternal(delta, rewindAfterReachingEndFrame = true) {
-      const elapsedTime = ticker.Ticker.shared.elapsedMS;
+      const elapsedTime = delta;
       const toNextFrame = this._isPlaying && !this._isPausing;
       if (toNextFrame && this.updateInterval !== 0) {
         this.nextFrameTime += elapsedTime;
@@ -3376,31 +3437,31 @@
         let blendMode;
         switch (alphaBlendType) {
           case 0:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "normal";
             break;
           case 1:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
+            blendMode = "multiply";
             break;
           case 2:
-            blendMode = constants.BLEND_MODES.ADD;
+            blendMode = "add";
             break;
           case 3:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "subtract";
             break;
           case 4:
-            blendMode = constants.BLEND_MODES.MULTIPLY;
+            blendMode = "multiply";
             break;
           case 5:
-            blendMode = constants.BLEND_MODES.SCREEN;
+            blendMode = "screen";
             break;
           case 6:
-            blendMode = constants.BLEND_MODES.EXCLUSION;
+            blendMode = "exclusion";
             break;
           case 7:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "normal";
             break;
           default:
-            blendMode = constants.BLEND_MODES.NORMAL;
+            blendMode = "subtract";
             break;
         }
         ret.push(blendMode);
@@ -3418,7 +3479,7 @@
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
       if (this.colorMatrixFilterCache[key])
         return this.colorMatrixFilterCache[key];
-      const colorMatrix = new filterColorMatrix.ColorMatrixFilter();
+      const colorMatrix = new pixi_js.ColorMatrixFilter();
       const ca = ((argb32 & 4278190080) >>> 24) / 255;
       const cr = ((argb32 & 16711680) >>> 16) / 255;
       const cg = ((argb32 & 65280) >>> 8) / 255;
@@ -3542,7 +3603,7 @@
           case SsPartType.Instance:
             if (partObject == null) {
               partObject = this.MakeCellPlayer(part.refname());
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Normal:
@@ -3551,7 +3612,7 @@
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Mesh:
@@ -3559,7 +3620,7 @@
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeMeshCellMesh(i, cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
           case SsPartType.Nulltype:
@@ -3567,8 +3628,8 @@
             if (this.prevCellID[i] !== cellID) {
               if (partObject != null)
                 partObject.destroy();
-              partObject = new display.Container();
-              partObject.name = part.name();
+              partObject = new pixi_js.Container();
+              partObject.label = part.name();
             }
             break;
           default:
@@ -3576,7 +3637,7 @@
               if (partObject != null)
                 partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
-              partObject.name = part.name();
+              partObject.label = part.name();
             }
             break;
         }
@@ -3691,7 +3752,7 @@
           case SsPartType.Joint:
           case SsPartType.Mask: {
             const mesh = partObject;
-            const meshVertexBuffer = mesh.geometry.getBuffer("aVertexPosition");
+            const meshVertexBuffer = mesh.geometry.attributes.aPosition.buffer;
             let meshVertex = meshVertexBuffer.data;
             const cell = this.playerLib.fbObj.cells(cellID);
             let verts;
@@ -3743,8 +3804,8 @@
               const cy = (v2 + v1) / 2;
               const uvw = (u2 - u1) / 2 * data.uv_scale_X;
               const uvh = (v2 - v1) / 2 * data.uv_scale_Y;
-              const meshUvsBuffer = mesh.uvBuffer;
-              let meshUvs = meshUvsBuffer.data;
+              const meshUvsBuffer = mesh.geometry.attributes.aUV.buffer;
+              let meshUvs = mesh.geometry.uvs;
               meshUvs[0] = cx;
               meshUvs[1] = cy;
               meshUvs[2] = cx - uvw;
@@ -3778,7 +3839,8 @@
             mesh.alpha = opacity * this.parentAlpha;
             mesh.visible = !data.f_hide;
             if (data.useColorMatrix) {
-              this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+              const colorMatrix = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
+              mesh.filters = [colorMatrix];
             }
             if (data.tint) {
               mesh.tint = data.tint;
@@ -3786,7 +3848,7 @@
               mesh.alpha = mesh.alpha * ca;
             }
             const blendMode = this.alphaBlendType[i];
-            if (blendMode === constants.BLEND_MODES.MULTIPLY || blendMode === constants.BLEND_MODES.SCREEN) {
+            if (blendMode === "multiply" || blendMode === "screen") {
               mesh.alpha = 1;
             }
             if (partType !== SsPartType.Mask)
@@ -3852,7 +3914,7 @@
                 keyParamAsSubstitute.refStartframe = mesh.startFrame;
                 keyParamAsSubstitute.refEndframe = mesh.endFrame;
               }
-              mesh.name = partData.name();
+              mesh.label = partData.name();
               this.prevPartObject[index] = mesh;
               this.substituteKeyParam[index] = keyParamAsSubstitute;
               rc = true;
@@ -3878,10 +3940,9 @@
       const h = cell.height() / 2;
       const verts = new Float32Array([0, 0, -w, -h, w, -h, -w, h, w, h]);
       const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
-      const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
-      const geometry = new mesh.MeshGeometry(verts, uvs, indices);
-      const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(cell.cellMap().name()));
-      return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
+      const indices = new Uint32Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]);
+      const geometry = new pixi_js.MeshGeometry({ positions: verts, uvs, indices, topology: "triangle-list" });
+      return new pixi_js.Mesh({ geometry, texture: this.ss6project.getTexture(cell.cellMap().name()) });
     }
     /**
      * メッシュセルからメッシュを作成
@@ -3900,14 +3961,13 @@
         }
         const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
         const indicesLength = meshsDataIndices.indicesLength();
-        const indices = new Uint16Array(indicesLength - 1);
+        const indices = new Uint32Array(indicesLength - 1);
         for (let idx = 1; idx < indicesLength; idx++) {
           indices[idx - 1] = meshsDataIndices.indices(idx);
         }
         const verts = new Float32Array(meshNum * 2);
-        const geometry = new mesh.MeshGeometry(verts, uvs, indices);
-        const meshMaterial = new mesh.MeshMaterial(assets.Assets.get(this.playerLib.fbObj.cells(cellID).cellMap().name()));
-        return new mesh.Mesh(geometry, meshMaterial, null, constants.DRAW_MODES.TRIANGLES);
+        const geometry = new pixi_js.MeshGeometry({ positions: verts, uvs, indices, topology: "triangle-list" });
+        return new pixi_js.Mesh({ geometry, texture: this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()) });
       }
       return null;
     }
