@@ -46,11 +46,11 @@
     "ss6player-pixi6": "^1.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "typedoc": "^0.25.13",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^5.0.5",
-    "rollup": "^4.14.1",
+    "rollup": "^4.14.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@rollup/plugin-commonjs": "^25.0.7",
     "rollup-plugin-includepaths": "^0.2.4",

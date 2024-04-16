@@ -38,7 +38,7 @@
     "mzview": "npx lerna run view --scope=ss6player-rpgmakermz"
   },
   "devDependencies": {
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "typedoc": "^0.25.13",
     "lerna": "^8.1.2",
     "ncp": "^2.0.0",
