@@ -59,7 +59,7 @@ export class Player {
     this.canvasHeight = canvasWrapperElement.clientHeight;
     const pixiApplication = new Application();
     const pixiOptions: Partial<ApplicationOptions> =
-        (options === undefined || options === null)?
+        (options === undefined || options === null) ?
             {
               // default options
               preference: 'webgpu',
