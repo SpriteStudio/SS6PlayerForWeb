@@ -19,6 +19,7 @@ export class SS6Player extends Container {
   // cell再利用
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
   private prevPartObject: (SS6Player | Mesh | Container)[] = [];
+  private changeCellID: number[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -126,6 +127,7 @@ export class SS6Player extends Container {
     // cell再利用
     this.prevCellID = new Array(partsLength);
     this.prevPartObject = new Array(partsLength);
+    this.changeCellID = new Array(partsLength);
     this.substituteOverWrite = new Array(partsLength);
     this.substituteKeyParam = new Array(partsLength);
 
@@ -135,6 +137,7 @@ export class SS6Player extends Container {
       // cell再利用
       this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
       this.prevPartObject[index] = null;
+      this.changeCellID[index] = -1;
       this.substituteOverWrite[index] = null;
       this.substituteKeyParam[index] = null;
     }
@@ -433,6 +436,53 @@ export class SS6Player extends Container {
     this.playEndCallback = fn;
   }
 
+
+  /**
+   * Sets the cell for a specific part in the animation.
+   *
+   * @param {string} partsname - The name of the part.
+   * @param {string} sscename - The name of the cell's associated cell map.
+   * @param {string} cellname - The name of the cell.
+   *
+   * @return {void}
+   */
+  public SetPartCell(partsname: string, sscename: string, cellname: string): void {
+    if (this.playerLib.animationData) {
+
+      let changeCellIndex = -1;
+      if ((sscename !== "") && (cellname !== "")) {
+        const fbObj = this.playerLib.fbObj
+        const numCells = this.playerLib.fbObj.numCells()
+
+        for (let i = 0; i < numCells; i++) {
+          const cell = fbObj.cells(i);
+          const name1 = cell.name();
+          const cellMap = cell.cellMap();
+          const name2 = cellMap.name();
+
+          if (cellname === name1 && sscename === name2) {
+            changeCellIndex = i;
+            break;
+          }
+        }
+      }
+
+      const animePackData: AnimePackData = this.playerLib.animePackData;
+      const partsLength = animePackData.partsLength();
+
+      for (let i = 0; i < partsLength; i++) {
+        const part = animePackData.parts(i);
+        const index = part.index();
+        const partName = part.name();
+
+        if (partName === partsname) {
+          this.changeCellID[index] = changeCellIndex;
+          break;
+        }
+      }
+    }
+  }
+
   /**
    * パーツの描画モードを取得する
    * @return {array} - 全パーツの描画モード
@@ -554,7 +604,10 @@ export class SS6Player extends Container {
       const i = this.playerLib.prio2index[ii];
 
       const data = fd[i];
-      const cellID = data.cellIndex;
+      let cellID = data.cellIndex;
+      if (this.changeCellID[i] !== -1) {
+        cellID = this.changeCellID[i];
+      }
 
       // cell再利用
       let partObject: (SS6Player | Mesh | Container) = this.prevPartObject[i];
