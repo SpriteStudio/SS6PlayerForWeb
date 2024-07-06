@@ -450,7 +450,7 @@ export class SS6Player extends Container {
     if (this.playerLib.animationData) {
 
       let changeCellIndex = -1;
-      if ((sscename !== "") && (cellname !== "")) {
+      if ((sscename !== '') && (cellname !== '')) {
         const fbObj = this.playerLib.fbObj
         const numCells = this.playerLib.fbObj.numCells()
 
