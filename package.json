@@ -39,10 +39,10 @@
   },
   "devDependencies": {
     "typescript": "^5.5.3",
-    "typedoc": "^0.26.3",
+    "typedoc": "^0.26.4",
     "lerna": "^8.1.6",
     "ncp": "^2.0.0",
-    "rimraf": "^5.0.8",
+    "rimraf": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.57.0",

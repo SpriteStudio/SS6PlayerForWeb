@@ -438,11 +438,11 @@ export class SS6Player extends Container {
 
 
   /**
-   * Sets the cell for a specific part in the animation.
+   * パーツに割り当たるセルを変更します.
    *
-   * @param {string} partsname - The name of the part.
-   * @param {string} sscename - The name of the cell's associated cell map.
-   * @param {string} cellname - The name of the cell.
+   * @param {string} partsname - パーツ名
+   * @param {string} sscename - セルマップ名
+   * @param {string} cellname - 表示させたいセル名
    *
    * @return {void}
    */
