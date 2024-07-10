@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v2.1.0
+ * SS6Player For pixi.js v2.2.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -2461,62 +2461,34 @@
         fd.flag1 = f1;
         fd.flag2 = f2;
         let id = 0;
-        if (f1 & PART_FLAG.INVISIBLE)
-          fd.f_hide = true;
-        if (f1 & PART_FLAG.FLIP_H)
-          fd.f_flipH = true;
-        if (f1 & PART_FLAG.FLIP_V)
-          fd.f_flipV = true;
-        if (f1 & PART_FLAG.CELL_INDEX)
-          fd.cellIndex = curPartState.data(id++);
-        if (f1 & PART_FLAG.POSITION_X)
-          fd.positionX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.POSITION_Y)
-          fd.positionY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.POSITION_Z)
-          id++;
-        if (f1 & PART_FLAG.PIVOT_X)
-          fd.pivotX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.PIVOT_Y)
-          fd.pivotY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.ROTATIONX)
-          id++;
-        if (f1 & PART_FLAG.ROTATIONY)
-          id++;
-        if (f1 & PART_FLAG.ROTATIONZ)
-          fd.rotationZ = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SCALE_X)
-          fd.scaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SCALE_Y)
-          fd.scaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.LOCALSCALE_X)
-          fd.localscaleX = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.LOCALSCALE_Y)
-          fd.localscaleY = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.OPACITY)
-          fd.opacity = curPartState.data(id++);
-        if (f1 & PART_FLAG.LOCALOPACITY)
-          fd.localopacity = curPartState.data(id++);
-        if (f1 & PART_FLAG.SIZE_X)
-          fd.size_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.SIZE_Y)
-          fd.size_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.U_MOVE)
-          fd.uv_move_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.V_MOVE)
-          fd.uv_move_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.UV_ROTATION)
-          fd.uv_rotation = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.U_SCALE)
-          fd.uv_scale_X = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.V_SCALE)
-          fd.uv_scale_Y = this.I2F(curPartState.data(id++));
-        if (f1 & PART_FLAG.BOUNDINGRADIUS)
-          id++;
-        if (f1 & PART_FLAG.MASK)
-          fd.masklimen = curPartState.data(id++);
-        if (f1 & PART_FLAG.PRIORITY)
-          fd.priority = curPartState.data(id++);
+        if (f1 & PART_FLAG.INVISIBLE) fd.f_hide = true;
+        if (f1 & PART_FLAG.FLIP_H) fd.f_flipH = true;
+        if (f1 & PART_FLAG.FLIP_V) fd.f_flipV = true;
+        if (f1 & PART_FLAG.CELL_INDEX) fd.cellIndex = curPartState.data(id++);
+        if (f1 & PART_FLAG.POSITION_X) fd.positionX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.POSITION_Y) fd.positionY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.POSITION_Z) id++;
+        if (f1 & PART_FLAG.PIVOT_X) fd.pivotX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.PIVOT_Y) fd.pivotY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.ROTATIONX) id++;
+        if (f1 & PART_FLAG.ROTATIONY) id++;
+        if (f1 & PART_FLAG.ROTATIONZ) fd.rotationZ = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.SCALE_X) fd.scaleX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.SCALE_Y) fd.scaleY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.LOCALSCALE_X) fd.localscaleX = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.LOCALSCALE_Y) fd.localscaleY = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.OPACITY) fd.opacity = curPartState.data(id++);
+        if (f1 & PART_FLAG.LOCALOPACITY) fd.localopacity = curPartState.data(id++);
+        if (f1 & PART_FLAG.SIZE_X) fd.size_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.SIZE_Y) fd.size_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.U_MOVE) fd.uv_move_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.V_MOVE) fd.uv_move_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.UV_ROTATION) fd.uv_rotation = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.U_SCALE) fd.uv_scale_X = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.V_SCALE) fd.uv_scale_Y = this.I2F(curPartState.data(id++));
+        if (f1 & PART_FLAG.BOUNDINGRADIUS) id++;
+        if (f1 & PART_FLAG.MASK) fd.masklimen = curPartState.data(id++);
+        if (f1 & PART_FLAG.PRIORITY) fd.priority = curPartState.data(id++);
         if (f1 & PART_FLAG.INSTANCE_KEYFRAME) {
           fd.instanceValue_curKeyframe = curPartState.data(id++);
           fd.instanceValue_startFrame = curPartState.data(id++);
@@ -2791,8 +2763,7 @@
       const c1 = (LDy - RUy) * (LDx - LUx) - (LDx - RUx) * (LDy - LUy);
       const c2 = (RDx - LUx) * (LDy - LUy) - (RDy - LUy) * (LDx - LUx);
       const c3 = (RDx - LUx) * (LDy - RUy) - (RDy - LUy) * (LDx - RUx);
-      if (c3 <= 0 && c3 >= 0)
-        return vec2;
+      if (c3 <= 0 && c3 >= 0) return vec2;
       const ca = c1 / c3;
       const cb = c2 / c3;
       if (0 <= ca && 1 >= ca && (0 <= cb && 1 >= cb)) {
@@ -3090,6 +3061,7 @@
       this.prevCellID = [];
       // 各パーツ（レイヤー）で前回使用したセルID
       this.prevPartObject = [];
+      this.changeCellID = [];
       // for change instance
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
@@ -3156,12 +3128,14 @@
       const partsLength = animePackData.partsLength();
       this.prevCellID = new Array(partsLength);
       this.prevPartObject = new Array(partsLength);
+      this.changeCellID = new Array(partsLength);
       this.substituteOverWrite = new Array(partsLength);
       this.substituteKeyParam = new Array(partsLength);
       for (let j = 0; j < partsLength; j++) {
         const index = animePackData.parts(j).index();
         this.prevCellID[index] = -1;
         this.prevPartObject[index] = null;
+        this.changeCellID[index] = -1;
         this.substituteOverWrite[index] = null;
         this.substituteKeyParam[index] = null;
       }
@@ -3279,8 +3253,7 @@
      * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
      */
     SetAnimationFramerate(fps, _skipEnabled = true) {
-      if (fps <= 0)
-        return;
+      if (fps <= 0) return;
       this.updateInterval = 1e3 / fps;
       this.skipEnabled = _skipEnabled;
     }
@@ -3290,8 +3263,7 @@
      * @param {boolean} _skipEnabled - 描画更新が間に合わないときにフレームをスキップするかどうか
      */
     SetAnimationSpeed(fpsRate, _skipEnabled = true) {
-      if (fpsRate === 0)
-        return;
+      if (fpsRate === 0) return;
       this.playDirection = fpsRate > 0 ? 1 : -1;
       this.updateInterval = 1e3 / (this.playerLib.animationData.fps() * fpsRate * this.playDirection);
       this.skipEnabled = _skipEnabled;
@@ -3425,6 +3397,45 @@
       this.playEndCallback = fn;
     }
     /**
+     * パーツに割り当たるセルを変更します.
+     *
+     * @param {string} partsname - パーツ名
+     * @param {string} sscename - セルマップ名
+     * @param {string} cellname - 表示させたいセル名
+     *
+     * @return {void}
+     */
+    SetPartCell(partsname, sscename, cellname) {
+      if (this.playerLib.animationData) {
+        let changeCellIndex = -1;
+        if (sscename !== "" && cellname !== "") {
+          const fbObj = this.playerLib.fbObj;
+          const numCells = this.playerLib.fbObj.numCells();
+          for (let i = 0; i < numCells; i++) {
+            const cell = fbObj.cells(i);
+            const name1 = cell.name();
+            const cellMap = cell.cellMap();
+            const name2 = cellMap.name();
+            if (cellname === name1 && sscename === name2) {
+              changeCellIndex = i;
+              break;
+            }
+          }
+        }
+        const animePackData = this.playerLib.animePackData;
+        const partsLength = animePackData.partsLength();
+        for (let i = 0; i < partsLength; i++) {
+          const part = animePackData.parts(i);
+          const index = part.index();
+          const partName = part.name();
+          if (partName === partsname) {
+            this.changeCellID[index] = changeCellIndex;
+            break;
+          }
+        }
+      }
+    }
+    /**
      * パーツの描画モードを取得する
      * @return {array} - 全パーツの描画モード
      */
@@ -3477,8 +3488,7 @@
      */
     GetColorMatrixFilter(blendType, rate, argb32) {
       const key = blendType.toString() + "_" + rate.toString() + "_" + argb32.toString();
-      if (this.colorMatrixFilterCache[key])
-        return this.colorMatrixFilterCache[key];
+      if (this.colorMatrixFilterCache[key]) return this.colorMatrixFilterCache[key];
       const colorMatrix = new pixi_js.ColorMatrixFilter();
       const ca = ((argb32 & 4278190080) >>> 24) / 255;
       const cr = ((argb32 & 16711680) >>> 16) / 255;
@@ -3593,7 +3603,10 @@
       for (let ii = 0; ii < l; ii = ii + 1 | 0) {
         const i = this.playerLib.prio2index[ii];
         const data = fd[i];
-        const cellID = data.cellIndex;
+        let cellID = data.cellIndex;
+        if (this.changeCellID[i] !== -1) {
+          cellID = this.changeCellID[i];
+        }
         let partObject = this.prevPartObject[i];
         const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
@@ -3609,16 +3622,14 @@
           case SsPartType.Normal:
           case SsPartType.Mask:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (partObject != null)
-                partObject.destroy();
+              if (partObject != null) partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
               partObject.label = part.name();
             }
             break;
           case SsPartType.Mesh:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (partObject != null)
-                partObject.destroy();
+              if (partObject != null) partObject.destroy();
               partObject = this.MakeMeshCellMesh(i, cellID);
               partObject.label = part.name();
             }
@@ -3626,23 +3637,20 @@
           case SsPartType.Nulltype:
           case SsPartType.Joint:
             if (this.prevCellID[i] !== cellID) {
-              if (partObject != null)
-                partObject.destroy();
+              if (partObject != null) partObject.destroy();
               partObject = new pixi_js.Container();
               partObject.label = part.name();
             }
             break;
           default:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
-              if (partObject != null)
-                partObject.destroy();
+              if (partObject != null) partObject.destroy();
               partObject = this.MakeCellMesh(cellID);
               partObject.label = part.name();
             }
             break;
         }
-        if (partObject == null)
-          continue;
+        if (partObject == null) continue;
         this.prevCellID[i] = cellID;
         this.prevPartObject[i] = partObject;
         switch (partType) {
@@ -3709,17 +3717,13 @@
             }
             const selfTopKeyframe = refKeyframe;
             let reftime = Math.floor((time - selfTopKeyframe) * refSpeed);
-            if (reftime < 0)
-              continue;
-            if (selfTopKeyframe > time)
-              continue;
+            if (reftime < 0) continue;
+            if (selfTopKeyframe > time) continue;
             const inst_scale = refEndframe - refStartframe + 1;
-            if (inst_scale <= 0)
-              continue;
+            if (inst_scale <= 0) continue;
             let nowloop = Math.floor(reftime / inst_scale);
             let checkloopnum = refloopNum;
-            if (pingpong)
-              checkloopnum = checkloopnum * 2;
+            if (pingpong) checkloopnum = checkloopnum * 2;
             if (!infinity) {
               if (nowloop >= checkloopnum) {
                 reftime = inst_scale - 1;
@@ -3851,8 +3855,7 @@
             if (blendMode === "multiply" || blendMode === "screen") {
               mesh.alpha = 1;
             }
-            if (partType !== SsPartType.Mask)
-              this.addChild(mesh);
+            if (partType !== SsPartType.Mask) this.addChild(mesh);
             break;
           }
           case SsPartType.Nulltype: {
