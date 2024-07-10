@@ -1,7 +1,7 @@
 {
   "name": "ss6player-pixi",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -44,34 +44,34 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-lib": "1.0.2"
+    "ss6player-lib": "1.0.3"
   },
   "devDependencies": {
-    "typescript": "^5.4.2",
-    "typedoc": "^0.25.12",
-    "flatbuffers": "^24.3.7",
+    "typescript": "^5.5.3",
+    "typedoc": "^0.26.4",
+    "flatbuffers": "^24.3.25",
     "lodash.camelcase": "^4.3.0",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.13.0",
+    "rimraf": "^6.0.0",
+    "rollup": "^4.18.1",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-commonjs": "^26.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^6.1.0",
-    "rollup-plugin-license": "^3.3.1",
+    "rollup-plugin-license": "^3.5.2",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "rollup-plugin-tsconfig-paths": "^1.5.2",
     "rollup-plugin-esbuild": "^6.1.1",
-    "esbuild": "^0.20.2",
-    "pixi.js": "^8.0.2",
+    "esbuild": "^0.23.0",
+    "pixi.js": "^8.2.2",
     "concurrently": "^8.2.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
     "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsdoc": "^48.2.1",
+    "eslint-plugin-jsdoc": "^48.5.2",
     "eslint-config-prettier": "^9.1.0"
   },
   "optionalDependencies": {

@@ -1,0 +1,577 @@
+<!--
+  iframe で使用するプレイヤー
+  sspkgUrl, ssfbUrl のどちらかのURLをパラメータとして指定すると読み込みを行う
+-->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv=”Pragma” content=”no-cache”>
+  <meta http-equiv=”Cache-Control” content=”no-cache”>
+  <title>SpriteStudio Web Player</title>
+  <!-- pixi.jsの読込 -->
+  <script src="../../../node_modules/pixi.js/dist/pixi.min.js"></script>
+  <script src="../dist/ss6player-viewer.umd.js"></script>
+  <link rel="stylesheet" href="./player.css">
+
+</head>
+<body>
+
+
+  <script>
+    let ssWebPlayer = null;
+
+
+    let playerElement;
+    let previewElement;
+    let animationSelectAreaElement;
+    let zoomAreaElement;
+
+    let playControlAreaElement;
+    let playSwitchButtonElement;
+    let frameNumberElement;
+    let endFrameNumberElement;
+    let seekBarElement;
+    let fpsElement;
+
+
+
+    // 前回ズームしたときのタイムスタンプ
+    let lastPreviewZoomTimeStamp = null;
+
+    /**
+     * Url パラメータによる読み込みを行う
+     */
+    function loadByUrlQueryParameter() {
+      const previewElement = playerElement.querySelector('.preview');
+
+      const sspkgUrl = getQueryParameterValue('sspkgUrl');
+      // console.log('sspkgUrl', sspkgUrl);
+
+      if (sspkgUrl != null) {
+        this.ssWebPlayer.loadSspkg(sspkgUrl);
+      } else {
+        // ssfb の読み込み
+        const ssfbUrl = getQueryParameterValue('ssfbUrl');
+        // console.log('ssfbUrl', ssfbUrl);
+        this.ssWebPlayer.loadSsfb(ssfbUrl);
+      }
+
+
+    }
+
+    function getQueryParameterValue(key) {
+      const regValue = window.location.href.match(new RegExp("[?&]" + key + "=(.*?)(&|$|#)"));
+      if(regValue == null){
+        return null;
+      }
+      let value = regValue[1];
+      value = decodeURIComponent(value);
+      return value;
+    }
+
+    /**
+     * アニメーションを読み込み
+     */
+    function loadAnimation(ssaeName, animationName) {
+
+      const ssWebPlayer = this.ssWebPlayer;
+      ssWebPlayer.loadAnimation(ssaeName, animationName);
+      ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
+      ssWebPlayer.setAnimationSpeed(playerElement.querySelector('.animation-speed').value);
+      ssWebPlayer.play();
+
+      const selectedAnimations = playerElement.querySelectorAll('.animation.selected');
+      for(let selectedAnimation of selectedAnimations){
+        selectedAnimation.classList.remove('selected');
+      }
+      const currentAnimation = playerElement.querySelector('.animation[data-animation-pack-name="' + ssaeName + '"][data-name="' + animationName + '"]')
+      currentAnimation.classList.add('selected');
+
+      // ユーザーデータの表示
+      const frameDataMap = ssWebPlayer.getFrameDataMap();
+      // console.log('frameDataMap', frameDataMap);
+
+      const frameInformationTableElement = playerElement.querySelector('.frame-information-table');
+      const frameInformationTableTBodyElement = frameInformationTableElement.querySelector('tbody');
+      frameInformationTableTBodyElement.innerHTML = '';
+      for(let frameIndex in frameDataMap){
+        const trElement = document.createElement('tr');
+
+        const frameIndexTdElement = document.createElement('td');
+        frameIndexTdElement.textContent = frameIndex;
+        frameIndexTdElement.classList.add('frame-index');
+        frameIndexTdElement.addEventListener('click', (event)=>{
+          const element = event.currentTarget;
+          ssWebPlayer.pause();
+
+          const value = element.textContent;
+          frameNumberElement.innerText = value;
+          ssWebPlayer.setFrame(value);
+        });
+        trElement.appendChild(frameIndexTdElement);
+
+        // frameData からの情報取得
+        const labelTdElement = document.createElement('td');
+        const userDataTdElement = document.createElement('td');
+
+        const frameData = frameDataMap[frameIndex];
+        if(frameData !== null){
+          // ラベル
+          const labelName = frameData['label'];
+          if(labelName != null){
+
+          }else{
+            labelTdElement.textContent = '';
+          }
+
+          // ユーザーデータ
+          const userData = frameData['userData'];
+          if(userData != null){
+            const templateElement = document.querySelector('#template-user-data-table');
+            const userDataTableElement = document.importNode(templateElement.content, true);
+            const userDataTBodyElement = userDataTableElement.querySelector('tbody');
+            for(let partsName in userData){
+              const data = userData[partsName];
+              // console.log('userData.data', partsName, data);
+              const userDataTrElement = document.createElement('tr');
+
+              // パーツ名
+              const partsTdElement = document.createElement('td');
+              partsTdElement.textContent = partsName;
+              userDataTrElement.appendChild(partsTdElement);
+
+              // 文字列
+              const stringValue = data['string'];
+              const stringTdElement = document.createElement('td');
+              stringTdElement.textContent = stringValue;
+              userDataTrElement.appendChild(stringTdElement);
+
+
+              userDataTBodyElement.appendChild(userDataTrElement);
+            }
+            userDataTdElement.appendChild(userDataTableElement);
+          }
+        }
+        trElement.appendChild(labelTdElement);
+        trElement.appendChild(userDataTdElement);
+
+        frameInformationTableTBodyElement.appendChild(trElement);
+      }
+
+    }
+
+
+    /**
+     * 再生ボタン停止ボタンの表示を更新
+     */
+    function refreshPlaySwitch() {
+      const ssWebPlayer = this.ssWebPlayer;
+      const isPlaying = ssWebPlayer.isPlaying;
+      const isPausing = ssWebPlayer.isPausing;
+
+      if(isPlaying){
+        if(isPausing){
+          playSwitchButtonElement.classList.remove('paused');
+
+        }else{
+          playSwitchButtonElement.classList.add('paused');
+
+        }
+
+      }else{
+        playSwitchButtonElement.classList.remove('paused');
+
+      }
+
+    }
+
+
+
+    window.onload = async function(){
+
+      playerElement = document.querySelector('.player');
+      previewElement = playerElement.querySelector('.preview');
+      previewElement.addEventListener('keydown', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        // console.log('keydown', event);
+        if (event.code === "Space") {
+          // スペースキーを押された場合、再生ボタンをクリックさせる
+          if (!event.repeat) {
+            // 初回の Key入力のみ
+            playSwitchButtonElement.click();
+          }
+        } else if (event.code === "ArrowRight") {
+          ssWebPlayer.pause();
+        } else if (event.code === "ArrowLeft") {
+          ssWebPlayer.pause();
+        }
+      });
+      previewElement.addEventListener('mousedown', (event) => {
+        // console.log('mousedown');
+      });
+      previewElement.addEventListener('mousemove', (event) => {
+        if (event.buttons === 1) {
+          // 左クリック時のみ
+          const targetElement = event.target;
+          if (event.target.tagName === 'CANVAS') {
+            // キャンバス自体をドラッグ時のみ
+            const movementX = event.movementX;
+            const movementY = event.movementY;
+            // console.log('movementX', movementX);
+            // console.log('movementY', movementY);
+
+            const ssWebPlayer = this.ssWebPlayer;
+            ssWebPlayer.movePosition(movementX, movementY);
+
+          }
+        }
+      });
+      previewElement.addEventListener('mousewheel', (event) => {
+        // console.log('mousewheel', event);
+        event.preventDefault();
+
+        const timeStamp = event.timeStamp;
+        if (this.lastPreviewZoomTimeStamp !== null) {
+          if ((timeStamp - this.lastPreviewZoomTimeStamp) < 100) {
+            return;
+          }
+        }
+        const ssWebPlayer = this.ssWebPlayer;
+        this.lastPreviewZoomTimeStamp = timeStamp;
+        const deltaY = event.deltaY;
+        if (deltaY > 0) {
+          ssWebPlayer.zoomIn();
+        } else if (deltaY < -0) {
+          ssWebPlayer.zoomOut();
+        }
+      });
+      animationSelectAreaElement = playerElement.querySelector('.animation-select-area');
+      zoomAreaElement = playerElement.querySelector('.zoom-area');
+
+      playControlAreaElement = playerElement.querySelector('.play-control-area');
+
+      // 再生ボタン
+      playSwitchButtonElement = playerElement.querySelector('.play-switch-area .button-area');
+      playSwitchButtonElement.addEventListener('click', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        ssWebPlayer.switchLoop(playerElement.querySelector('.loop').checked);
+        ssWebPlayer.setAnimationSpeed(playerElement.querySelector('.animation-speed').value);
+
+        if (ssWebPlayer.isPausing) {
+          ssWebPlayer.resume();
+        } else if (ssWebPlayer.isPlaying) {
+          ssWebPlayer.pause();
+        } else {
+          ssWebPlayer.play();
+        }
+      });
+
+
+      frameNumberElement = playControlAreaElement.querySelector('.frame-number');
+      endFrameNumberElement = playControlAreaElement.querySelector('.end-frame-number');
+
+      seekBarElement = playControlAreaElement.querySelector('.seek-bar');
+      seekBarElement.addEventListener('input', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        const rangeElement = event.currentTarget;
+        const value = rangeElement.valueAsNumber;
+        ssWebPlayer.pause();
+
+        frameNumberElement.innerText = value;
+        ssWebPlayer.setFrame(value);
+      }, false);
+
+      fpsElement = playerElement.querySelector('.fps');
+
+      // アニメーションスピード
+      const animationSpeedSelectElement = playerElement.querySelector('.animation-speed');
+      animationSpeedSelectElement.addEventListener('change', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        const selectElement = event.currentTarget;
+        const value = selectElement.value;
+        ssWebPlayer.setAnimationSpeed(value);
+      });
+
+      // プレビューの背景色設定
+      const backgroundColorPickerElement = playerElement.querySelector('.background-color');
+      backgroundColorPickerElement.addEventListener('change', (event) => {
+        const element = event.currentTarget;
+        const value = element.value;
+        // console.log('color', value);
+        previewElement.style.backgroundColor = value;
+
+      });
+
+      // グリッド表示
+      const gridCheckElement = playerElement.querySelector('.display-grid');
+      gridCheckElement.addEventListener('change', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        const element = event.currentTarget;
+        const checked = element.checked;
+        // console.log('checked', checked);
+        // playerController.ssWebPlayer.isDisplayGrid = checked;
+        ssWebPlayer.switchGridDisplay();
+
+      });
+
+      // ループのON/OFF
+      const loopCheckElement = playerElement.querySelector('.loop');
+      loopCheckElement.addEventListener('change', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        const element = event.currentTarget;
+        const checked = element.checked;
+        console.log('checked', checked);
+        ssWebPlayer.switchLoop(checked);
+
+      });
+
+
+
+
+      // ズームイン
+      const zoomInElement = zoomAreaElement.querySelector('.zoom-in');
+      zoomInElement.addEventListener('click', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        ssWebPlayer.zoomIn();
+      });
+
+      // ズームアウト
+      const zoomOutElement = zoomAreaElement.querySelector('.zoom-out');
+      zoomOutElement.addEventListener('click', (event) => {
+        const ssWebPlayer = this.ssWebPlayer;
+        ssWebPlayer.zoomOut();
+      });
+
+
+      this.ssWebPlayer = createSpriteStudioWebPlayer();
+      await this.ssWebPlayer.init(previewElement)
+
+      // URL の内容により、ロードを行う
+      loadByUrlQueryParameter();
+    };
+
+
+    function createSpriteStudioWebPlayer(previewElement) {
+      const ssWebPlayer = new ss6PlayerViewer.Player(previewElement);
+      ssWebPlayer.onComplete = () => {
+        const ssWebPlayer = this.ssWebPlayer;
+        // ツリービューの表示
+        animationSelectAreaElement.innerHTML = '';
+
+        const animePackMap = ssWebPlayer.getAnimePackMap();
+        for (let animePackName in animePackMap) {
+          const animePackElement = document.createElement('div');
+          const animePackData = animePackMap[animePackName];
+
+          // アニメーションパック名のラベルの追加
+          const animePackLabelAreaElement = document.createElement('div');
+          animePackLabelAreaElement.classList.add('label-area');
+
+          // 折りたたみアイコンの追加
+          const animePackExtendIconElement = document.createElement('span');
+          animePackExtendIconElement.classList.add('extend-icon');
+          animePackExtendIconElement.textContent = "▲";
+          animePackLabelAreaElement.appendChild(animePackExtendIconElement);
+
+          // アイコンの追加
+          const animePackIconElement = document.createElement('img');
+          animePackIconElement.classList.add('icon');
+          animePackIconElement.src = './images/animation_pack.png';
+          animePackLabelAreaElement.appendChild(animePackIconElement);
+
+          // ラベルの追加
+          const animePackLabelElement = document.createElement('label');
+          animePackLabelElement.textContent = animePackName;
+          animePackLabelAreaElement.appendChild(animePackLabelElement);
+
+
+          animePackLabelAreaElement.addEventListener('click', (event) => {
+            const animePackLabelAreaElement = event.currentTarget;
+            const animePackElement = animePackLabelAreaElement.closest('.animation-pack');
+            animePackElement.classList.toggle('extend');
+          });
+
+          animePackElement.appendChild(animePackLabelAreaElement);
+
+          animePackElement.setAttribute('data-name', animePackName);
+          const partsCount = animePackData['parts_count'];
+          animePackElement.setAttribute('data-parts-count', partsCount);
+          animePackElement.title = "パーツ数: " + partsCount;
+
+          animePackElement.classList.add('animation-pack');
+          // animePackElement.classList.add('extend');
+
+          const animationAreaElement = document.createElement('div');
+          animationAreaElement.classList.add('animation-area');
+          const animationMap = animePackData['animationMap'];
+          for (let animationName in animationMap) {
+            const animationElement = document.createElement('div');
+
+            // アニメーション名のラベルの追加
+            const animationLabelAreaElement = document.createElement('div');
+            animationLabelAreaElement.classList.add('label-area');
+
+            // アイコンの追加
+            const animationIconElement = document.createElement('img');
+            animationIconElement.classList.add('icon');
+            animationIconElement.src = './images/animation.png';
+            animationLabelAreaElement.appendChild(animationIconElement);
+
+            // ラベルの追加
+            // animationLabelElement.textContent = animationName;
+            const animationLabelElement = document.createElement('label');
+            animationLabelElement.textContent = animationName;
+            animationLabelAreaElement.appendChild(animationLabelElement);
+
+            animationElement.appendChild(animationLabelAreaElement);
+
+            animationElement.setAttribute('data-animation-pack-name', animePackName);
+            animationElement.setAttribute('data-name', animationName);
+
+            animationElement.classList.add('animation');
+            animationElement.addEventListener('click', (event) => {
+              const animationElement = event.currentTarget;
+              const ssaeName = animationElement.getAttribute('data-animation-pack-name');
+              const animationName = animationElement.getAttribute('data-name');
+              loadAnimation(ssaeName, animationName);
+            });
+
+            animationAreaElement.appendChild(animationElement);
+
+          }
+          animePackElement.appendChild(animationAreaElement);
+
+          animationSelectAreaElement.appendChild(animePackElement);
+
+        }
+
+
+      };
+      // update時のイベントを設定
+      ssWebPlayer.onUpdateCallback = (player) => {
+        // console.log('playerController.onUpdate');
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
+
+      };
+      ssWebPlayer.onPlayStateChangeCallback = (isPlaying, isPausing) => {
+        // console.log('onPlayStateChangeCallback');
+        if (isPlaying) {
+          seekBarElement.min = ssWebPlayer.startFrame;
+          seekBarElement.max = ssWebPlayer.endFrame;
+          endFrameNumberElement.innerText = ssWebPlayer.endFrame;
+          fpsElement.innerText = ssWebPlayer.fps;
+
+        } else {
+
+        }
+
+        refreshPlaySwitch();
+
+      };
+      ssWebPlayer.playEndCallback = (player) => {
+        // console.log("playEndCallback player.frameNo: " + player.frameNo);
+        frameNumberElement.innerText = player.frameNo;
+        seekBarElement.value = player.frameNo;
+      }
+
+      return ssWebPlayer;
+    }
+
+  </script>
+
+
+
+
+
+  <div class="player">
+    <div class="animation-select-area">
+    </div>
+
+    <div class="preview" tabIndex=0>
+      <div class="head-bar-area">
+        <label>グリッド</label>
+        <input type="checkbox" class="display-grid" />
+        <label>ループ</label>
+        <input type="checkbox" class="loop" checked/>
+        <label>背景色</label>
+        <input type="color" class="background-color" value="#ffffff" />
+        <label>再生速度:</label>
+        <select class="animation-speed">
+          <option value=0.5>x0.5</option>
+          <option value=1 selected>x1</option>
+          <option value=2>x2</option>
+          <option value=3>x3</option>
+        </select>
+        <label>FPS:</label><span class="fps"></span>
+
+      </div>
+      <div class="play-switch-area">
+        <div class="button-area">
+          <div class="play-switch-sign"></div>
+        </div>
+      </div>
+
+      <div class="zoom-area">
+        <img class="zoom-in zoom-control" title="ズームイン" src="./images/zoom_in.png" />
+        <img class="zoom-out zoom-control" title="ズームアウト" src="./images/zoom_out.png" />
+      </div>
+
+
+      <div class="play-control-area">
+        <div class="contents">
+
+          <input type="range" class="seek-bar" value="0">
+          <div class="frame-area">
+            <span class="frame-number"></span>
+            /
+            <span class="end-frame-number"></span>
+
+          </div>
+
+        </div>
+
+
+      </div>
+    </div>
+    <div class="frame-information-area">
+      <label>フレーム情報</label>
+      <div class="contents">
+        <table class="frame-information-table">
+          <thead>
+            <tr>
+              <th>フレーム</th>
+              <th>ラベル名</th>
+              <th>ユーザーデータ</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+  <template id="template-user-data-table">
+    <table class="user-data-table">
+      <thead>
+        <tr>
+          <th>パーツ名</th>
+          <th>文字列</th>
+        </tr>
+
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </template>
+
+</body>
+</html>
