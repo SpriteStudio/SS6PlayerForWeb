@@ -14,6 +14,7 @@
 //const testVersion = "sampleAnimation1";
 //const testVersion = "sampleAnimation2";
 const testVersion = "sampleAnimation3";
+//const testVersion = "sampleReplaceTexture";
 
 (async () => {
   PIXI.sayHello();
@@ -44,6 +45,11 @@ const testVersion = "sampleAnimation3";
     "sampleAnimation3": {
       "ssfbFile": "../../../TestData/MeshBone/Knight.ssfb",
       "func": Play_sampleAnimation3
+    },
+
+    "sampleReplaceTexture": {
+      "ssfbFile": "../../../TestData/MeshBone/Knight.ssfb",
+      "func": Play_sampleReplaceTexture
     }
   };
 
@@ -114,5 +120,17 @@ const testVersion = "sampleAnimation3";
       // 再生開始
       mySS6Player.Play();
     }
+  }
+
+  function Play_sampleReplaceTexture() {
+    let mySS6Player = new ss6PlayerPixi.SS6Player(mySS6Project);
+    mySS6Player.Setup("Knight_bomb", "Balloon");
+    mySS6Player.position = new PIXI.Point(320, 480);
+    mySS6Player.scale = new PIXI.Point(0.5, 0.5);
+    mySS6Player.SetPartCell('Head', 'Effect', 'Flame');
+    app.stage.addChild(mySS6Player);
+
+    // 再生開始
+    mySS6Player.Play();
   }
 })();
