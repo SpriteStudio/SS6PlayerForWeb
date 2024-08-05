@@ -3467,6 +3467,39 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
     SetPlayEndCallback(fn) {
       this.playEndCallback = fn;
     }
+    getCellIndex(sscename, cellname) {
+      let changeCellIndex = -1;
+      if (sscename !== "" && cellname !== "") {
+        const fbObj = this.playerLib.fbObj;
+        const numCells = this.playerLib.fbObj.numCells();
+        for (let i = 0; i < numCells; i++) {
+          const cell = fbObj.cells(i);
+          const name1 = cell.name();
+          const cellMap = cell.cellMap();
+          const name2 = cellMap.name();
+          if (cellname === name1 && sscename === name2) {
+            changeCellIndex = i;
+            break;
+          }
+        }
+      }
+      return changeCellIndex;
+    }
+    getPartIndexFromName(partsname) {
+      const animePackData = this.playerLib.animePackData;
+      const partsLength = animePackData.partsLength();
+      let partIndex = -1;
+      for (let i = 0; i < partsLength; i++) {
+        const part = animePackData.parts(i);
+        const index = part.index();
+        const partName = part.name();
+        if (partName === partsname) {
+          partIndex = index;
+          break;
+        }
+      }
+      return partIndex;
+    }
     /**
      * パーツに割り当たるセルを変更します.
      *
@@ -3478,31 +3511,10 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
      */
     SetPartCell(partsname, sscename, cellname) {
       if (this.playerLib.animationData) {
-        let changeCellIndex = -1;
-        if (sscename !== "" && cellname !== "") {
-          const fbObj = this.playerLib.fbObj;
-          const numCells = this.playerLib.fbObj.numCells();
-          for (let i = 0; i < numCells; i++) {
-            const cell = fbObj.cells(i);
-            const name1 = cell.name();
-            const cellMap = cell.cellMap();
-            const name2 = cellMap.name();
-            if (cellname === name1 && sscename === name2) {
-              changeCellIndex = i;
-              break;
-            }
-          }
-        }
-        const animePackData = this.playerLib.animePackData;
-        const partsLength = animePackData.partsLength();
-        for (let i = 0; i < partsLength; i++) {
-          const part = animePackData.parts(i);
-          const index = part.index();
-          const partName = part.name();
-          if (partName === partsname) {
-            this.changeCellID[index] = changeCellIndex;
-            break;
-          }
+        const changeCellIndex = this.getCellIndex(sscename, cellname);
+        const partIndex = this.getPartIndexFromName(partsname);
+        if (partIndex !== -1) {
+          this.changeCellID[partIndex] = changeCellIndex;
         }
       }
     }
@@ -3674,10 +3686,8 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       for (let ii = 0; ii < l; ii = ii + 1 | 0) {
         const i = this.playerLib.prio2index[ii];
         const data = fd[i];
-        let cellID = data.cellIndex;
-        if (this.changeCellID[i] !== -1) {
-          cellID = this.changeCellID[i];
-        }
+        const origCellID = data.cellIndex;
+        const cellID = this.changeCellID[i] !== -1 ? this.changeCellID[i] : origCellID;
         let partObject = this.prevPartObject[i];
         const part = this.playerLib.animePackData.parts(i);
         const partType = part.type();
@@ -3701,7 +3711,7 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
           case SsPartType.Mesh:
             if (cellID >= 0 && this.prevCellID[i] !== cellID) {
               if (partObject != null) partObject.destroy();
-              partObject = this.MakeMeshCellMesh(i, cellID);
+              partObject = this.MakeMeshCellMesh(i, cellID, origCellID);
               partObject.label = part.name();
             }
             break;
@@ -4022,16 +4032,21 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
      * メッシュセルからメッシュを作成
      * @param {number} partID - パーツID
      * @param {number} cellID - セルID
+     * @param {number} origCellID - オリジナルのセルID
      * @return {PIXI.Mesh} - メッシュ
      */
-    MakeMeshCellMesh(partID, cellID) {
+    MakeMeshCellMesh(partID, cellID, origCellID) {
       const meshsDataUV = this.playerLib.animationData.meshsDataUv(partID);
       const uvLength = meshsDataUV.uvLength();
       if (uvLength > 0) {
+        const cell = this.playerLib.fbObj.cells(cellID);
+        const origCell = this.playerLib.fbObj.cells(origCellID);
+        const diff_u = cellID === origCellID ? 0 : (cell.u1() + cell.u2()) / 2 - (origCell.u1() + origCell.u2()) / 2;
+        const diff_v = cellID === origCellID ? 0 : (cell.v1() + cell.v2()) / 2 - (origCell.v1() + origCell.v2()) / 2;
         const uvs = new Float32Array(uvLength - 2);
         const meshNum = meshsDataUV.uv(1);
         for (let idx = 2; idx < uvLength; idx++) {
-          uvs[idx - 2] = meshsDataUV.uv(idx);
+          uvs[idx - 2] = meshsDataUV.uv(idx) + (idx % 2 === 0 ? diff_u : diff_v);
         }
         const meshsDataIndices = this.playerLib.animationData.meshsDataIndices(partID);
         const indicesLength = meshsDataIndices.indicesLength();
