@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<SpriteStudioCellMap version="2.01.01" editorVersion="7.2.3">
+	<name>common_1</name>
+	<exportPath></exportPath>
+	<generator>SpriteStudio</generator>
+	<packed>0</packed>
+	<imagePath>common_1.png</imagePath>
+	<pixelSize>256 256</pixelSize>
+	<overrideTexSettings>0</overrideTexSettings>
+	<wrapMode>clamp</wrapMode>
+	<filterMode>linear</filterMode>
+	<imagePathAtImport></imagePathAtImport>
+	<packInfoFilePath></packInfoFilePath>
+	<texPackSettings>
+		<maxSize>4096 4096</maxSize>
+		<forcePo2>1</forcePo2>
+		<forceSquare>0</forceSquare>
+		<margin>0</margin>
+		<padding>1</padding>
+	</texPackSettings>
+	<cells>
+		<cell>
+			<name>Ichi</name>
+			<pos>0 145</pos>
+			<size>16 15</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>DELETE_ME</name>
+			<pos>176 176</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>White</name>
+			<pos>0 0</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Black</name>
+			<pos>80 0</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>BlackAndTrans</name>
+			<pos>80 48</pos>
+			<size>32 32</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Red</name>
+			<pos>0 80</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Green</name>
+			<pos>128 80</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Blue</name>
+			<pos>64 80</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Check</name>
+			<pos>192 80</pos>
+			<size>48 48</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Check_grid</name>
+			<pos>192 80</pos>
+			<size>48 48</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>1</ismesh>
+			<divtype>boxdiv</divtype>
+			<divw>3</divw>
+			<divh>3</divh>
+			<innerPoint />
+			<outerPoint>
+				<value>0 0</value>
+				<value>16 0</value>
+				<value>32 0</value>
+				<value>48 0</value>
+				<value>0 16</value>
+				<value>16 16</value>
+				<value>32 16</value>
+				<value>48 16</value>
+				<value>0 32</value>
+				<value>16 32</value>
+				<value>32 32</value>
+				<value>48 32</value>
+				<value>0 48</value>
+				<value>16 48</value>
+				<value>32 48</value>
+				<value>48 48</value>
+			</outerPoint>
+			<meshPointList>
+				<value>0 0</value>
+				<value>16 0</value>
+				<value>32 0</value>
+				<value>48 0</value>
+				<value>0 16</value>
+				<value>16 16</value>
+				<value>32 16</value>
+				<value>48 16</value>
+				<value>0 32</value>
+				<value>16 32</value>
+				<value>32 32</value>
+				<value>48 32</value>
+				<value>0 48</value>
+				<value>16 48</value>
+				<value>32 48</value>
+				<value>48 48</value>
+			</meshPointList>
+			<meshTriList>
+				<value>0 1 4</value>
+				<value>1 4 5</value>
+				<value>1 2 5</value>
+				<value>2 5 6</value>
+				<value>2 3 6</value>
+				<value>3 6 7</value>
+				<value>4 5 8</value>
+				<value>5 8 9</value>
+				<value>5 6 9</value>
+				<value>6 9 10</value>
+				<value>6 7 10</value>
+				<value>7 10 11</value>
+				<value>8 9 12</value>
+				<value>9 12 13</value>
+				<value>9 10 13</value>
+				<value>10 13 14</value>
+				<value>10 11 14</value>
+				<value>11 14 15</value>
+			</meshTriList>
+		</cell>
+		<cell>
+			<name>Jigsaw</name>
+			<pos>160 0</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Arrow</name>
+			<pos>96 176</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Arrow_mesh</name>
+			<pos>96 176</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>1</ismesh>
+			<divtype>polyline</divtype>
+			<innerPoint>
+				<value>32 1.78873</value>
+				<value>23.5493 25.7324</value>
+				<value>29.4648 25.5915</value>
+				<value>29.6056 32.2113</value>
+				<value>0.732394 32.3521</value>
+				<value>1.43662 37.4225</value>
+				<value>29.4648 37</value>
+				<value>28.6197 62.493</value>
+				<value>34.3944 62.493</value>
+				<value>34.1127 36.2958</value>
+				<value>38.9014 37.2817</value>
+				<value>39.4648 42.9155</value>
+				<value>62.7042 35.3099</value>
+				<value>39.1831 27</value>
+				<value>39.3239 32.0704</value>
+				<value>33.9718 32.0704</value>
+				<value>33.831 25.0282</value>
+				<value>40.0282 25.8732</value>
+				<value>33.5493 3.05634</value>
+			</innerPoint>
+			<outerPoint>
+				<value>-1 -1</value>
+				<value>-1 15</value>
+				<value>-1 32</value>
+				<value>-1 48</value>
+				<value>-1 65</value>
+				<value>15 65</value>
+				<value>32 65</value>
+				<value>48 65</value>
+				<value>65 65</value>
+				<value>65 49</value>
+				<value>65 32</value>
+				<value>65 16</value>
+				<value>65 -1</value>
+				<value>49 -1</value>
+				<value>33 -1</value>
+				<value>17 -1</value>
+			</outerPoint>
+			<meshPointList>
+				<value>15 65</value>
+				<value>-1 65</value>
+				<value>-1 48</value>
+				<value>29.4648 37</value>
+				<value>28.6197 62.493</value>
+				<value>39.4648 42.9155</value>
+				<value>34.3944 62.493</value>
+				<value>32 65</value>
+				<value>48 65</value>
+				<value>65 49</value>
+				<value>65 65</value>
+				<value>62.7042 35.3099</value>
+				<value>38.9014 37.2817</value>
+				<value>34.1127 36.2958</value>
+				<value>29.6056 32.2113</value>
+				<value>33.9718 32.0704</value>
+				<value>39.3239 32.0704</value>
+				<value>40.0282 25.8732</value>
+				<value>65 32</value>
+				<value>65 16</value>
+				<value>49 -1</value>
+				<value>65 -1</value>
+				<value>33.5493 3.05634</value>
+				<value>33 -1</value>
+				<value>32 1.78873</value>
+				<value>17 -1</value>
+				<value>23.5493 25.7324</value>
+				<value>29.4648 25.5915</value>
+				<value>1.43662 37.4225</value>
+				<value>0.732394 32.3521</value>
+				<value>-1 32</value>
+				<value>-1 15</value>
+				<value>-1 -1</value>
+				<value>33.831 25.0282</value>
+				<value>39.1831 27</value>
+			</meshPointList>
+			<meshTriList>
+				<value>0 1 2</value>
+				<value>3 0 2</value>
+				<value>3 4 0</value>
+				<value>5 4 3</value>
+				<value>6 4 5</value>
+				<value>7 4 6</value>
+				<value>0 4 7</value>
+				<value>7 6 8</value>
+				<value>6 5 8</value>
+				<value>8 5 9</value>
+				<value>8 9 10</value>
+				<value>5 11 9</value>
+				<value>5 12 11</value>
+				<value>5 13 12</value>
+				<value>13 5 3</value>
+				<value>13 3 14</value>
+				<value>13 14 15</value>
+				<value>13 15 16</value>
+				<value>12 13 16</value>
+				<value>12 16 11</value>
+				<value>11 16 17</value>
+				<value>18 11 17</value>
+				<value>11 18 9</value>
+				<value>17 19 18</value>
+				<value>19 17 20</value>
+				<value>20 21 19</value>
+				<value>20 17 22</value>
+				<value>22 23 20</value>
+				<value>24 23 22</value>
+				<value>24 25 23</value>
+				<value>24 26 25</value>
+				<value>22 26 24</value>
+				<value>26 22 27</value>
+				<value>26 27 14</value>
+				<value>3 26 14</value>
+				<value>28 26 3</value>
+				<value>28 29 26</value>
+				<value>28 30 29</value>
+				<value>28 2 30</value>
+				<value>3 2 28</value>
+				<value>29 30 31</value>
+				<value>26 29 31</value>
+				<value>26 31 25</value>
+				<value>31 32 25</value>
+				<value>14 27 15</value>
+				<value>27 33 15</value>
+				<value>27 22 33</value>
+				<value>17 33 22</value>
+				<value>34 33 17</value>
+				<value>15 33 34</value>
+				<value>15 34 16</value>
+				<value>16 34 17</value>
+			</meshTriList>
+		</cell>
+		<cell>
+			<name>Hole</name>
+			<pos>0 176</pos>
+			<size>80 80</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>Hole32</name>
+			<pos>8 184</pos>
+			<size>64 64</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>BlueBar</name>
+			<pos>64 80</pos>
+			<size>64 16</size>
+			<pivot>-0.5 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>GreenBar</name>
+			<pos>128 80</pos>
+			<size>64 16</size>
+			<pivot>-0.5 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>RBG</name>
+			<pos>192 160</pos>
+			<size>48 16</size>
+			<pivot>-0.5 -0.5</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>0</name>
+			<pos>144 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>1</name>
+			<pos>0 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>2</name>
+			<pos>16 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>3</name>
+			<pos>32 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>4</name>
+			<pos>48 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>5</name>
+			<pos>64 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>6</name>
+			<pos>80 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>7</name>
+			<pos>96 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>8</name>
+			<pos>112 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+		<cell>
+			<name>9</name>
+			<pos>128 144</pos>
+			<size>16 16</size>
+			<pivot>0 0</pivot>
+			<rotated>0</rotated>
+			<trimmed>0</trimmed>
+			<untrimmedSize>0 0</untrimmedSize>
+			<orgImageName></orgImageName>
+			<posStable>0</posStable>
+			<ismesh>0</ismesh>
+			<divtype>unknown</divtype>
+			<innerPoint />
+			<outerPoint />
+			<meshPointList />
+			<meshTriList />
+		</cell>
+	</cells>
+</SpriteStudioCellMap>
