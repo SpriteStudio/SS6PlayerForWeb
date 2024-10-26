@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_scenes.js v1.8.0
+// rmmz_scenes.js v1.8.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -2019,7 +2019,7 @@ Scene_Equip.prototype.onSlotOk = function() {
     this._slotWindow.hide();
     this._itemWindow.show();
     this._itemWindow.activate();
-    this._itemWindow.select(0);
+    this._itemWindow.forceSelect(0);
 };
 
 Scene_Equip.prototype.onSlotCancel = function() {
