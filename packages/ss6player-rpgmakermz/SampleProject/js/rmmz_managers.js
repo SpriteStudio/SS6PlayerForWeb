@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_managers.js v1.8.0
+// rmmz_managers.js v1.8.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -2806,8 +2806,8 @@ BattleManager.invokeMagicReflection = function(subject, target) {
 
 BattleManager.applySubstitute = function(target) {
     if (this.checkSubstitute(target)) {
-        const substitute = target.friendsUnit().substituteBattler();
-        if (substitute && target !== substitute) {
+        const substitute = target.friendsUnit().substituteBattler(target);
+        if (substitute) {
             this._logWindow.displaySubstitute(substitute, target);
             return substitute;
         }
