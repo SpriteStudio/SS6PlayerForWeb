@@ -40,11 +40,11 @@
   },
   "devDependencies": {
     "typescript": "^5.6.3",
-    "typedoc": "^0.26.10",
+    "typedoc": "^0.26.11",
     "flatbuffers": "^24.3.25",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.24.0",
+    "rollup": "^4.27.3",
     "@rollup/plugin-typescript": "^12.1.1",
     "@rollup/plugin-commonjs": "^28.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
