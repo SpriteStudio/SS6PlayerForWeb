@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_windows.js v1.8.0
+// rmmz_windows.js v1.8.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -4916,7 +4916,9 @@ Window_Message.prototype.updateWait = function() {
 };
 
 Window_Message.prototype.cancelWait = function() {
-    this._waitCount = 0;
+    if ($gameSystem.isMessageSkipEnabled()) {
+        this._waitCount = 0;
+    }
 };
 
 Window_Message.prototype.updateLoading = function() {

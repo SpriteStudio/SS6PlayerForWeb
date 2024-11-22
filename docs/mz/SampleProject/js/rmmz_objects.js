@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_objects.js v1.8.0
+// rmmz_objects.js v1.8.1
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -222,6 +222,10 @@ Game_System.prototype.isSideView = function() {
 
 Game_System.prototype.isAutosaveEnabled = function() {
     return $dataSystem.optAutosave;
+};
+
+Game_System.prototype.isMessageSkipEnabled = function() {
+    return $dataSystem.optMessageSkip;
 };
 
 Game_System.prototype.isSaveEnabled = function() {
@@ -5350,9 +5354,9 @@ Game_Unit.prototype.isAllDead = function() {
     return this.aliveMembers().length === 0;
 };
 
-Game_Unit.prototype.substituteBattler = function() {
+Game_Unit.prototype.substituteBattler = function(target) {
     for (const member of this.members()) {
-        if (member.isSubstitute()) {
+        if (member.isSubstitute() && member !== target) {
             return member;
         }
     }
