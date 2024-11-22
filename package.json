@@ -38,9 +38,9 @@
     "mzview": "npx lerna run view --scope=ss6player-rpgmakermz"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "typedoc": "^0.26.5",
-    "lerna": "^8.1.7",
+    "typescript": "^5.6.3",
+    "typedoc": "^0.26.11",
+    "lerna": "^8.1.9",
     "ncp": "^2.0.0",
     "rimraf": "^6.0.1",
     "@typescript-eslint/eslint-plugin": "^7.15.0",

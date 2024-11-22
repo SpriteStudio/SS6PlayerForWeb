@@ -35,19 +35,19 @@
     "flatbuffers": "^24.3.25"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "typedoc": "^0.26.5",
+    "typescript": "^5.6.3",
+    "typedoc": "^0.26.11",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.20.0",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "rollup": "^4.27.3",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^6.1.0",
-    "rollup-plugin-license": "^3.5.2",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup-plugin-license": "^3.5.3",
+    "@rollup/plugin-node-resolve": "^15.3.0",
     "rollup-plugin-esbuild": "^6.1.1",
-    "esbuild": "^0.23.0"
+    "esbuild": "^0.24.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"

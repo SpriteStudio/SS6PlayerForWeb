@@ -3839,6 +3839,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
             this.addChild(instance);
             break;
           }
+          //  Instance以外の通常のMeshと空のContainerで処理分岐
           case SsPartType.Normal:
           case SsPartType.Mesh:
           case SsPartType.Joint:
