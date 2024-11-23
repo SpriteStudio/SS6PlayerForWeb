@@ -16,7 +16,6 @@
   // （通常のPIXI.jsアプリケーションの初期化手順）
   const app = new PIXI.Application();
   await app.init({
-    preference: 'webgpu',
     width: 960,
     height: 720,
     backgroundColor: 0x606060,
