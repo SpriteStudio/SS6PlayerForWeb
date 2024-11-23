@@ -24,7 +24,6 @@ const testVersion = "sampleAnimation3";
   // （通常のPIXI.jsアプリケーションの初期化手順）
   const app = new PIXI.Application();
   await app.init({
-    preference: 'webgpu',
     width: 1280,
     height: 720,
     backgroundColor: 0x606060
