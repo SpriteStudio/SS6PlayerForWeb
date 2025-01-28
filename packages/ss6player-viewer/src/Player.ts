@@ -62,7 +62,6 @@ export class Player {
         (options === undefined || options === null) ?
             {
               // default options
-              preference: 'webgpu',
               width: this.canvasWidth,
               height: this.canvasHeight,
               backgroundAlpha: 0

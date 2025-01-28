@@ -15819,7 +15819,6 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       const pixiApplication = new pixi_js.Application();
       const pixiOptions = options === void 0 || options === null ? {
         // default options
-        preference: "webgpu",
         width: this.canvasWidth,
         height: this.canvasHeight,
         backgroundAlpha: 0
