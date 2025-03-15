@@ -32,22 +32,22 @@
     "docs": "typedoc --out ../../docs/ssfblib_api src/ssfblib.ts"
   },
   "dependencies": {
-    "flatbuffers": "^24.3.25"
+    "flatbuffers": "^25.2.10"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "typedoc": "^0.27.6",
+    "typescript": "^5.8.2",
+    "typedoc": "^0.27.9",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.32.1",
+    "rollup": "^4.35.0",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-commonjs": "^28.0.3",
     "rollup-plugin-includepaths": "^0.2.4",
     "@rollup/plugin-json": "^6.1.0",
-    "rollup-plugin-license": "^3.5.3",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "esbuild": "^0.24.2"
+    "rollup-plugin-license": "^3.6.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "esbuild": "^0.25.1"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"
