@@ -33,7 +33,7 @@
   "license": "SEE LICENSE",
   "scripts": {
     "start": "npm run watch",
-    "lint": "eslint -c ../../eslint.config.js --ext .ts ./src",
+    "lint": "eslint -c ../../eslint.config.js ./src",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs --strictDeprecations",
     "docs": "typedoc --out ../../docs/ss6player_pixi6_api src/ss6player-pixi6.ts",
@@ -47,10 +47,10 @@
   },
   "devDependencies": {
     "typescript": "^5.8.2",
-    "typedoc": "^0.27.9",
+    "typedoc": "^0.28.1",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.35.0",
+    "rollup": "^4.37.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-commonjs": "^28.0.3",
     "rollup-plugin-includepaths": "^0.2.4",

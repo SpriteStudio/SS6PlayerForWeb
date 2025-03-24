@@ -27,7 +27,7 @@
   "license": "SEE LICENSE",
   "scripts": {
     "start": "npm run watch",
-    "lint": "eslint -c ../../eslint.config.js --ext .ts ./src",
+    "lint": "eslint -c ../../eslint.config.js ./src",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs --strictDeprecations",
     "watch": "rollup -c rollup.config.ts -w",
