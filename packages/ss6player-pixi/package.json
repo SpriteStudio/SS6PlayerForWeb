@@ -33,7 +33,7 @@
   "license": "SEE LICENSE",
   "scripts": {
     "start": "npm run watch",
-    "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
+    "lint": "eslint -c ../../eslint.config.js --ext .ts ./src",
     "prebuild": "npm run clean",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts --configPlugin typescript --bundleConfigAsCjs --strictDeprecations",
     "docs": "typedoc --out ../../docs/ss6player_pixi_api src/ss6player-pixi.ts",
@@ -62,17 +62,13 @@
     "rollup-plugin-tsconfig-paths": "^1.5.2",
     "rollup-plugin-esbuild": "^6.2.1",
     "esbuild": "^0.25.1",
-    "pixi.js": "^8.8.1",
+    "pixi.js": "^8.9.0",
     "concurrently": "^9.1.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
-    "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
-    "eslint": "^8.57.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsdoc": "^48.5.2",
-    "eslint-config-prettier": "^9.1.0"
+    "eslint": "^9.23.0",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"
