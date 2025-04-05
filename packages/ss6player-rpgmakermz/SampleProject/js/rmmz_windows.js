@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_windows.js v1.8.1
+// rmmz_windows.js v1.9.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -395,10 +395,14 @@ Window_Base.prototype.processColorChange = function(colorIndex) {
 };
 
 Window_Base.prototype.processDrawIcon = function(iconIndex, textState) {
+    const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth;
+    const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight;
     if (textState.drawing) {
-        this.drawIcon(iconIndex, textState.x + 2, textState.y + 2);
+        const x = textState.x + deltaX / 2 + 2;
+        const y = textState.y + deltaY / 2 + 2;
+        this.drawIcon(iconIndex, x, y);
     }
-    textState.x += ImageManager.iconWidth + 4;
+    textState.x += ImageManager.standardIconWidth + 4;
 };
 
 Window_Base.prototype.makeFontBigger = function() {
@@ -458,8 +462,8 @@ Window_Base.prototype.drawIcon = function(iconIndex, x, y) {
 Window_Base.prototype.drawFace = function(
     faceName, faceIndex, x, y, width, height
 ) {
-    width = width || ImageManager.faceWidth;
-    height = height || ImageManager.faceHeight;
+    width = width || ImageManager.standardFaceWidth;
+    height = height || ImageManager.standardFaceHeight;
     const bitmap = ImageManager.loadFace(faceName);
     const pw = ImageManager.faceWidth;
     const ph = ImageManager.faceHeight;
@@ -489,10 +493,11 @@ Window_Base.prototype.drawCharacter = function(
 Window_Base.prototype.drawItemName = function(item, x, y, width) {
     if (item) {
         const iconY = y + (this.lineHeight() - ImageManager.iconHeight) / 2;
-        const textMargin = ImageManager.iconWidth + 4;
+        const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
+        const textMargin = ImageManager.standardIconWidth + 4;
         const itemWidth = Math.max(0, width - textMargin);
         this.resetTextColor();
-        this.drawIcon(item.iconIndex, x, iconY);
+        this.drawIcon(item.iconIndex, x + delta / 2, iconY);
         this.drawText(item.name, x + textMargin, y, itemWidth);
     }
 };
@@ -1791,9 +1796,10 @@ Window_StatusBase.prototype.drawActorLevel = function(actor, x, y) {
 
 Window_StatusBase.prototype.drawActorIcons = function(actor, x, y, width) {
     width = width || 144;
-    const iconWidth = ImageManager.iconWidth;
+    const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
+    const iconWidth = ImageManager.standardIconWidth;
     const icons = actor.allIcons().slice(0, Math.floor(width / iconWidth));
-    let iconX = x;
+    let iconX = x + delta / 2;
     for (const icon of icons) {
         this.drawIcon(icon, iconX, y + 2);
         iconX += iconWidth;
@@ -1986,7 +1992,7 @@ Window_MenuStatus.prototype.drawPendingItemBackground = function(index) {
 Window_MenuStatus.prototype.drawItemImage = function(index) {
     const actor = this.actor(index);
     const rect = this.itemRect(index);
-    const width = ImageManager.faceWidth;
+    const width = ImageManager.standardFaceWidth;
     const height = rect.height - 2;
     this.changePaintOpacity(actor.isBattleMember());
     this.drawActorFace(actor, rect.x + 1, rect.y + 1, width, height);
@@ -2584,7 +2590,7 @@ Window_EquipStatus.prototype.paramX = function() {
 };
 
 Window_EquipStatus.prototype.paramY = function(index) {
-    const faceHeight = ImageManager.faceHeight;
+    const faceHeight = ImageManager.standardFaceHeight;
     return faceHeight + Math.floor(this.lineHeight() * (index + 1.5));
 };
 
@@ -4880,7 +4886,7 @@ Window_Message.prototype.startMessage = function() {
 
 Window_Message.prototype.newLineX = function(textState) {
     const faceExists = $gameMessage.faceName() !== "";
-    const faceWidth = ImageManager.faceWidth;
+    const faceWidth = ImageManager.standardFaceWidth;
     const spacing = 20;
     const margin = faceExists ? faceWidth + spacing : 4;
     return textState.rtl ? this.innerWidth - margin : margin;
@@ -5087,7 +5093,7 @@ Window_Message.prototype.drawMessageFace = function() {
     const faceName = $gameMessage.faceName();
     const faceIndex = $gameMessage.faceIndex();
     const rtl = $gameMessage.isRTL();
-    const width = ImageManager.faceWidth;
+    const width = ImageManager.standardFaceWidth;
     const height = this.innerHeight;
     const x = rtl ? this.innerWidth - width - 4 : 4;
     this.drawFace(faceName, faceIndex, x, 0, width, height);
@@ -6173,11 +6179,11 @@ Window_BattleStatus.prototype.nameY = function(rect) {
 };
 
 Window_BattleStatus.prototype.stateIconX = function(rect) {
-    return rect.x + rect.width - ImageManager.iconWidth / 2 + 4;
+    return rect.x + rect.width - ImageManager.standardIconWidth / 2 + 4;
 };
 
 Window_BattleStatus.prototype.stateIconY = function(rect) {
-    return rect.y + ImageManager.iconHeight / 2 + 4;
+    return rect.y + ImageManager.standardIconHeight / 2 + 4;
 };
 
 Window_BattleStatus.prototype.basicGaugesX = function(rect) {

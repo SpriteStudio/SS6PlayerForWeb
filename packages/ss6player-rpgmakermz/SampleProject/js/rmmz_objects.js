@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_objects.js v1.8.1
+// rmmz_objects.js v1.9.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -901,7 +901,11 @@ Game_Screen.prototype.eraseBattlePictures = function() {
 };
 
 Game_Screen.prototype.maxPictures = function() {
-    return 100;
+    if ("picturesUpperLimit" in $dataSystem.advanced) {
+        return $dataSystem.advanced.picturesUpperLimit;
+    } else {
+        return 100;
+    }
 };
 
 Game_Screen.prototype.startFadeOut = function(duration) {
