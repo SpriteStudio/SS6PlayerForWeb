@@ -46,11 +46,11 @@
     "ss6player-lib": "1.0.3"
   },
   "devDependencies": {
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "typedoc": "^0.28.1",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.37.0",
+    "rollup": "^4.39.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-commonjs": "^28.0.3",
     "rollup-plugin-includepaths": "^0.2.4",
@@ -59,7 +59,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup-plugin-tsconfig-paths": "^1.5.2",
     "rollup-plugin-esbuild": "^6.2.1",
-    "esbuild": "^0.25.1",
+    "esbuild": "^0.25.2",
     "pixi.js": "^6.5.10",
     "@pixi/loaders": "^6.5.10",
     "@pixi/display": "^6.5.10",
@@ -71,9 +71,9 @@
     "concurrently": "^9.1.2",
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
-    "eslint": "^9.23.0",
-    "@typescript-eslint/eslint-plugin": "^8.27.0",
-    "@typescript-eslint/parser": "^8.27.0"
+    "eslint": "^9.24.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"
