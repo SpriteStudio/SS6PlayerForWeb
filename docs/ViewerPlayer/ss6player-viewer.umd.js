@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.5.2
+ * SS6Player For Viewer v1.5.3
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -2335,7 +2335,7 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       this.defaultFrameMap = [];
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
-      if (ssfbData.hasOwnProperty("bb")) {
+      if (Object.prototype.hasOwnProperty.call(ssfbData, "bb")) {
         this._fbObj = ssfbData;
       } else {
         this._fbObj = Utils2.getProjectData(ssfbData);
@@ -4216,7 +4216,7 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
   	if (hasRequiredJszip) return jszip.exports;
   	hasRequiredJszip = 1;
   	(function (module, exports) {
-  		(function(f){{module.exports=f();}})(function(){return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r);}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+  		(function(f){{module.exports=f();}})(function(){return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,true);if(i)return i(o,true);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r);}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
   		var utils = require("./utils");
   		var support = require("./support");
   		// private property

@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For pixi.js v6 v1.0.3
+ * SS6Player For pixi.js v6 v1.0.4
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -2255,7 +2255,7 @@
       this.defaultFrameMap = [];
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
-      if (ssfbData.hasOwnProperty("bb")) {
+      if (Object.prototype.hasOwnProperty.call(ssfbData, "bb")) {
         this._fbObj = ssfbData;
       } else {
         this._fbObj = Utils2.getProjectData(ssfbData);
