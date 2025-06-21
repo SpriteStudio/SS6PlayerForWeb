@@ -53,7 +53,7 @@ export class Player {
   }
 
   public constructor(ssfbData: ProjectData | Uint8Array, animePackName: string = null, animeName: string = null) {
-    if (ssfbData.hasOwnProperty('bb')) {
+    if (Object.prototype.hasOwnProperty.call(ssfbData, 'bb')) {
       this._fbObj = ssfbData as ProjectData;
     } else {
       // Uint8Array
