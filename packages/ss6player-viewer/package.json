@@ -1,7 +1,7 @@
 {
   "name": "ss6player-viewer",
   "private": true,
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "SS6Player for viewer",
   "keywords": [
     "SpriteStudio",
@@ -43,7 +43,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-pixi": "2.3.1",
+    "ss6player-pixi": "2.3.2",
     "jszip": "^3.10.1"
   },
   "devDependencies": {
