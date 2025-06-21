@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For RPG Maker MZ v0.8.3
+ * SS6Player For RPG Maker MZ v0.8.4
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -14,7 +14,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 /*:ja
  * @target MZ
  * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
- * @version 0.8.3
+ * @version 0.8.4
  * @author CRI Middleware Co., Ltd.
  * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
  * @help SS6Player for RPG Maker MZ
@@ -2401,7 +2401,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
       this.defaultFrameMap = [];
       this._uint32 = new Uint32Array(1);
       this._float32 = new Float32Array(this._uint32.buffer);
-      if (ssfbData.hasOwnProperty("bb")) {
+      if (Object.prototype.hasOwnProperty.call(ssfbData, "bb")) {
         this._fbObj = ssfbData;
       } else {
         this._fbObj = Utils2.getProjectData(ssfbData);
