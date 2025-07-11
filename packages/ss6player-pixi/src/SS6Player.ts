@@ -20,6 +20,8 @@ export class SS6Player extends Container {
   private prevCellID: number[] = []; // 各パーツ（レイヤー）で前回使用したセルID
   private prevPartObject: (SS6Player | Mesh | Container)[] = [];
   private changeCellID: number[] = [];
+  private changeVisible: boolean[] = [];
+  private changeTint: number[] = [];
 
   // for change instance
   private substituteOverWrite: boolean[] = [];
@@ -128,6 +130,8 @@ export class SS6Player extends Container {
     this.prevCellID = new Array(partsLength);
     this.prevPartObject = new Array(partsLength);
     this.changeCellID = new Array(partsLength);
+    this.changeVisible = new Array(partsLength);
+    this.changeTint = new Array(partsLength);
     this.substituteOverWrite = new Array(partsLength);
     this.substituteKeyParam = new Array(partsLength);
 
@@ -138,6 +142,8 @@ export class SS6Player extends Container {
       this.prevCellID[index] = -1; // 初期値（最初は必ず設定が必要）
       this.prevPartObject[index] = null;
       this.changeCellID[index] = -1;
+      this.changeVisible[index] = true;
+      this.changeTint[index] = null;
       this.substituteOverWrite[index] = null;
       this.substituteKeyParam[index] = null;
     }
@@ -457,7 +463,13 @@ export class SS6Player extends Container {
     return changeCellIndex;
   }
 
-  private getPartIndexFromName(partsname: string): number {
+  /**
+   * Retrieves the index of a part based on its name from the anime pack data.
+   *
+   * @param {string} partsname - The name of the part to search for.
+   * @return {number} The index of the part if found, or -1 if the part is not found.
+   */
+  public GetPartIndexFromName(partsname: string): number {
     const animePackData: AnimePackData = this.playerLib.animePackData;
     const partsLength = animePackData.partsLength();
 
@@ -482,16 +494,92 @@ export class SS6Player extends Container {
    * @param {string} sscename - セルマップ名
    * @param {string} cellname - 表示させたいセル名
    *
-   * @return {void}
+   * @return {[number, number]} [パーツ名の index, セル名 index] のタプルを返します。見つからない場合は -1 を返します。
    */
-  public SetPartCell(partsname: string, sscename: string, cellname: string): void {
+  public SetPartCell(partsname: string, sscename: string, cellname: string): [number, number] {
+    let changeCellIndex= -1;
+    let partIndex = -1
     if (this.playerLib.animationData) {
-      const changeCellIndex: number = this.getCellIndex(sscename, cellname);
-      const partIndex = this.getPartIndexFromName(partsname);
-      if (partIndex !== -1) {
-        this.changeCellID[partIndex] = changeCellIndex;
-      }
+      changeCellIndex = this.getCellIndex(sscename, cellname);
+      partIndex = this.GetPartIndexFromName(partsname);
+      this.SetPartCellByIndex(partIndex, changeCellIndex);
     }
+    return [partIndex, changeCellIndex];
+  }
+
+  /**
+   * パーツに割り当たるセルをインデックスで指定して変更します。
+   *
+   * @param {number} partIndex - The index of the part to be updated. Must not be -1 to perform the update.
+   * @param {number} changeCellIndex - The new cell index to set for the specified partIndex.
+   * @return {void} This method does not return a value.
+   */
+  public SetPartCellByIndex(partIndex: number, changeCellIndex: number): boolean {
+    if (partIndex !== -1) {
+      this.changeCellID[partIndex] = changeCellIndex;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Sets the visibility of a specific part by its name.
+   *
+   * @param {string} partsname - The name of the part whose visibility is to be set.
+   * @param {boolean} visible - A boolean indicating whether the part should be visible (true) or hidden (false).
+   * @return {boolean} Returns true if the operation was successful, false otherwise.
+   */
+  public SetPartVisible(partsname: string, visible: boolean): boolean {
+    if (this.playerLib.animationData) {
+      const partIndex = this.GetPartIndexFromName(partsname);
+      return this.SetPartVisibleByIndex(partIndex, visible);
+    }
+    return false;
+  }
+
+  /**
+   * Sets the visibility of a part identified by its index.
+   *
+   * @param {number} partIndex - The index of the part to update. Must not be -1.
+   * @param {boolean} visible - A boolean indicating whether the part should be visible (true) or hidden (false).
+   * @return {boolean} Returns true if the visibility was successfully updated, otherwise returns false.
+   */
+  public SetPartVisibleByIndex(partIndex: number, visible: boolean): boolean {
+    if (partIndex !== -1) {
+      this.changeVisible[partIndex] = visible;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Sets the tint color for a specific part of the player's animation.
+   *
+   * @param {string} partName - The name of the part to apply the tint to.
+   * @param {number} tint - The tint value to apply, represented as a number.
+   * @return {boolean} Returns true if the tint was successfully applied; otherwise, returns false.
+   */
+  public SetPartTint(partName: string, tint: number): boolean {
+    if (this.playerLib.animationData) {
+      const partIndex = this.GetPartIndexFromName(partName);
+      return this.SetPartTintByIndex(partIndex, tint);
+    }
+    return false;
+  }
+
+  /**
+   * Updates the tint color of a specific part identified by its index.
+   *
+   * @param {number} partIndex - The index of the part for which the tint needs to be set. A value of -1 indicates no part is targeted.
+   * @param {number} tint - The tint value to be applied to the specified part.
+   * @return {boolean} Returns true if the tint is successfully applied, otherwise returns false.
+   */
+  public SetPartTintByIndex(partIndex: number, tint: number): boolean {
+    if (partIndex !== -1) {
+      this.changeTint[partIndex] = tint;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -613,6 +701,10 @@ export class SS6Player extends Container {
     for (let ii = 0; ii < l; ii = (ii + 1) | 0) {
       // 優先度に変換
       const i = this.playerLib.prio2index[ii];
+
+      if (!this.changeVisible[i]) {
+        continue;
+      }
 
       const data = fd[i];
       const origCellID = data.cellIndex;
@@ -943,7 +1035,9 @@ export class SS6Player extends Container {
           }
 
           // 小西 - tintデータがあれば適用
-          if (data.tint) {
+          if (this.changeTint[i] !== null) {
+            mesh.tint = this.changeTint[i];
+          } else if (data.tint) {
             mesh.tint = data.tint;
             // パーツカラーのAを不透明度に乗算して処理する
             const ca = ((data.partsColorARGB & 0xff000000) >>> 24) / 255;
