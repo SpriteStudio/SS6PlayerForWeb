@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------
- * SS6Player For Viewer v1.5.3
+ * SS6Player For Viewer v1.6.0
  *
  * Copyright(C) CRI Middleware Co., Ltd.
  * https://www.webtech.co.jp/
@@ -3134,6 +3134,8 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       this.prevCellID = [];
       this.prevPartObject = [];
       this.changeCellID = [];
+      this.changeVisible = [];
+      this.changeTint = [];
       this.substituteOverWrite = [];
       this.substituteKeyParam = [];
       this.alphaBlendType = [];
@@ -3200,6 +3202,8 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       this.prevCellID = new Array(partsLength);
       this.prevPartObject = new Array(partsLength);
       this.changeCellID = new Array(partsLength);
+      this.changeVisible = new Array(partsLength);
+      this.changeTint = new Array(partsLength);
       this.substituteOverWrite = new Array(partsLength);
       this.substituteKeyParam = new Array(partsLength);
       for (let j = 0; j < partsLength; j++) {
@@ -3207,6 +3211,8 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
         this.prevCellID[index] = -1;
         this.prevPartObject[index] = null;
         this.changeCellID[index] = -1;
+        this.changeVisible[index] = true;
+        this.changeTint[index] = null;
         this.substituteOverWrite[index] = null;
         this.substituteKeyParam[index] = null;
       }
@@ -3485,7 +3491,13 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       }
       return changeCellIndex;
     }
-    getPartIndexFromName(partsname) {
+    /**
+     * Retrieves the index of a part based on its name from the anime pack data.
+     *
+     * @param {string} partsname - The name of the part to search for.
+     * @return {number} The index of the part if found, or -1 if the part is not found.
+     */
+    GetPartIndexFromName(partsname) {
       const animePackData = this.playerLib.animePackData;
       const partsLength = animePackData.partsLength();
       let partIndex = -1;
@@ -3507,16 +3519,87 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
      * @param {string} sscename - セルマップ名
      * @param {string} cellname - 表示させたいセル名
      *
-     * @return {void}
+     * @return {[number, number]} [パーツ名の index, セル名 index] のタプルを返します。見つからない場合は -1 を返します。
      */
     SetPartCell(partsname, sscename, cellname) {
+      let changeCellIndex = -1;
+      let partIndex = -1;
       if (this.playerLib.animationData) {
-        const changeCellIndex = this.getCellIndex(sscename, cellname);
-        const partIndex = this.getPartIndexFromName(partsname);
-        if (partIndex !== -1) {
-          this.changeCellID[partIndex] = changeCellIndex;
-        }
+        changeCellIndex = this.getCellIndex(sscename, cellname);
+        partIndex = this.GetPartIndexFromName(partsname);
+        this.SetPartCellByIndex(partIndex, changeCellIndex);
       }
+      return [partIndex, changeCellIndex];
+    }
+    /**
+     * パーツに割り当たるセルをインデックスで指定して変更します。
+     *
+     * @param {number} partIndex - The index of the part to be updated. Must not be -1 to perform the update.
+     * @param {number} changeCellIndex - The new cell index to set for the specified partIndex.
+     * @return {void} This method does not return a value.
+     */
+    SetPartCellByIndex(partIndex, changeCellIndex) {
+      if (partIndex !== -1) {
+        this.changeCellID[partIndex] = changeCellIndex;
+        return true;
+      }
+      return false;
+    }
+    /**
+     * Sets the visibility of a specific part by its name.
+     *
+     * @param {string} partsname - The name of the part whose visibility is to be set.
+     * @param {boolean} visible - A boolean indicating whether the part should be visible (true) or hidden (false).
+     * @return {boolean} Returns true if the operation was successful, false otherwise.
+     */
+    SetPartVisible(partsname, visible) {
+      if (this.playerLib.animationData) {
+        const partIndex = this.GetPartIndexFromName(partsname);
+        return this.SetPartVisibleByIndex(partIndex, visible);
+      }
+      return false;
+    }
+    /**
+     * Sets the visibility of a part identified by its index.
+     *
+     * @param {number} partIndex - The index of the part to update. Must not be -1.
+     * @param {boolean} visible - A boolean indicating whether the part should be visible (true) or hidden (false).
+     * @return {boolean} Returns true if the visibility was successfully updated, otherwise returns false.
+     */
+    SetPartVisibleByIndex(partIndex, visible) {
+      if (partIndex !== -1) {
+        this.changeVisible[partIndex] = visible;
+        return true;
+      }
+      return false;
+    }
+    /**
+     * Sets the tint color for a specific part of the player's animation.
+     *
+     * @param {string} partName - The name of the part to apply the tint to.
+     * @param {number} tint - The tint value to apply, represented as a number.
+     * @return {boolean} Returns true if the tint was successfully applied; otherwise, returns false.
+     */
+    SetPartTint(partName, tint) {
+      if (this.playerLib.animationData) {
+        const partIndex = this.GetPartIndexFromName(partName);
+        return this.SetPartTintByIndex(partIndex, tint);
+      }
+      return false;
+    }
+    /**
+     * Updates the tint color of a specific part identified by its index.
+     *
+     * @param {number} partIndex - The index of the part for which the tint needs to be set. A value of -1 indicates no part is targeted.
+     * @param {number} tint - The tint value to be applied to the specified part.
+     * @return {boolean} Returns true if the tint is successfully applied, otherwise returns false.
+     */
+    SetPartTintByIndex(partIndex, tint) {
+      if (partIndex !== -1) {
+        this.changeTint[partIndex] = tint;
+        return true;
+      }
+      return false;
     }
     /**
      * パーツの描画モードを取得する
@@ -3685,6 +3768,9 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
       const l = fd.length;
       for (let ii = 0; ii < l; ii = ii + 1 | 0) {
         const i = this.playerLib.prio2index[ii];
+        if (!this.changeVisible[i]) {
+          continue;
+        }
         const data = fd[i];
         const origCellID = data.cellIndex;
         const cellID = this.changeCellID[i] !== -1 ? this.changeCellID[i] : origCellID;
@@ -3928,7 +4014,9 @@ var ss6PlayerViewer = (function (exports, pixi_js) {
               const colorMatrix = this.GetColorMatrixFilter(data.colorBlendType, data.colorRate, data.colorArgb32);
               mesh.filters = [colorMatrix];
             }
-            if (data.tint) {
+            if (this.changeTint[i] !== null) {
+              mesh.tint = this.changeTint[i];
+            } else if (data.tint) {
               mesh.tint = data.tint;
               const ca = ((data.partsColorARGB & 4278190080) >>> 24) / 255;
               mesh.alpha = mesh.alpha * ca;
