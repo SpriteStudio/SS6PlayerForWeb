@@ -1,7 +1,7 @@
 {
   "name": "ss6player-pixi",
   "private": true,
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "SS6Player for pixi",
   "keywords": [
     "SpriteStudio",
@@ -44,7 +44,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "ss6player-lib": "1.0.4"
+    "ss6player-lib": "1.0.5"
   },
   "devDependencies": {
     "typescript": "^5.9.2",

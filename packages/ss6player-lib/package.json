@@ -1,6 +1,6 @@
 {
   "name": "ss6player-lib",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "generate an animation framedata from ssfblib for ss6players",
   "keywords": [
     "SpriteStudio"
@@ -36,7 +36,7 @@
     "docs": "typedoc --out ../../docs/ss6player_lib_api src/ss6player-lib.ts"
   },
   "dependencies": {
-    "ssfblib": "1.2.4"
+    "ssfblib": "1.2.5"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
