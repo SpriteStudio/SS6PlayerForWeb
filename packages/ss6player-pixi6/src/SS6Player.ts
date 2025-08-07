@@ -765,7 +765,7 @@ export class SS6Player extends Container {
         case SsPartType.Mask: {
           const mesh = partObject as Mesh;
           const meshVertexBuffer = mesh.geometry.getBuffer('aVertexPosition');
-          let meshVertex = meshVertexBuffer.data as Float32Array;
+          let meshVertex = meshVertexBuffer.data as unknown as Float32Array;
           const cell = this.playerLib.fbObj.cells(cellID);
           let verts: Float32Array;
           if (partType === SsPartType.Mesh) {
@@ -1004,7 +1004,7 @@ export class SS6Player extends Container {
     const uvs = new Float32Array([(u1 + u2) / 2, (v1 + v2) / 2, u1, v1, u2, v1, u1, v2, u2, v2]);
     const indices = new Uint16Array([0, 1, 2, 0, 2, 4, 0, 4, 3, 0, 1, 3]); // ??? why ???
 
-    const geometry = new MeshGeometry(verts, uvs, indices);
+    const geometry = new MeshGeometry(verts as any, uvs as any, indices as any);
     const meshMaterial = new MeshMaterial(this.ss6project.getTexture(cell.cellMap().name()));
     return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
   }
@@ -1039,7 +1039,7 @@ export class SS6Player extends Container {
 
       const verts = new Float32Array(meshNum * 2); // Zは必要ない？
 
-      const geometry = new MeshGeometry(verts, uvs, indices);
+      const geometry = new MeshGeometry(verts as any, uvs as any, indices as any);
       const meshMaterial = new MeshMaterial(this.ss6project.getTexture(this.playerLib.fbObj.cells(cellID).cellMap().name()));
       return new Mesh(geometry, meshMaterial, null, DRAW_MODES.TRIANGLES);
     }
