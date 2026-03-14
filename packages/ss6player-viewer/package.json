@@ -58,7 +58,7 @@
     "http-server": "^14.1.1",
     "opener": "^1.5.2",
     "replace": "^1.2.2",
-    "eslint": "^10.0.3",
+    "eslint": "^9.39.4",
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.57.0",
     "rolldown": "^1.0.0-rc.9"
