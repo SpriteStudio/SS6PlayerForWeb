@@ -1,6 +1,5 @@
 import { defineConfig } from 'rolldown';
 import camelCase from 'lodash.camelcase';
-import license from 'rollup-plugin-license';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -10,24 +9,24 @@ const libraryName = 'ss6player-pixi';
 const pixiGlobals = {
   'pixi.js': 'PIXI'
 };
-const licenseBannerOptions = `-----------------------------------------------------------
- SS6Player For pixi.js v<%= pkg.version %>
 
- Copyright(C) <%= pkg.author.name %>
- <%= pkg.author.url %>
------------------------------------------------------------
-`;
+const banner = `/*!
+ * -----------------------------------------------------------
+ *  SS6Player For pixi.js v${pkg.version}
+ *
+ *  Copyright(C) ${pkg.author.name}
+ *  ${pkg.author.url}
+ * -----------------------------------------------------------
+ */`;
 
 export default defineConfig([
   {
     input: `src/${libraryName}.ts`,
     output: [
-      { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true, globals: pixiGlobals },
-      { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals }
+      { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true, globals: pixiGlobals, banner },
+      { file: pkg.module, format: 'es', sourcemap: true, globals: pixiGlobals, banner }
     ],
     external: [/@pixi\/.*/, 'pixi.js'],
-    
-    plugins: [license({ banner: licenseBannerOptions })]
   },
   {
     input: `src/${libraryName}.ts`,
@@ -35,11 +34,11 @@ export default defineConfig([
       file: `dist/${libraryName}.min.js`,
       name: camelCase(libraryName),
       format: 'iife',
-      sourcemap: false, globals: pixiGlobals
+      sourcemap: false,
+      globals: pixiGlobals,
+      minify: true,
+      banner,
     },
     external: [/@pixi\/.*/, 'pixi.js'],
-    
-    minify: true,
-    plugins: [license({ banner: licenseBannerOptions })]
   }
 ]);

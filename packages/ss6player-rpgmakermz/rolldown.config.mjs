@@ -1,8 +1,8 @@
 import { defineConfig } from 'rolldown';
 import camelCase from 'lodash.camelcase';
-import license from 'rollup-plugin-license';
 import { createRequire } from 'module';
 import * as path from 'path';
+import * as fs from 'fs';
 const require = createRequire(import.meta.url);
 const pkg = require('./package.json');
 
@@ -18,23 +18,36 @@ const pixiGlobals = {
   '@pixi/app': 'PIXI',
   '@pixi/graphics': 'PIXI'
 };
-const licenseBannerOptions = {
-  commentStyle: 'none',
-  content: {
-    file: path.join(import.meta.dirname, 'src/header.js'),
-    encoding: 'utf-8' // Default is utf-8
-  }
-};
+const headerFilePath = path.join(import.meta.dirname, 'src/header.js');
+let banner = fs.readFileSync(headerFilePath, 'utf-8');
+banner = banner
+  .replace(/<%= pkg\.version %>/g, pkg.version)
+  .replace(/<%= pkg\.author\.name %>/g, pkg.author.name)
+  .replace(/<%= pkg\.author\.url %>/g, pkg.author.url);
+
+
+function injectBannerAfterMinify() {
+  return {
+    name: 'inject-banner-after-minify',
+    generateBundle(options, bundle) {
+      for (const fileName in bundle) {
+        const chunk = bundle[fileName];
+        if (chunk.type === 'chunk') {
+          chunk.code = banner + '\n' + chunk.code;
+        }
+      }
+    }
+  };
+}
 
 export default defineConfig([
   {
     input: `src/${libraryName}.js`,
     output: [
-      { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals }
+      { file: pkg.main, name: camelCase(libraryName), format: 'iife', sourcemap: false, globals: pixiGlobals, banner }
     ],
     external: [/@pixi\/.*/, 'pixi.js'],
-    moduleContext: 'this',
-    plugins: [license({ banner: licenseBannerOptions })]
+    moduleContext: 'this'
   },
   {
     input: `src/${libraryName}.js`,
@@ -42,11 +55,12 @@ export default defineConfig([
       file: `dist/${libraryName}.min.js`,
       name: camelCase(libraryName),
       format: 'iife',
-      sourcemap: false, globals: pixiGlobals
+      sourcemap: false,
+      globals: pixiGlobals,
+      minify: true,
     },
     external: [/@pixi\/.*/, 'pixi.js'],
     moduleContext: 'this',
-    minify: true,
-    plugins: [license({ banner: licenseBannerOptions })]
+    plugins: [injectBannerAfterMinify()]
   }
 ]);
