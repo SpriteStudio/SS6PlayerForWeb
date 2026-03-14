@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_managers.js v1.9.0
+// rmmz_managers.js v1.10.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -892,7 +892,7 @@ ImageManager.getIconSize = function() {
     if ("iconSize" in $dataSystem) {
         return $dataSystem.iconSize;
     } else {
-        return this.defaultIconWidth;
+        return this.standardIconWidth;
     }
 };
 
@@ -900,7 +900,7 @@ ImageManager.getFaceSize = function() {
     if ("faceSize" in $dataSystem) {
         return $dataSystem.faceSize;
     } else {
-        return this.defaultFaceWidth;
+        return this.standardFaceWidth;
     }
 };
 
