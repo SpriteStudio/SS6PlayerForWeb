@@ -24,20 +24,14 @@ PluginManager.registerCommand(PLUGIN_NAME, 'loadSsfb', function(args) {
   }
   this.setWaitMode(SS6PROJECT_LOAD_WAIT_MODE);
   SS6ProjectManager.getInstance().prepare(ssfbId);
-  let project = new SS6Project(ssfbPath, () => {
-      SS6ProjectManager.getInstance().set(ssfbId, project);
-    },
-    180 * 1000, 3,
-    (ssfbPath, timeout, retry, httpObj) => {
+  let project = new SS6Project(ssfbPath, (proj, error) => {
+    if (error) {
       this.setWaitMode('');
-      throw httpObj;
-    },
-    (ssfbPath, timeout, retry, httpObj) => {
-      console.log('timeout download ssfb file: ' + ssfbPath);
-      this.setWaitMode('');
-      throw httpObj;
-    },
-    null);
+      console.error(error);
+      throw error;
+    }
+    SS6ProjectManager.getInstance().set(ssfbId, proj);
+  });
 });
 
 PluginManager.registerCommand(PLUGIN_NAME, 'setAsPicture', function(args) {
@@ -412,18 +406,18 @@ Sprite_Actor.prototype.setBattler = function (battler) {
       }
 
       SS6ProjectManager.getInstance().prepare(ssfbId);
-      let project = new SS6Project(ssfbPath,
-        () => {
+      new SS6Project(ssfbPath,
+        (proj, error) => {
+          if (error) {
+            // not found character sub directory
+            notFoundSvActorSsfbMap.set(ssfbId, null);
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+            return;
+          }
           this._actor._svActorSS6Player = null;
           this._actor._svActorSS6PlayerParent = null;
 
-          SS6ProjectManager.getInstance().set(ssfbId, project);
-        },
-        180 * 1000, 3,
-        (ssfbPath, timeout, retry, httpObj) => {
-          // not found character sub directory
-          notFoundSvActorSsfbMap.set(ssfbId, null);
-          SS6ProjectManager.getInstance().set(ssfbId, null);
+          SS6ProjectManager.getInstance().set(ssfbId, proj);
         }
       );
     }
@@ -553,19 +547,19 @@ Sprite_Enemy.prototype.setBattler = function (battler) {
       }
 
       SS6ProjectManager.getInstance().prepare(ssfbId);
-      let project = new SS6Project(ssfbPath,
-        () => {
+      new SS6Project(ssfbPath,
+        (proj, error) => {
+          if (error) {
+            // not found character sub directory
+            this._enemy._svEnemySS6ProjectLoaded = true;
+            notFoundSvEnemySsfbMap.set(ssfbId, null);
+            SS6ProjectManager.getInstance().set(ssfbId, null);
+            return;
+          }
           this._enemy._svEnemySS6ProjectLoaded = true;
           this._enemy._svEnemySS6Player = null;
           this._enemy._svEnemySS6PlayerParent = null;
-          SS6ProjectManager.getInstance().set(ssfbId, project);
-        },
-        180 * 1000, 3,
-        (ssfbPath, timeout, retry, httpObj) => {
-          // not found character sub directory
-          this._enemy._svEnemySS6ProjectLoaded = true;
-          notFoundSvEnemySsfbMap.set(ssfbId, null);
-          SS6ProjectManager.getInstance().set(ssfbId, null);
+          SS6ProjectManager.getInstance().set(ssfbId, proj);
         }
       );
     }
@@ -693,7 +687,7 @@ Sprite_Enemy.prototype.updateStateSprite = function() {
     } else {
       let height = 0;
       if (this._enemy && this._enemy._svEnemySS6Player) {
-        height = this._enemy._svEnemySS6Player;
+        height = this._enemy._svEnemySS6Player.height;
       }
       this._stateIconSprite.y = -Math.round((height + 40) * 0.9);
       if (this._stateIconSprite.y < 20 - this.y) {
