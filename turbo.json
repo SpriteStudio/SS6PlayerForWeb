@@ -5,8 +5,12 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "lint": {},
-    "test": {},
+    "lint": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
     "clean": {
       "cache": false
     },
@@ -14,7 +18,12 @@
       "outputs": ["../../docs/**"]
     },
     "deploy": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "view": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
