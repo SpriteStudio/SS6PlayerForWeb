@@ -24,7 +24,7 @@ fs.writeFileSync(indexHtmlPath, indexHtml, 'utf-8');
 const pixiPackageJsonPath = path.join(ss6playerViewerDir, 'package.json');
 const pixiPackageJsonObject = JSON.parse(fs.readFileSync(pixiPackageJsonPath, 'utf8'));
 const pixiVersion = pixiPackageJsonObject.devDependencies["pixi.js"].replace('^','');
-const cdnURL = `https://cdnjs.cloudflare.com/ajax/libs/pixi.js/${pixiVersion}/pixi.min.js`;
+const cdnURL = `https://cdn.jsdelivr.net/npm/pixi.js@${pixiVersion}/dist/pixi.min.js`;
 const playerHtmlPath = path.join(docsDir, 'ViewerPlayer', 'player.html');
 let playerHtml = fs.readFileSync(playerHtmlPath, 'utf8');
 playerHtml = playerHtml.replace('../../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
