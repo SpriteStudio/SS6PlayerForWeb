@@ -1,6 +1,6 @@
 /**
 * -----------------------------------------------------------
-* SS6Player For RPG Maker MZ v0.8.5
+* SS6Player For RPG Maker MZ v0.9.0
 *
 * Copyright(C) CRI Middleware Co., Ltd.
 * https://www.webtech.co.jp/
@@ -12,7 +12,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 /*:ja
 * @target MZ
 * @plugindesc SpriteStudio 7.0 & 6 アニメーション再生プラグイン
-* @version 0.8.5
+* @version 0.9.0
 * @author CRI Middleware Co., Ltd.
 * @url https://github.com/SpriteStudio/SS6PlayerForWeb/tree/master/packages/ss6player-rpgmakermz
 * @help SS6Player for RPG Maker MZ
@@ -155,32 +155,32 @@ Imported.SS6PlayerRPGMakerMZ = true;
 */
 (function(_pixi_loaders, _pixi_display, _pixi_mesh, _pixi_ticker, _pixi_filter_color_matrix, _pixi_constants) {
 	//#region ../ss6player-pixi6/dist/ss6player-pixi6.es6.js
-	/**
+	/*!
 	* -----------------------------------------------------------
-	* SS6Player For pixi.js v6 v1.0.5
+	*  SS6Player For pixi.js v6 v1.0.6
 	*
-	* Copyright(C) CRI Middleware Co., Ltd.
-	* https://www.webtech.co.jp/
+	*  Copyright(C) CRI Middleware Co., Ltd.
+	*  https://www.webtech.co.jp/
 	* -----------------------------------------------------------
 	*/
-	/**
+	/*!
 	* -----------------------------------------------------------
-	* ss6player-lib v1.0.5
+	*  ss6player-lib v1.0.6
 	*
-	* Copyright(C) CRI Middleware Co., Ltd.
-	* https://www.webtech.co.jp/
+	*  Copyright(C) CRI Middleware Co., Ltd.
+	*  https://www.webtech.co.jp/
 	* -----------------------------------------------------------
 	*/
 	/**
 	* FrameData
 	*/
 	var FrameData = class {};
-	/**
+	/*!
 	* -----------------------------------------------------------
-	* ssfblib v1.2.5
+	*  ssfblib v1.2.6
 	*
-	* Copyright(C) CRI Middleware Co., Ltd.
-	* https://www.webtech.co.jp/
+	*  Copyright(C) CRI Middleware Co., Ltd.
+	*  https://www.webtech.co.jp/
 	* -----------------------------------------------------------
 	*/
 	const int32 = new Int32Array(2);
@@ -4014,16 +4014,14 @@ Imported.SS6PlayerRPGMakerMZ = true;
 		}
 		this.setWaitMode(SS6PROJECT_LOAD_WAIT_MODE);
 		SS6ProjectManager.getInstance().prepare(ssfbId);
-		let project = new SS6Project(ssfbPath, () => {
-			SS6ProjectManager.getInstance().set(ssfbId, project);
-		}, 180 * 1e3, 3, (ssfbPath, timeout, retry, httpObj) => {
-			this.setWaitMode("");
-			throw httpObj;
-		}, (ssfbPath, timeout, retry, httpObj) => {
-			console.log("timeout download ssfb file: " + ssfbPath);
-			this.setWaitMode("");
-			throw httpObj;
-		}, null);
+		new SS6Project(ssfbPath, (proj, error) => {
+			if (error) {
+				this.setWaitMode("");
+				console.error(error);
+				throw error;
+			}
+			SS6ProjectManager.getInstance().set(ssfbId, proj);
+		});
 	});
 	PluginManager.registerCommand(PLUGIN_NAME, "setAsPicture", function(args) {
 		const ssfbId = Number(args.ssfbId);
@@ -4287,13 +4285,15 @@ Imported.SS6PlayerRPGMakerMZ = true;
 					}
 				}
 				SS6ProjectManager.getInstance().prepare(ssfbId);
-				let project = new SS6Project(ssfbPath, () => {
+				new SS6Project(ssfbPath, (proj, error) => {
+					if (error) {
+						notFoundSvActorSsfbMap.set(ssfbId, null);
+						SS6ProjectManager.getInstance().set(ssfbId, null);
+						return;
+					}
 					this._actor._svActorSS6Player = null;
 					this._actor._svActorSS6PlayerParent = null;
-					SS6ProjectManager.getInstance().set(ssfbId, project);
-				}, 180 * 1e3, 3, (ssfbPath, timeout, retry, httpObj) => {
-					notFoundSvActorSsfbMap.set(ssfbId, null);
-					SS6ProjectManager.getInstance().set(ssfbId, null);
+					SS6ProjectManager.getInstance().set(ssfbId, proj);
 				});
 			}
 		}
@@ -4378,15 +4378,17 @@ Imported.SS6PlayerRPGMakerMZ = true;
 					}
 				}
 				SS6ProjectManager.getInstance().prepare(ssfbId);
-				let project = new SS6Project(ssfbPath, () => {
+				new SS6Project(ssfbPath, (proj, error) => {
+					if (error) {
+						this._enemy._svEnemySS6ProjectLoaded = true;
+						notFoundSvEnemySsfbMap.set(ssfbId, null);
+						SS6ProjectManager.getInstance().set(ssfbId, null);
+						return;
+					}
 					this._enemy._svEnemySS6ProjectLoaded = true;
 					this._enemy._svEnemySS6Player = null;
 					this._enemy._svEnemySS6PlayerParent = null;
-					SS6ProjectManager.getInstance().set(ssfbId, project);
-				}, 180 * 1e3, 3, (ssfbPath, timeout, retry, httpObj) => {
-					this._enemy._svEnemySS6ProjectLoaded = true;
-					notFoundSvEnemySsfbMap.set(ssfbId, null);
-					SS6ProjectManager.getInstance().set(ssfbId, null);
+					SS6ProjectManager.getInstance().set(ssfbId, proj);
 				});
 			}
 		}
@@ -4465,7 +4467,7 @@ Imported.SS6PlayerRPGMakerMZ = true;
 			if (this._stateIconSprite.y < 20 - this.y) this._stateIconSprite.y = 20 - this.y;
 		} else {
 			let height = 0;
-			if (this._enemy && this._enemy._svEnemySS6Player) height = this._enemy._svEnemySS6Player;
+			if (this._enemy && this._enemy._svEnemySS6Player) height = this._enemy._svEnemySS6Player.height;
 			this._stateIconSprite.y = -Math.round((height + 40) * .9);
 			if (this._stateIconSprite.y < 20 - this.y) this._stateIconSprite.y = 20 - this.y;
 		}

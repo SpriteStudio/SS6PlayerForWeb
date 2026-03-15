@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_scenes.js v1.9.0
+// rmmz_scenes.js v1.10.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -2684,6 +2684,7 @@ Scene_Shop.prototype.createSellWindow = function() {
     if (!this._categoryWindow.needsSelection()) {
         this._sellWindow.y -= this._categoryWindow.height;
         this._sellWindow.height += this._categoryWindow.height;
+        this._sellWindow.createContents();
     }
 };
 
@@ -2758,6 +2759,7 @@ Scene_Shop.prototype.onBuyCancel = function() {
 Scene_Shop.prototype.onCategoryOk = function() {
     this.activateSellWindow();
     this._sellWindow.select(0);
+    this._sellWindow.setTopRow(0);
 };
 
 Scene_Shop.prototype.onCategoryCancel = function() {
