@@ -1,5 +1,5 @@
 //=============================================================================
-// rmmz_windows.js v1.9.0
+// rmmz_windows.js v1.10.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -455,7 +455,7 @@ Window_Base.prototype.drawIcon = function(iconIndex, x, y) {
     const ph = ImageManager.iconHeight;
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+    this.contents.blt(bitmap, sx, sy, pw, ph, Math.floor(x), Math.floor(y));
 };
 
 // prettier-ignore

@@ -18,7 +18,7 @@ fs.cpSync(path.join(baseDir, 'TestData', 'AnimeMaking'), path.join(dstDir, 'Anim
 const pixiPackageJsonPath = path.join(ss6playerPixiDir, 'package.json');
 const pixiPackageJsonObject = JSON.parse(fs.readFileSync(pixiPackageJsonPath, 'utf8'));
 const pixiVersion = pixiPackageJsonObject.devDependencies["pixi.js"].replace('^','');
-const cdnURL = `https://cdnjs.cloudflare.com/ajax/libs/pixi.js/${pixiVersion}/pixi.min.js`;
+const cdnURL = `https://cdn.jsdelivr.net/npm/pixi.js@${pixiVersion}/dist/pixi.min.js`;
 let indexHtmlPath = path.join(dstDir, 'index.html');
 let indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
 indexHtml = indexHtml.replace('../../../node_modules/pixi.js/dist/pixi.min.js', cdnURL);
