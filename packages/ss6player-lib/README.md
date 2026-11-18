@@ -1,5 +1,8 @@
 # ss6player-lib
 
+> [!IMPORTANT]
+> 後継のパッケージは [`@spritestudio/ssplayer-core`](https://www.npmjs.com/package/@spritestudio/ssplayer-core)（[SpriteStudio Player for Web](https://github.com/cri-middleware/SSPlayerForWeb)）です。移行の手順は [SS6Player からの移行](https://cri-middleware.github.io/SSPlayerForWeb/ja/migration_from_ss6) を参照してください。
+
 [OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションデータの一つである ssfb フォーマットをパースし、 player 向けのデータへ変換するライブラリです。
 
 ## ライセンス

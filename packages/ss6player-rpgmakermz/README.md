@@ -1,5 +1,8 @@
 # SS6Player for RPG Maker MZ
 
+> [!IMPORTANT]
+> 後継のプラグインは [SpriteStudio Player for Web](https://github.com/cri-middleware/SSPlayerForWeb) の `ssplayer-rmmz` です。導入の手順は [RPG ツクール MZ で使う](https://cri-middleware.github.io/SSPlayerForWeb/ja/usage/rmmz) を参照してください。
+
 [OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [RPGツクールMZ](https://tkool.jp/mz/) で再生するプラグインです。
 
 ## プラグイン
