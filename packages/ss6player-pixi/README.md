@@ -1,5 +1,8 @@
 # SS6Player for pixi.js
 
+> [!IMPORTANT]
+> 後継のパッケージは [`@spritestudio/ssplayer-pixi`](https://www.npmjs.com/package/@spritestudio/ssplayer-pixi)（[SpriteStudio Player for Web](https://github.com/cri-middleware/SSPlayerForWeb)）です。移行の手順は [SS6Player からの移行](https://cri-middleware.github.io/SSPlayerForWeb/ja/migration_from_ss6) を参照してください。
+
 [OPTPiX SpriteStudio 7.0](https://www.webtech.co.jp/help/ja/spritestudio7/download/) と [OPTPiX SpriteStudio 6](https://www.webtech.co.jp/help/ja/spritestudio/download/) で制作したアニメーションを [pixi.js](https://www.pixijs.com/) v8 で再生するライブラリです。
 
 ## ライブラリ
